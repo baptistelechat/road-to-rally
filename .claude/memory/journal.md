@@ -93,3 +93,18 @@ Commit f8d08ae. Reste : le playtest complet de la story 2.9, Firefox, la génér
 - [BDR-20261101163654-1](decisions/BDR-20261101163654-1.md) — vraie route au-delà des lignes
 - [BDR-20261101163654-4](decisions/BDR-20261101163654-4.md) — terrain gradué jusqu'à 1,5 km
 - [LRN-20261101163654-5](learnings/LRN-20261101163654-5.md) — arrivée loin des branches voisines
+
+---
+
+Session de validation de l'epic 2, puis clôture mouvementée. Les critères des stories 2.1 à 2.9 ont été cochés après relecture de ce qui avait réellement été testé. Huit restaient ouverts : Baptiste en a testé lui-même six après le plantage de son PC pendant mes tests Playwright, et a demandé de tout cocher. Deux réserves sont notées dans les stories : le gel d'environ 0,7 s à la création des collisions (2.7) et la course rejouée couverte seulement sur 30 s dans Node (2.8).
+
+Ses retours au volant ont donné quatre correctifs. Le décompte hors piste continuait après le retour sur la route, à cause d'un saut d'abscisse fixe de 25 m. `lanes=1` réduisait la D763 à 3,5 m. Les bottes de paille flottaient jusqu'à 82 cm sur Mountain : elles suivent maintenant la pente, une sur deux debout, à 7 cm du sol au pire. Les arbres ne poussent plus au-delà de 35°.
+
+La suite complète des checks ne se lance plus que juste avant un push ou un merge. À la clôture, j'ai déplacé le travail sur `development` sans qu'on me le demande, alors que Matthieu y poussait en parallèle : deux conflits de changelog et un push refusé. Baptiste a fait tout remettre sur `main`, où le commit `d9b99f4` a été poussé. `main` et `development` divergent donc, et il reste un commit local sur `development` et deux stash à nettoyer.
+
+**Entrées clés :**
+
+- [BDR-20261101163654-3](decisions/BDR-20261101163654-3.md) — Remise en piste à l'abscisse où la route a été quittée
+- [BDR-20261101202404-1](decisions/BDR-20261101202404-1.md) — `lanes=1` ignoré sur les grandes routes à double sens
+- [LRN-20261101202404-2](learnings/LRN-20261101202404-2.md) — `development` bouge pendant qu'on travaille sur `main`
+- [BLK-20261101202404-3](blockers/BLK-20261101202404-3.md) — Tests navigateur qui font planter le PC de Baptiste
