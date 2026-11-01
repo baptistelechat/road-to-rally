@@ -64,4 +64,8 @@ Session sur le décor du garage, à partir de photos de référence. Après une 
 **Entrées clés :**
 
 - [BDR-20261101170343-1](decisions/BDR-20261101170343-1.md) — Garage : coque sans ombre, objets avec, caméra bornée
-- [BLK-20261101170343-5](blockers/BLK-20261101170343-5.md) — Fond noir des plaques non reproduit
+- [ZBLK-20261101170343-5](archive/blockers/ZBLK-20261101170343-5.md) — Fond noir des plaques non reproduit
+
+---
+
+Baptiste a confirmé que le fond noir des plaques a disparu : le blocker est archivé en [ZBLK-20261101170343-5](archive/blockers/ZBLK-20261101170343-5.md).
