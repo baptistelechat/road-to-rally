@@ -1,4 +1,5 @@
 // Menu du garage : logique pure. Souris, clavier et manette envoient tous leurs événements ici.
+import { ENGINE_PRESETS, type EnginePresetId } from "@/audio/enginePresets";
 import type { MenuAction } from "@/input/smoothing";
 import {
   NUMBER_CHARS,
@@ -50,7 +51,14 @@ export type FlagRow = {
   columns: number;
   styles: typeof FLAGS;
 };
-export type StyleRow = DecalStyleRow | FlagRow;
+export type EngineRow = {
+  kind: "style";
+  key: "engine";
+  label: string;
+  columns: number;
+  styles: typeof ENGINE_PRESETS;
+};
+export type StyleRow = DecalStyleRow | FlagRow | EngineRow;
 export type GarageRow =
   ColorRow | TextRow | StyleRow | { kind: "reset" } | { kind: "rotation" };
 
@@ -88,10 +96,20 @@ export const GARAGE_ROWS: readonly GarageRow[] = [
     styles: NUMBER_STYLES,
   },
   { kind: "style", key: "flag", label: "Drapeau", columns: 7, styles: FLAGS },
+  {
+    kind: "style",
+    key: "engine",
+    label: "Moteur",
+    columns: 1,
+    styles: ENGINE_PRESETS,
+  },
   { kind: "reset" },
   { kind: "rotation" },
 ];
 
+export const ENGINE_ROW = GARAGE_ROWS.findIndex(
+  (row) => row.kind === "style" && row.key === "engine",
+);
 export const RESET_ROW = GARAGE_ROWS.findIndex(({ kind }) => kind === "reset");
 export const ROTATION_ROW = GARAGE_ROWS.findIndex(
   ({ kind }) => kind === "rotation",
@@ -112,6 +130,8 @@ export interface GarageMenu {
   text: { slot: number; original: string } | null;
   /** Grille de styles ouverte sur la ligne : `original` revient si le joueur annule. */
   picker: { original: string } | null;
+  /** Démo en cours : chaque nouvel objet relance la séquence, même sur le même moteur. */
+  engineDemo: { engine: EnginePresetId } | null;
   livery: Livery;
   paused: boolean;
 }
@@ -124,16 +144,24 @@ export type GarageMenuEvent =
   | { type: "char"; char: string }
   | { type: "erase" }
   | { type: "style"; row: number; style: number }
-  | { type: "try"; style: number };
+  | { type: "try"; style: number }
+  | { type: "demoEnd" };
 
 export const createGarageMenu = (livery: Livery): GarageMenu => ({
   row: 0,
   palette: null,
   text: null,
   picker: null,
+  engineDemo: null,
   livery,
   paused: false,
 });
+
+/** Le moteur retenu : celui qu'on essaie à la manette ne le devient qu'une fois validé. */
+export const validatedEngine = (menu: GarageMenu): string =>
+  menu.picker && menu.row === ENGINE_ROW
+    ? menu.picker.original
+    : menu.livery.engine;
 
 const wrap = (value: number, count: number): number =>
   ((value % count) + count) % count;
@@ -249,16 +277,15 @@ const stepAction = (menu: GarageMenu, action: MenuAction): GarageMenu => {
       return {
         ...menu,
         picker: null,
+        engineDemo: null,
         livery: { ...menu.livery, [row.key]: menu.picker.original },
       };
     const current = row.styles.findIndex(
       ({ id }) => id === menu.livery[row.key],
     );
-    return setStyle(
-      menu,
-      row,
-      moveInGrid(current, action, row.columns, row.styles.length),
-    );
+    const next = moveInGrid(current, action, row.columns, row.styles.length);
+    // Une grille d'une colonne ne bouge pas à gauche ni à droite : la démo ne repart pas.
+    return next === current ? menu : setStyle(menu, row, next);
   }
 
   if (action === "up" || action === "down")
@@ -274,7 +301,14 @@ const stepAction = (menu: GarageMenu, action: MenuAction): GarageMenu => {
     case "rotation":
       return { ...menu, paused: !menu.paused };
     case "style":
-      return { ...menu, picker: { original: menu.livery[row.key] } };
+      return {
+        ...menu,
+        picker: { original: menu.livery[row.key] },
+        engineDemo:
+          row.key === "engine"
+            ? { engine: menu.livery.engine }
+            : menu.engineDemo,
+      };
     case "text": {
       const original = menu.livery[row.key];
       return {
@@ -299,6 +333,8 @@ const setStyle = (
   style: number,
 ): GarageMenu => ({
   ...menu,
+  engineDemo:
+    row.key === "engine" ? { engine: row.styles[style].id } : menu.engineDemo,
   livery: { ...menu.livery, [row.key]: row.styles[style].id },
 });
 
@@ -309,13 +345,12 @@ const closeEditor = (menu: GarageMenu): GarageMenu => {
   return menu;
 };
 
-export const stepGarageMenu = (
-  menu: GarageMenu,
-  event: GarageMenuEvent,
-): GarageMenu => {
+const stepEvent = (menu: GarageMenu, event: GarageMenuEvent): GarageMenu => {
   if (typeof event === "string") return stepAction(menu, event);
   const row = GARAGE_ROWS[menu.row];
   switch (event.type) {
+    case "demoEnd":
+      return { ...menu, engineDemo: null };
     case "row": {
       // Clic sur une ligne : referme l'éditeur ouvert, ou passe à cette ligne.
       const closed = closeEditor(menu);
@@ -366,4 +401,15 @@ export const stepGarageMenu = (
       return event.type === "pick" ? stepAction(shown, "confirm") : shown;
     }
   }
+};
+
+export const stepGarageMenu = (
+  menu: GarageMenu,
+  event: GarageMenuEvent,
+): GarageMenu => {
+  const next = stepEvent(menu, event);
+  // Quitter la ligne du moteur coupe la démo.
+  return next.engineDemo && next.row !== ENGINE_ROW
+    ? { ...next, engineDemo: null }
+    : next;
 };

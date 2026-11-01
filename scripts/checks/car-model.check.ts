@@ -114,6 +114,13 @@ const check = async (): Promise<void> => {
     defaultLivery,
   );
 
+  // Moteur stocké : même règle, et une ancienne sauvegarde sans moteur prend celui d'origine
+  assert.equal(parseLivery(JSON.stringify({ engine: "five" })).engine, "five");
+  assert.equal(
+    parseLivery(JSON.stringify({ engine: "v12" })).engine,
+    defaultLivery.engine,
+  );
+
   // Drapeau stocké : un code connu relu tel quel, le reste retombe sur l'origine
   assert.equal(parseLivery(JSON.stringify({ flag: "BR" })).flag, "BR");
   assert.equal(

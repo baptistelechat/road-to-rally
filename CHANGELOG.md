@@ -35,8 +35,12 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Rotation de la caméra autour de la voiture en course avec le stick droit, en vue poursuite : elle revient derrière la voiture au relâchement
 - Menu pause entièrement utilisable à la manette : haut et bas pour se déplacer, A pour valider et B pour fermer
 - Bouton pour couper ou remettre le son dans le menu pause
+- Choix du moteur au garage entre 4 cylindres atmo, 4 cylindres turbo et 5 cylindres, avec une démo sonore à la sélection et une pastille sur le moteur validé, conservé en course
+- Page `/labo-son` pour écouter les moteurs et régler chaque couche du son
 
 ### Changed
+
+- Son du moteur plus réaliste en course : résonance d'échappement, admission, mécanique, saturation, frein moteur et pétarades, plus sifflement et « pschitt » sur les moteurs turbo
 
 - Au garage, le bouton A de la manette valide la ligne sélectionnée : la rotation se met en pause depuis son bouton
 - Caméra du garage limitée à l'intérieur de la tente, avec un champ de vision plus large

@@ -1,4 +1,4 @@
-import { type ActionDispatch, useEffect, useReducer } from "react";
+import { type ActionDispatch, useCallback, useEffect, useReducer } from "react";
 import type { MenuAction } from "@/input/smoothing";
 import { loadLivery, saveLivery } from "@/render/car/livery";
 import {
@@ -7,6 +7,7 @@ import {
   type GarageMenuEvent,
   stepGarageMenu,
 } from "./garageMenu";
+import { useEngineDemo } from "./useEngineDemo";
 
 const KEY_ACTIONS: Partial<Record<string, MenuAction>> = {
   ArrowUp: "up",
@@ -26,6 +27,9 @@ export const useGarageMenu = (): [
   );
 
   useEffect(() => saveLivery(menu.livery), [menu.livery]);
+
+  const endDemo = useCallback(() => dispatch({ type: "demoEnd" }), []);
+  useEngineDemo(menu.engineDemo, endDemo);
 
   const typing = menu.text !== null;
 

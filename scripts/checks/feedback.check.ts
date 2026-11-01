@@ -235,6 +235,8 @@ const createFakeAudio = () => {
         state.targets.push({ value, at });
       },
       cancelScheduledValues: () => undefined,
+      setValueAtTime: () => undefined,
+      exponentialRampToValueAtTime: () => undefined,
     };
     return state;
   };
@@ -251,8 +253,12 @@ const createFakeAudio = () => {
     disconnect: () => void;
     start: () => void;
     stop: () => void;
+    setPeriodicWave: () => void;
   }
   const node = (): FakeNode => ({
+    setPeriodicWave(this: FakeNode) {
+      this.type = "custom";
+    },
     frequency: param(0),
     detune: param(0),
     gain: param(0),
@@ -275,6 +281,8 @@ const createFakeAudio = () => {
     createGain: node,
     createBiquadFilter: node,
     createDynamicsCompressor: node,
+    createWaveShaper: node,
+    createPeriodicWave: () => ({}),
     createBufferSource: node,
     createOscillator: () => {
       const osc = node();
@@ -311,15 +319,16 @@ const checkAudio = (): void => {
   silent.dispose();
 
   const { context, record } = createFakeAudio();
-  const audio = createCarAudio(context);
+  // Le moteur atmo : le sifflement du turbo varierait encore à régime stable, et sa sinusoïde se confondrait avec le choc.
+  const audio = createCarAudio(context, "atmo");
   audio.update(carState(), 1 / 60); // avant start : ignoré sans planter
   assert.equal(record.started, false);
   audio.start();
   audio.start(); // idempotent
   assert.ok(record.started);
   assert.ok(record.resumed >= 1, "un contexte suspendu doit être relancé");
-  const engine = record.oscillators.filter((osc) => osc.type === "sawtooth");
-  assert.equal(engine.length, 3);
+  const engine = record.oscillators.filter((osc) => osc.type === "custom");
+  assert.equal(engine.length, 2);
 
   // Contexte encore bloqué par le navigateur : aucun ordre, et le HUD le signale jusqu'au déblocage.
   const state = context as unknown as { state: string };
@@ -356,10 +365,7 @@ const checkAudio = (): void => {
       Math.abs(high[i] / low[i] - 3) < 1e-9,
       `oscillateur ${i} : ${low[i]} -> ${high[i]}`,
     );
-  assert.ok(
-    Math.abs(low[0] - (2000 / 60) * 2) < 1e-9,
-    `fondamentale : ${low[0]}`,
-  );
+  assert.ok(Math.abs(low[0] - 2000 / 120) < 1e-9, `cycle moteur : ${low[0]}`);
 
   // Le choc déclenche le grave, la voix suit le front montant.
   const sine = record.oscillators.find((osc) => osc.type === "sine");

@@ -2,6 +2,12 @@
 // Après la construction du graphe, tout paramètre passe par `setTargetAtTime`, pour ne pas faire de clics.
 import { carConfig } from "@/sim/carConfig";
 import type { CarState } from "@/sim/types";
+import {
+  DEFAULT_ENGINE,
+  enginePreset,
+  type EnginePresetId,
+} from "./enginePresets";
+import { createEngineVoice, type EngineVoice } from "./engineVoice";
 
 export interface CarAudio {
   /** Tente de lancer le son : sans geste du joueur, le navigateur peut le bloquer */
@@ -35,11 +41,6 @@ export interface AudioDebug {
   underruns: number;
 }
 
-/** Moteur 4 cylindres 4 temps : deux allumages par tour. */
-const FIRING_PER_REV = 2;
-const ENGINE_RATIOS = [1, 2, 0.5] as const;
-const ENGINE_MIXES = [0.55, 0.22, 0.3] as const;
-const MIN_ENGINE_HZ = 20;
 const MUTE_TC = 0.03;
 /** Chaque ordre passe par le fil audio : à 60 Hz sur 9 paramètres, il en recevait 540 par seconde. */
 const UPDATE_PERIOD = 1 / 30;
@@ -51,7 +52,7 @@ const clamp01 = (value: number): number => Math.min(1, Math.max(0, value));
 const ramp = (low: number, high: number, value: number): number =>
   clamp01((value - low) / (high - low));
 
-const resolveContext = (): AudioContext | null => {
+export const resolveContext = (): AudioContext | null => {
   if (typeof window === "undefined") return null;
   const legacy = window as Window & {
     webkitAudioContext?: typeof AudioContext;
@@ -76,9 +77,7 @@ interface NoiseVoice {
 interface Graph {
   master: GainNode;
   compressor: DynamicsCompressorNode;
-  engineOscs: OscillatorNode[];
-  engineFilter: BiquadFilterNode;
-  engineGain: GainNode;
+  engine: EngineVoice;
   shiftGain: GainNode;
   skid: NoiseVoice;
   grass: NoiseVoice;
@@ -89,7 +88,11 @@ interface Graph {
   nodes: AudioNode[];
 }
 
-const buildGraph = (ctx: AudioContext, destination: AudioNode): Graph => {
+const buildGraph = (
+  ctx: AudioContext,
+  destination: AudioNode,
+  engineId: EnginePresetId,
+): Graph => {
   const nodes: AudioNode[] = [];
   const track = <T extends AudioNode>(node: T): T => {
     nodes.push(node);
@@ -120,20 +123,12 @@ const buildGraph = (ctx: AudioContext, destination: AudioNode): Graph => {
   const master = gainNode(0, compressor);
 
   const shiftGain = gainNode(1, master);
-  const engineGain = gainNode(0, shiftGain);
-  const engineFilter = filterNode("lowpass", 600, 1.4, engineGain);
-  const engineOscs = ENGINE_RATIOS.map((ratio, index) => {
-    const osc = track(ctx.createOscillator());
-    osc.type = "sawtooth";
-    osc.frequency.value = Math.max(
-      MIN_ENGINE_HZ,
-      (carConfig.engine.idleRpm / 60) * FIRING_PER_REV * ratio,
-    );
-    // Léger désaccord : deux oscillateurs parfaitement en phase sonnent comme un seul.
-    osc.detune.value = index === 1 ? 7 : 0;
-    osc.connect(gainNode(ENGINE_MIXES[index], engineFilter));
-    return osc;
-  });
+  const engine = createEngineVoice(
+    ctx,
+    shiftGain,
+    enginePreset(engineId),
+    carConfig.engine,
+  );
 
   // Un seul tampon de bruit blanc en boucle alimente toutes les voix de bruit.
   const noise = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
@@ -164,16 +159,13 @@ const buildGraph = (ctx: AudioContext, destination: AudioNode): Graph => {
   thumpOsc.frequency.value = 45;
   thumpOsc.connect(thumpGain);
 
-  for (const osc of engineOscs) osc.start();
   thumpOsc.start();
   for (const voice of [skid, grass, wind, thumpNoise]) voice.source.start();
 
   return {
     master,
     compressor,
-    engineOscs,
-    engineFilter,
-    engineGain,
+    engine,
     shiftGain,
     skid,
     grass,
@@ -213,8 +205,11 @@ const analyzeWheels = (state: CarState): void => {
 };
 
 /** @param injected contexte fourni de l'extérieur, utilisé par la vérification sans navigateur */
-export const createCarAudio = (injected?: AudioContext): CarAudio => {
-  const { idleRpm, redlineRpm, shiftTimeS } = carConfig.engine;
+export const createCarAudio = (
+  injected?: AudioContext,
+  engineId: EnginePresetId = DEFAULT_ENGINE,
+): CarAudio => {
+  const { shiftTimeS } = carConfig.engine;
   let ctx: AudioContext | null = null;
   let graph: Graph | null = null;
   let muted = false;
@@ -289,7 +284,7 @@ export const createCarAudio = (injected?: AudioContext): CarAudio => {
     if (!ctx) ctx = injected ?? resolveContext();
     if (!ctx) return;
     if (!graph) {
-      graph = buildGraph(ctx, ctx.destination);
+      graph = buildGraph(ctx, ctx.destination, engineId);
       applyMaster();
       if (typeof document !== "undefined")
         document.addEventListener("visibilitychange", onVisibility);
@@ -312,26 +307,6 @@ export const createCarAudio = (injected?: AudioContext): CarAudio => {
     analyzeWheels(state);
     const { maxAsphaltSlip, grassShare, contacts, compression } = ANALYSIS;
     const { speed, throttle, rpm, gear, impact } = state;
-    const load = clamp01(throttle);
-    const rev = ramp(idleRpm, redlineRpm, rpm);
-
-    // Moteur
-    const baseHz = (Math.max(rpm, idleRpm * 0.6) / 60) * FIRING_PER_REV;
-    graph.engineOscs.forEach((osc, index) => {
-      setParam(
-        osc.frequency,
-        Math.max(MIN_ENGINE_HZ, baseHz * ENGINE_RATIOS[index]),
-        now,
-        0.025,
-      );
-    });
-    setParam(
-      graph.engineFilter.frequency,
-      420 + rev * 1100 + load * 3000,
-      now,
-      0.04,
-    );
-    setParam(graph.engineGain.gain, 0.16 + rev * 0.1 + load * 0.2, now, 0.04);
 
     // Coupure au passage de rapport. Le délai minimal évite de couper deux fois si le rapport passe par le point mort.
     if (
@@ -346,6 +321,13 @@ export const createCarAudio = (injected?: AudioContext): CarAudio => {
       param.setTargetAtTime(1, now + shiftTimeS, 0.035);
     }
     lastGear = gear;
+
+    // Moteur. La charge retombe pendant le passage : il s'entend comme un pied levé, pétarades comprises.
+    graph.engine.update(
+      rpm,
+      now - lastShiftAt < shiftTimeS ? 0 : throttle,
+      stepS,
+    );
 
     // Crissement sur l'asphalte
     const skidAmount = ramp(0.25, 0.95, maxAsphaltSlip) * ramp(1.5, 8, speed);
@@ -414,7 +396,7 @@ export const createCarAudio = (injected?: AudioContext): CarAudio => {
         time: ctx.currentTime,
         baseLatency: ctx.baseLatency ?? 0,
         outputLatency: ctx.outputLatency ?? 0,
-        writes,
+        writes: writes + (graph?.engine.writes() ?? 0),
         underruns: stats?.underrunEvents ?? 0,
       };
     },
@@ -428,7 +410,7 @@ export const createCarAudio = (injected?: AudioContext): CarAudio => {
       if (typeof document !== "undefined")
         document.removeEventListener("visibilitychange", onVisibility);
       if (graph) {
-        for (const osc of graph.engineOscs) osc.stop();
+        graph.engine.dispose();
         graph.thumpOsc.stop();
         for (const voice of [
           graph.skid,

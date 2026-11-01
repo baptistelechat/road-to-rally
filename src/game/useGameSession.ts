@@ -3,6 +3,7 @@
 import type { RootState } from "@react-three/fiber";
 import { type RefObject, useEffect, useRef, useState } from "react";
 import { createCarAudio, type CarAudio } from "@/audio/engineAudio";
+import { loadLivery } from "@/render/car/livery";
 import { initRapier } from "@/sim/rapier";
 import { createSimulation, type Simulation } from "@/sim/simulation";
 import { parseStage } from "@/sim/track/stageCodec";
@@ -61,7 +62,7 @@ export const useGameSession = (
     let created: Simulation | null = null;
     const download = new AbortController();
     // Créé ici et non en `useMemo` : un ancien moteur continuerait de jouer après chaque mise à jour à chaud.
-    const audio = createCarAudio();
+    const audio = createCarAudio(undefined, loadLivery().engine);
     const unlock = (): void => audio.unlock();
     // Tenté tout de suite : passe si le joueur a déjà agi sur le site (changement de carte, retour du garage).
     // Sinon le navigateur l'exige d'un geste, et une manette n'en est pas un : l'écran de départ le demande.

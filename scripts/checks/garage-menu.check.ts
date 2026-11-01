@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import {
   createGarageMenu,
+  ENGINE_ROW,
   GARAGE_ROWS,
   type GarageMenu,
   nearestSwatch,
@@ -9,6 +10,7 @@ import {
   stepGarageMenu,
   SWATCH_COLUMNS,
   SWATCHES,
+  validatedEngine,
 } from "../../src/app/garage/garageMenu";
 import { FLAGS } from "../../src/render/car/flags";
 import { defaultLivery } from "../../src/render/car/livery";
@@ -184,6 +186,45 @@ const check = async (): Promise<void> => {
   assert.equal(stepGarageMenu(start, { type: "try", style: brazil }), start);
   const moved = stepGarageMenu(flagOpen, "down");
   assert.equal(moved.row, flagRow);
+
+  // Moteur : le clic choisit et lance la démo, recliquer la relance, et quitter la ligne la coupe.
+  const engineStyle = (style: number) =>
+    ({ type: "style", row: ENGINE_ROW, style }) as const;
+  const heard = stepGarageMenu(start, engineStyle(0));
+  assert.equal(heard.livery.engine, "atmo");
+  assert.deepEqual(heard.engineDemo, { engine: "atmo" });
+  const replayed = stepGarageMenu(heard, engineStyle(0));
+  assert.notEqual(replayed.engineDemo, heard.engineDemo);
+  assert.equal(stepGarageMenu(heard, "up").engineDemo, null);
+  assert.equal(stepGarageMenu(heard, { type: "demoEnd" }).engineDemo, null);
+  assert.equal(heard.livery.engine, "atmo");
+
+  // Manette : A joue le moteur actuel, le bas essaie le suivant, B revient au moteur d'origine et coupe la démo.
+  const onEngine = { ...start, row: ENGINE_ROW };
+  assert.equal(stepGarageMenu(start, "down").engineDemo, null);
+  const engineOpen = stepGarageMenu(onEngine, "confirm");
+  assert.deepEqual(engineOpen.engineDemo, { engine: "turbo" });
+  const nextEngine = stepGarageMenu(engineOpen, "down");
+  assert.equal(nextEngine.livery.engine, "five");
+  assert.deepEqual(nextEngine.engineDemo, { engine: "five" });
+  assert.equal(stepGarageMenu(engineOpen, "left"), engineOpen);
+  // La pastille reste sur le moteur d'origine pendant l'essai, et ne passe au nouveau qu'à la validation.
+  assert.equal(validatedEngine(nextEngine), "turbo");
+  assert.equal(validatedEngine(stepGarageMenu(nextEngine, "confirm")), "five");
+  // Une autre grille ouverte ne déplace pas la pastille.
+  assert.equal(validatedEngine(flagOpen), flagOpen.livery.engine);
+  const engineUndone = stepGarageMenu(nextEngine, "cancel");
+  assert.equal(engineUndone.livery.engine, "turbo");
+  assert.equal(engineUndone.engineDemo, null);
+  // Valider garde le moteur et laisse la démo finir.
+  const engineKept = stepGarageMenu(nextEngine, "confirm");
+  assert.equal(engineKept.livery.engine, "five");
+  assert.equal(engineKept.engineDemo, nextEngine.engineDemo);
+  // Réinitialiser les couleurs garde le moteur.
+  assert.equal(
+    stepGarageMenu({ ...engineKept, row: RESET_ROW }, "confirm").livery.engine,
+    "five",
+  );
 
   // La dernière ligne de la grille est incomplète : depuis chaque case, chaque direction mène à une vraie case
   const lastLine = (FLAGS.length - 1) % 7;
