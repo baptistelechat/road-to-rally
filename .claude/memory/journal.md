@@ -43,3 +43,16 @@ Personnalisation de la voiture au garage. D'abord quatre sélecteurs de couleur 
 
 - [BDR-20261101131243-1](decisions/BDR-20261101131243-1.md) — une seule palette et un seul reducer au garage
 - [BLK-20261101131243-2](blockers/BLK-20261101131243-2.md) — défilement manette non validé dans le panneau
+
+---
+
+Suite de la personnalisation du garage. Les plaques (texte de 9 caractères, 4 styles, à l'avant et à l'arrière) et le numéro (3 chiffres, 6 styles, sur les portières puis le capot) sont des textures canvas. Le texte se saisit case par case, à la souris, au clavier et à la manette. Baptiste a signalé qu'on ne pouvait pas descendre dans les vignettes : les grilles s'ouvrent désormais avec A, comme la palette.
+
+Un drapeau français fixe a été remplacé à la demande de Baptiste par un sélecteur de 255 pays basé sur `country-flag-icons`, plus une option « Sans drapeau », avec un rendu en triangles de couleur dominante. Ce sélecteur a demandé trois allers-retours. L'ouverture gelait à cause du low-poly calculé pour chaque vignette. Le défilement saccadait ensuite à cause des tracés canvas redessinés à chaque pas, alors que j'avais d'abord accusé le calcul des couleurs : les mesures propres ont corrigé ce faux diagnostic, et Baptiste a retenu l'écriture directe des pixels avec dessin à l'arrêt. Enfin, la manette a provoqué un plantage aux bords de la grille, dont la dernière ligne est incomplète.
+
+Tout est poussé sur `development` (66a51ca). Après l'essai à la manette, Baptiste a répondu « parfait ».
+
+**Entrées clés :**
+
+- [BDR-20261101150421-3](decisions/BDR-20261101150421-3.md) — drapeaux : lib SVG, triangles en couleur dominante, pixels
+- [BLK-20261101150421-6](blockers/BLK-20261101150421-6.md) — lag au défilement des drapeaux à la manette

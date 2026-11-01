@@ -15,3 +15,5 @@ register: learnings
 | [LRN-20261101115823-4](learnings/LRN-20261101115823-4.md) | 2026-11-01 | R3F : bouger la caméra avant la mise à jour d'OrbitControls | #react-three-fiber #drei #orbitcontrols #useframe #camera #three |
 | [LRN-20261101115823-5](learnings/LRN-20261101115823-5.md) | 2026-11-01 | Tester la manette sans manette : simuler getGamepads | #gamepad #test #navigateur #mock #claude-browser #input |
 | [LRN-20261101115823-6](learnings/LRN-20261101115823-6.md) | 2026-11-01 | Panneau navigateur : serveur déjà lancé et erreurs périmées | #claude-browser #preview #nextjs #hmr #console #dev-server |
+| [LRN-20261101150421-4](learnings/LRN-20261101150421-4.md) | 2026-11-01 | Tracés canvas : un coût invisible au chrono JS | #canvas #performance #putimagedata #requestanimationframe #mesure #longtask |
+| [LRN-20261101150421-5](learnings/LRN-20261101150421-5.md) | 2026-11-01 | Grille incomplète : tester chaque direction depuis chaque case | #grille #navigation #manette #test #modulo #garage #reducer |
