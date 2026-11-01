@@ -93,3 +93,13 @@ Commit f8d08ae. Reste : le playtest complet de la story 2.9, Firefox, la génér
 - [BDR-20261101163654-1](decisions/BDR-20261101163654-1.md) — vraie route au-delà des lignes
 - [BDR-20261101163654-4](decisions/BDR-20261101163654-4.md) — terrain gradué jusqu'à 1,5 km
 - [LRN-20261101163654-5](learnings/LRN-20261101163654-5.md) — arrivée loin des branches voisines
+
+---
+
+Son du moteur à l'arrivée sur le jeu : le navigateur exige un geste avant tout son, et une manette n'en est pas un. Après une tentative de message dans le HUD et une recommandation de PWA écartée grâce au retour d'expérience sur Pawzzle, on a retenu un menu de départ. Le sélecteur de carte y a été déplacé, puis le menu a aussi servi de menu pause avec Échap et Start, la simulation restant gelée hors course. Baptiste a fait retirer tous les textes d'aide : l'interface doit se comprendre seule. Le menu final est commité et poussé (`0fda8ba`), avec checks, lint, build et react-doctor au vert, mais il n'a pas été testé en navigateur.
+
+**Entrées clés :**
+
+- [BDR-20261101191443-4](decisions/BDR-20261101191443-4.md) — Menu de départ et de pause, simulation gelée hors course
+- [LRN-20261101191443-1](learnings/LRN-20261101191443-1.md) — Une manette ne débloque pas l'audio du navigateur
+- [BLK-20261101191443-6](blockers/BLK-20261101191443-6.md) — Menu de départ et de pause jamais testé en navigateur
