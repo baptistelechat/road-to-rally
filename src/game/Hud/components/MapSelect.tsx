@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { IMPORT_OPTION, IMPORTED_MAP_ID, MAPS, mapSearch } from "@/game/maps";
 import type { ImportedStage } from "@/game/useStageImport";
-import { label, panel } from "../hudStyles";
+import { label } from "../hudStyles";
 import { StageImportPanel } from "./StageImportPanel";
 
 interface MapSelectProps {
@@ -21,9 +21,7 @@ export const MapSelect = ({ map, mapLabel, onImported }: MapSelectProps) => {
   const [importing, setImporting] = useState(false);
   return (
     <>
-      <div
-        className={`${panel} pointer-events-auto flex items-center justify-between gap-3 px-3 py-2`}
-      >
+      <div className="flex items-center justify-between gap-3">
         <label htmlFor="map-select" className={label}>
           Carte
         </label>

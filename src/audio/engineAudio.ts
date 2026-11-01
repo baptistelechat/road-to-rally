@@ -4,8 +4,14 @@ import { carConfig } from "@/sim/carConfig";
 import type { CarState } from "@/sim/types";
 
 export interface CarAudio {
-  /** À appeler depuis un geste de fin d'action (`click`, `pointerup`, `keydown`), sinon le navigateur bloque l'audio */
+  /** Tente de lancer le son : sans geste du joueur, le navigateur peut le bloquer */
   start: () => void;
+  /** À appeler depuis un geste de fin d'action (`click`, `pointerup`, `keydown`) : relance le son et lève le blocage */
+  unlock: () => void;
+  /** Le jeu attend un geste du joueur pour jouer le premier son */
+  isBlocked: () => boolean;
+  /** Menu pause : coupe tout le son, sans toucher au réglage du joueur. Appelable à chaque image. */
+  setPaused: (paused: boolean) => void;
   update: (state: CarState, dt: number) => void;
   setMuted: (muted: boolean) => void;
   /** Renvoie le nouvel état */
@@ -214,6 +220,8 @@ export const createCarAudio = (injected?: AudioContext): CarAudio => {
   let muted = false;
   let volume = 0.8;
   let disposed = false;
+  let unlocked = false;
+  let paused = false;
   let elapsed = UPDATE_PERIOD;
   let lastGear: number | null = null;
   let lastImpact = 0;
@@ -254,7 +262,7 @@ export const createCarAudio = (injected?: AudioContext): CarAudio => {
   const onVisibility = (): void => {
     if (!ctx) return;
     // Onglet caché : la boucle de rendu s'arrête, le moteur resterait bloqué sur sa dernière note.
-    const pending = document.hidden ? ctx.suspend() : ctx.resume();
+    const pending = document.hidden || paused ? ctx.suspend() : ctx.resume();
     pending.catch(() => undefined);
   };
 
@@ -286,11 +294,15 @@ export const createCarAudio = (injected?: AudioContext): CarAudio => {
       if (typeof document !== "undefined")
         document.addEventListener("visibilitychange", onVisibility);
     }
-    if (ctx.state === "suspended") ctx.resume().catch(() => undefined);
+    if (ctx.state === "suspended" && !paused)
+      ctx.resume().catch(() => undefined);
   };
 
   const update = (state: CarState, dt: number): void => {
     if (!ctx || !graph) return;
+    // Contexte suspendu : son horloge est figée, les chocs planifiés partiraient tous à la reprise.
+    if (ctx.state !== "running") return;
+    unlocked = true;
     elapsed += dt;
     if (elapsed < UPDATE_PERIOD) return;
     const stepS = elapsed;
@@ -319,12 +331,7 @@ export const createCarAudio = (injected?: AudioContext): CarAudio => {
       now,
       0.04,
     );
-    setParam(
-      graph.engineGain.gain,
-      0.16 + rev * 0.1 + load * 0.2,
-      now,
-      0.04,
-    );
+    setParam(graph.engineGain.gain, 0.16 + rev * 0.1 + load * 0.2, now, 0.04);
 
     // Coupure au passage de rapport. Le délai minimal évite de couper deux fois si le rapport passe par le point mort.
     if (
@@ -343,12 +350,7 @@ export const createCarAudio = (injected?: AudioContext): CarAudio => {
     // Crissement sur l'asphalte
     const skidAmount = ramp(0.25, 0.95, maxAsphaltSlip) * ramp(1.5, 8, speed);
     setParam(graph.skid.gain.gain, skidAmount * 0.3, now, 0.05);
-    setParam(
-      graph.skid.filter.frequency,
-      1100 + skidAmount * 1200,
-      now,
-      0.08,
-    );
+    setParam(graph.skid.filter.frequency, 1100 + skidAmount * 1200, now, 0.08);
 
     // Roulement sur l'herbe
     setParam(
@@ -360,12 +362,7 @@ export const createCarAudio = (injected?: AudioContext): CarAudio => {
 
     // Souffle du vent, en puissance de la vitesse
     const windAmount = ramp(5, 70, speed);
-    setParam(
-      graph.wind.gain.gain,
-      windAmount * windAmount * 0.3,
-      now,
-      0.1,
-    );
+    setParam(graph.wind.gain.gain, windAmount * windAmount * 0.3, now, 0.1);
     setParam(graph.wind.filter.frequency, 300 + speed * 14, now, 0.1);
 
     // Chocs : front montant de `impact`, puis réception après un saut ou un écrasement brutal de la suspension.
@@ -387,6 +384,18 @@ export const createCarAudio = (injected?: AudioContext): CarAudio => {
 
   return {
     start,
+    // Lève le blocage même si le navigateur refuse encore (touche Échap) : au pire, la course reste silencieuse.
+    unlock: () => {
+      start();
+      unlocked = true;
+    },
+    isBlocked: () => ctx !== null && !unlocked,
+    setPaused: (next) => {
+      if (next === paused) return;
+      paused = next;
+      if (!ctx) return;
+      (paused ? ctx.suspend() : ctx.resume()).catch(() => undefined);
+    },
     update,
     setMuted,
     toggleMute: () => {

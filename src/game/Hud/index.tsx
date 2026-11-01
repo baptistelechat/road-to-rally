@@ -5,7 +5,7 @@ import type { ImportedStage } from "@/game/useStageImport";
 import type { RecoveryStatus } from "@/sim/recovery";
 import { Chrono, FinishBanner } from "./components/Chrono";
 import { ControlsHelp } from "./components/ControlsHelp";
-import { MapSelect } from "./components/MapSelect";
+import { GameMenu } from "./components/GameMenu";
 import { StageNotices } from "./components/StageNotices";
 import { label, panel } from "./hudStyles";
 
@@ -120,7 +120,6 @@ export const Hud = ({
     <div className="flex items-start justify-between gap-4">
       <div className="flex flex-col gap-2">
         <Chrono closed={closed} />
-        <MapSelect map={map} mapLabel={mapLabel} onImported={onImported} />
         <StageNotices notices={notices} />
       </div>
       <SoundStatus />
@@ -128,6 +127,12 @@ export const Hud = ({
     <DiagToast />
     <FinishBanner />
     <RecoveryCountdown />
+    <GameMenu
+      map={map}
+      mapLabel={mapLabel}
+      closed={closed}
+      onImported={onImported}
+    />
     <div className="flex items-end justify-between gap-4">
       <ControlsHelp closed={closed} />
       <div className="ml-auto">

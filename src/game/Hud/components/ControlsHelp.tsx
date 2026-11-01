@@ -13,6 +13,7 @@ const keyboardHelp = (restart: string): Help => [
   ["Retour arrière", restart],
   ["C", "Vue"],
   ["M", "Son"],
+  ["Échap", "Pause et cartes"],
   ["F9", "Signaler un lag"],
 ];
 
@@ -23,6 +24,7 @@ const gamepadHelp = (restart: string): Help => [
   ["Y maintenu", `Remise en piste (${RESPAWN_HOLD_S} s)`],
   ["Select", restart],
   ["X", "Vue"],
+  ["Start", "Pause et cartes"],
   ["LB", "Signaler un lag"],
 ];
 

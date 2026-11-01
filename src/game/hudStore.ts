@@ -11,10 +11,14 @@ export interface LapTimes {
   bestLapMs: number | null;
 }
 
+export type GameScreen = "start" | "race" | "pause";
+
 export interface HudState extends LapTimes {
   speedKmh: number;
   gear: number;
   muted: boolean;
+  /** Hors de la course, le menu est affiché et la simulation reste gelée */
+  screen: GameScreen;
   device: "keyboard" | "gamepad";
   recovery: RecoveryStatus | null;
   /** Message du mode diagnostic */
@@ -27,6 +31,7 @@ export const useHudStore = create<HudState>(() => ({
   speedKmh: 0,
   gear: 0,
   muted: false,
+  screen: "start",
   device: "keyboard",
   recovery: null,
   diag: null,
@@ -70,6 +75,27 @@ export const setLapTimes = (times: Partial<LapTimes>): void => {
 
 export const setHudMuted = (muted: boolean): void => {
   useHudStore.setState({ muted });
+};
+
+/** Appelable à chaque image. */
+export const setHudScreen = (screen: GameScreen): void => {
+  if (useHudStore.getState().screen !== screen)
+    useHudStore.setState({ screen });
+};
+
+/**
+ * Effet d'une pression de A ou de Start sur le menu.
+ * Au départ, la manette est refusée tant que le son est bloqué : le joueur roulerait sans savoir pourquoi c'est silencieux.
+ */
+export const nextScreen = (
+  screen: GameScreen,
+  soundBlocked: boolean,
+  confirmPressed: boolean,
+  startPressed: boolean,
+): GameScreen => {
+  if (screen === "race") return startPressed ? "pause" : "race";
+  if (!confirmPressed && !startPressed) return screen;
+  return screen === "start" && soundBlocked ? "start" : "race";
 };
 
 export const setHudDevice = (device: HudState["device"]): void => {

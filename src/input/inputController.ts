@@ -9,7 +9,7 @@ import {
   type InputDevice,
 } from "./smoothing";
 
-export type GameAction = "camera" | "restart" | "mute" | "diag";
+export type GameAction = "camera" | "restart" | "mute" | "diag" | "pause";
 
 export interface InputDebug {
   connected: boolean;
@@ -53,6 +53,7 @@ const KEY_ACTIONS = new Map<string, GameAction>([
   // La touche M d'un clavier AZERTY porte le code physique du « ; » QWERTY.
   ["Semicolon", "mute"],
   ["F9", "diag"],
+  ["Escape", "pause"],
 ]);
 const BUTTON_ACTIONS: readonly (readonly [number, GameAction])[] = [
   [2, "camera"],

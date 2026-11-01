@@ -7,6 +7,7 @@ import type { CarAudio } from "@/audio/engineAudio";
 import { updateRumble } from "@/audio/gamepadRumble";
 import {
   createInputController,
+  findStandardPad,
   type InputController,
 } from "@/input/inputController";
 import { createInputRecorder } from "@/input/recorder";
@@ -22,8 +23,14 @@ import {
   setHudFinished,
   setHudMuted,
   setHudRecovery,
+  nextScreen,
+  setHudScreen,
   setLapTimes,
+  useHudStore,
 } from "./hudStore";
+
+const CONFIRM_BUTTON = 0;
+const START_BUTTON = 9;
 
 const readBestLap = (key: string): number | null => {
   try {
@@ -80,6 +87,8 @@ export const useGameLoop = ({
   });
   const bestLap = useRef<number | null>(null);
   const lastLap = useRef<number | null>(null);
+  // Tenus au départ : le bouton qui a réveillé la manette ne déclenche rien.
+  const padHeld = useRef({ confirm: true, start: true });
   const pose = useRef<Pose>({
     position: { x: 0, y: 0, z: 0 },
     rotation: { x: 0, y: 0, z: 0, w: 1 },
@@ -112,7 +121,22 @@ export const useGameLoop = ({
   useFrame((_, delta) => {
     const input = controller.current;
     info.current.steps = 0;
-    const alpha = stepper.advance(delta, () => {
+    const pad = findStandardPad(window);
+    const confirm = pad?.buttons[CONFIRM_BUTTON]?.pressed ?? false;
+    const start = pad?.buttons[START_BUTTON]?.pressed ?? false;
+    // Sur le front de pression seulement : un A tenu (frein à main) ne doit pas refermer le menu pause.
+    const screen = nextScreen(
+      useHudStore.getState().screen,
+      audio.isBlocked(),
+      confirm && !padHeld.current.confirm,
+      start && !padHeld.current.start,
+    );
+    padHeld.current.confirm = confirm;
+    padHeld.current.start = start;
+    setHudScreen(screen);
+    audio.setPaused(screen === "pause");
+    // Dans les menus, ni voiture ni chrono.
+    const alpha = stepper.advance(screen === "race" ? delta : 0, () => {
       const sampled: CarInput = input?.sample(FIXED_DT) ?? NEUTRAL_INPUT;
       const applied = useBot ? botInput(sim.state(), sim.track) : sampled;
       recorder.current.record(applied);
@@ -135,6 +159,8 @@ export const useGameLoop = ({
       if (action === "mute") setHudMuted(audio.toggleMute());
       if (action === "restart") restart();
       if (action === "diag") onDiagRequest();
+      if (action === "pause" && screen !== "start")
+        setHudScreen(screen === "race" ? "pause" : "race");
     }
     if (consumeRestartRequest()) restart();
 
@@ -156,7 +182,8 @@ export const useGameLoop = ({
     r.w = out.w;
 
     audio.update(to, delta);
-    updateRumble(to);
+    // Hors course, l'état figé vibrerait sans fin.
+    if (screen === "race") updateRumble(to);
     pushHud(to);
     setHudRecovery(sim.recovery());
     if (input) setHudDevice(input.activeDevice());

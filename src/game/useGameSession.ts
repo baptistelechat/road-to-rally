@@ -7,7 +7,7 @@ import { initRapier } from "@/sim/rapier";
 import { createSimulation, type Simulation } from "@/sim/simulation";
 import { parseStage } from "@/sim/track/stageCodec";
 import type { StageData } from "@/sim/types";
-import { setHudMuted } from "./hudStore";
+import { setHudMuted, setHudScreen } from "./hudStore";
 import type { GameMap } from "./maps";
 import type { ImportedStage } from "./useStageImport";
 
@@ -62,10 +62,15 @@ export const useGameSession = (
     const download = new AbortController();
     // Créé ici et non en `useMemo` : un ancien moteur continuerait de jouer après chaque mise à jour à chaud.
     const audio = createCarAudio();
-    const start = (): void => audio.start();
-    window.addEventListener("keydown", start);
-    window.addEventListener("pointerup", start);
+    const unlock = (): void => audio.unlock();
+    // Tenté tout de suite : passe si le joueur a déjà agi sur le site (changement de carte, retour du garage).
+    // Sinon le navigateur l'exige d'un geste, et une manette n'en est pas un : l'écran de départ le demande.
+    audio.start();
+    window.addEventListener("keydown", unlock);
+    window.addEventListener("pointerup", unlock);
     setHudMuted(false);
+    // Chaque carte repasse par l'écran de départ, sauf le pilote automatique.
+    setHudScreen(params.has("bot") ? "race" : "start");
     void Promise.all([
       initRapier(),
       imported?.stage ??
@@ -105,12 +110,13 @@ export const useGameSession = (
       cancelled = true;
       download.abort();
       setGame(null);
-      window.removeEventListener("keydown", start);
-      window.removeEventListener("pointerup", start);
+      window.removeEventListener("keydown", unlock);
+      window.removeEventListener("pointerup", unlock);
       audio.dispose();
       // Le canvas se démonte après ce nettoyage : une image de plus lirait un monde déjà libéré.
       // `get()` : R3F remplace `internal` juste après `onCreated`, l'objet reçu alors est déjà périmé.
-      if (canvasRootRef.current) canvasRootRef.current.get().internal.active = false;
+      if (canvasRootRef.current)
+        canvasRootRef.current.get().internal.active = false;
       canvasRootRef.current = null;
       created?.free();
     };

@@ -30,14 +30,18 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Import d'un fichier GPX pour générer sa propre spéciale, avec progression, annulation et réouverture hors ligne
 - Remise en piste à l'endroit où la route a été quittée sur une spéciale
 - Aperçu de chaque piste avec `/track-preview?map=`
+- Menu de départ avant chaque course, avec le bouton « Prendre le départ »
+- Menu pause avec `Échap` ou `Start` : la course se fige et le son se coupe, avec reprise, relance et choix de la carte
 
 ### Changed
 
 - Au garage, le bouton A de la manette valide la ligne sélectionnée : la rotation se met en pause depuis son bouton
 - Caméra du garage limitée à l'intérieur de la tente, avec un champ de vision plus large
 - Drapeaux plus lisses, avec des triangles plus petits et plus discrets
+- Le sélecteur de carte passe du HUD au menu de départ et de pause
 
 ### Fixed
 
 - Bavettes qui traversaient la route : elles sont plus courtes et restent au-dessus du sol à l'assiette de repos
 - Caméra du garage qui s'inversait à la manette en passant au-dessus de la voiture : elle se bloque au sommet, comme à la souris
+- Son du moteur absent après un changement de carte tant que le joueur n'avait pas de nouveau cliqué

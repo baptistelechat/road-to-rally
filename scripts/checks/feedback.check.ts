@@ -6,6 +6,7 @@ import {
   HUD_PERIOD_MS,
   pushHud,
   setLapTimes,
+  nextScreen,
   useHudStore,
 } from "../../src/game/hudStore";
 import {
@@ -257,6 +258,7 @@ const createFakeAudio = () => {
     },
     resume: async () => {
       record.resumed++;
+      context.state = "running";
     },
     suspend: async () => undefined,
     close: async () => undefined,
@@ -289,6 +291,24 @@ const checkAudio = (): void => {
   assert.ok(record.resumed >= 1, "un contexte suspendu doit être relancé");
   const engine = record.oscillators.filter((osc) => osc.type === "sawtooth");
   assert.equal(engine.length, 3);
+
+  // Contexte encore bloqué par le navigateur : aucun ordre, et le HUD le signale jusqu'au déblocage.
+  const state = context as unknown as { state: string };
+  state.state = "suspended";
+  audio.update(carState({ rpm: 3000, impact: 0.8 }), 1 / 30);
+  assert.equal(audio.debug()?.writes, 0);
+  assert.equal(audio.isBlocked(), true);
+  audio.unlock();
+  assert.equal(audio.isBlocked(), false);
+  assert.equal(state.state, "running");
+
+  // En pause, un clic dans le menu ne relance pas le son.
+  audio.setPaused(true);
+  state.state = "suspended";
+  audio.unlock();
+  assert.equal(state.state, "suspended");
+  audio.setPaused(false);
+  assert.equal(state.state, "running");
 
   // Rien ne change : plus aucun ordre vers le fil audio.
   audio.update(carState({ rpm: 3000, throttle: 0.5, gear: 2 }), 1 / 30);
@@ -333,6 +353,16 @@ const checkAudio = (): void => {
 };
 
 const checkHud = (): void => {
+  // Menu à la manette : A ne fait rien en course, Start ouvre et ferme la pause.
+  assert.equal(nextScreen("race", false, true, false), "race");
+  assert.equal(nextScreen("race", false, false, true), "pause");
+  assert.equal(nextScreen("pause", false, false, true), "race");
+  assert.equal(nextScreen("pause", false, true, false), "race");
+  assert.equal(nextScreen("pause", false, false, false), "pause");
+  // Départ refusé tant que le son est bloqué.
+  assert.equal(nextScreen("start", true, true, true), "start");
+  assert.equal(nextScreen("start", false, true, false), "race");
+
   // Une seconde à 144 Hz, vitesse qui change à chaque image : au plus 10 publications.
   let publications = 0;
   const unsubscribe = useHudStore.subscribe(() => publications++);
