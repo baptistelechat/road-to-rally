@@ -19,6 +19,7 @@ const keyboardHelp = (restart: string): Help => [
 
 const gamepadHelp = (restart: string): Help => [
   ["Stick gauche", "Diriger"],
+  ["Stick droit", "Tourner la caméra"],
   ["RT / LT", "Gaz / Frein, marche arrière"],
   ["A", "Frein à main"],
   ["Y maintenu", `Remise en piste (${RESPAWN_HOLD_S} s)`],

@@ -64,6 +64,7 @@ const input = (
   forwardSpeed: -Math.sin(yaw) * velocity.x - Math.cos(yaw) * velocity.z,
   grass: 0,
   impact: 0,
+  orbit: 0,
 });
 
 /** Trajectoire analytique : les mêmes instants donnent les mêmes entrées, quelle que soit la cadence. */
@@ -176,6 +177,34 @@ const checkNoAndReverse = (): void => {
   clean.snap(fresh, "chase");
   assert.ok(teleport.output.yaw === clean.output.yaw);
   assert.ok(teleport.output.position.distanceTo(clean.output.position) < 1e-9);
+
+  // Stick droit : la caméra passe à droite de la voiture, la vise toujours, puis revient derrière.
+  const still = input(0, { x: 0, z: 0 });
+  const orbiting = createCameraRig();
+  orbiting.snap({ ...still, orbit: 0.5 }, "chase");
+  const side = orbiting.output.position;
+  assert.ok(
+    side.x > 6.9 && Math.abs(side.z) < 1e-9,
+    `orbite à droite : ${side.x}, ${side.z}`,
+  );
+  const aim = new Vector3(0, 0, -1).applyQuaternion(orbiting.output.quaternion);
+  assert.ok(aim.x < -0.9, `la caméra ne vise plus la voiture : ${aim.x}`);
+  orbiting.snap({ ...still, orbit: 1 }, "chase");
+  assert.ok(side.z < -6.9, `stick à fond, vue de face : ${side.z}`);
+  for (let i = 0; i < 120; i++) orbiting.update(still, 1 / 60, "chase");
+  assert.ok(
+    side.z > 6.9 && Math.abs(side.x) < 0.1,
+    `retour derrière : ${side.x}, ${side.z}`,
+  );
+
+  // La vue capot ne tourne pas.
+  const hoodOrbit = createCameraRig();
+  hoodOrbit.snap({ ...still, orbit: 1 }, "hood");
+  const hoodStill = createCameraRig();
+  hoodStill.snap(still, "hood");
+  assert.ok(
+    hoodOrbit.output.quaternion.angleTo(hoodStill.output.quaternion) < 1e-9,
+  );
 
   // Vue capot : tangage de 0,2 rad très atténué une fois stabilisé.
   const hood = createCameraRig();
@@ -357,7 +386,8 @@ const checkHud = (): void => {
   assert.equal(nextScreen("race", false, true, false), "race");
   assert.equal(nextScreen("race", false, false, true), "pause");
   assert.equal(nextScreen("pause", false, false, true), "race");
-  assert.equal(nextScreen("pause", false, true, false), "race");
+  // En pause, A reste sur le menu : c'est la ligne sélectionnée qui décide.
+  assert.equal(nextScreen("pause", false, true, false), "pause");
   assert.equal(nextScreen("pause", false, false, false), "pause");
   // Départ refusé tant que le son est bloqué.
   assert.equal(nextScreen("start", true, true, true), "start");

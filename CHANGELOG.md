@@ -32,6 +32,9 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Aperçu de chaque piste avec `/track-preview?map=`
 - Menu de départ avant chaque course, avec le bouton « Prendre le départ »
 - Menu pause avec `Échap` ou `Start` : la course se fige et le son se coupe, avec reprise, relance et choix de la carte
+- Rotation de la caméra autour de la voiture en course avec le stick droit, en vue poursuite : elle revient derrière la voiture au relâchement
+- Menu pause entièrement utilisable à la manette : haut et bas pour se déplacer, A pour valider et B pour fermer
+- Bouton pour couper ou remettre le son dans le menu pause
 
 ### Changed
 
@@ -39,6 +42,8 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Caméra du garage limitée à l'intérieur de la tente, avec un champ de vision plus large
 - Drapeaux plus lisses, avec des triangles plus petits et plus discrets
 - Le sélecteur de carte passe du HUD au menu de départ et de pause
+- Le choix de la carte devient une liste qui s'ouvre, à la souris comme à la manette, où A valide et B referme
+- En pause, A à la manette active la ligne sélectionnée au lieu de reprendre directement la course
 
 ### Fixed
 

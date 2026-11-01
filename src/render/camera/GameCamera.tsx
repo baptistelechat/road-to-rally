@@ -1,7 +1,7 @@
 "use client";
 
 import { useFrame } from "@react-three/fiber";
-import { useEffect, useRef, useState } from "react";
+import { type RefObject, useEffect, useRef, useState } from "react";
 import { PerspectiveCamera } from "three";
 import type { CarSource } from "@/render/carSource";
 import type { Track } from "@/sim/types";
@@ -17,6 +17,8 @@ interface GameCameraProps {
   /** Son `groundAt` garde la caméra au-dessus du sol */
   track: Track;
   mode?: CameraMode;
+  /** Rotation demandée autour de la voiture, -1 à 1 */
+  orbit: RefObject<number>;
 }
 
 const createInput = (): RigInput => ({
@@ -28,6 +30,7 @@ const createInput = (): RigInput => ({
   forwardSpeed: 0,
   grass: 0,
   impact: 0,
+  orbit: 0,
 });
 
 /** Pilote la caméra par défaut de la scène, sans rendu React par image. */
@@ -35,6 +38,7 @@ export const GameCamera = ({
   source,
   track,
   mode = "chase",
+  orbit,
 }: GameCameraProps) => {
   // Le circuit reste presque plat : sa caméra ne change pas.
   const [rig] = useState(() =>
@@ -56,6 +60,7 @@ export const GameCamera = ({
     const pose = source.getPose();
     if (!state || !pose) return;
     fillRigInput(input.current, pose, state);
+    input.current.orbit = orbit.current;
     if (reducedMotion.current) {
       input.current.grass = 0;
       input.current.impact = 0;

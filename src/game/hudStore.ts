@@ -84,7 +84,7 @@ export const setHudScreen = (screen: GameScreen): void => {
 };
 
 /**
- * Effet d'une pression de A ou de Start sur le menu.
+ * Effet d'une pression de A ou de Start sur le menu. En pause, A active la ligne sélectionnée : voir `applyMenuAction`.
  * Au départ, la manette est refusée tant que le son est bloqué : le joueur roulerait sans savoir pourquoi c'est silencieux.
  */
 export const nextScreen = (
@@ -94,6 +94,7 @@ export const nextScreen = (
   startPressed: boolean,
 ): GameScreen => {
   if (screen === "race") return startPressed ? "pause" : "race";
+  if (screen === "pause") return startPressed ? "race" : "pause";
   if (!confirmPressed && !startPressed) return screen;
   return screen === "start" && soundBlocked ? "start" : "race";
 };

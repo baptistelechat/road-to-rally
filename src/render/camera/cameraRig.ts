@@ -13,6 +13,8 @@ export interface RigInput {
   /** Part des roues au sol qui sont sur l'herbe, 0 à 1 */
   grass: number;
   impact: number;
+  /** Rotation demandée autour de la voiture, -1 à 1, en poursuite seulement */
+  orbit: number;
 }
 
 export interface RigOutput {
@@ -39,6 +41,9 @@ export const RIG_TUNING = {
   /** Rapport vitesse avant / vitesse sous lequel on revient vers la caisse (voiture en travers ou qui recule) */
   alignmentFull: 0.35,
   headingLambda: 5,
+  /** Angle atteint stick à fond : un demi-tour, pour voir la voiture de face */
+  orbitRange: Math.PI,
+  orbitLambda: 6,
   heightLambda: 7,
   distanceLambda: 2.5,
   fovLambda: 3,
@@ -154,6 +159,7 @@ export const createCameraRig = (
 
   let time = 0;
   let yaw = 0;
+  let orbit = 0;
   let height = 0;
   let groundLift = 0;
   let distance: number = tuning.chaseDistance;
@@ -198,6 +204,12 @@ export const createCameraRig = (
         -(bodyZ * (1 - weight) + velZ * weight),
       );
       yaw = dampAngle(yaw, targetYaw, tuning.headingLambda, h);
+      orbit = damp(
+        orbit,
+        input.orbit * tuning.orbitRange,
+        tuning.orbitLambda,
+        h,
+      );
       height = damp(height, position.y, tuning.heightLambda, h);
       distance = damp(
         distance,
@@ -206,8 +218,8 @@ export const createCameraRig = (
         h,
       );
       // La voiture reste liée à la caméra en X et Z : aucun retard de position, donc aucune saccade.
-      const sin = Math.sin(yaw);
-      const cos = Math.cos(yaw);
+      const sin = Math.sin(yaw + orbit);
+      const cos = Math.cos(yaw + orbit);
       const x = position.x + sin * distance;
       const y = height + tuning.chaseHeight;
       const z = position.z + cos * distance;
@@ -226,6 +238,7 @@ export const createCameraRig = (
       );
     } else {
       yaw = bodyYaw;
+      orbit = 0;
       height = position.y;
       const bodyPitch = Math.asin(Math.min(1, Math.max(-1, forward.y)));
       const cosPitch = Math.max(0.05, Math.cos(bodyPitch));
@@ -278,7 +291,7 @@ export const createCameraRig = (
     const amplitude = (shake + kick * tuning.shakeImpact) * scale;
     euler.set(
       pitch + amplitude * (Math.sin(time * 37) + 0.5 * Math.sin(time * 61)),
-      yaw + amplitude * 0.7 * Math.sin(time * 43 + 1),
+      yaw + orbit + amplitude * 0.7 * Math.sin(time * 43 + 1),
       roll + amplitude * 0.5 * Math.sin(time * 29 + 2),
     );
     output.quaternion.setFromEuler(euler);

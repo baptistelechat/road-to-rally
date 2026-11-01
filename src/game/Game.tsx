@@ -18,6 +18,7 @@ import { isLightProp } from "@/sim/lightProps";
 import type { Simulation } from "@/sim/simulation";
 import { Diagnostics } from "./diag/Diagnostics";
 import { Hud } from "./Hud";
+import { setHudMuted } from "./hudStore";
 import { importedMap, mapFromParam, mapSearch } from "./maps";
 import { useGameLoop } from "./useGameLoop";
 import { useGameSession } from "./useGameSession";
@@ -46,7 +47,7 @@ const Scene = ({ sim, audio, useBot, bestLapKey }: SceneProps) => {
     [sim],
   );
   const capture = useRef<(() => void) | null>(null);
-  const { source, info } = useGameLoop({
+  const { source, info, cameraOrbit } = useGameLoop({
     sim,
     audio,
     useBot,
@@ -58,7 +59,12 @@ const Scene = ({ sim, audio, useBot, bestLapKey }: SceneProps) => {
 
   return (
     <>
-      <GameCamera source={source} track={sim.track} mode={cameraMode} />
+      <GameCamera
+        source={source}
+        track={sim.track}
+        mode={cameraMode}
+        orbit={cameraOrbit}
+      />
       <Atmosphere follow={source} />
       <TrackView track={sim.track} />
       <SceneryView items={staticScenery} />
@@ -133,6 +139,7 @@ export const Game = () => {
         closed={game.sim.track.closed}
         notices={game.notices}
         onImported={setImported}
+        onToggleMute={() => setHudMuted(game.audio.toggleMute())}
       />
       {TuningPanel && <TuningPanel sim={game.sim} />}
     </div>

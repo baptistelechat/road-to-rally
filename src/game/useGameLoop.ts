@@ -11,6 +11,12 @@ import {
   type InputController,
 } from "@/input/inputController";
 import { createInputRecorder } from "@/input/recorder";
+import {
+  type MenuRepeat,
+  pollMenuRepeat,
+  readCameraOrbit,
+  readMenuAction,
+} from "@/input/smoothing";
 import type { CarSource } from "@/render/carSource";
 import { botInput } from "@/sim/bot";
 import { createFixedStepper, FIXED_DT } from "@/sim/fixedStep";
@@ -28,6 +34,7 @@ import {
   setLapTimes,
   useHudStore,
 } from "./hudStore";
+import { applyMenuAction } from "./Hud/applyMenuAction";
 
 const CONFIRM_BUTTON = 0;
 const START_BUTTON = 9;
@@ -74,7 +81,11 @@ export const useGameLoop = ({
   bestLapKey,
   onToggleCamera,
   onDiagRequest,
-}: GameLoopOptions): { source: CarSource; info: RefObject<LoopInfo> } => {
+}: GameLoopOptions): {
+  source: CarSource;
+  info: RefObject<LoopInfo>;
+  cameraOrbit: RefObject<number>;
+} => {
   const stepper = useMemo(() => createFixedStepper(), []);
   const recorder = useRef(createInputRecorder());
   const controller = useRef<ReturnType<typeof createInputController> | null>(
@@ -85,10 +96,12 @@ export const useGameLoop = ({
     applied: NEUTRAL_INPUT,
     steps: 0,
   });
+  const cameraOrbit = useRef(0);
   const bestLap = useRef<number | null>(null);
   const lastLap = useRef<number | null>(null);
   // Tenus au départ : le bouton qui a réveillé la manette ne déclenche rien.
   const padHeld = useRef({ confirm: true, start: true });
+  const menuRepeat = useRef<MenuRepeat>({ held: undefined, wait: 0 });
   const pose = useRef<Pose>({
     position: { x: 0, y: 0, z: 0 },
     rotation: { x: 0, y: 0, z: 0, w: 1 },
@@ -135,6 +148,17 @@ export const useGameLoop = ({
     padHeld.current.start = start;
     setHudScreen(screen);
     audio.setPaused(screen === "pause");
+    // Relevé aussi en course : un A tenu (frein à main) à l'ouverture du menu ne clique sur rien.
+    const menuAction = pad
+      ? pollMenuRepeat(menuRepeat.current, readMenuAction(pad), delta)
+      : null;
+    if (!pad) menuRepeat.current.held = undefined;
+    if (menuAction && screen === "pause" && document.hasFocus())
+      applyMenuAction(menuAction);
+    cameraOrbit.current =
+      pad && screen === "race" && document.hasFocus()
+        ? readCameraOrbit(pad)
+        : 0;
     // Dans les menus, ni voiture ni chrono.
     const alpha = stepper.advance(screen === "race" ? delta : 0, () => {
       const sampled: CarInput = input?.sample(FIXED_DT) ?? NEUTRAL_INPUT;
@@ -203,5 +227,5 @@ export const useGameLoop = ({
     }),
     [sim],
   );
-  return { source, info };
+  return { source, info, cameraOrbit };
 };

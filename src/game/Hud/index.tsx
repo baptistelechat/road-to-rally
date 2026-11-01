@@ -106,6 +106,7 @@ interface HudProps {
   /** Avertissements de la spéciale en cours */
   notices: readonly string[];
   onImported: (stage: ImportedStage) => void;
+  onToggleMute: () => void;
 }
 
 /** HUD en DOM, à placer par-dessus le canvas. Seuls les boutons et le sélecteur captent les clics. */
@@ -115,6 +116,7 @@ export const Hud = ({
   closed,
   notices,
   onImported,
+  onToggleMute,
 }: HudProps) => (
   <div className="pointer-events-none fixed inset-0 z-10 flex flex-col justify-between p-4 select-none">
     <div className="flex items-start justify-between gap-4">
@@ -132,6 +134,7 @@ export const Hud = ({
       mapLabel={mapLabel}
       closed={closed}
       onImported={onImported}
+      onToggleMute={onToggleMute}
     />
     <div className="flex items-end justify-between gap-4">
       <ControlsHelp closed={closed} />

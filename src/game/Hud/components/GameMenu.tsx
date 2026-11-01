@@ -2,7 +2,7 @@
 
 import { requestRestart, setHudScreen, useHudStore } from "@/game/hudStore";
 import type { ImportedStage } from "@/game/useStageImport";
-import { hudButton, panel } from "../hudStyles";
+import { hudButton, menuFocus, panel } from "../hudStyles";
 import { MapSelect } from "./MapSelect";
 
 interface GameMenuProps {
@@ -11,6 +11,7 @@ interface GameMenuProps {
   /** Tracé en boucle, sinon spéciale d'un départ à une arrivée */
   closed: boolean;
   onImported: (stage: ImportedStage) => void;
+  onToggleMute: () => void;
 }
 
 /**
@@ -22,8 +23,10 @@ export const GameMenu = ({
   mapLabel,
   closed,
   onImported,
+  onToggleMute,
 }: GameMenuProps) => {
   const screen = useHudStore((s) => s.screen);
+  const muted = useHudStore((s) => s.muted);
   if (screen === "race") return null;
   const paused = screen === "pause";
   return (
@@ -40,22 +43,31 @@ export const GameMenu = ({
         <button
           type="button"
           autoFocus
-          className="w-full rounded bg-amber-400 px-4 py-3 font-bold text-black hover:bg-amber-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+          className={`w-full rounded bg-amber-400 px-4 py-3 font-bold text-black hover:bg-amber-300 ${menuFocus}`}
           onClick={() => setHudScreen("race")}
         >
           {paused ? "Reprendre" : "Prendre le départ"}
         </button>
         {paused && (
-          <button
-            type="button"
-            className={`${hudButton} w-full`}
-            onClick={() => {
-              requestRestart();
-              setHudScreen("race");
-            }}
-          >
-            {closed ? "Relancer le tour" : "Relancer"}
-          </button>
+          <>
+            <button
+              type="button"
+              className={`${hudButton} ${menuFocus} w-full`}
+              onClick={() => {
+                requestRestart();
+                setHudScreen("race");
+              }}
+            >
+              {closed ? "Relancer le tour" : "Relancer"}
+            </button>
+            <button
+              type="button"
+              className={`${hudButton} ${menuFocus} w-full`}
+              onClick={onToggleMute}
+            >
+              {muted ? "Remettre le son" : "Couper le son"}
+            </button>
+          </>
         )}
       </div>
     </dialog>
