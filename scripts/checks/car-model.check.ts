@@ -5,6 +5,14 @@ import {
   type CarGeometry,
 } from "../../src/render/car/buildCarGeometry";
 import {
+  type FlagFacet,
+  FLAGS,
+  flagFacets,
+  loadFlagFacets,
+  NO_FLAG,
+  paintFacets,
+} from "../../src/render/car/flags";
+import {
   defaultLivery,
   type Livery,
   parseLivery,
@@ -57,6 +65,7 @@ const check = async (): Promise<void> => {
 
   // Une autre livrée change les couleurs sans déplacer un seul sommet
   const otherLivery: Livery = {
+    ...defaultLivery,
     primary: "#112233",
     secondary: "#445566",
     accent: "#778899",
@@ -80,6 +89,115 @@ const check = async (): Promise<void> => {
     ),
     { ...defaultLivery, primary: "#112233" },
   );
+
+  // Plaque et numéro : valides relus tels quels, le reste retombe sur l'origine
+  const decals = {
+    plateText: "AB-123-CD",
+    plateStyle: "jaune",
+    numberText: "7",
+    numberStyle: "rond",
+  } as const;
+  assert.deepEqual(parseLivery(JSON.stringify(decals)), {
+    ...defaultLivery,
+    ...decals,
+  });
+  assert.deepEqual(
+    parseLivery(
+      JSON.stringify({
+        plateText: "bien trop long pour une plaque",
+        plateStyle: "inconnu",
+        numberText: "A1",
+        numberStyle: 3,
+      }),
+    ),
+    defaultLivery,
+  );
+
+  // Drapeau stocké : un code connu relu tel quel, le reste retombe sur l'origine
+  assert.equal(parseLivery(JSON.stringify({ flag: "BR" })).flag, "BR");
+  assert.equal(
+    parseLivery(JSON.stringify({ flag: "XX" })).flag,
+    defaultLivery.flag,
+  );
+
+  // Liste des drapeaux : codes uniques et noms français triés
+  const ids = FLAGS.map(({ id }) => id);
+  assert.ok(FLAGS.length > 200, `${FLAGS.length} drapeaux`);
+  assert.equal(new Set(ids).size, ids.length);
+  for (const code of ["FR", "BR", "US"]) assert.ok(ids.includes(code), code);
+  assert.equal(FLAGS.find(({ id }) => id === "BR")?.label, "Brésil");
+
+  // « Sans drapeau » : première case, avant l'Afghanistan, stockable et sans facette à dessiner
+  assert.equal(FLAGS[0].id, NO_FLAG);
+  assert.equal(FLAGS[1].id, "AF");
+  assert.equal(parseLivery(JSON.stringify({ flag: NO_FLAG })).flag, NO_FLAG);
+  assert.deepEqual(await loadFlagFacets(NO_FLAG), []);
+
+  // Low-poly : 2 triangles par cellule, des couleurs franches, et un détail fin qui disparaît
+  const [width, height] = [24, 24];
+  const image = new Uint8ClampedArray(width * height * 4);
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      // Fond rouge coupé d'une ligne blanche d'un pixel, moitié basse bleue
+      const color =
+        y >= 12 ? [0, 0, 248] : y === 3 ? [248, 248, 248] : [248, 0, 0];
+      image.set([...color, 255], (y * width + x) * 4);
+    }
+  }
+  const facets = flagFacets(image, width, height, 2, 2);
+  assert.equal(facets.length, 8);
+  const isFacet = (facet: FlagFacet, r: number, g: number, b: number) =>
+    [1, 0.93].some((shade) =>
+      [r, g, b].every((c, i) => facet[i] === Math.round(c * shade)),
+    );
+  const has = (r: number, g: number, b: number): boolean =>
+    facets.some((facet) => isFacet(facet, r, g, b));
+  assert.ok(has(252, 4, 4), "pas de rouge franc");
+  assert.ok(has(4, 4, 252), "pas de bleu franc");
+  assert.ok(!has(252, 252, 252), "le détail fin devrait disparaître");
+
+  // Peinture : chaque pixel prend le triangle qui le couvre, opaque ; sans facette, l'image reste transparente
+  const painted = new Uint8ClampedArray(width * height * 4);
+  paintFacets(painted, width, height, facets, 2, 2);
+  const pixel = (x: number, y: number) =>
+    painted.slice((y * width + x) * 4, (y * width + x) * 4 + 4);
+  assert.ok(
+    painted.every((c, i) => i % 4 !== 3 || c === 255),
+    "pixel non opaque",
+  );
+  const [red, blue] = [pixel(12, 3), pixel(12, 20)];
+  assert.ok(
+    isFacet([red[0], red[1], red[2]], 252, 4, 4),
+    "ligne fine repeinte",
+  );
+  assert.ok(isFacet([blue[0], blue[1], blue[2]], 4, 4, 252), "moitié basse");
+  const empty = new Uint8ClampedArray(16);
+  paintFacets(empty, 2, 2, []);
+  assert.ok(empty.every((c) => c === 0));
+
+  // Plaques, numéros (portières et capot) et drapeaux : tournés vers l'extérieur de la voiture
+  for (const [decal, quads] of [
+    [car.plates, 2],
+    [car.numbers, 3],
+    [car.flags, 2],
+  ] as const) {
+    assert.equal(decal.getAttribute("position").count, quads * 4);
+    assert.ok(positionsOf(decal).every(Number.isFinite), "position non finie");
+    const normals = decal.getAttribute("normal");
+    const positions = decal.getAttribute("position");
+    for (let i = 0; i < positions.count; i++) {
+      const position = [
+        positions.getX(i),
+        positions.getY(i),
+        positions.getZ(i),
+      ];
+      const normal = [normals.getX(i), normals.getY(i), normals.getZ(i)];
+      assert.ok(
+        position.reduce((sum, p, axis) => sum + p * normal[axis], 0) > 0,
+        "décor tourné vers l'intérieur",
+      );
+    }
+  }
 
   // Roues : positions et dimensions de `carConfig`
   assert.equal(car.wheels.length, 4);

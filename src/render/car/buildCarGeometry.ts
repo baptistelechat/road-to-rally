@@ -6,10 +6,11 @@ import {
   wheelRestPosition,
 } from "@/sim/carConfig";
 import { WHEEL_COUNT, type Vec3 } from "@/sim/types";
-import { type Livery } from "./livery";
+import { type LiveryColors } from "./livery";
 import {
   type Bands,
   createMeshBuilder,
+  decalQuads,
   type P2,
   rgb,
   type Rgb,
@@ -31,6 +32,12 @@ export interface CarGeometry {
   body: BufferGeometry;
   /** À part pour pouvoir les allumer au freinage */
   brakeLights: BufferGeometry;
+  /** Plaques avant et arrière, à texturer */
+  plates: BufferGeometry;
+  /** Numéros de portière et de capot, à texturer */
+  numbers: BufferGeometry;
+  /** Drapeaux de custode, à texturer */
+  flags: BufferGeometry;
   /** Dans l'ordre AVG, AVD, ARG, ARD */
   wheels: WheelPart[];
 }
@@ -71,8 +78,8 @@ const WINDSHIELD_BASE = -0.72;
 const WINDSHIELD_TOP = -0.2;
 const ROOF_REAR = 1.12;
 
-/** Segments du numéro de portière : a haut, b haut droit, c bas droit, d bas, e bas gauche, g milieu */
-const DOOR_NUMBER = ["abged", "abc"];
+const PLATE_HALF_WIDTH = 0.21;
+const DECAL_GAP = 0.004;
 
 const lerp = (a: number, b: number, t: number): number => a + (b - a) * t;
 
@@ -80,7 +87,7 @@ const buildWheel = (
   radius: number,
   width: number,
   side: number,
-  livery: Livery,
+  livery: LiveryColors,
 ): BufferGeometry => {
   const mesh = createMeshBuilder();
   const rim = rgb(livery.rim);
@@ -157,7 +164,7 @@ const buildWheel = (
 };
 
 export const buildCarGeometry = (
-  livery: Livery,
+  livery: LiveryColors,
   config: CarConfig = carConfig,
 ): CarGeometry => {
   const body = createMeshBuilder();
@@ -407,6 +414,12 @@ export const buildCarGeometry = (
     );
   }
 
+  const slopeNormal = (from: P2, to: P2): P2 => {
+    const [dz, dh] = [to[0] - from[0], to[1] - from[1]];
+    const length = Math.hypot(dz, dh);
+    return [dh / length, -dz / length];
+  };
+
   /** Bande posée sur une pente de la silhouette, `from` et `to` donnés dans le sens de la silhouette. */
   const onSlope = (
     from: P2,
@@ -417,9 +430,7 @@ export const buildCarGeometry = (
     color: Rgb,
     lift = 0.012,
   ): void => {
-    const [dz, dh] = [to[0] - from[0], to[1] - from[1]];
-    const length = Math.hypot(dz, dh);
-    const [nz, nh] = [dh / length, -dz / length];
+    const [nz, nh] = slopeNormal(from, to);
     const at = (t: number, sign: number): V3 => {
       const h = lerp(from[1], to[1], t);
       return [
@@ -495,46 +506,54 @@ export const buildCarGeometry = (
     ]);
   };
   const doorFront = arches[0].z + arches[0].radius + 0.14;
+  const numberQuads: [V3, V3, V3, V3][] = [];
+  const flagQuads: [V3, V3, V3, V3][] = [];
   for (const side of SIDES) {
     hullRect(side, doorFront, doorFront + 0.012, SILL + 0.07, BELT - 0.02, INK);
     hullRect(side, pillar, pillar + 0.012, SILL + 0.07, BELT - 0.02, INK);
     hullRect(side, pillar - 0.16, pillar - 0.05, 0.84, 0.865, INK);
 
     const center = (doorFront + pillar - 0.16) / 2;
-    hullRect(side, center - 0.25, center + 0.25, 0.68, 0.9, PLATE);
-    const [digitWidth, digitHeight, stroke, gap] = [0.09, 0.16, 0.024, 0.04];
-    const [bottom, top, mid] = [
-      0.71,
-      0.71 + digitHeight,
-      0.71 + digitHeight / 2,
+    // Sens de lecture : vers l'avant sur le flanc droit, vers l'arrière sur le flanc gauche.
+    const at = (u: number, h: number): V3 => [
+      side * (hullX(h) + 0.012),
+      Y(h),
+      center - side * u,
     ];
-    DOOR_NUMBER.forEach((segments, index) => {
-      // Sens de lecture : vers l'avant sur le flanc droit, vers l'arrière sur le flanc gauche.
-      const left = -digitWidth - gap / 2 + index * (digitWidth + gap);
-      const right = left + digitWidth;
-      const rects: Record<string, [number, number, number, number]> = {
-        a: [left, right, top - stroke, top],
-        b: [right - stroke, right, mid, top],
-        c: [right - stroke, right, bottom, mid],
-        d: [left, right, bottom, bottom + stroke],
-        e: [left, left + stroke, bottom, mid],
-        g: [left, right, mid - stroke / 2, mid + stroke / 2],
-      };
-      for (const segment of segments) {
-        const [u0, u1, h0, h1] = rects[segment];
-        const at = (u: number, h: number): V3 => [
-          side * (hullX(h) + 0.012),
-          Y(h),
-          center - side * u,
-        ];
-        body.face([at(u0, h0), at(u1, h0), at(u1, h1), at(u0, h1)], INK, [
-          side,
-          0.1,
-          0,
-        ]);
-      }
-    });
+    numberQuads.push([
+      at(-0.25, 0.68),
+      at(0.25, 0.68),
+      at(0.25, 0.9),
+      at(-0.25, 0.9),
+    ]);
+    // Drapeau sur la custode : au-dessus de la roue, l'aile monte plus haut que la caisse et n'offre aucun plat.
+    const [flagLeft, flagRight] = side > 0 ? [0.75, 0.48] : [0.48, 0.75];
+    const flagAt = (z: number, h: number): V3 => [
+      side * (hullX(h) + 0.012),
+      Y(h),
+      z,
+    ];
+    flagQuads.push([
+      flagAt(flagLeft, 0.69),
+      flagAt(flagRight, 0.69),
+      flagAt(flagRight, 0.87),
+      flagAt(flagLeft, 0.87),
+    ]);
   }
+
+  // Numéro de capot : se lit face à la voiture, le haut des chiffres vers le pare-brise.
+  const [hoodNz, hoodNh] = slopeNormal(hood[0], hood[1]);
+  const hoodAt = (x: number, t: number): V3 => [
+    x,
+    Y(lerp(hood[0][1], hood[1][1], t) + hoodNh * 0.012),
+    lerp(hood[0][0], hood[1][0], t) + hoodNz * 0.012,
+  ];
+  numberQuads.push([
+    hoodAt(0.25, 0.65),
+    hoodAt(-0.25, 0.65),
+    hoodAt(-0.25, 0.35),
+    hoodAt(0.25, 0.35),
+  ]);
 
   // --- Avant : calandre, phares, pare-chocs, rampe de quatre phares ---
   const noseFace = (
@@ -630,7 +649,26 @@ export const buildCarGeometry = (
       BRAKE_OFF,
     );
   }
-  body.box([-0.17, Y(0.47), tail - 0.03], [0.17, Y(0.56), tail + 0.008], PLATE);
+  // Support de plaque, recouvert par la texture. Vue de face, la droite est +X à l'arrière et -X à l'avant.
+  const plate = (halfX: number, h0: number, h1: number, z: number): V3[] => [
+    [-halfX, Y(h0), z],
+    [halfX, Y(h0), z],
+    [halfX, Y(h1), z],
+    [-halfX, Y(h1), z],
+  ];
+  const [plateX, frontLow, frontHigh] = [PLATE_HALF_WIDTH, 0.345, 0.435];
+  const frontZ = nose - 0.07;
+  const rearZ = tail + 0.008;
+  body.box([-plateX, Y(0.47), tail - 0.03], [plateX, Y(0.56), rearZ], PLATE);
+  body.box(
+    [-plateX, Y(frontLow), frontZ],
+    [plateX, Y(frontHigh), nose - 0.045],
+    PLATE,
+  );
+  const plateQuads = [
+    plate(-plateX, frontLow, frontHigh, frontZ - DECAL_GAP),
+    plate(plateX, 0.47, 0.56, rearZ + DECAL_GAP),
+  ] as [V3, V3, V3, V3][];
 
   body.extrude(
     (
@@ -719,5 +757,12 @@ export const buildCarGeometry = (
     position: rest,
   }));
 
-  return { body: body.toGeometry(), brakeLights: brake.toGeometry(), wheels };
+  return {
+    body: body.toGeometry(),
+    brakeLights: brake.toGeometry(),
+    plates: decalQuads(plateQuads),
+    numbers: decalQuads(numberQuads),
+    flags: decalQuads(flagQuads),
+    wheels,
+  };
 };

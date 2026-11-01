@@ -34,6 +34,29 @@ const cross = (a: V3, b: V3): V3 => [
   a[0] * b[1] - a[1] * b[0],
 ];
 
+/** Rectangles texturés, coins dans l'ordre bas-gauche, bas-droit, haut-droit, haut-gauche vus de l'extérieur. */
+export const decalQuads = (
+  quads: readonly (readonly [V3, V3, V3, V3])[],
+): BufferGeometry => {
+  const geometry = new BufferGeometry();
+  geometry.setAttribute(
+    "position",
+    new BufferAttribute(new Float32Array(quads.flat(2)), 3),
+  );
+  geometry.setAttribute(
+    "uv",
+    new BufferAttribute(
+      new Float32Array(quads.flatMap(() => [0, 0, 1, 0, 1, 1, 0, 1])),
+      2,
+    ),
+  );
+  geometry.setIndex(
+    quads.flatMap((_, i) => [0, 1, 2, 0, 2, 3].map((corner) => corner + i * 4)),
+  );
+  geometry.computeVertexNormals();
+  return geometry;
+};
+
 /** Garde la partie d'un polygone convexe au-dessus ou en dessous de l'altitude `y`. */
 const clipY = (points: V3[], y: number, keepAbove: boolean): V3[] => {
   const kept: V3[] = [];

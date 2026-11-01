@@ -19,6 +19,9 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Compteurs de performance et capture de diagnostic avec `F9` ou `LB`
 - Garage sur `/garage` : voiture sur plateau tournant avec pause, caméra à la souris et à la manette
 - Personnalisation de la voiture au garage : carrosserie, bas de caisse, accents et jantes, avec une palette de 220 couleurs Tailwind à la souris, au clavier et à la manette, conservée en jeu
+- Plaques personnalisables au garage, à l'avant et à l'arrière : texte de 9 caractères et 4 styles
+- Numéro personnalisable au garage, sur les portières et le capot : 3 chiffres et 6 styles
+- Drapeau de 255 pays sur les flancs arrière, redessiné en style low-poly, avec une option sans drapeau
 
 ### Changed
 

@@ -13,6 +13,7 @@
     "@dimforge/rapier3d-deterministic-compat": "^0.21.0",
     "@react-three/drei": "^10.7.9",
     "@react-three/fiber": "^9.8.2",
+    "country-flag-icons": "^1.6.20",
     "next": "16.4.3",
     "react": "19.3.0",
     "react-dom": "19.3.0",

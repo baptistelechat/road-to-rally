@@ -27,8 +27,23 @@ export const useGarageMenu = (): [
 
   useEffect(() => saveLivery(menu.livery), [menu.livery]);
 
+  const typing = menu.text !== null;
+
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent): void => {
+      const typed = event.key.length === 1 || event.key === "Backspace";
+      if (typing && typed && !event.ctrlKey && !event.metaKey) {
+        // Sinon, Espace activerait le bouton qui a gardé le focus après un clic.
+        if (document.activeElement instanceof HTMLElement)
+          document.activeElement.blur();
+        event.preventDefault();
+        dispatch(
+          event.key === "Backspace"
+            ? { type: "erase" }
+            : { type: "char", char: event.key },
+        );
+        return;
+      }
       const action = KEY_ACTIONS[event.key];
       if (!action) return;
       const active = document.activeElement;
@@ -43,7 +58,7 @@ export const useGarageMenu = (): [
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, []);
+  }, [typing]);
 
   return [menu, dispatch];
 };
