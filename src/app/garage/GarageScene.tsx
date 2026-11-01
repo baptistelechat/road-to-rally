@@ -5,24 +5,30 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { useRef, useState } from "react";
 import type { Group } from "three";
 import { CarModel } from "@/render/car/CarModel";
+import type { Livery } from "@/render/car/livery";
 import { carConfig } from "@/sim/carConfig";
 import { GaragePadControls } from "./GaragePadControls";
+import { ROTATION_ROW } from "./garageMenu";
+import { LiveryPanel, MENU_FOCUS } from "./LiveryPanel";
+import { useGarageMenu } from "./useGarageMenu";
 
 const TURN_SPEED = 0.25;
 const PLATE_HEIGHT = 0.12;
 const ORBIT_TARGET = [0, 0.6, 0] as const;
 
 const PAD_HELP: readonly (readonly [string, string])[] = [
+  ["Croix / Stick gauche", "Naviguer"],
+  ["A / B", "Valider / Annuler"],
   ["Stick droit", "Tourner autour"],
   ["RT / LT", "Rapprocher / Éloigner"],
-  ["A", "Pause de la rotation"],
 ];
 
 interface TurntableProps {
   paused: boolean;
+  livery: Livery;
 }
 
-const Turntable = ({ paused }: TurntableProps) => {
+const Turntable = ({ paused, livery }: TurntableProps) => {
   const table = useRef<Group>(null);
 
   useFrame((_, delta) => {
@@ -38,15 +44,15 @@ const Turntable = ({ paused }: TurntableProps) => {
       </mesh>
       {/* L'origine du modèle est le centre de la caisse et ses roues sont à l'assiette de repos. */}
       <group position={[0, carConfig.ride.height, 0]}>
-        <CarModel />
+        <CarModel livery={livery} />
       </group>
     </group>
   );
 };
 
 export const GarageScene = () => {
-  const [paused, setPaused] = useState(false);
   const [padConnected, setPadConnected] = useState(false);
+  const [menu, dispatch] = useGarageMenu();
 
   return (
     <div className="fixed inset-0 bg-[#c9c3b4]">
@@ -78,10 +84,10 @@ export const GarageScene = () => {
           <circleGeometry args={[40, 48]} />
           <meshStandardMaterial color="#b9b3a4" roughness={1} />
         </mesh>
-        <Turntable paused={paused} />
+        <Turntable paused={menu.paused} livery={menu.livery} />
         <GaragePadControls
           target={ORBIT_TARGET}
-          onTogglePause={() => setPaused((value) => !value)}
+          onMenuAction={dispatch}
           onConnectionChange={setPadConnected}
         />
         <OrbitControls
@@ -92,6 +98,7 @@ export const GarageScene = () => {
           maxPolarAngle={Math.PI / 2 - 0.02}
         />
       </Canvas>
+      <LiveryPanel menu={menu} dispatch={dispatch} />
       <div className="absolute right-4 bottom-4 flex flex-col items-end gap-2">
         {padConnected && (
           <dl className="grid grid-cols-[auto_auto] gap-x-3 gap-y-0.5 rounded border border-white/25 bg-black/70 px-3 py-2 text-xs text-white">
@@ -105,10 +112,12 @@ export const GarageScene = () => {
         )}
         <button
           type="button"
-          className="rounded border border-white/25 bg-black/70 px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-black/85 focus-visible:outline-2 focus-visible:outline-amber-400"
-          onClick={() => setPaused((value) => !value)}
+          className={`rounded border border-white/25 bg-black/70 px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-black/85 focus-visible:outline-2 focus-visible:outline-amber-400 ${menu.row === ROTATION_ROW ? MENU_FOCUS : ""}`}
+          onClick={() => dispatch({ type: "row", row: ROTATION_ROW })}
         >
-          {paused ? "Reprendre la rotation" : "Mettre la rotation en pause"}
+          {menu.paused
+            ? "Reprendre la rotation"
+            : "Mettre la rotation en pause"}
         </button>
       </div>
     </div>

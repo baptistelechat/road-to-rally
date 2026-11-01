@@ -8,6 +8,7 @@ import { createCarAudio, type CarAudio } from "@/audio/engineAudio";
 import { Atmosphere } from "@/render/Atmosphere";
 import { GameCamera } from "@/render/camera/GameCamera";
 import { CarModel } from "@/render/car/CarModel";
+import { loadLivery } from "@/render/car/livery";
 import { DustParticles } from "@/render/fx/DustParticles";
 import { SkidMarks } from "@/render/fx/SkidMarks";
 import { LightPropsView } from "@/render/scenery/LightPropsView";
@@ -37,6 +38,7 @@ interface SceneProps {
 
 const Scene = ({ sim, audio, useBot }: SceneProps) => {
   const [cameraMode, setCameraMode] = useState<"chase" | "hood">("chase");
+  const [livery] = useState(loadLivery);
   const staticScenery = useMemo(
     () => sim.scenery.filter((item) => !isLightProp(item.kind)),
     [sim],
@@ -60,7 +62,7 @@ const Scene = ({ sim, audio, useBot }: SceneProps) => {
       <LightPropsView props={sim.props} />
       {/* Les trois panneaux à la fois : FPS, ms et mémoire. */}
       <Stats className="!top-auto !bottom-4 !left-1/2 !flex -translate-x-1/2 gap-px [&>canvas]:!block" />
-      <CarModel source={source} />
+      <CarModel source={source} livery={livery} />
       <DustParticles source={source} />
       <SkidMarks source={source} />
       <Diagnostics sim={sim} audio={audio} info={info} captureRef={capture} />
@@ -106,11 +108,7 @@ export const Game = () => {
     <div className="fixed inset-0 bg-neutral-900">
       {game && (
         <Canvas shadows dpr={[1, 1.75]} gl={{ antialias: true }}>
-          <Scene
-            sim={game.sim}
-            audio={game.audio}
-            useBot={params.has("bot")}
-          />
+          <Scene sim={game.sim} audio={game.audio} useBot={params.has("bot")} />
         </Canvas>
       )}
       {game && <Hud />}

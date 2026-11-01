@@ -74,6 +74,9 @@ export const readGamepadInput = (pad: GamepadLike): CarInput => ({
   handbrake: pad.buttons[0]?.pressed ?? false,
 });
 
+export type MenuAction =
+  "up" | "down" | "left" | "right" | "confirm" | "cancel";
+
 export interface GarageInput {
   /** Stick droit, +1 = vers la droite */
   orbitX: number;
@@ -81,17 +84,64 @@ export interface GarageInput {
   orbitY: number;
   /** +1 = RT à fond, se rapprocher ; -1 = LT à fond, s'éloigner */
   zoom: number;
-  pause: boolean;
+  menu: MenuAction | null;
 }
 
-// Stick gauche et croix restent libres pour les menus de personnalisation.
+const MENU_STICK_THRESHOLD = 0.5;
+
+/** A valide, B annule ; la croix ou le stick gauche déplacent. */
+const readMenuAction = (pad: GamepadLike): MenuAction | null => {
+  if (pad.buttons[0]?.pressed) return "confirm";
+  if (pad.buttons[1]?.pressed) return "cancel";
+  if (pad.buttons[12]?.pressed) return "up";
+  if (pad.buttons[13]?.pressed) return "down";
+  if (pad.buttons[14]?.pressed) return "left";
+  if (pad.buttons[15]?.pressed) return "right";
+  const x = clamp(pad.axes[0] ?? 0, -1, 1);
+  const y = clamp(pad.axes[1] ?? 0, -1, 1);
+  // ponytail: seuil unique, ajouter une hystérésis si un stick usé fait sauter des lignes
+  if (Math.max(Math.abs(x), Math.abs(y)) < MENU_STICK_THRESHOLD) return null;
+  if (Math.abs(x) > Math.abs(y)) return x > 0 ? "right" : "left";
+  return y > 0 ? "down" : "up";
+};
+
+/** Temps de maintien avant le défilement, en secondes */
+export const MENU_REPEAT_DELAY = 0.35;
+/** Période du défilement, en secondes */
+export const MENU_REPEAT_INTERVAL = 0.09;
+
+export interface MenuRepeat {
+  /** Undefined tant qu'aucun relevé : le bouton pressé pour réveiller la manette ne déclenche rien. */
+  held: MenuAction | null | undefined;
+  wait: number;
+}
+
+/** Action à déclencher à ce pas : à la pression, puis en continu pour un déplacement maintenu. */
+export const pollMenuRepeat = (
+  repeat: MenuRepeat,
+  action: MenuAction | null,
+  dt: number,
+): MenuAction | null => {
+  if (action !== repeat.held) {
+    const fires = repeat.held !== undefined;
+    repeat.held = action;
+    repeat.wait = MENU_REPEAT_DELAY;
+    return fires ? action : null;
+  }
+  if (!action || action === "confirm" || action === "cancel") return null;
+  repeat.wait -= dt;
+  if (repeat.wait > 0) return null;
+  repeat.wait = MENU_REPEAT_INTERVAL;
+  return action;
+};
+
 export const readGarageInput = (pad: GamepadLike): GarageInput => {
-  const { throttle, brake, handbrake } = readGamepadInput(pad);
+  const { throttle, brake } = readGamepadInput(pad);
   return {
     orbitX: applyDeadzone(pad.axes[2] ?? 0, STICK_DEADZONE),
     orbitY: applyDeadzone(pad.axes[3] ?? 0, STICK_DEADZONE),
     zoom: throttle - brake,
-    pause: handbrake,
+    menu: readMenuAction(pad),
   };
 };
 

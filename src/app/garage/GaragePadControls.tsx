@@ -4,7 +4,12 @@ import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
 import { Spherical, Vector3 } from "three";
 import { findStandardPad } from "@/input/inputController";
-import { readGarageInput } from "@/input/smoothing";
+import {
+  type MenuAction,
+  type MenuRepeat,
+  pollMenuRepeat,
+  readGarageInput,
+} from "@/input/smoothing";
 
 const ORBIT_SPEED = 1.8;
 const ZOOM_SPEED = 1.2;
@@ -17,18 +22,17 @@ const spherical = new Spherical();
 
 interface GaragePadControlsProps {
   target: readonly [number, number, number];
-  onTogglePause: () => void;
+  onMenuAction: (action: MenuAction) => void;
   onConnectionChange: (connected: boolean) => void;
 }
 
 export const GaragePadControls = ({
   target,
-  onTogglePause,
+  onMenuAction,
   onConnectionChange,
 }: GaragePadControlsProps) => {
   const connected = useRef(false);
-  // Null tant qu'aucun relevé : le bouton pressé pour réveiller la manette ne déclenche rien.
-  const pauseHeld = useRef<boolean | null>(null);
+  const repeat = useRef<MenuRepeat>({ held: undefined, wait: 0 });
 
   useFrame(({ camera }, delta) => {
     const pad = findStandardPad(window);
@@ -37,17 +41,17 @@ export const GaragePadControls = ({
       onConnectionChange(connected.current);
     }
     if (!pad) {
-      pauseHeld.current = null;
+      repeat.current.held = undefined;
       return;
     }
 
     const input = readGarageInput(pad);
     if (!document.hasFocus()) {
-      pauseHeld.current = input.pause;
+      repeat.current.held = input.menu;
       return;
     }
-    if (input.pause && pauseHeld.current === false) onTogglePause();
-    pauseHeld.current = input.pause;
+    const action = pollMenuRepeat(repeat.current, input.menu, delta);
+    if (action) onMenuAction(action);
 
     if (!input.orbitX && !input.orbitY && !input.zoom) return;
     center.set(...target);
@@ -55,6 +59,8 @@ export const GaragePadControls = ({
     spherical.theta += input.orbitX * ORBIT_SPEED * delta;
     spherical.phi += input.orbitY * ORBIT_SPEED * delta;
     spherical.radius *= Math.exp(-input.zoom * ZOOM_SPEED * delta);
+    // Un angle négatif passerait de l'autre côté du sommet : bloqué ici, comme à la souris.
+    spherical.makeSafe();
     camera.position.setFromSpherical(spherical).add(center);
   }, BEFORE_ORBIT_CONTROLS);
 

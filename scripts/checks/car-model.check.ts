@@ -4,7 +4,11 @@ import {
   buildCarGeometry,
   type CarGeometry,
 } from "../../src/render/car/buildCarGeometry";
-import { defaultLivery, type Livery } from "../../src/render/car/livery";
+import {
+  defaultLivery,
+  type Livery,
+  parseLivery,
+} from "../../src/render/car/livery";
 import {
   carConfig,
   wheelAxle,
@@ -64,6 +68,18 @@ const check = async (): Promise<void> => {
   });
   assert.notDeepEqual(colorsOf(repainted[0]), colorsOf(car.body));
   assert.notDeepEqual(colorsOf(repainted[2]), colorsOf(car.wheels[0].geometry));
+
+  // Livrée stockée : valide relue telle quelle, le reste retombe sur l'origine
+  assert.deepEqual(parseLivery(JSON.stringify(otherLivery)), otherLivery);
+  for (const raw of [null, "{cassé", "null", "42"]) {
+    assert.deepEqual(parseLivery(raw), defaultLivery);
+  }
+  assert.deepEqual(
+    parseLivery(
+      JSON.stringify({ primary: "#112233", rim: "rouge", accent: 3 }),
+    ),
+    { ...defaultLivery, primary: "#112233" },
+  );
 
   // Roues : positions et dimensions de `carConfig`
   assert.equal(car.wheels.length, 4);
