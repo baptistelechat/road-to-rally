@@ -25,3 +25,5 @@ register: decisions
 | [BDR-20261101163654-4](decisions/BDR-20261101163654-4.md) | 2026-11-01 | Terrain gradué jusqu'à 1,5 km, rangées le long de la route | #terrain #delaunay #maillage #brouillard #ign #epic-2 | actif |
 | [BDR-20261101170343-1](decisions/BDR-20261101170343-1.md) | 2026-11-01 | Garage : coque sans ombre, objets avec, caméra bornée | #garage #decor #ombres #camera #three #r3f | actif |
 | [BDR-20261101191443-4](decisions/BDR-20261101191443-4.md) | 2026-11-01 | Menu de départ et de pause, simulation gelée hors course | #menu #pause #gamepad #hud #web-audio #zustand | actif |
+| [BDR-20261101201935-1](decisions/BDR-20261101201935-1.md) | 2026-11-01 | Caméra de course : stick droit, retour au relâchement | #camera #gamepad #orbit #chase-cam #react-three-fiber #determinism | actif |
+| [BDR-20261101201935-2](decisions/BDR-20261101201935-2.md) | 2026-11-01 | Menu pause à la manette : focus, A pour ouvrir, B pour revenir | #menu #gamepad #focus #listbox #select #navigation #a11y | actif |

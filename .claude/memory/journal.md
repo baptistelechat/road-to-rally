@@ -96,10 +96,31 @@ Commit f8d08ae. Reste : le playtest complet de la story 2.9, Firefox, la génér
 
 ---
 
-Son du moteur à l'arrivée sur le jeu : le navigateur exige un geste avant tout son, et une manette n'en est pas un. Après une tentative de message dans le HUD et une recommandation de PWA écartée grâce au retour d'expérience sur Pawzzle, on a retenu un menu de départ. Le sélecteur de carte y a été déplacé, puis le menu a aussi servi de menu pause avec Échap et Start, la simulation restant gelée hors course. Baptiste a fait retirer tous les textes d'aide : l'interface doit se comprendre seule. Le menu final est commité et poussé (`0fda8ba`), avec checks, lint, build et react-doctor au vert, mais il n'a pas été testé en navigateur.
+Son du moteur à l'arrivée sur le jeu : le navigateur exige un geste avant tout son, et une manette n'en est pas un. Après une tentative de message dans le HUD et une recommandation de PWA écartée grâce au retour d'expérience sur Pawzzle, on a retenu un menu de départ. Le sélecteur de carte y a été déplacé, puis le menu a aussi servi de menu pause avec Échap et Start, la simulation restant gelée hors course. Baptiste a fait retirer tous les textes d'aide : l'interface doit se comprendre seule. Le menu est commité et poussé (`0fda8ba`), avec checks, lint, build et react-doctor au vert. Baptiste a validé le son, la pause, Échap, ainsi que A et Start à la manette.
 
 **Entrées clés :**
 
 - [BDR-20261101191443-4](decisions/BDR-20261101191443-4.md) — Menu de départ et de pause, simulation gelée hors course
 - [LRN-20261101191443-1](learnings/LRN-20261101191443-1.md) — Une manette ne débloque pas l'audio du navigateur
-- [BLK-20261101191443-6](blockers/BLK-20261101191443-6.md) — Menu de départ et de pause jamais testé en navigateur
+- [ZBLK-20261101191443-6](archive/blockers/ZBLK-20261101191443-6.md) — Boutons A et Start du menu non testés à la manette
+
+---
+
+Baptiste a essayé le menu de départ et de pause dans son navigateur : le son, la pause, Échap, ainsi que A et Start à la manette fonctionnent. Le blocker de test est donc résolu et archivé. Reste ouvert le blocage de `next dev` dans le navigateur intégré, sans incidence sur le jeu dans Chrome.
+
+**Entrées clés :**
+
+- [ZBLK-20261101191443-6](archive/blockers/ZBLK-20261101191443-6.md) — Boutons A et Start du menu non testés à la manette
+
+---
+
+Session manette en jeu. Ajout de la rotation de la caméra de poursuite au stick droit, avec retour derrière la voiture au relâchement. Baptiste a ensuite signalé qu'il ne pouvait plus tourner : jamais reproduit en vue poursuite, seulement en vue capot, où la rotation est ignorée. Il a confirmé que l'absence de rotation en vue capot lui convient, sans que la cause de son signalement soit établie.
+
+Le menu pause ne se pilotait pas à la manette : A reprenait la course d'office. Ajout de la navigation par focus, d'un bouton pour couper le son et de B pour fermer. Le choix de carte a été livré en gauche/droite, puis refusé par Baptiste comme pas clair : il est passé à une liste maison qui s'ouvre avec A, à la place du `select` natif, et Baptiste a validé ses tests à la manette. Ce modèle existait déjà au garage et aurait dû être suivi dès le départ.
+
+`react-doctor` a signalé 2 alertes, corrigées avant le commit en sortant `applyMenuAction.ts` du fichier de composant et en donnant un rôle au conteneur de la liste. Ces corrections n'ont pas été rejouées en jeu. Commit `213e55f` poussé sur `development`.
+
+**Entrées clés :**
+
+- [BDR-20261101201935-1](decisions/BDR-20261101201935-1.md) — Caméra de course : stick droit, retour au relâchement
+- [BDR-20261101201935-2](decisions/BDR-20261101201935-2.md) — Menu pause à la manette : focus, A pour ouvrir, B pour revenir
