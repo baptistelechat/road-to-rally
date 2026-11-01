@@ -81,7 +81,7 @@ const check = async (): Promise<void> => {
     near(box.max.x + box.min.x, 0);
   });
 
-  // Caisse au-dessus du sol. Les bavettes descendent plus bas que le reste : elles sont hors du gabarit central.
+  // Caisse et bavettes au-dessus de la route à l'assiette de repos
   const ground = Math.min(
     ...car.wheels.map(
       (wheel, i) => wheel.position.y - wheelAxle(carConfig, i).wheelRadius,
@@ -89,7 +89,7 @@ const check = async (): Promise<void> => {
   );
   const box = car.body.boundingBox;
   assert.ok(box);
-  assert.ok(box.min.y > ground + 0.03, "bavettes au sol");
+  assert.ok(box.min.y > ground + carConfig.ride.sag + 0.02, "bavettes au sol");
   const positions = positionsOf(car.body);
   let floor = Infinity;
   for (let i = 0; i < positions.length; i += 3) {

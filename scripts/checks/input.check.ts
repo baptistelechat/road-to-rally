@@ -5,6 +5,7 @@ import {
   applyDeadzone,
   KEYBOARD_RAMPS,
   rampAxis,
+  readGarageInput,
   STICK_DEADZONE,
   type GamepadLike,
 } from "../../src/input/smoothing";
@@ -146,6 +147,18 @@ export default async function check(): Promise<void> {
   const session = runSession();
   assert.deepEqual(session, runSession());
   session.forEach(assertBounds);
+
+  // Garage : le stick droit tourne, les gâchettes zooment, le stick gauche reste libre.
+  {
+    const idle = readGarageInput(makePad({ steer: 1 }));
+    assert.deepEqual(idle, { orbitX: 0, orbitY: 0, zoom: 0, pause: false });
+    const pad = makePad({ throttle: 1, pressed: [0] });
+    const garage = readGarageInput({ ...pad, axes: [0, 0, 1, -1] });
+    assert.deepEqual(garage, { orbitX: 1, orbitY: -1, zoom: 1, pause: true });
+    assert.equal(readGarageInput(makePad({ brake: 1 })).zoom, -1);
+    const drift = { ...makePad(), axes: [0, 0, STICK_DEADZONE, 0] };
+    assert.equal(readGarageInput(drift).orbitX, 0);
+  }
 
   // Montée progressive au clavier, et retour au centre plus rapide que l'aller.
   {

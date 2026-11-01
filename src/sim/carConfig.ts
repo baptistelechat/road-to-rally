@@ -112,6 +112,11 @@ export interface CarConfig {
     asphalt: { grip: number; rollingResistance: number };
     grass: { grip: number; rollingResistance: number };
   };
+  /** Garde au sol du bas des bavettes à l'assiette de repos, en mètres. Purement visuel. */
+  mudflaps: {
+    frontClearance: number;
+    rearClearance: number;
+  };
 }
 
 export const carConfig: CarConfig = {
@@ -198,6 +203,10 @@ export const carConfig: CarConfig = {
   surfaces: {
     asphalt: { grip: 1, rollingResistance: 0 },
     grass: { grip: 0.55, rollingResistance: 900 },
+  },
+  mudflaps: {
+    frontClearance: 0.07,
+    rearClearance: 0.03,
   },
 };
 

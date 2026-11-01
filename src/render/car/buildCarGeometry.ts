@@ -693,7 +693,12 @@ export const buildCarGeometry = (
   // --- Bavettes derrière chaque roue, grandes à l'arrière : un repère fort de dos ---
   arches.forEach((arch, i) => {
     const z = arch.z + arch.radius + 0.02;
-    const low = i === 0 ? 0.12 : 0.06;
+    // Le sol réel est à `sag` sous les cotes : elles partent des roues détendues, la voiture repose plus bas.
+    const low =
+      config.ride.sag +
+      (i === 0
+        ? config.mudflaps.frontClearance
+        : config.mudflaps.rearClearance);
     for (const side of SIDES) {
       const [x0, x1] = [side * (wheelInner - 0.02), side * (wheelOuter + 0.02)];
       body.box(

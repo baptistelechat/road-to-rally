@@ -17,3 +17,8 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Bouton pour relancer le tour et aide selon le périphérique actif
 - Blocage du jeu sur téléphone
 - Compteurs de performance et capture de diagnostic avec `F9` ou `LB`
+- Garage sur `/garage` : voiture sur plateau tournant avec pause, caméra à la souris et à la manette
+
+### Fixed
+
+- Bavettes qui traversaient la route : elles sont plus courtes et restent au-dessus du sol à l'assiette de repos

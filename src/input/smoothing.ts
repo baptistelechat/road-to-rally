@@ -74,6 +74,27 @@ export const readGamepadInput = (pad: GamepadLike): CarInput => ({
   handbrake: pad.buttons[0]?.pressed ?? false,
 });
 
+export interface GarageInput {
+  /** Stick droit, +1 = vers la droite */
+  orbitX: number;
+  /** Stick droit, +1 = vers le bas */
+  orbitY: number;
+  /** +1 = RT à fond, se rapprocher ; -1 = LT à fond, s'éloigner */
+  zoom: number;
+  pause: boolean;
+}
+
+// Stick gauche et croix restent libres pour les menus de personnalisation.
+export const readGarageInput = (pad: GamepadLike): GarageInput => {
+  const { throttle, brake, handbrake } = readGamepadInput(pad);
+  return {
+    orbitX: applyDeadzone(pad.axes[2] ?? 0, STICK_DEADZONE),
+    orbitY: applyDeadzone(pad.axes[3] ?? 0, STICK_DEADZONE),
+    zoom: throttle - brake,
+    pause: handbrake,
+  };
+};
+
 // Comparé à une référence et non au pas précédent : une gâchette pressée lentement
 // finit par franchir le seuil, et une valeur maintenue ne vole pas la main au clavier.
 export const hasGamepadMoved = (
