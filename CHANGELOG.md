@@ -36,8 +36,12 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Au garage, le bouton A de la manette valide la ligne sélectionnée : la rotation se met en pause depuis son bouton
 - Caméra du garage limitée à l'intérieur de la tente, avec un champ de vision plus large
 - Drapeaux plus lisses, avec des triangles plus petits et plus discrets
+- Bottes de paille tantôt debout, tantôt couchées, posées selon la pente du terrain
+- Plus aucun arbre sur les pentes trop raides des spéciales
 
 ### Fixed
 
 - Bavettes qui traversaient la route : elles sont plus courtes et restent au-dessus du sol à l'assiette de repos
 - Caméra du garage qui s'inversait à la manette en passant au-dessus de la voiture : elle se bloque au sommet, comme à la souris
+- Décompte hors piste qui continuait une fois revenu sur la route après une sortie à grande vitesse
+- Routes à double sens trop étroites dans les GPX importés quand OpenStreetMap n'indiquait qu'une voie

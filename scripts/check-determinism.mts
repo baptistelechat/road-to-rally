@@ -1,12 +1,29 @@
-// Exécute chaque fichier de scripts/checks : un `export default` asynchrone qui lève une erreur en cas d'échec.
+// Exécute les fichiers de scripts/checks : un `export default` asynchrone qui lève une erreur en cas d'échec.
+// Sans argument, tous ; sinon ceux nommés, par exemple `pnpm check:determinism stage geo`.
 import { readdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
+const SUFFIX = ".check.ts";
 const dir = join(dirname(fileURLToPath(import.meta.url)), "checks");
-const files = readdirSync(dir)
-  .filter((file) => file.endsWith(".check.ts"))
+const all = readdirSync(dir)
+  .filter((file) => file.endsWith(SUFFIX))
   .sort();
+
+const names = process.argv.slice(2).filter((arg) => arg !== "--");
+const files = names.length
+  ? all.filter((file) => names.includes(file.slice(0, -SUFFIX.length)))
+  : all;
+
+// Un nom mal écrit ne doit pas passer pour une vérification réussie.
+const unknown = names.filter((name) => !all.includes(`${name}${SUFFIX}`));
+if (unknown.length) {
+  console.error(`Vérification inconnue : ${unknown.join(", ")}`);
+  console.error(
+    `Disponibles : ${all.map((file) => file.slice(0, -SUFFIX.length)).join(", ")}`,
+  );
+  process.exit(1);
+}
 
 let failed = 0;
 for (const file of files) {

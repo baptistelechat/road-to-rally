@@ -4,10 +4,21 @@ import { updateRumble } from "../../src/audio/gamepadRumble";
 import { createInputRecorder, replayInputs } from "../../src/input/recorder";
 import { carConfig } from "../../src/sim/carConfig";
 import { FIXED_DT } from "../../src/sim/fixedStep";
-import { createLightProps, isLightProp } from "../../src/sim/lightProps";
+import {
+  createLightProps,
+  isHay,
+  isLightProp,
+  lightPropSpawn,
+} from "../../src/sim/lightProps";
 import { initRapier, RAPIER } from "../../src/sim/rapier";
 import { createRecovery, isWrongWay } from "../../src/sim/recovery";
 import { createSimulation } from "../../src/sim/simulation";
+import { createRouteTracker } from "../../src/sim/routeTracker";
+import {
+  HAY_MAX_GAP,
+  MAX_TREE_SLOPE,
+  slopeAt,
+} from "../../src/sim/track/scenery";
 import { parseStage } from "../../src/sim/track/stageCodec";
 import {
   NEUTRAL_INPUT,
@@ -131,6 +142,105 @@ const checkRecovery = (): void => {
   sim.free();
 };
 
+/** Route droite le long de X, chaussée de 6 m : `s` = x, `distance` = |z|. */
+const straightRoad = {
+  nearest: (x: number, z: number): TrackSample => ({
+    s: x,
+    point: { x, y: 0, z: 0 },
+    tangent: { x: 1, y: 0, z: 0 },
+    distance: Math.abs(z),
+    width: 6,
+  }),
+};
+
+const checkRouteTracker = (): void => {
+  // Sortie à grande vitesse : 120 m dans le décor, puis retour sur la chaussée. C'est la même portion de route.
+  const fast = createRouteTracker(straightRoad, 0);
+  for (let x = 0; x <= 100; x += 0.7) fast.update(x, 0, 0);
+  for (let x = 100; x <= 220; x += 0.7)
+    assert.equal(fast.update(x, 0, 12).offRoute, false, "dans le décor");
+  assert.equal(
+    fast.update(221, 0, 0).offRoute,
+    false,
+    "de retour sur la route",
+  );
+  assert.equal(fast.s(), 221);
+
+  // Saut par-dessus la route : la voiture y revient plus loin après un vol de plus de 3 m de haut.
+  const crest = createRouteTracker(straightRoad, 100);
+  crest.update(100, 0, 0);
+  for (let x = 100; x <= 150; x += 0.7) crest.update(x, 5, 0);
+  assert.equal(crest.update(151, 0, 0).offRoute, false, "atterrissage");
+  assert.equal(crest.s(), 151);
+
+  // Autre branche d'une épingle, 200 m d'abscisse plus loin à 20 m de chute : c'est hors piste, sans avancer.
+  const fall = createRouteTracker(straightRoad, 100);
+  fall.update(100, 0, 0);
+  fall.update(100, 0, 20);
+  assert.equal(fall.update(300, 0, 0).offRoute, true, "branche d'épingle");
+  assert.equal(fall.s(), 100);
+  // Rouler sur cette branche n'y change rien : seul le chemin hors de la route compte.
+  for (let x = 300; x < 500; x += 1)
+    assert.equal(fall.update(x, 0, 0).offRoute, true);
+  assert.equal(fall.s(), 100);
+
+  // Après une remise en piste, le compteur repart de zéro.
+  fall.reset(100);
+  assert.equal(fall.update(101, 0, 0).offRoute, false);
+};
+
+/** Sortie réelle à grande vitesse sur la Départementale : le décompte s'efface dès le retour sur la route. */
+const checkHighSpeedExcursion = (stage: StageData): void => {
+  const sim = createSimulation(carConfig, stage);
+  const steerTo = (lateral: number): void => {
+    const state = sim.state();
+    const here = sim.track.nearest(state.position.x, state.position.z);
+    const target = sim.track.poseAt(here.s + Math.max(25, state.speed));
+    const { tangent } = sim.track.nearest(target.position.x, target.position.z);
+    const dx = target.position.x - tangent.z * lateral - state.position.x;
+    const dz = target.position.z + tangent.x * lateral - state.position.z;
+    const q = state.rotation;
+    const rightX = 1 - 2 * (q.y * q.y + q.z * q.z);
+    const rightZ = 2 * (q.x * q.z - q.w * q.y);
+    const steer = ((dx * rightX + dz * rightZ) / Math.hypot(dx, dz)) * 2.2;
+    sim.step({
+      steer: Math.max(-1, Math.min(1, steer)),
+      throttle: 1,
+      brake: 0,
+      handbrake: false,
+    });
+  };
+  // Lancée sur la route, puis dehors, puis retour.
+  for (let i = 0; i < 60 * 18; i++) steerTo(0);
+  const speedKmh = sim.state().speed * 3.6;
+  assert.ok(speedKmh > 90, `lancée trop lente : ${speedKmh} km/h`);
+  const respawnsBefore = sim.respawnCount();
+  let outside = 0;
+  for (let i = 0; i < 60 * 2; i++) {
+    steerTo(12);
+    if (sim.recovery()?.kind === "offroad") outside++;
+  }
+  assert.ok(outside >= 10, "la voiture n'a pas quitté la route");
+  const before = sim.track.nearest(
+    sim.state().position.x,
+    sim.state().position.z,
+  ).s;
+  let cleared = false;
+  for (let i = 0; i < 60 * 3 && !cleared; i++) {
+    steerTo(0);
+    const { x, z } = sim.state().position;
+    const here = sim.track.nearest(x, z);
+    cleared = here.distance < here.width / 2 + 1 && sim.recovery() === null;
+  }
+  assert.equal(sim.respawnCount(), respawnsBefore, "remise en piste forcée");
+  assert.ok(cleared, "décompte toujours actif une fois revenu sur la route");
+  const { x, z } = sim.state().position;
+  console.log(
+    `     sortie à ${speedKmh.toFixed(0)} km/h : ${(sim.track.nearest(x, z).s - before).toFixed(0)} m pour revenir, décompte effacé`,
+  );
+  sim.free();
+};
+
 /** Sur une spéciale à terrain : sortie du couloir ou passage sous le sol, remise en piste sans attendre. */
 const checkTerrainRecovery = (): void => {
   let ground: number | null = 0;
@@ -152,25 +262,71 @@ const checkPropsOnStage = (name: string, stage: StageData): void => {
   const sim = createSimulation(carConfig, stage);
   const items = sim.scenery.filter((item) => isLightProp(item.kind));
   assert.ok(items.length > 0, `${name} : aucun objet léger`);
+
+  // Aucun arbre sur une pente trop raide.
+  const trees = sim.scenery.filter(
+    (item) => item.kind === "tree" || item.kind === "pine",
+  );
+  assert.ok(trees.length > 0, `${name} : aucun arbre`);
+  for (const tree of trees)
+    assert.ok(
+      slopeAt(sim.track, tree.position.x, tree.position.z) <= MAX_TREE_SLOPE,
+      `${name} : arbre sur une pente trop raide`,
+    );
+  console.log(`     ${name} : ${trees.length} arbres`);
+
+  // Chaque botte repose sur le plan de son emprise : ni dans le vide, ni enfoncée.
+  const bales = items.filter((item) => isHay(item.kind));
+  let worstGap = 0;
+  for (const bale of bales) {
+    const up = bale.up;
+    assert.ok(up, `${name} : botte sans normale de sol`);
+    for (const [dx, dz] of [
+      [0.75, 0],
+      [-0.75, 0],
+      [0, 0.75],
+      [0, -0.75],
+    ]) {
+      const ground = sim.track.groundAt(
+        bale.position.x + dx,
+        bale.position.z + dz,
+      );
+      assert.ok(ground !== null);
+      const plane = bale.position.y - (up.x * dx + up.z * dz) / up.y;
+      const gap = plane - ground;
+      worstGap = Math.max(worstGap, Math.abs(gap));
+      assert.ok(
+        gap > -0.02 && gap <= HAY_MAX_GAP + 0.05,
+        `${name} : botte à ${gap} m du sol`,
+      );
+    }
+  }
+
   const assertStill = (when: string): void => {
     let worst = 0;
     sim.props.poses().forEach((pose, i) => {
+      const spawn = lightPropSpawn(items[i]);
       const moved = Math.hypot(
-        pose.position.x - items[i].position.x,
-        pose.position.z - items[i].position.z,
+        pose.position.x - spawn.position.x,
+        pose.position.z - spawn.position.z,
       );
       worst = Math.max(worst, moved);
       assert.ok(
         moved < 0.3,
         `${name}, ${when} : ${items[i].kind} déplacé de ${moved} m sans choc`,
       );
+      const facing =
+        pose.rotation.x * spawn.rotation.x +
+        pose.rotation.y * spawn.rotation.y +
+        pose.rotation.z * spawn.rotation.z +
+        pose.rotation.w * spawn.rotation.w;
       assert.ok(
-        Math.abs(pose.rotation.x) + Math.abs(pose.rotation.z) < 0.2,
+        Math.abs(facing) > 0.98,
         `${name}, ${when} : ${items[i].kind} renversé sans choc`,
       );
     });
     console.log(
-      `     ${name}, ${when} : ${items.length} objets légers, déplacement max ${worst.toFixed(3)} m`,
+      `     ${name}, ${when} : ${items.length} objets légers dont ${bales.length} bottes (écart au sol max ${worstGap.toFixed(3)} m), déplacement max ${worst.toFixed(3)} m`,
     );
   };
   for (let i = 0; i < 240; i++) sim.step(NEUTRAL_INPUT);
@@ -274,6 +430,7 @@ const checkLightProps = (): void => {
   });
   const props = createLightProps(world, [
     item("hay", -60),
+    item("hayUpright", -75),
     item("post", -90),
     item("sign", -110),
   ]);
@@ -306,7 +463,11 @@ const checkLightProps = (): void => {
   const end = vehicle.state();
   assert.ok(end.position.z <= -140, `voiture stoppée à z=${end.position.z}`);
   assert.ok(end.speed > 0.7 * (60 / 3.6), `vitesse après choc : ${end.speed}`);
-  const [hay, post, sign] = props.poses();
+  const [hay, upright, post, sign] = props.poses();
+  assert.ok(
+    Math.hypot(upright.position.x, upright.position.z + 75) > 2,
+    "botte debout immobile",
+  );
   assert.ok(
     1 - Math.abs(hay.rotation.w) > 0.1,
     `la botte n'a pas roulé : w=${hay.rotation.w}`,
@@ -418,7 +579,12 @@ export default async function check(): Promise<void> {
   await initRapier();
   checkRecovery();
   checkTerrainRecovery();
+  checkRouteTracker();
   checkRideHeight();
+  if (existsSync("public/stages/road.json"))
+    checkHighSpeedExcursion(
+      parseStage(JSON.parse(readFileSync("public/stages/road.json", "utf8"))),
+    );
   for (const fixture of ["road", "mountain"]) {
     const path = `public/stages/${fixture}.json`;
     if (existsSync(path))

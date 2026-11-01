@@ -2,6 +2,7 @@ import {
   DEFAULT_WIDTH,
   HIGHWAY_WIDTHS,
   LANE_WIDTH,
+  MAJOR_ROAD_WIDTH,
   MAX_WIDTH,
   MIN_WIDTH,
   OSM_DIRECTION_WEIGHT,
@@ -34,7 +35,7 @@ export interface OsmWay {
   geometry: LatLon[];
 }
 
-const USEFUL_TAGS = ["highway", "lanes", "width", "bridge", "tunnel"];
+const USEFUL_TAGS = ["highway", "lanes", "width", "bridge", "tunnel", "oneway"];
 /** Voies où une voiture ne passe pas : un sentier le long de la route ne doit pas lui voler sa largeur */
 const NOT_DRIVABLE =
   "footway|path|steps|cycleway|pedestrian|bridleway|corridor|platform|proposed|construction|raceway|bus_guideway";
@@ -130,11 +131,18 @@ export const parseWidthTag = (value: string): number | null => {
 
 export const widthFromTags = (tags: Record<string, string>): number => {
   const width = tags.width === undefined ? null : parseWidthTag(tags.width);
-  const lanes = /^\s*[1-9]\d*\s*$/.test(tags.lanes ?? "")
-    ? Number(tags.lanes) * LANE_WIDTH
+  const byClass = HIGHWAY_WIDTHS[tags.highway ?? ""];
+  const laneCount = /^\s*[1-9]\d*\s*$/.test(tags.lanes ?? "")
+    ? Number(tags.lanes)
     : null;
-  const value =
-    width ?? lanes ?? HIGHWAY_WIDTHS[tags.highway ?? ""] ?? DEFAULT_WIDTH;
+  const oneWay = tags.oneway !== undefined && tags.oneway !== "no";
+  // À double sens, `lanes=1` sur une grande route compte souvent une voie par sens : la D763 le porte, par exemple.
+  const lanes =
+    laneCount === null ||
+    (laneCount === 1 && byClass >= MAJOR_ROAD_WIDTH && !oneWay)
+      ? null
+      : laneCount * LANE_WIDTH;
+  const value = width ?? lanes ?? byClass ?? DEFAULT_WIDTH;
   return Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, value));
 };
 

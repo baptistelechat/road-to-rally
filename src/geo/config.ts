@@ -1,7 +1,7 @@
 // Tous les seuils du pipeline géo. Changer une valeur qui modifie le résultat impose d'incrémenter PIPELINE_VERSION.
 
 /** Version du pipeline, recopiée dans `StageData.pipelineVersion` */
-export const PIPELINE_VERSION = 3;
+export const PIPELINE_VERSION = 5;
 
 // --- Axe (story 2.1) ---
 
@@ -81,6 +81,8 @@ export const DEFAULT_WIDTH = 5;
 export const MIN_WIDTH = 3.5;
 export const MAX_WIDTH = 9;
 export const LANE_WIDTH = 3;
+/** À partir de cette largeur de classe, une route à double sens n'est pas réduite à une voie par `lanes=1` */
+export const MAJOR_ROAD_WIDTH = 6;
 /** Largeur selon `highway`, en mètres */
 export const HIGHWAY_WIDTHS: Readonly<Record<string, number>> = {
   motorway: 9,

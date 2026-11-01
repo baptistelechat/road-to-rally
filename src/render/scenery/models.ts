@@ -61,6 +61,12 @@ export const SCENERY_GEOMETRY: Record<SceneryKind, BufferGeometry> = {
     0,
     Math.PI / 2,
   ),
+  hayUpright: part(
+    new CylinderGeometry(0.75, 0.75, 1.2, 8),
+    [0.82, 0.68, 0.32],
+    0,
+    0.6,
+  ),
   post: part(new BoxGeometry(0.18, 1, 0.18), [0.95, 0.93, 0.88], 0, 0.5),
   sign: merged(
     part(new BoxGeometry(0.1, 2, 0.1), [0.5, 0.5, 0.52], 0, 1),

@@ -155,13 +155,22 @@ export interface StageData {
   hash: string;
 }
 
-export type SceneryKind = "tree" | "pine" | "rock" | "hay" | "sign" | "post";
+export type SceneryKind =
+  | "tree"
+  | "pine"
+  | "rock"
+  | "hay"
+  | "hayUpright"
+  | "sign"
+  | "post";
 
 export interface SceneryItem {
   kind: SceneryKind;
   position: Vec3;
   /** Rotation autour de Y en radians */
   yaw: number;
+  /** Normale du sol sous l'objet, unitaire. Absente : posé à plat. */
+  up?: Vec3;
   scale: number;
   /** Rayon du collider en mètres, 0 = pas de collision */
   colliderRadius: number;

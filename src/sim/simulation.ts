@@ -4,7 +4,7 @@ import { createLapTimer, type LapTimer } from "./lapTimer";
 import { createLightProps, type LightProps } from "./lightProps";
 import { RAPIER } from "./rapier";
 import { createRecovery, type RecoveryStatus } from "./recovery";
-import { SHOULDER_WIDTH } from "./track/ribbon";
+import { createRouteTracker } from "./routeTracker";
 import { addTrackColliders } from "./track/colliders";
 import { createSandboxTrack } from "./track/sandboxTrack";
 import { generateScenery } from "./track/scenery";
@@ -22,10 +22,6 @@ import { createVehicle } from "./vehicle";
 export const SANDBOX_SEED = 27;
 /** Spéciale : reculer plus loin que ça derrière la ligne ramène au départ, en mètres */
 const START_BACK_LIMIT = 6;
-/** Saut d'abscisse au-delà duquel la voiture a changé de portion de route sans la suivre, en mètres */
-const ROUTE_MAX_JUMP = 25;
-/** Écart vertical à la route au-delà duquel la voiture n'y est plus, en chute ou sur une autre branche, en mètres */
-const ROUTE_MAX_HEIGHT = 3;
 /** Sous cette vitesse, la voiture arrivée est immobilisée : le frein enclencherait sinon la marche arrière, en m/s */
 const FINISH_STOP_SPEED = 0.5;
 
@@ -103,8 +99,7 @@ export const createSimulation = (
   const open = !track.closed;
   let held = false;
   let timing = !open;
-  // Dernière abscisse où la voiture roulait vraiment sur la route.
-  let routeS = track.startS;
+  const route = createRouteTracker(track, track.startS);
 
   const setHeld = (value: boolean): void => {
     if (value !== held) vehicle.setHeld(value);
@@ -117,6 +112,7 @@ export const createSimulation = (
     vehicle.respawn(atRideHeight(pose));
     if (open) setHeld(true);
     recovery.reset();
+    route.reset(route.s());
     current = vehicle.state();
     previous = copyPose(current);
     respawns++;
@@ -124,7 +120,7 @@ export const createSimulation = (
 
   const respawnPose = (x: number, z: number): Pose =>
     open
-      ? track.poseAt(Math.max(track.startS, routeS))
+      ? track.poseAt(Math.max(track.startS, route.s()))
       : track.respawnPose(x, z);
 
   return {
@@ -138,8 +134,16 @@ export const createSimulation = (
       if (open) {
         if (lap.finished()) {
           if (current.forwardSpeed < FINISH_STOP_SPEED) setHeld(true);
-          applied = { ...input, throttle: 0, brake: held ? 0 : 1, handbrake: false };
-        } else if (held && (input.throttle > 0 || (timing && input.brake > 0))) {
+          applied = {
+            ...input,
+            throttle: 0,
+            brake: held ? 0 : 1,
+            handbrake: false,
+          };
+        } else if (
+          held &&
+          (input.throttle > 0 || (timing && input.brake > 0))
+        ) {
           setHeld(false);
           timing = true;
         }
@@ -152,21 +156,20 @@ export const createSimulation = (
       }
       current = vehicle.state();
       const { x, y, z } = current.position;
-      const lapMs = timing ? lap.update(x, z) : null;
-      let offRoute = false;
-      if (open) {
-        const here = track.nearest(x, z);
-        const onRoad =
-          here.distance <= here.width / 2 + SHOULDER_WIDTH &&
-          Math.abs(y - here.point.y) < ROUTE_MAX_HEIGHT;
-        const contiguous = Math.abs(here.s - routeS) <= ROUTE_MAX_JUMP;
-        if (onRoad && contiguous) routeS = here.s;
-        offRoute = onRoad && !contiguous;
-        if (timing && !lap.finished() && here.s < track.startS - START_BACK_LIMIT) {
-          routeS = track.startS;
-          teleport(track.startPose);
-          return lapMs;
-        }
+      const here = open ? route.update(x, y, z) : null;
+      const offRoute = here?.offRoute ?? false;
+      const lapMs = timing
+        ? lap.update(x, z, open ? route.s() : undefined)
+        : null;
+      if (
+        here &&
+        timing &&
+        !lap.finished() &&
+        here.s < track.startS - START_BACK_LIMIT
+      ) {
+        route.reset(track.startS);
+        teleport(track.startPose);
+        return lapMs;
       }
       const shouldRespawn = recovery.update({
         held: input.respawn ?? false,
@@ -185,7 +188,7 @@ export const createSimulation = (
       teleport(respawnPose(current.position.x, current.position.z));
     },
     restart: () => {
-      routeS = track.startS;
+      route.reset(track.startS);
       timing = !open;
       teleport(track.startPose);
       props.reset();

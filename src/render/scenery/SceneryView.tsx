@@ -5,7 +5,15 @@ import { Color, type InstancedMesh, Matrix4, Quaternion, Vector3 } from "three";
 import type { SceneryItem, SceneryKind } from "@/sim/types";
 import { SCENERY_GEOMETRY, SCENERY_MATERIAL } from "./models";
 
-const KINDS: SceneryKind[] = ["tree", "pine", "rock", "hay", "sign", "post"];
+const KINDS: SceneryKind[] = [
+  "tree",
+  "pine",
+  "rock",
+  "hay",
+  "hayUpright",
+  "sign",
+  "post",
+];
 const UP = new Vector3(0, 1, 0);
 
 interface BatchProps {

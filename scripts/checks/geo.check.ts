@@ -371,7 +371,12 @@ const checkNoisyTraces = (): void => {
   const trace = traceFromGpx(gpx);
   assertStep(trace.points, "GPX bruité");
   assert.ok(minPlanRadius(trace.points) >= MIN_RADIUS);
-  assert.ok(maxDeviation(trace.points.slice(trace.runoffPoints, -trace.runoffPoints), clean) < 6);
+  assert.ok(
+    maxDeviation(
+      trace.points.slice(trace.runoffPoints, -trace.runoffPoints),
+      clean,
+    ) < 6,
+  );
   assert.equal(
     JSON.stringify(trace),
     JSON.stringify(traceFromGpx(gpx)),
@@ -383,7 +388,15 @@ const checkNoisyTraces = (): void => {
   const fromSparse = traceFromGpx(toGpx(sparse));
   assertStep(fromSparse.points, "GPX irrégulier");
   assert.ok(minPlanRadius(fromSparse.points) >= MIN_RADIUS);
-  assert.ok(maxDeviation(fromSparse.points.slice(fromSparse.runoffPoints, -fromSparse.runoffPoints), sparse) < 3);
+  assert.ok(
+    maxDeviation(
+      fromSparse.points.slice(
+        fromSparse.runoffPoints,
+        -fromSparse.runoffPoints,
+      ),
+      sparse,
+    ) < 3,
+  );
 
   // Le rayon minimal se paramètre.
   const mountain = readFileSync(join(fixtures, "mountain.gpx"), "utf8");
@@ -461,6 +474,23 @@ const checkWidths = (): void => {
     6,
   );
   assert.equal(widthFromTags({ lanes: "x", highway: "primary" }), 7);
+  // Une grande route n'est pas réduite à une voie, une petite route peut l'être.
+  assert.equal(widthFromTags({ lanes: "1", highway: "primary" }), 7);
+  assert.equal(widthFromTags({ lanes: "1", highway: "tertiary" }), 6);
+  // À sens unique, le tag dit vrai : une seule voie.
+  assert.equal(
+    widthFromTags({ lanes: "1", highway: "primary", oneway: "yes" }),
+    MIN_WIDTH,
+  );
+  assert.equal(
+    widthFromTags({ lanes: "1", highway: "primary", oneway: "no" }),
+    7,
+  );
+  assert.equal(
+    widthFromTags({ lanes: "1", highway: "residential" }),
+    MIN_WIDTH,
+  );
+  assert.equal(widthFromTags({ lanes: "1" }), MIN_WIDTH);
   assert.equal(widthFromTags({ highway: "inconnu" }), 5);
   assert.equal(widthFromTags({}), 5);
   assert.equal(widthFromTags({ width: "1" }), MIN_WIDTH);
