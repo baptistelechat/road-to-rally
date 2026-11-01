@@ -17,3 +17,5 @@ register: learnings
 | [LRN-20261101115823-6](learnings/LRN-20261101115823-6.md) | 2026-11-01 | Panneau navigateur : serveur déjà lancé et erreurs périmées | #claude-browser #preview #nextjs #hmr #console #dev-server |
 | [LRN-20261101150421-4](learnings/LRN-20261101150421-4.md) | 2026-11-01 | Tracés canvas : un coût invisible au chrono JS | #canvas #performance #putimagedata #requestanimationframe #mesure #longtask |
 | [LRN-20261101150421-5](learnings/LRN-20261101150421-5.md) | 2026-11-01 | Grille incomplète : tester chaque direction depuis chaque case | #grille #navigation #manette #test #modulo #garage #reducer |
+| [LRN-20261101170343-2](learnings/LRN-20261101170343-2.md) | 2026-11-01 | R3F : cadre d'ombre via orthographicCamera attachée | #r3f #three #ombres #shadow-camera #directional-light |
+| [LRN-20261101170343-3](learnings/LRN-20261101170343-3.md) | 2026-11-01 | Canvas transparent en texture : alpha prémultiplié | #three #canvas #texture #alpha #premultiply #halo |

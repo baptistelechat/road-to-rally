@@ -42,7 +42,7 @@ Personnalisation de la voiture au garage. D'abord quatre sélecteurs de couleur 
 **Entrées clés :**
 
 - [BDR-20261101131243-1](decisions/BDR-20261101131243-1.md) — une seule palette et un seul reducer au garage
-- [BLK-20261101131243-2](blockers/BLK-20261101131243-2.md) — défilement manette non validé dans le panneau
+- [ZBLK-20261101131243-2](archive/blockers/ZBLK-20261101131243-2.md) — défilement manette non validé dans le panneau
 
 ---
 
@@ -55,4 +55,13 @@ Tout est poussé sur `development` (66a51ca). Après l'essai à la manette, Bapt
 **Entrées clés :**
 
 - [BDR-20261101150421-3](decisions/BDR-20261101150421-3.md) — drapeaux : lib SVG, triangles en couleur dominante, pixels
-- [BLK-20261101150421-6](blockers/BLK-20261101150421-6.md) — lag au défilement des drapeaux à la manette
+- [ZBLK-20261101150421-6](archive/blockers/ZBLK-20261101150421-6.md) — lag au défilement des drapeaux à la manette
+
+---
+
+Session sur le décor du garage, à partir de photos de référence. Après une liste validée, Baptiste a choisi l'ambiance assistance WRC : tente, néons, ouverture sur la nuit, armoires, étagères, caisses, roues de rechange, chandelles, cric et borne d'arcade. Plusieurs retours ont suivi : poteaux qui clignotaient (bornes de boîte inversées, corrigées dans `meshBuilder`), bannière reprenant la livrée avec un texte lisible, un seul écran avec un vrai cadre, toiles du drapeau et du numéro, ombres sur les objets, tiroirs ouverts, plaques de rallye à dôme, trophées sous le drapeau, tuyaux en volume et emplacement du logo. Les drapeaux ont aussi été lissés. Le fond noir signalé sur les plaques n'a pas été reproduit : le correctif reste à confirmer.
+
+**Entrées clés :**
+
+- [BDR-20261101170343-1](decisions/BDR-20261101170343-1.md) — Garage : coque sans ombre, objets avec, caméra bornée
+- [BLK-20261101170343-5](blockers/BLK-20261101170343-5.md) — Fond noir des plaques non reproduit

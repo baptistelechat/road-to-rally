@@ -16,3 +16,4 @@ register: decisions
 | [BDR-20261101150421-1](decisions/BDR-20261101150421-1.md) | 2026-11-01 | Plaques, numéros et drapeaux : textures canvas hors caisse | #garage #personnalisation #canvas #texture #three #modele-3d #livree | actif |
 | [BDR-20261101150421-2](decisions/BDR-20261101150421-2.md) | 2026-11-01 | Garage : grilles et saisies s'ouvrent avec A avant d'agir | #garage #manette #gamepad #menu #reducer #navigation #saisie | actif |
 | [BDR-20261101150421-3](decisions/BDR-20261101150421-3.md) | 2026-11-01 | Drapeaux : lib SVG, triangles en couleur dominante, pixels | #drapeaux #flags #low-poly #country-flag-icons #canvas #performance #garage | actif |
+| [BDR-20261101170343-1](decisions/BDR-20261101170343-1.md) | 2026-11-01 | Garage : coque sans ombre, objets avec, caméra bornée | #garage #decor #ombres #camera #three #r3f | actif |
