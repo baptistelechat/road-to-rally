@@ -19,3 +19,10 @@ register: learnings
 | [LRN-20261101150421-5](learnings/LRN-20261101150421-5.md) | 2026-11-01 | Grille incomplète : tester chaque direction depuis chaque case | #grille #navigation #manette #test #modulo #garage #reducer |
 | [LRN-20261101170343-2](learnings/LRN-20261101170343-2.md) | 2026-11-01 | R3F : cadre d'ombre via orthographicCamera attachée | #r3f #three #ombres #shadow-camera #directional-light |
 | [LRN-20261101170343-3](learnings/LRN-20261101170343-3.md) | 2026-11-01 | Canvas transparent en texture : alpha prémultiplié | #three #canvas #texture #alpha #premultiply #halo |
+| [LRN-20261101115222-4](learnings/LRN-20261101115222-4.md) | 2026-11-01 | Pièges de l'API altimétrie de l'IGN | #ign #geoplateforme #altimetrie #api #cors #rge-alti |
+| [LRN-20261101115222-5](learnings/LRN-20261101115222-5.md) | 2026-11-01 | Plusieurs itinéraires : BRouter et OSRM diffèrent | #brouter #osrm #routing #itineraires #mapcn #maplibre |
+| [LRN-20261101115222-6](learnings/LRN-20261101115222-6.md) | 2026-11-01 | Le filtre rtk peut faire croire à un diff vide | #rtk #git #diff #hooks #claude-code #commit |
+| [LRN-20261101115222-7](learnings/LRN-20261101115222-7.md) | 2026-11-01 | Le formateur casse les Edit parallèles sur un tableau | #edit #hooks #formatter #markdown #tableau #claude-code |
+| [LRN-20261101163654-5](learnings/LRN-20261101163654-5.md) | 2026-11-01 | Une ligne d'arrivée se place loin des branches voisines | #arrivee #arche #epingle #gpx #playtest #epic-2 |
+| [LRN-20261101163654-6](learnings/LRN-20261101163654-6.md) | 2026-11-01 | Abscisse vers index : jamais par le pas moyen | #abscisse #axe #pente #bot #arche #epic-2 |
+| [LRN-20261101163654-7](learnings/LRN-20261101163654-7.md) | 2026-11-01 | Marquage sur quad gauche : relever selon pente et courbure | #marquage #ruban #virage #pente #rendu #epic-2 |

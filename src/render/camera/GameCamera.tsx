@@ -4,6 +4,7 @@ import { useFrame } from "@react-three/fiber";
 import { useEffect, useRef, useState } from "react";
 import { PerspectiveCamera } from "three";
 import type { CarSource } from "@/render/carSource";
+import type { Track } from "@/sim/types";
 import {
   createCameraRig,
   fillRigInput,
@@ -13,6 +14,8 @@ import {
 
 interface GameCameraProps {
   source: CarSource;
+  /** Son `groundAt` garde la caméra au-dessus du sol */
+  track: Track;
   mode?: CameraMode;
 }
 
@@ -28,8 +31,15 @@ const createInput = (): RigInput => ({
 });
 
 /** Pilote la caméra par défaut de la scène, sans rendu React par image. */
-export const GameCamera = ({ source, mode = "chase" }: GameCameraProps) => {
-  const [rig] = useState(createCameraRig);
+export const GameCamera = ({
+  source,
+  track,
+  mode = "chase",
+}: GameCameraProps) => {
+  // Le circuit reste presque plat : sa caméra ne change pas.
+  const [rig] = useState(() =>
+    createCameraRig(track.closed ? undefined : track.groundAt),
+  );
   const input = useRef<RigInput>(createInput());
   const lastRespawn = useRef<number | null>(null);
   const lastMode = useRef<CameraMode | null>(null);

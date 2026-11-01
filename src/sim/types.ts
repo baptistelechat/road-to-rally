@@ -91,22 +91,68 @@ export interface TrackSample {
   tangent: Vec3;
   /** Distance horizontale à l'axe, en mètres */
   distance: number;
+  /** Largeur de la route à cet endroit, en mètres */
+  width: number;
 }
 
 export interface Track {
   /** Points de l'axe à pas constant, sans doublon de fermeture */
   points: Vec3[];
   closed: boolean;
+  /** Largeur la plus grande du tracé. Pour la largeur locale : `widths` ou `nearest().width`. */
   width: number;
+  /** Largeur en chaque point de l'axe */
+  widths: number[];
+  /** Largeur du bas-côté en chaque point, rétrécie là où deux branches d'épingle se touchent */
+  shoulders: number[];
   length: number;
+  /** Abscisse de la ligne de départ : 0 sur le circuit, après le prolongement sur une spéciale */
+  startS: number;
+  /** Abscisse de la ligne d'arrivée : `length` sur le circuit */
+  finishS: number;
   ribbon: MeshData;
+  /** Terrain d'une spéciale, `null` sur le circuit qui garde son sol plat */
+  terrain: MeshData | null;
   /** Point de l'axe le plus proche, sur le plan horizontal */
   nearest: (x: number, z: number) => TrackSample;
   surfaceAt: (x: number, z: number) => Surface;
+  /** Altitude du sol en (x, z), `null` hors du couloir d'une spéciale */
+  groundAt: (x: number, z: number) => number | null;
   /** Pose de départ, dans le sens de la route */
   startPose: Pose;
   /** Pose de remise en piste au plus proche de (x, z), dans le sens de la route */
   respawnPose: (x: number, z: number) => Pose;
+  /** Pose de remise en piste à une abscisse donnée, dans le sens de la route */
+  poseAt: (s: number) => Pose;
+  /** Point de l'axe le plus proche d'une abscisse. Le pas réel varie avec la pente : pas de division par le pas moyen. */
+  indexAt: (s: number) => number;
+}
+
+/**
+ * Spéciale prête à rouler : de simples données, sans réseau ni fonction.
+ * Tout le pipeline de `src/geo/` aboutit ici, et `src/sim/` ne connaît que ce contrat.
+ */
+export interface StageData {
+  name: string;
+  /** Origine de la projection locale : x vers l'est, z vers le sud */
+  origin: { lat: number; lon: number };
+  /** Altitude réelle de y = 0, en mètres */
+  baseAltitude: number;
+  /** Axe à pas constant, prolongement compris, arrondi au millimètre. y >= 0. */
+  points: Vec3[];
+  /** Largeur en chaque point de `points` */
+  widths: number[];
+  /** Abscisses des lignes de départ et d'arrivée le long de `points` */
+  startS: number;
+  finishS: number;
+  /** Terrain conforme à la route, `null` tant que le pipeline ne le produit pas */
+  terrain: MeshData | null;
+  /** Version du pipeline : tout changement de seuil l'incrémente */
+  pipelineVersion: number;
+  /** Date de génération, ISO 8601. Hors empreinte. */
+  generatedAt: string;
+  /** Empreinte des entrées et des maillages (story 2.8), vide tant qu'elle n'est pas calculée */
+  hash: string;
 }
 
 export type SceneryKind = "tree" | "pine" | "rock" | "hay" | "sign" | "post";

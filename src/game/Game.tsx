@@ -3,8 +3,8 @@
 import { Stats } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import dynamic from "next/dynamic";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { createCarAudio, type CarAudio } from "@/audio/engineAudio";
+import { useMemo, useRef, useState } from "react";
+import type { CarAudio } from "@/audio/engineAudio";
 import { Atmosphere } from "@/render/Atmosphere";
 import { GameCamera } from "@/render/camera/GameCamera";
 import { CarModel } from "@/render/car/CarModel";
@@ -15,12 +15,13 @@ import { LightPropsView } from "@/render/scenery/LightPropsView";
 import { SceneryView } from "@/render/scenery/SceneryView";
 import { TrackView } from "@/render/track/TrackView";
 import { isLightProp } from "@/sim/lightProps";
-import { initRapier } from "@/sim/rapier";
-import { createSimulation, type Simulation } from "@/sim/simulation";
+import type { Simulation } from "@/sim/simulation";
 import { Diagnostics } from "./diag/Diagnostics";
-import { setHudMuted } from "./hudStore";
 import { Hud } from "./Hud";
+import { importedMap, mapFromParam, mapSearch } from "./maps";
 import { useGameLoop } from "./useGameLoop";
+import { useGameSession } from "./useGameSession";
+import type { ImportedStage } from "./useStageImport";
 
 // Panneau de réglage : développement seulement, jamais dans le bundle de production.
 const TuningPanel =
@@ -34,9 +35,10 @@ interface SceneProps {
   sim: Simulation;
   audio: CarAudio;
   useBot: boolean;
+  bestLapKey: string;
 }
 
-const Scene = ({ sim, audio, useBot }: SceneProps) => {
+const Scene = ({ sim, audio, useBot, bestLapKey }: SceneProps) => {
   const [cameraMode, setCameraMode] = useState<"chase" | "hood">("chase");
   const [livery] = useState(loadLivery);
   const staticScenery = useMemo(
@@ -48,6 +50,7 @@ const Scene = ({ sim, audio, useBot }: SceneProps) => {
     sim,
     audio,
     useBot,
+    bestLapKey,
     onToggleCamera: () =>
       setCameraMode((mode) => (mode === "chase" ? "hood" : "chase")),
     onDiagRequest: () => capture.current?.(),
@@ -55,7 +58,7 @@ const Scene = ({ sim, audio, useBot }: SceneProps) => {
 
   return (
     <>
-      <GameCamera source={source} mode={cameraMode} />
+      <GameCamera source={source} track={sim.track} mode={cameraMode} />
       <Atmosphere follow={source} />
       <TrackView track={sim.track} />
       <SceneryView items={staticScenery} />
@@ -70,49 +73,68 @@ const Scene = ({ sim, audio, useBot }: SceneProps) => {
   );
 };
 
-export const Game = () => {
-  const [game, setGame] = useState<{
-    sim: Simulation;
-    audio: CarAudio;
-  } | null>(null);
-  const params = useMemo(() => new URLSearchParams(window.location.search), []);
+const screen =
+  "fixed inset-0 grid place-items-center bg-neutral-900 p-8 text-center text-neutral-400";
 
-  // Strict Mode lance cet effet deux fois en développement : on libère toujours le monde créé.
-  useEffect(() => {
-    let cancelled = false;
-    let created: Simulation | null = null;
-    // Créé ici et non en `useMemo` : un ancien moteur continuerait de jouer après chaque mise à jour à chaud.
-    const audio = createCarAudio();
-    const start = (): void => audio.start();
-    window.addEventListener("keydown", start);
-    window.addEventListener("pointerup", start);
-    setHudMuted(false);
-    void initRapier().then(() => {
-      if (cancelled) return;
-      created = createSimulation();
-      setGame({ sim: created, audio });
-      if (params.has("debug"))
-        (window as unknown as { __sim?: Simulation }).__sim = created;
-    });
-    return () => {
-      cancelled = true;
-      setGame(null);
-      window.removeEventListener("keydown", start);
-      window.removeEventListener("pointerup", start);
-      audio.dispose();
-      created?.free();
-    };
-  }, [params]);
+export const Game = () => {
+  const [imported, setImported] = useState<ImportedStage | null>(null);
+  const params = useMemo(() => new URLSearchParams(window.location.search), []);
+  const map = useMemo(
+    () =>
+      imported ? importedMap(imported.stage) : mapFromParam(params.get("map")),
+    [params, imported],
+  );
+  const { game, failed, canvasRootRef } = useGameSession(params, map, imported);
+
+  if (failed)
+    return (
+      <div role="alert" className={screen}>
+        <div className="space-y-3">
+          <p>Impossible de charger la carte « {map.label} ».</p>
+          <a
+            href={mapSearch("track")}
+            className="font-semibold text-amber-400 underline focus-visible:outline-2 focus-visible:outline-amber-400"
+          >
+            Revenir au circuit
+          </a>
+        </div>
+      </div>
+    );
+
+  if (!game)
+    return (
+      <div role="status" className={screen}>
+        {imported
+          ? "Création de la route et de ses collisions… L'écran peut se figer quelques secondes."
+          : "Chargement…"}
+      </div>
+    );
 
   return (
     <div className="fixed inset-0 bg-neutral-900">
-      {game && (
-        <Canvas shadows dpr={[1, 1.75]} gl={{ antialias: true }}>
-          <Scene sim={game.sim} audio={game.audio} useBot={params.has("bot")} />
-        </Canvas>
-      )}
-      {game && <Hud />}
-      {game && TuningPanel && <TuningPanel sim={game.sim} />}
+      <Canvas
+        shadows
+        dpr={[1, 1.75]}
+        gl={{ antialias: true }}
+        onCreated={(state) => {
+          canvasRootRef.current = state;
+        }}
+      >
+        <Scene
+          sim={game.sim}
+          audio={game.audio}
+          useBot={params.has("bot")}
+          bestLapKey={map.bestLapKey}
+        />
+      </Canvas>
+      <Hud
+        map={map.id}
+        mapLabel={map.label}
+        closed={game.sim.track.closed}
+        notices={game.notices}
+        onImported={setImported}
+      />
+      {TuningPanel && <TuningPanel sim={game.sim} />}
     </div>
   );
 };

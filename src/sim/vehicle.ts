@@ -21,6 +21,8 @@ export interface Vehicle {
   /** État après le dernier world.step() */
   state: () => CarState;
   respawn: (pose: Pose) => void;
+  /** Immobilise la caisse, même en pente, sans passer par les freins qui enclencheraient la marche arrière */
+  setHeld: (held: boolean) => void;
   applyConfig: (config: CarConfig) => void;
   free: () => void;
 }
@@ -537,6 +539,14 @@ export const createVehicle = (
     step,
     state,
     respawn: reset,
+    setHeld: (held) => {
+      if (held) {
+        body.setLinvel({ x: 0, y: 0, z: 0 }, true);
+        body.setAngvel({ x: 0, y: 0, z: 0 }, true);
+      }
+      body.lockTranslations(held, true);
+      body.lockRotations(held, true);
+    },
     applyConfig: apply,
     free: () => {
       world.removeVehicleController(controller);

@@ -2,9 +2,13 @@ import type { CarInput, CarState, Track, Vec3 } from "./types";
 
 // Pilote automatique de test : il prouve qu'un tour complet est roulable. Ne sert pas en jeu.
 const LATERAL_ACCEL = 6;
+/** Sur un tracé ouvert, sortir de 2 m suffit à tomber de la digue : le bot garde de la marge */
+const OPEN_LATERAL_ACCEL = 4.5;
 const BRAKING_DECEL = 5;
 const MIN_SPEED = 8;
 const MAX_SPEED = 45;
+/** Vitesse mini visée sur un tracé ouvert : une épingle de 8 m ne se prend pas à 29 km/h */
+const OPEN_MIN_SPEED = 6;
 
 const rotate = (v: Vec3, q: CarState["rotation"]): Vec3 => {
   const tx = 2 * (q.y * v.z - q.z * v.y);
@@ -17,11 +21,14 @@ const rotate = (v: Vec3, q: CarState["rotation"]): Vec3 => {
   };
 };
 
-const radiusAt = (points: Vec3[], index: number, stride: number): number => {
-  const count = points.length;
-  const a = points[(index - stride + count) % count];
-  const b = points[index % count];
-  const c = points[(index + stride) % count];
+const radiusAt = (
+  at: (index: number) => Vec3,
+  index: number,
+  stride: number,
+): number => {
+  const a = at(index - stride);
+  const b = at(index);
+  const c = at(index + stride);
   const abx = b.x - a.x;
   const abz = b.z - a.z;
   const bcx = c.x - b.x;
@@ -36,12 +43,21 @@ const radiusAt = (points: Vec3[], index: number, stride: number): number => {
 };
 
 export const botInput = (state: CarState, track: Track): CarInput => {
-  const { points, length } = track;
-  const spacing = length / points.length;
+  const { points, length, closed } = track;
+  const count = points.length;
+  const spacing = length / (closed ? count : count - 1);
+  // Tracé fermé : on boucle. Tracé ouvert : on s'arrête aux extrémités.
+  const at = (index: number): Vec3 =>
+    closed
+      ? points[(index + count) % count]
+      : points[Math.max(0, Math.min(count - 1, index))];
+  // Sur tracé ouvert, le pas réel : la pente d'un long prolongement ferait dériver le pas moyen de plusieurs mètres.
+  const toIndex = (s: number): number =>
+    closed ? Math.round(s / spacing) : track.indexAt(s);
   const here = track.nearest(state.position.x, state.position.z);
-  const lookahead = Math.max(7, state.speed * 0.55);
-  const target =
-    points[Math.round((here.s + lookahead) / spacing) % points.length];
+  // Sur un tracé ouvert, la route peut faire 3,5 m en épingle : on coupe moins la corde.
+  const lookahead = Math.max(closed ? 7 : 4.5, state.speed * 0.55);
+  const target = at(toIndex(here.s + lookahead));
 
   const dx = target.x - state.position.x;
   const dz = target.z - state.position.z;
@@ -53,18 +69,22 @@ export const botInput = (state: CarState, track: Track): CarInput => {
   );
 
   // Vitesse visée : la plus prudente sur les prochains points, en tenant compte du freinage.
-  const index = Math.round(here.s / spacing);
+  const index = toIndex(here.s);
   const stride = Math.max(1, Math.round(6 / spacing));
   let desired = MAX_SPEED;
   const horizon = Math.round(90 / spacing);
   for (let i = 0; i <= horizon; i += stride) {
     const corner = Math.sqrt(
-      LATERAL_ACCEL * radiusAt(points, index + i, stride),
+      (closed ? LATERAL_ACCEL : OPEN_LATERAL_ACCEL) *
+        radiusAt(at, index + i, stride),
     );
     const brakingRoom = Math.sqrt(
       corner * corner + 2 * BRAKING_DECEL * i * spacing,
     );
-    desired = Math.min(desired, Math.max(MIN_SPEED, brakingRoom));
+    desired = Math.min(
+      desired,
+      Math.max(closed ? MIN_SPEED : OPEN_MIN_SPEED, brakingRoom),
+    );
   }
 
   const gap = desired - state.forwardSpeed;

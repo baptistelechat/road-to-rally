@@ -1,7 +1,7 @@
 // Logique pure de la caméra : aucun React, aucun accès à la simulation, utilisable sans navigateur.
 // Le lissage est exponentiel et dépend du temps écoulé, jamais d'un facteur fixe par image.
 import { Euler, Quaternion, Vector3 } from "three";
-import type { CarState, Pose, Vec3 } from "@/sim/types";
+import type { CarState, Pose, Track, Vec3 } from "@/sim/types";
 
 export type CameraMode = "chase" | "hood";
 
@@ -45,6 +45,10 @@ export const RIG_TUNING = {
   chaseDistance: 7,
   chaseDistancePerSpeed: 0.03,
   chaseHeight: 2.25,
+  /** Hauteur minimale de la caméra de poursuite au-dessus du sol */
+  groundClearance: 1,
+  /** Vitesse à laquelle la caméra redescend une fois le relief passé */
+  groundLiftLambda: 4,
   lookAhead: 4,
   lookHeight: 0.9,
   chaseFov: 60,
@@ -131,7 +135,10 @@ export const fillRigInput = (
   out.impact = state.impact;
 };
 
-export const createCameraRig = (): CameraRig => {
+/** `groundAt` absent ou qui renvoie `null` : la caméra ignore le relief. */
+export const createCameraRig = (
+  groundAt: Track["groundAt"] = () => null,
+): CameraRig => {
   const tuning = RIG_TUNING;
   const output: RigOutput = {
     position: new Vector3(),
@@ -148,6 +155,7 @@ export const createCameraRig = (): CameraRig => {
   let time = 0;
   let yaw = 0;
   let height = 0;
+  let groundLift = 0;
   let distance: number = tuning.chaseDistance;
   let hoodPitch = 0;
   let hoodRoll = 0;
@@ -200,13 +208,20 @@ export const createCameraRig = (): CameraRig => {
       // La voiture reste liée à la caméra en X et Z : aucun retard de position, donc aucune saccade.
       const sin = Math.sin(yaw);
       const cos = Math.cos(yaw);
-      output.position.set(
-        position.x + sin * distance,
-        height + tuning.chaseHeight,
-        position.z + cos * distance,
+      const x = position.x + sin * distance;
+      const y = height + tuning.chaseHeight;
+      const z = position.z + cos * distance;
+      // Le relief pousse la caméra vers le haut sans délai, elle redescend ensuite en douceur.
+      const ground = groundAt(x, z);
+      const lift =
+        ground === null ? 0 : Math.max(0, ground + tuning.groundClearance - y);
+      groundLift = Math.max(
+        lift,
+        damp(groundLift, lift, tuning.groundLiftLambda, h),
       );
+      output.position.set(x, y + groundLift, z);
       pitch = Math.atan2(
-        tuning.lookHeight - tuning.chaseHeight,
+        tuning.lookHeight - tuning.chaseHeight - groundLift,
         distance + tuning.lookAhead,
       );
     } else {

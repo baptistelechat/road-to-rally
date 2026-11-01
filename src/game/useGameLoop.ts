@@ -19,25 +19,24 @@ import {
   consumeRestartRequest,
   pushHud,
   setHudDevice,
+  setHudFinished,
   setHudMuted,
   setHudRecovery,
   setLapTimes,
 } from "./hudStore";
 
-const BEST_LAP_KEY = "rally:best-lap-ms";
-
-const readBestLap = (): number | null => {
+const readBestLap = (key: string): number | null => {
   try {
-    const value = Number(localStorage.getItem(BEST_LAP_KEY));
+    const value = Number(localStorage.getItem(key));
     return value > 0 ? value : null;
   } catch {
     return null;
   }
 };
 
-const writeBestLap = (ms: number): void => {
+const writeBestLap = (key: string, ms: number): void => {
   try {
-    localStorage.setItem(BEST_LAP_KEY, String(ms));
+    localStorage.setItem(key, String(ms));
   } catch {
     // ponytail: stockage bloqué, le meilleur temps vit juste le temps de la session
   }
@@ -47,6 +46,8 @@ interface GameLoopOptions {
   sim: Simulation;
   audio: CarAudio;
   useBot: boolean;
+  /** Clé `localStorage` du meilleur temps de la carte */
+  bestLapKey: string;
   onToggleCamera: () => void;
   onDiagRequest: () => void;
 }
@@ -63,6 +64,7 @@ export const useGameLoop = ({
   sim,
   audio,
   useBot,
+  bestLapKey,
   onToggleCamera,
   onDiagRequest,
 }: GameLoopOptions): { source: CarSource; info: RefObject<LoopInfo> } => {
@@ -92,14 +94,14 @@ export const useGameLoop = ({
     const loop = info.current;
     controller.current = input;
     loop.controller = input;
-    bestLap.current = readBestLap();
+    bestLap.current = readBestLap(bestLapKey);
     setLapTimes({ bestLapMs: bestLap.current });
     return () => {
       input.dispose();
       controller.current = null;
       loop.controller = null;
     };
-  }, []);
+  }, [bestLapKey]);
 
   const restart = (): void => {
     sim.restart();
@@ -123,7 +125,7 @@ export const useGameLoop = ({
         lastLap.current = lapMs;
         if (bestLap.current === null || lapMs < bestLap.current) {
           bestLap.current = lapMs;
-          writeBestLap(lapMs);
+          writeBestLap(bestLapKey, lapMs);
         }
       }
     });
@@ -158,6 +160,7 @@ export const useGameLoop = ({
     pushHud(to);
     setHudRecovery(sim.recovery());
     if (input) setHudDevice(input.activeDevice());
+    setHudFinished(sim.lap.finished());
     setLapTimes({
       lapMs: sim.lap.currentMs(),
       lastLapMs: lastLap.current,

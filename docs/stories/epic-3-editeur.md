@@ -19,3 +19,5 @@ Le joueur trace sa spéciale, avec une assistance qui le pousse vers des routes 
 | 3.9   | Du tracé à la course      | Bouton « Rouler » qui lance le pipeline de l'epic 2                                       |
 
 **Interface :** c'est ici que shadcn/ui entre dans le projet. Pas avant.
+
+**Piste pour 3.1, 3.2 et 3.8, à évaluer au début de l'epic :** [mapcn](https://www.mapcn.dev/docs/routes) repose sur MapLibre GL et shadcn/ui, et son composant `MapRoute` affiche les itinéraires sans les calculer. Son exemple appelle OSRM, mais BRouter peut l'alimenter : testé le 01/11/2026, `alternativeidx` de 0 à 3 donne 4 itinéraires distincts vers Grenoble, et un seul à Turini, où il n'y a pas d'autre route. OSRM n'a renvoyé qu'un itinéraire sur ces deux trajets. Son serveur public se limite aussi à un usage non commercial, à 1 requête par seconde.

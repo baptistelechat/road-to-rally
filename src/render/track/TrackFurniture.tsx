@@ -3,17 +3,22 @@
 import { useEffect, useMemo } from "react";
 import { BoxGeometry, type BufferGeometry, Quaternion } from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
-import { startArch } from "@/sim/track/scenery";
-import type { Track } from "@/sim/types";
+import type { Pose, Track } from "@/sim/types";
 
 const BANNER_COLUMNS = 10;
 const BANNER_ROWS = 2;
 const BANNER_Y = 4.6;
 
+interface ArchProps {
+  track: Track;
+  /** `startArch` ou `finishArch` : une fonction stable, pour ne pas refaire la géométrie à chaque rendu */
+  place: (track: Track) => Pose & { halfSpan: number };
+}
+
 /** Deux poteaux et une bannière à damier. Les poteaux ont leur collider dans `addTrackColliders`. */
-export const StartArch = ({ track }: { track: Track }) => {
+export const Arch = ({ track, place }: ArchProps) => {
   const arch = useMemo(() => {
-    const { position, rotation, halfSpan } = startArch(track);
+    const { position, rotation, halfSpan } = place(track);
     const square = (2 * halfSpan) / BANNER_COLUMNS;
     const cells: BufferGeometry[] = [];
     for (let row = 0; row < BANNER_ROWS; row++)
@@ -45,7 +50,7 @@ export const StartArch = ({ track }: { track: Track }) => {
       ).translate(0, BANNER_Y + square, 0),
       squares: mergeGeometries(cells),
     };
-  }, [track]);
+  }, [track, place]);
 
   useEffect(
     () => () => {

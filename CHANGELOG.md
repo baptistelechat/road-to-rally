@@ -24,6 +24,12 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Drapeau de 255 pays sur les flancs arrière, redessiné en style low-poly, avec une option sans drapeau
 - Décor de tente d'assistance autour de la voiture au garage : bannière, drapeau et numéro aux couleurs de la livrée, écran avec l'heure réelle, plaques de rallye, trophées, étagères et armoires à outils
 - Emplacement réservé au logo du jeu dans le garage
+- Sélecteur de carte avec deux vraies routes de France, Road et Mountain, et un record par carte
+- Vrai relief low-poly autour de la route, largeur de route selon OpenStreetMap
+- Spéciales du départ à l'arrivée : la voiture attend le premier coup de gaz, puis s'arrête seule après la ligne
+- Import d'un fichier GPX pour générer sa propre spéciale, avec progression, annulation et réouverture hors ligne
+- Remise en piste à l'endroit où la route a été quittée sur une spéciale
+- Aperçu de chaque piste avec `/track-preview?map=`
 
 ### Changed
 

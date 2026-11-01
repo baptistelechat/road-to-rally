@@ -29,13 +29,11 @@ export const Atmosphere = ({ follow, fog = true }: AtmosphereProps) => {
     if (!light || !pose) return;
     const x = Math.round(pose.position.x / SHADOW_SNAP) * SHADOW_SNAP;
     const z = Math.round(pose.position.z / SHADOW_SNAP) * SHADOW_SNAP;
-    target.position.set(x, pose.position.y, z);
+    // Aussi en altitude : en côte, y bouge à chaque image et ferait scintiller les ombres.
+    const y = Math.round(pose.position.y / SHADOW_SNAP) * SHADOW_SNAP;
+    target.position.set(x, y, z);
     target.updateMatrixWorld();
-    light.position.set(
-      x + SUN_OFFSET.x,
-      pose.position.y + SUN_OFFSET.y,
-      z + SUN_OFFSET.z,
-    );
+    light.position.set(x + SUN_OFFSET.x, y + SUN_OFFSET.y, z + SUN_OFFSET.z);
   });
 
   return (

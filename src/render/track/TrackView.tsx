@@ -2,15 +2,12 @@
 
 import { useEffect, useMemo } from "react";
 import { BufferAttribute, BufferGeometry } from "three";
-import {
-  embankment,
-  GROUND_Y,
-  lateralStrip,
-  SHOULDER_WIDTH,
-} from "@/sim/track/ribbon";
-import type { MeshData, Track } from "@/sim/types";
-import { groundMesh } from "./groundMesh";
-import { StartArch } from "./TrackFurniture";
+import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
+import { embankment, lateralStrip, shoulderStrips } from "@/sim/track/ribbon";
+import { finishArch, startArch } from "@/sim/track/scenery";
+import type { MeshData, Track, Vec3 } from "@/sim/types";
+import { groundMesh, withSkirt } from "./groundMesh";
+import { Arch } from "./TrackFurniture";
 
 const LINE_INSET = 0.2;
 const LINE_WIDTH = 0.18;
@@ -19,6 +16,35 @@ const CENTER_LINE_WIDTH = 0.16;
 /** En segments de l'axe, d'environ 2 m chacun : 4 m de trait pour 6 m de vide. */
 const DASH_ON = 2;
 const DASH_PERIOD = 5;
+/** Nombre de pavés blancs de la ligne d'arrivée */
+const FINISH_COLUMNS = 8;
+
+/**
+ * Hauteur du marquage en chaque point. En virage et en pente, chaque quad de route est gauche :
+ * sa diagonale passe au-dessus d'une bande à 1 cm, qui disparaît par endroits le long de l'intérieur du virage.
+ */
+const lineLifts = ({ points, widths, closed }: Track): number[] => {
+  const n = points.length;
+  const at = (i: number): Vec3 =>
+    closed ? points[(i + n) % n] : points[Math.max(0, Math.min(n - 1, i))];
+  const skew = points.map((p, i) => {
+    const a = at(i - 1);
+    const b = at(i + 1);
+    const ux = p.x - a.x;
+    const uz = p.z - a.z;
+    const vx = b.x - p.x;
+    const vz = b.z - p.z;
+    const arc = (Math.hypot(ux, uz) + Math.hypot(vx, vz)) / 2 || 1;
+    const curvature = Math.abs(
+      Math.atan2(ux * vz - uz * vx, ux * vx + uz * vz) / arc,
+    );
+    return (Math.abs(b.y - a.y) * widths[i] * curvature) / 4;
+  });
+  return skew.map(
+    (value, i) =>
+      LINE_LIFT + Math.max(value, skew[(i + 1) % n], skew[(i - 1 + n) % n]),
+  );
+};
 
 /** Garde un segment sur quelques-uns d'une bande continue. */
 const dashed = (mesh: MeshData): MeshData => {
@@ -39,24 +65,69 @@ const toGeometry = (mesh: MeshData): BufferGeometry => {
   return geometry;
 };
 
-/** Sol, talus, bas-côté, route, marquage, repères et arche d'un tracé quelconque. */
+/** Pavés en travers de la route à l'abscisse `s`, sur un segment de l'axe pour épouser la pente. */
+const crossLine = (
+  track: Track,
+  s: number,
+  columns: number,
+): BufferGeometry => {
+  const { points, widths } = track;
+  const i = Math.min(points.length - 2, track.indexAt(s));
+  const half = widths[i] / 2;
+  const column = (2 * half) / (2 * columns - 1);
+  const parts: BufferGeometry[] = [];
+  for (let c = 0; c < columns; c++) {
+    const left = -half + 2 * c * column;
+    parts.push(
+      toGeometry(
+        lateralStrip(
+          points.slice(i, i + 2),
+          false,
+          left,
+          left + column,
+          LINE_LIFT,
+        ),
+      ),
+    );
+  }
+  return mergeGeometries(parts);
+};
+
+/** Sol ou terrain, talus, bas-côté, route, marquage, repères et arches d'un tracé quelconque. */
 export const TrackView = ({ track }: { track: Track }) => {
+  const hasTerrain = track.terrain !== null;
+
   const geometries = useMemo(() => {
-    const half = track.width / 2;
-    const { points, closed } = track;
-    const bank = embankment(points, track.width, closed);
-    const strip = (left: number, right: number, lift: number): BufferGeometry =>
-      toGeometry(lateralStrip(points, closed, left, right, lift));
+    const { points, closed, widths, shoulders, terrain } = track;
+    // Le talus descend vers le sol plat : avec un terrain, il n'a plus lieu d'être.
+    const bank = terrain ? null : embankment(points, widths, closed);
+    const lifts = lineLifts(track);
+    const strip = (
+      left: (width: number, i: number) => number,
+      right: (width: number, i: number) => number,
+      lift: number[],
+    ): BufferGeometry =>
+      toGeometry(
+        lateralStrip(points, closed, widths.map(left), widths.map(right), lift),
+      );
+    const [shoulderLeft, shoulderRight] = shoulderStrips(
+      points,
+      widths,
+      shoulders,
+      closed,
+    );
     return {
-      ground: toGeometry(groundMesh(track)),
+      ground: toGeometry(
+        terrain ? withSkirt(terrain, track) : groundMesh(track),
+      ),
       bank: bank ? toGeometry(bank) : null,
       road: toGeometry(track.ribbon),
-      shoulderLeft: strip(-half - SHOULDER_WIDTH, -half, GROUND_Y),
-      shoulderRight: strip(half, half + SHOULDER_WIDTH, GROUND_Y),
+      shoulderLeft: toGeometry(shoulderLeft),
+      shoulderRight: toGeometry(shoulderRight),
       lineLeft: strip(
-        -half + LINE_INSET,
-        -half + LINE_INSET + LINE_WIDTH,
-        LINE_LIFT,
+        (w) => -w / 2 + LINE_INSET,
+        (w) => -w / 2 + LINE_INSET + LINE_WIDTH,
+        lifts,
       ),
       lineCenter: toGeometry(
         dashed(
@@ -65,15 +136,20 @@ export const TrackView = ({ track }: { track: Track }) => {
             closed,
             -CENTER_LINE_WIDTH / 2,
             CENTER_LINE_WIDTH / 2,
-            LINE_LIFT,
+            lifts,
           ),
         ),
       ),
       lineRight: strip(
-        half - LINE_INSET - LINE_WIDTH,
-        half - LINE_INSET,
-        LINE_LIFT,
+        (w) => w / 2 - LINE_INSET - LINE_WIDTH,
+        (w) => w / 2 - LINE_INSET,
+        lifts,
       ),
+      // Le circuit garde son allure : ni ligne au sol, ni seconde arche.
+      startLine: closed ? null : crossLine(track, track.startS, 1),
+      finishLine: closed
+        ? null
+        : crossLine(track, track.finishS, FINISH_COLUMNS),
     };
   }, [track]);
 
@@ -90,6 +166,7 @@ export const TrackView = ({ track }: { track: Track }) => {
       <mesh geometry={geometries.ground} receiveShadow>
         <meshStandardMaterial
           vertexColors
+          flatShading={hasTerrain}
           polygonOffset
           polygonOffsetFactor={4}
           polygonOffsetUnits={4}
@@ -123,17 +200,23 @@ export const TrackView = ({ track }: { track: Track }) => {
         geometries.lineLeft,
         geometries.lineCenter,
         geometries.lineRight,
-      ].map((geometry) => (
-        <mesh key={geometry.uuid} geometry={geometry} receiveShadow>
-          <meshStandardMaterial
-            color="#e8e4d8"
-            polygonOffset
-            polygonOffsetFactor={-2}
-            polygonOffsetUnits={-2}
-          />
-        </mesh>
-      ))}
-      <StartArch track={track} />
+        geometries.startLine,
+        geometries.finishLine,
+      ].map(
+        (geometry) =>
+          geometry && (
+            <mesh key={geometry.uuid} geometry={geometry} receiveShadow>
+              <meshStandardMaterial
+                color="#e8e4d8"
+                polygonOffset
+                polygonOffsetFactor={-2}
+                polygonOffsetUnits={-2}
+              />
+            </mesh>
+          ),
+      )}
+      <Arch track={track} place={startArch} />
+      {!track.closed && <Arch track={track} place={finishArch} />}
     </group>
   );
 };

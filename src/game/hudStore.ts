@@ -19,6 +19,8 @@ export interface HudState extends LapTimes {
   recovery: RecoveryStatus | null;
   /** Message du mode diagnostic */
   diag: string | null;
+  /** Arrivée franchie sur une spéciale */
+  finished: boolean;
 }
 
 export const useHudStore = create<HudState>(() => ({
@@ -28,6 +30,7 @@ export const useHudStore = create<HudState>(() => ({
   device: "keyboard",
   recovery: null,
   diag: null,
+  finished: false,
   lapMs: null,
   lastLapMs: null,
   bestLapMs: null,
@@ -88,6 +91,12 @@ export const setHudRecovery = (status: RecoveryStatus | null): void => {
 
 export const setHudDiag = (diag: string | null): void => {
   useHudStore.setState({ diag });
+};
+
+/** Appelable à chaque image. */
+export const setHudFinished = (finished: boolean): void => {
+  if (useHudStore.getState().finished !== finished)
+    useHudStore.setState({ finished });
 };
 
 let restartRequested = false;
