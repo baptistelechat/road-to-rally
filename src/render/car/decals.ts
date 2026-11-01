@@ -47,7 +47,7 @@ interface FitTextOptions {
 }
 
 /** Centre le texte et le réduit pour tenir dans `box`, en le calant sur la hauteur d'un chiffre. */
-const fitText = (
+export const fitText = (
   ctx: CanvasRenderingContext2D,
   text: string,
   { center, box, font, ink, outline }: FitTextOptions,

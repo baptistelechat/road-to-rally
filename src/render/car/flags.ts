@@ -21,15 +21,15 @@ export const FLAGS: readonly { id: string; label: string }[] = [
 export type FlagFacet = readonly [number, number, number];
 
 /**
- * 36 et 24 tombent juste pour les bandes en deux ou trois parts : France et Allemagne gardent des bords droits.
- * Assez de rangées pour que chaque bande du drapeau américain en garde au moins une : à 12, elles se mélangeaient.
+ * 72 et 48 tombent juste pour les bandes en deux ou trois parts : France et Allemagne gardent des bords droits.
+ * Un maillage fin : à 36 x 24, les dents de scie se voyaient trop sur les bandes obliques ou étroites.
  */
-const COLUMNS = 36;
-const ROWS = 24;
+const COLUMNS = 72;
+const ROWS = 48;
 /** Pixels échantillonnés par côté de cellule */
-const CELL_PIXELS = 6;
-/** Un triangle sur deux, un peu plus sombre : les facettes se lisent comme sur la carrosserie. */
-const FACET_SHADE = 0.93;
+const CELL_PIXELS = 4;
+/** Un triangle sur deux, à peine plus sombre : les facettes restent discrètes. */
+export const FACET_SHADE = 0.97;
 /** Le temps de s'arrêter sur un drapeau : en faisant défiler, on ne dessine pas ceux qu'on ne fait que traverser. */
 const FLAG_SETTLE_MS = 150;
 

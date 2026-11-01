@@ -7,6 +7,7 @@ import {
 import {
   type FlagFacet,
   FLAGS,
+  FACET_SHADE,
   flagFacets,
   loadFlagFacets,
   NO_FLAG,
@@ -147,7 +148,7 @@ const check = async (): Promise<void> => {
   const facets = flagFacets(image, width, height, 2, 2);
   assert.equal(facets.length, 8);
   const isFacet = (facet: FlagFacet, r: number, g: number, b: number) =>
-    [1, 0.93].some((shade) =>
+    [1, FACET_SHADE].some((shade) =>
       [r, g, b].every((c, i) => facet[i] === Math.round(c * shade)),
     );
   const has = (r: number, g: number, b: number): boolean =>

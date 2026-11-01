@@ -22,10 +22,14 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Plaques personnalisables au garage, à l'avant et à l'arrière : texte de 9 caractères et 4 styles
 - Numéro personnalisable au garage, sur les portières et le capot : 3 chiffres et 6 styles
 - Drapeau de 255 pays sur les flancs arrière, redessiné en style low-poly, avec une option sans drapeau
+- Décor de tente d'assistance autour de la voiture au garage : bannière, drapeau et numéro aux couleurs de la livrée, écran avec l'heure réelle, plaques de rallye, trophées, étagères et armoires à outils
+- Emplacement réservé au logo du jeu dans le garage
 
 ### Changed
 
 - Au garage, le bouton A de la manette valide la ligne sélectionnée : la rotation se met en pause depuis son bouton
+- Caméra du garage limitée à l'intérieur de la tente, avec un champ de vision plus large
+- Drapeaux plus lisses, avec des triangles plus petits et plus discrets
 
 ### Fixed
 

@@ -104,8 +104,10 @@ export const createMeshBuilder = () => {
   };
 
   const box = (min: V3, max: V3, color: Rgb): void => {
-    const [x0, y0, z0] = min;
-    const [x1, y1, z1] = max;
+    // Remis dans l'ordre : des bornes inversées retourneraient toutes les faces vers l'intérieur.
+    const [x0, x1] = [Math.min(min[0], max[0]), Math.max(min[0], max[0])];
+    const [y0, y1] = [Math.min(min[1], max[1]), Math.max(min[1], max[1])];
+    const [z0, z1] = [Math.min(min[2], max[2]), Math.max(min[2], max[2])];
     face(
       [
         [x0, y0, z0],
@@ -203,12 +205,12 @@ export const createMeshBuilder = () => {
   };
 
   /**
-   * Solide de révolution autour de X ou Z. `profile` liste des couples [distance sur l'axe, rayon] :
+   * Solide de révolution autour de X, Y ou Z. `profile` liste des couples [distance sur l'axe, rayon] :
    * en le parcourant, l'extérieur est à gauche de (distance, rayon). `direction` retourne l'axe,
    * `colors[i]` peint le segment entre `profile[i]` et `profile[i + 1]`.
    */
   const lathe = (
-    axis: "x" | "z",
+    axis: "x" | "y" | "z",
     center: V3,
     direction: number,
     profile: readonly P2[],
@@ -219,9 +221,9 @@ export const createMeshBuilder = () => {
       const u = radius * Math.cos(angle);
       const v = radius * Math.sin(angle);
       const d = distance * direction;
-      return axis === "x"
-        ? [center[0] + d, center[1] + u, center[2] + v]
-        : [center[0] + u, center[1] + v, center[2] + d];
+      if (axis === "x") return [center[0] + d, center[1] + u, center[2] + v];
+      if (axis === "y") return [center[0] + u, center[1] + d, center[2] + v];
+      return [center[0] + u, center[1] + v, center[2] + d];
     };
     segmentColors.forEach((color, i) => {
       const [d0, r0] = profile[i];
@@ -234,7 +236,12 @@ export const createMeshBuilder = () => {
         const mid = (a0 + a1) / 2;
         const u = radial * Math.cos(mid);
         const v = radial * Math.sin(mid);
-        const out: V3 = axis === "x" ? [axial, u, v] : [u, v, axial];
+        const out: V3 =
+          axis === "x"
+            ? [axial, u, v]
+            : axis === "y"
+              ? [u, axial, v]
+              : [u, v, axial];
         face(
           [at(d0, r0, a0), at(d0, r0, a1), at(d1, r1, a1), at(d1, r1, a0)],
           color,

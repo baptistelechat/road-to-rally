@@ -6,6 +6,8 @@ import { useRef, useState } from "react";
 import type { Group } from "three";
 import { CarModel } from "@/render/car/CarModel";
 import type { Livery } from "@/render/car/livery";
+import { GARAGE_CAMERA } from "@/render/garage/buildGarageGeometry";
+import { GarageDecor } from "@/render/garage/GarageDecor";
 import { carConfig } from "@/sim/carConfig";
 import { GaragePadControls } from "./GaragePadControls";
 import { ROTATION_ROW } from "./garageMenu";
@@ -13,8 +15,8 @@ import { LiveryPanel, MENU_FOCUS } from "./LiveryPanel";
 import { useGarageMenu } from "./useGarageMenu";
 
 const TURN_SPEED = 0.25;
-const PLATE_HEIGHT = 0.12;
-const ORBIT_TARGET = [0, 0.6, 0] as const;
+const PLATE_HEIGHT = 0.04;
+const NIGHT = "#0b0e14";
 
 const PAD_HELP: readonly (readonly [string, string])[] = [
   ["Croix / Stick gauche", "Naviguer"],
@@ -39,8 +41,8 @@ const Turntable = ({ paused, livery }: TurntableProps) => {
   return (
     <group ref={table}>
       <mesh position={[0, -PLATE_HEIGHT / 2, 0]} receiveShadow>
-        <cylinderGeometry args={[3.1, 3.2, PLATE_HEIGHT, 48]} />
-        <meshStandardMaterial color="#55534e" roughness={0.9} />
+        <cylinderGeometry args={[2.9, 2.95, PLATE_HEIGHT, 48]} />
+        <meshStandardMaterial color="#3b3e43" roughness={0.7} />
       </mesh>
       {/* L'origine du modèle est le centre de la caisse et ses roues sont à l'assiette de repos. */}
       <group position={[0, carConfig.ride.height, 0]}>
@@ -55,47 +57,48 @@ export const GarageScene = () => {
   const [menu, dispatch] = useGarageMenu();
 
   return (
-    <div className="fixed inset-0 bg-[#c9c3b4]">
-      <Canvas shadows camera={{ position: [-5, 2.2, -6], fov: 32 }}>
-        <color attach="background" args={["#c9c3b4"]} />
-        <fog attach="fog" args={["#c9c3b4", 16, 40]} />
-        <hemisphereLight args={["#fff4e0", "#6b6a5e", 1.1]} />
+    <div className="fixed inset-0 bg-[#0b0e14]">
+      <Canvas
+        shadows
+        camera={{ position: [-4.4, 2, -5.2], fov: 44, near: 0.1, far: 60 }}
+      >
+        <color attach="background" args={[NIGHT]} />
+        <hemisphereLight args={["#f4f7ff", "#6f7072", 0.9]} />
         <directionalLight
-          position={[5, 8, 3]}
-          intensity={2.6}
+          position={[4, 9, 4]}
+          intensity={2.2}
           castShadow
-          shadow-mapSize={[2048, 2048]}
-          shadow-camera-left={-5}
-          shadow-camera-right={5}
-          shadow-camera-top={5}
-          shadow-camera-bottom={-5}
+          shadow-mapSize={[4096, 4096]}
           shadow-bias={-0.0004}
-        />
+          shadow-normalBias={0.03}
+        >
+          {/* Toute la tente : un plus petit cadre couperait les ombres des objets éloignés. */}
+          <orthographicCamera
+            attach="shadow-camera"
+            args={[-15, 15, 15, -15, 0.5, 30]}
+          />
+        </directionalLight>
         <directionalLight
           position={[-6, 3, -4]}
-          intensity={0.6}
+          intensity={1}
           color="#cfdcff"
         />
-        <mesh
-          rotation={[-Math.PI / 2, 0, 0]}
-          position={[0, -PLATE_HEIGHT, 0]}
-          receiveShadow
-        >
-          <circleGeometry args={[40, 48]} />
-          <meshStandardMaterial color="#b9b3a4" roughness={1} />
-        </mesh>
+        <group position={[0, -PLATE_HEIGHT, 0]}>
+          <GarageDecor livery={menu.livery} />
+        </group>
         <Turntable paused={menu.paused} livery={menu.livery} />
         <GaragePadControls
-          target={ORBIT_TARGET}
+          target={GARAGE_CAMERA.target}
           onMenuAction={dispatch}
           onConnectionChange={setPadConnected}
         />
         <OrbitControls
-          target={[...ORBIT_TARGET]}
+          target={[...GARAGE_CAMERA.target]}
           enablePan={false}
-          minDistance={3}
-          maxDistance={30}
-          maxPolarAngle={Math.PI / 2 - 0.02}
+          minDistance={GARAGE_CAMERA.minDistance}
+          maxDistance={GARAGE_CAMERA.maxDistance}
+          minPolarAngle={GARAGE_CAMERA.minPolarAngle}
+          maxPolarAngle={GARAGE_CAMERA.maxPolarAngle}
         />
       </Canvas>
       <LiveryPanel menu={menu} dispatch={dispatch} />
