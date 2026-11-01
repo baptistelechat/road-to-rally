@@ -20,6 +20,56 @@ Fin de l'enquête sur le lag signalé en playtest : son qui saccade vers 5 minut
 - [BLK-002](blockers/BLK-002.md) — Lag à 5 min en mode dev avec manette Bluetooth
 - [LRN-003](learnings/LRN-003.md) — Lag : comparer dev et production, une variable par test
 - [BDR-004](decisions/BDR-004.md) — Suspension par raycast Rapier, forces de pneus maison
+
+---
+
+Première session sur le garage. La voiture flottait de 11,5 cm au-dessus de son plateau : `GarageScene` calculait sa hauteur avec les roues détendues alors que `CarModel` les affiche à l'assiette de repos. Elle utilise maintenant `carConfig.ride.height`. Ajout d'un bouton pause pour la rotation du plateau.
+
+Les bavettes traversaient le sol pour la même raison, corrigé avec une garde au sol dans `carConfig.mudflaps`. Un pendule les a rendues dynamiques (validé sur la vraie simulation, jamais vu en course), puis Baptiste a demandé son retrait et gardé les hauteurs : les bavettes sont de nouveau fixes, dans le maillage de la caisse.
+
+Ajout des commandes manette au garage (stick droit, RT/LT, A), testées avec une manette simulée et validées par Baptiste. Liste des couleurs dressée pour préparer la personnalisation : 4 couleurs de livrée déjà paramétrables, les autres en dur dans `buildCarGeometry`. Le choix des couleurs à exposer reste à faire. Rien n'est commité en fin de session.
+
+**Entrées clés :**
+
+- [BDR-20261101115823-1](decisions/BDR-20261101115823-1.md) — Bavettes fixes, pendule retiré
+- [BDR-20261101115823-2](decisions/BDR-20261101115823-2.md) — Manette au garage : stick gauche et croix réservés
+- [LRN-20261101115823-3](learnings/LRN-20261101115823-3.md) — Cotes du modèle : depuis les roues détendues, pas la route
+
+---
+
+Personnalisation de la voiture au garage. D'abord quatre sélecteurs de couleur natifs, puis, après essai de Baptiste à la manette, un menu pilotable et enfin une palette unique de 220 couleurs Tailwind, partagée par la souris, le clavier et la manette. A valide désormais la ligne sélectionnée et la rotation se met en pause depuis son bouton. Maintenir une direction fait défiler le menu. La livrée est sauvegardée et reprise en jeu. La caméra qui s'inversait au sommet à la manette se bloque maintenant comme à la souris (`makeSafe`). L'erreur d'hydratation venait de l'extension ColorZilla : `suppressHydrationWarning` ajouté sur `<body>`, sans pouvoir le confirmer ici. Le défilement n'a pas pu être testé jusqu'au bout car le panneau navigateur se fige : à essayer manette en main. Les plaques et numéros restent à faire. Commit `b0e5980`, sans push.
+
+**Entrées clés :**
+
+- [BDR-20261101131243-1](decisions/BDR-20261101131243-1.md) — une seule palette et un seul reducer au garage
+- [ZBLK-20261101131243-2](archive/blockers/ZBLK-20261101131243-2.md) — défilement manette non validé dans le panneau
+
+---
+
+Suite de la personnalisation du garage. Les plaques (texte de 9 caractères, 4 styles, à l'avant et à l'arrière) et le numéro (3 chiffres, 6 styles, sur les portières puis le capot) sont des textures canvas. Le texte se saisit case par case, à la souris, au clavier et à la manette. Baptiste a signalé qu'on ne pouvait pas descendre dans les vignettes : les grilles s'ouvrent désormais avec A, comme la palette.
+
+Un drapeau français fixe a été remplacé à la demande de Baptiste par un sélecteur de 255 pays basé sur `country-flag-icons`, plus une option « Sans drapeau », avec un rendu en triangles de couleur dominante. Ce sélecteur a demandé trois allers-retours. L'ouverture gelait à cause du low-poly calculé pour chaque vignette. Le défilement saccadait ensuite à cause des tracés canvas redessinés à chaque pas, alors que j'avais d'abord accusé le calcul des couleurs : les mesures propres ont corrigé ce faux diagnostic, et Baptiste a retenu l'écriture directe des pixels avec dessin à l'arrêt. Enfin, la manette a provoqué un plantage aux bords de la grille, dont la dernière ligne est incomplète.
+
+Tout est poussé sur `development` (66a51ca). Après l'essai à la manette, Baptiste a répondu « parfait ».
+
+**Entrées clés :**
+
+- [BDR-20261101150421-3](decisions/BDR-20261101150421-3.md) — drapeaux : lib SVG, triangles en couleur dominante, pixels
+- [ZBLK-20261101150421-6](archive/blockers/ZBLK-20261101150421-6.md) — lag au défilement des drapeaux à la manette
+
+---
+
+Session sur le décor du garage, à partir de photos de référence. Après une liste validée, Baptiste a choisi l'ambiance assistance WRC : tente, néons, ouverture sur la nuit, armoires, étagères, caisses, roues de rechange, chandelles, cric et borne d'arcade. Plusieurs retours ont suivi : poteaux qui clignotaient (bornes de boîte inversées, corrigées dans `meshBuilder`), bannière reprenant la livrée avec un texte lisible, un seul écran avec un vrai cadre, toiles du drapeau et du numéro, ombres sur les objets, tiroirs ouverts, plaques de rallye à dôme, trophées sous le drapeau, tuyaux en volume et emplacement du logo. Les drapeaux ont aussi été lissés. Le fond noir signalé sur les plaques n'a pas été reproduit : le correctif reste à confirmer.
+
+**Entrées clés :**
+
+- [BDR-20261101170343-1](decisions/BDR-20261101170343-1.md) — Garage : coque sans ombre, objets avec, caméra bornée
+- [ZBLK-20261101170343-5](archive/blockers/ZBLK-20261101170343-5.md) — Fond noir des plaques non reproduit
+
+---
+
+Baptiste a confirmé que le fond noir des plaques a disparu : le blocker est archivé en [ZBLK-20261101170343-5](archive/blockers/ZBLK-20261101170343-5.md).
+
 ---
 
 Cadrage de l'epic 2 après la validation de l'epic 1, sans écrire de code. Le mode multi-user est activé sur le projet (`.multi-user`). L'ancienne liste de l'epic 2 devient neuf fiches dans `docs/stories/epic-2-pipeline-geo/`, écrites après lecture du code et tests réels des API IGN, Overpass et BRouter. Deux stories sont ajoutées : la 2.3, pour rouler tôt sur de vraies pentes parce que le jeu ne charge que le sandbox et que le chrono ne connaît que les boucles, et la 2.9, pour le playtest de passage. Baptiste a demandé d'analyser mapcn : son exemple utilise OSRM et non BRouter, et le composant ne fait qu'afficher les itinéraires. Il a aussi questionné le remplacement de l'altitude de BRouter : la mesure sur Turini et le besoin d'une grille pour le terrain confirment l'IGN. Le circuit reste, au choix avec une départementale et une montagne, en URL anglaises (`track`, `road`, `mountain`). Le dev de l'epic 2 n'est pas lancé : il attend le feu vert de Baptiste.

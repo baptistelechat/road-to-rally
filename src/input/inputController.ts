@@ -75,7 +75,7 @@ const isEditing = (eventTarget: EventTarget | null): boolean =>
 // Peut lever une SecurityError si la permission gamepad est refusée (iframe) :
 // la boucle de simulation doit survivre et continuer au clavier.
 // ponytail: première manette standard ; les mappings non standard sont ignorés car leurs indices ne veulent rien dire.
-const findStandardPad = (target: Window): GamepadLike | null => {
+export const findStandardPad = (target: Window): GamepadLike | null => {
   try {
     const pads = target.navigator.getGamepads?.() ?? [];
     return (

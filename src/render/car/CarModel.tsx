@@ -6,6 +6,15 @@ import type { Group, Mesh, MeshStandardMaterial } from "three";
 import type { CarSource } from "@/render/carSource";
 import { carConfig } from "@/sim/carConfig";
 import { buildCarGeometry, maxWheelOffset } from "./buildCarGeometry";
+import {
+  createDecalTexture,
+  drawNumber,
+  drawPlate,
+  FLAG_SIZE,
+  NUMBER_SIZE,
+  PLATE_SIZE,
+} from "./decals";
+import { drawFlagWhenSettled } from "./flags";
 import { defaultLivery, type Livery } from "./livery";
 
 const BRAKE_GLOW_OFF = 0.15;
@@ -19,7 +28,31 @@ interface CarModelProps {
 }
 
 export const CarModel = ({ source, livery = defaultLivery }: CarModelProps) => {
-  const car = useMemo(() => buildCarGeometry(livery), [livery]);
+  const { primary, secondary, accent, rim } = livery;
+  const { plateText, plateStyle, numberText, numberStyle, flag } = livery;
+  // Seules les couleurs repeignent la caisse : une plaque ou un drapeau ne la reconstruit pas.
+  const car = useMemo(
+    () => buildCarGeometry({ primary, secondary, accent, rim }),
+    [primary, secondary, accent, rim],
+  );
+  const plateTexture = useMemo(
+    () =>
+      createDecalTexture(PLATE_SIZE, (ctx) =>
+        drawPlate(ctx, plateText, plateStyle),
+      ),
+    [plateText, plateStyle],
+  );
+  const numberTexture = useMemo(
+    () =>
+      createDecalTexture(NUMBER_SIZE, (ctx) =>
+        drawNumber(ctx, numberText, numberStyle, accent),
+      ),
+    [numberText, numberStyle, accent],
+  );
+  const flagTexture = useMemo(
+    () => createDecalTexture(FLAG_SIZE, () => {}),
+    [],
+  );
   const root = useRef<Group>(null);
   const mounts = useRef<(Group | null)[]>([]);
   const spins = useRef<(Mesh | null)[]>([]);
@@ -29,9 +62,26 @@ export const CarModel = ({ source, livery = defaultLivery }: CarModelProps) => {
     () => () => {
       car.body.dispose();
       car.brakeLights.dispose();
+      car.plates.dispose();
+      car.numbers.dispose();
+      car.flags.dispose();
       for (const wheel of car.wheels) wheel.geometry.dispose();
     },
     [car],
+  );
+  useEffect(() => () => plateTexture.dispose(), [plateTexture]);
+  useEffect(() => () => numberTexture.dispose(), [numberTexture]);
+  useEffect(() => () => flagTexture.dispose(), [flagTexture]);
+  useEffect(
+    () =>
+      drawFlagWhenSettled(
+        flag,
+        () => flagTexture.image as HTMLCanvasElement,
+        () => {
+          flagTexture.needsUpdate = true;
+        },
+      ),
+    [flag, flagTexture],
   );
 
   useFrame(() => {
@@ -80,6 +130,16 @@ export const CarModel = ({ source, livery = defaultLivery }: CarModelProps) => {
           emissive="#ff2413"
           emissiveIntensity={BRAKE_GLOW_OFF}
         />
+      </mesh>
+      <mesh geometry={car.plates}>
+        <meshStandardMaterial map={plateTexture} roughness={0.5} />
+      </mesh>
+      <mesh geometry={car.numbers}>
+        <meshStandardMaterial map={numberTexture} roughness={0.6} transparent />
+      </mesh>
+      <mesh geometry={car.flags}>
+        {/* Transparent le temps que le drapeau arrive : le canvas est encore vide. */}
+        <meshStandardMaterial map={flagTexture} roughness={0.6} transparent />
       </mesh>
       {car.wheels.map((wheel, i) => (
         <group

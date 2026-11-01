@@ -4,7 +4,11 @@ import { createInputRecorder, replayInputs } from "../../src/input/recorder";
 import {
   applyDeadzone,
   KEYBOARD_RAMPS,
+  MENU_REPEAT_DELAY,
+  MENU_REPEAT_INTERVAL,
+  pollMenuRepeat,
   rampAxis,
+  readGarageInput,
   STICK_DEADZONE,
   type GamepadLike,
 } from "../../src/input/smoothing";
@@ -146,6 +150,52 @@ export default async function check(): Promise<void> {
   const session = runSession();
   assert.deepEqual(session, runSession());
   session.forEach(assertBounds);
+
+  // Garage : le stick droit tourne, les gâchettes zooment, le stick gauche et la croix naviguent.
+  {
+    const idle = readGarageInput(makePad({ steer: 1 }));
+    assert.deepEqual(idle, { orbitX: 0, orbitY: 0, zoom: 0, menu: "right" });
+    const pad = makePad({ throttle: 1, pressed: [0] });
+    const garage = readGarageInput({ ...pad, axes: [0, 0, 1, -1] });
+    assert.deepEqual(garage, {
+      orbitX: 1,
+      orbitY: -1,
+      zoom: 1,
+      menu: "confirm",
+    });
+    assert.equal(readGarageInput(makePad({ brake: 1 })).zoom, -1);
+    assert.equal(readGarageInput(makePad({ pressed: [1] })).menu, "cancel");
+    assert.equal(readGarageInput(makePad({ pressed: [13] })).menu, "down");
+    assert.equal(readGarageInput(makePad({ steer: 0.3 })).menu, null);
+    const drift = { ...makePad(), axes: [0, 0, STICK_DEADZONE, 0] };
+    assert.equal(readGarageInput(drift).orbitX, 0);
+  }
+
+  // Menu : un déclenchement à la pression, puis un défilement si le déplacement est maintenu.
+  {
+    const repeat = { held: undefined, wait: 0 };
+    const dt = 0.01;
+    assert.equal(pollMenuRepeat(repeat, "confirm", dt), null, "réveil");
+    assert.equal(
+      pollMenuRepeat(repeat, "confirm", 9),
+      null,
+      "A ne se répète pas",
+    );
+    assert.equal(pollMenuRepeat(repeat, null, dt), null);
+    assert.equal(pollMenuRepeat(repeat, "down", dt), "down");
+    assert.equal(pollMenuRepeat(repeat, "down", MENU_REPEAT_DELAY - dt), null);
+    assert.equal(pollMenuRepeat(repeat, "down", dt * 2), "down");
+    assert.equal(
+      pollMenuRepeat(repeat, "down", MENU_REPEAT_INTERVAL / 2),
+      null,
+    );
+    assert.equal(pollMenuRepeat(repeat, "down", MENU_REPEAT_INTERVAL), "down");
+    assert.equal(
+      pollMenuRepeat(repeat, "right", dt),
+      "right",
+      "autre direction",
+    );
+  }
 
   // Montée progressive au clavier, et retour au centre plus rapide que l'aller.
   {

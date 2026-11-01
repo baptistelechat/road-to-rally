@@ -9,7 +9,13 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="fr" className="h-full antialiased">
-      <body className="h-full overflow-hidden bg-neutral-900">{children}</body>
+      {/* Certaines extensions, comme ColorZilla, ajoutent des attributs à <body> avant React. */}
+      <body
+        className="h-full overflow-hidden bg-neutral-900"
+        suppressHydrationWarning
+      >
+        {children}
+      </body>
     </html>
   );
 }
