@@ -124,3 +124,16 @@ Le menu pause ne se pilotait pas à la manette : A reprenait la course d'office.
 
 - [BDR-20261101201935-1](decisions/BDR-20261101201935-1.md) — Caméra de course : stick droit, retour au relâchement
 - [BDR-20261101201935-2](decisions/BDR-20261101201935-2.md) — Menu pause à la manette : focus, A pour ouvrir, B pour revenir
+---
+
+Session sur le son du moteur, jugé trop synthétique. Après quatre pistes proposées, Baptiste a demandé une page de test des trois caractères (4 cylindres atmo, 4 cylindres turbo, 5 cylindres) en synthèse enrichie, avec frein moteur, pétarades, résonance d'échappement, admission, mécanique et saturation. La page `/labo-son` a été construite avec une voix moteur séparée de la simulation.
+
+Baptiste a ensuite choisi d'en faire une personnalisation au garage : trois sélecteurs avec une démo, un choix stocké dans la livrée et joué en course. Il a demandé en cours de route de garder la page labo pour de futurs moteurs. Après essai, deux retours : pas de retour visuel à la validation à la manette, corrigé par une pastille sur le moteur validé, et un turbo trop présent en accélération, corrigé par une turbine qui garde son élan et un niveau lié à sa montée en régime. Le rendu de cette dernière correction n'a pas été confirmé à l'oreille pendant la session, et la manette réelle n'a pas été testée.
+
+Commit `2d0dc73` poussé sur `development`. GitHub a affiché que les changements doivent passer par une pull request, mais le push a été accepté.
+
+**Entrées clés :**
+
+- [BDR-20261101233659-1](decisions/BDR-20261101233659-1.md) — moteur choisi au garage, stocké dans la livrée
+- [BDR-20261101233659-2](decisions/BDR-20261101233659-2.md) — labo son conservé pour les futurs moteurs
+- [LRN-20261101233659-4](learnings/LRN-20261101233659-4.md) — un son continu se juge en course, pas sur une démo

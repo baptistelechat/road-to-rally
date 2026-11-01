@@ -27,3 +27,6 @@ register: decisions
 | [BDR-20261101191443-4](decisions/BDR-20261101191443-4.md) | 2026-11-01 | Menu de départ et de pause, simulation gelée hors course | #menu #pause #gamepad #hud #web-audio #zustand | actif |
 | [BDR-20261101201935-1](decisions/BDR-20261101201935-1.md) | 2026-11-01 | Caméra de course : stick droit, retour au relâchement | #camera #gamepad #orbit #chase-cam #react-three-fiber #determinism | actif |
 | [BDR-20261101201935-2](decisions/BDR-20261101201935-2.md) | 2026-11-01 | Menu pause à la manette : focus, A pour ouvrir, B pour revenir | #menu #gamepad #focus #listbox #select #navigation #a11y | actif |
+| [BDR-20261101233659-1](decisions/BDR-20261101233659-1.md) | 2026-11-01 | Moteur choisi au garage, stocké dans la livrée | #garage #moteur #audio #web-audio #livree #personnalisation | actif |
+| [BDR-20261101233659-2](decisions/BDR-20261101233659-2.md) | 2026-11-01 | Labo son conservé pour les futurs moteurs | #labo-son #audio #moteur #outillage #garage | actif |
+| [BDR-20261101233659-3](decisions/BDR-20261101233659-3.md) | 2026-11-01 | Pastille du garage : le moteur validé, pas celui essayé | #garage #manette #menu #ui #feedback #moteur | actif |

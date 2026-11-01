@@ -29,3 +29,7 @@ register: learnings
 | [LRN-20261101191443-1](learnings/LRN-20261101191443-1.md) | 2026-11-01 | Une manette ne débloque pas l'audio du navigateur | #web-audio #gamepad #autoplay #user-activation #audiocontext #browser-policy |
 | [LRN-20261101191443-2](learnings/LRN-20261101191443-2.md) | 2026-11-01 | Installer en PWA ne lève pas le blocage de l'audio | #pwa #web-audio #autoplay #chrome #pawzzle #user-activation |
 | [LRN-20261101191443-3](learnings/LRN-20261101191443-3.md) | 2026-11-01 | Blocage de l'audio non fiable dans le navigateur intégré | #browser-pane #web-audio #autoplay #test #audiocontext #claude-code |
+| [LRN-20261101233659-4](learnings/LRN-20261101233659-4.md) | 2026-11-01 | Un son continu se juge en course, pas sur une démo | #audio #turbo #moteur #playtest #sound-design #demo |
+| [LRN-20261101233659-5](learnings/LRN-20261101233659-5.md) | 2026-11-01 | Un cycle irrégulier dans PeriodicWave évite un AudioWorklet | #web-audio #periodicwave #synthese #moteur #audioworklet #performance |
+| [LRN-20261101233659-6](learnings/LRN-20261101233659-6.md) | 2026-11-01 | Mesurer un son Web Audio sans l'entendre | #web-audio #analyser #test #strict-mode #navigateur #diagnostic |
+| [LRN-20261101233659-7](learnings/LRN-20261101233659-7.md) | 2026-11-01 | WaveShaper bloque le signal au-delà de ±1 | #web-audio #waveshaper #saturation #clipping #synthese #moteur |
