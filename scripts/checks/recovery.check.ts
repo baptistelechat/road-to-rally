@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { existsSync, readFileSync } from "node:fs";
 import { updateRumble } from "../../src/audio/gamepadRumble";
 import { createInputRecorder, replayInputs } from "../../src/input/recorder";
 import { carConfig } from "../../src/sim/carConfig";
@@ -7,10 +8,12 @@ import { createLightProps, isLightProp } from "../../src/sim/lightProps";
 import { initRapier, RAPIER } from "../../src/sim/rapier";
 import { createRecovery, isWrongWay } from "../../src/sim/recovery";
 import { createSimulation } from "../../src/sim/simulation";
+import { parseStage } from "../../src/sim/track/stageCodec";
 import {
   NEUTRAL_INPUT,
   type CarState,
   type SceneryItem,
+  type StageData,
   type TrackSample,
 } from "../../src/sim/types";
 import { createVehicle } from "../../src/sim/vehicle";
@@ -22,6 +25,7 @@ const fakeTrack = (distance: () => number) => ({
     point: { x: 0, y: 0, z: 0 },
     tangent: { x: 0, y: 0, z: -1 },
     distance: distance(),
+    width: 6,
   }),
 });
 
@@ -127,6 +131,56 @@ const checkRecovery = (): void => {
   sim.free();
 };
 
+/** Sur une spéciale à terrain : sortie du couloir ou passage sous le sol, remise en piste sans attendre. */
+const checkTerrainRecovery = (): void => {
+  let ground: number | null = 0;
+  const recovery = createRecovery(
+    fakeTrack(() => 0),
+    () => ground,
+  );
+  const atHeight = (y: number) => input(false, { position: { x: 0, y, z: 0 } });
+  assert.equal(recovery.update(atHeight(0.5)), false, "posée sur le sol");
+  assert.equal(recovery.update(atHeight(-0.5)), false, "caisse dans une bosse");
+  assert.equal(recovery.update(atHeight(-1.5)), true, "passée sous le sol");
+  assert.equal(recovery.status(), null);
+  ground = null;
+  assert.equal(recovery.update(atHeight(50)), true, "sortie du couloir");
+};
+
+/** Aucun objet léger ne bouge sans choc au chargement, même en pente, ni après une relance. */
+const checkPropsOnStage = (name: string, stage: StageData): void => {
+  const sim = createSimulation(carConfig, stage);
+  const items = sim.scenery.filter((item) => isLightProp(item.kind));
+  assert.ok(items.length > 0, `${name} : aucun objet léger`);
+  const assertStill = (when: string): void => {
+    let worst = 0;
+    sim.props.poses().forEach((pose, i) => {
+      const moved = Math.hypot(
+        pose.position.x - items[i].position.x,
+        pose.position.z - items[i].position.z,
+      );
+      worst = Math.max(worst, moved);
+      assert.ok(
+        moved < 0.3,
+        `${name}, ${when} : ${items[i].kind} déplacé de ${moved} m sans choc`,
+      );
+      assert.ok(
+        Math.abs(pose.rotation.x) + Math.abs(pose.rotation.z) < 0.2,
+        `${name}, ${when} : ${items[i].kind} renversé sans choc`,
+      );
+    });
+    console.log(
+      `     ${name}, ${when} : ${items.length} objets légers, déplacement max ${worst.toFixed(3)} m`,
+    );
+  };
+  for (let i = 0; i < 240; i++) sim.step(NEUTRAL_INPUT);
+  assertStill("au chargement");
+  sim.restart();
+  for (let i = 0; i < 240; i++) sim.step(NEUTRAL_INPUT);
+  assertStill("après relance");
+  sim.free();
+};
+
 const checkRideHeight = (): void => {
   const sim = createSimulation();
   for (let i = 0; i < 240; i++) sim.step(NEUTRAL_INPUT);
@@ -164,7 +218,10 @@ const checkRideHeight = (): void => {
       pose.position.x - start[i].position.x,
       pose.position.z - start[i].position.z,
     );
-    assert.ok(moved < 0.3, `${start[i].kind} déplacé après relance : ${moved} m`);
+    assert.ok(
+      moved < 0.3,
+      `${start[i].kind} déplacé après relance : ${moved} m`,
+    );
   });
 
   // Remise en piste : aucune chute ni remontée brutale des roues.
@@ -360,7 +417,16 @@ const checkRumble = async (): Promise<void> => {
 export default async function check(): Promise<void> {
   await initRapier();
   checkRecovery();
+  checkTerrainRecovery();
   checkRideHeight();
+  for (const fixture of ["road", "mountain"]) {
+    const path = `public/stages/${fixture}.json`;
+    if (existsSync(path))
+      checkPropsOnStage(
+        fixture,
+        parseStage(JSON.parse(readFileSync(path, "utf8"))),
+      );
+  }
   checkLightProps();
   checkUpsideDownRespawn();
   checkRecorder();

@@ -11,7 +11,7 @@ Les epics suivent l'ordre des phases du PRD.
 | #   | Epic                                                                       | Critère de passage                                                    | Statut     |
 | --- | -------------------------------------------------------------------------- | --------------------------------------------------------------------- | ---------- |
 | 1   | [Gameplay](stories/epic-1-gameplay/) : voiture, contrôles, tracé sandbox   | Tu as envie d'y rejouer 10 minutes sans rien d'autre                  | ✅ Validé  |
-| 2   | [Pipeline géo](stories/epic-2-pipeline-geo/) : GPX vers route et relief 3D | Une vraie spéciale de 5 km roulable sans bug de maillage              | ⬜ À faire |
+| 2   | [Pipeline géo](stories/epic-2-pipeline-geo/) : GPX vers route et relief 3D | Une vraie spéciale de 5 km roulable sans bug de maillage              | 🟡 À jouer |
 | 3   | [Éditeur sur carte](stories/epic-3-editeur.md) : tracé assisté             | Un ami crée une spéciale sans ton aide                                | ⬜ À faire |
 | 4   | [Course](stories/epic-4-course.md) : chrono, fantôme, copilote             | Une spéciale complète se court du départ à l'arrivée, notes à l'heure | ⬜ À faire |
 | 5   | [Décor](stories/epic-5-decor.md) : bâtiments et forêts depuis les données  | 60 FPS sur un portable moyen dans un village                          | ⬜ À faire |

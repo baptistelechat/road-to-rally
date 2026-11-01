@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Landes, de Labouheyre vers Sabres. Itinéraire BRouter, données OpenStreetMap (ODbL). Les lignes de départ et d'arrivée sont à 250 m de chaque bout. -->
+<gpx xmlns="http://www.topografix.com/GPX/1/1" creator="BRouter" version="1.1">
+ <trk>
+  <name>road</name>
+  <desc>rally-runoff=250</desc>
+  <trkseg>
+   <trkpt lon="-0.865940" lat="44.214352"></trkpt>
+   <trkpt lon="-0.862816" lat="44.214151"></trkpt>
+   <trkpt lon="-0.860010" lat="44.213956"></trkpt>
+   <trkpt lon="-0.857072" lat="44.213761"></trkpt>
+   <trkpt lon="-0.853974" lat="44.213553"></trkpt>
+   <trkpt lon="-0.847157" lat="44.213148"></trkpt>
+   <trkpt lon="-0.840732" lat="44.212802"></trkpt>
+   <trkpt lon="-0.839903" lat="44.212758"></trkpt>
+   <trkpt lon="-0.835539" lat="44.212529"></trkpt>
+   <trkpt lon="-0.834497" lat="44.212469"></trkpt>
+   <trkpt lon="-0.831015" lat="44.212283"></trkpt>
+   <trkpt lon="-0.828756" lat="44.212155"></trkpt>
+   <trkpt lon="-0.828546" lat="44.212137"></trkpt>
+   <trkpt lon="-0.828324" lat="44.212111"></trkpt>
+   <trkpt lon="-0.828086" lat="44.212070"></trkpt>
+   <trkpt lon="-0.827708" lat="44.211986"></trkpt>
+   <trkpt lon="-0.827380" lat="44.211889"></trkpt>
+   <trkpt lon="-0.827245" lat="44.211846"></trkpt>
+   <trkpt lon="-0.826260" lat="44.211533"></trkpt>
+   <trkpt lon="-0.825639" lat="44.211345"></trkpt>
+   <trkpt lon="-0.825231" lat="44.211240"></trkpt>
+   <trkpt lon="-0.825225" lat="44.211204"></trkpt>
+   <trkpt lon="-0.825122" lat="44.210540"></trkpt>
+   <trkpt lon="-0.825028" lat="44.209793"></trkpt>
+   <trkpt lon="-0.824974" lat="44.209448"></trkpt>
+   <trkpt lon="-0.824899" lat="44.209258"></trkpt>
+   <trkpt lon="-0.824776" lat="44.209063"></trkpt>
+   <trkpt lon="-0.824397" lat="44.208684"></trkpt>
+   <trkpt lon="-0.824013" lat="44.208362"></trkpt>
+   <trkpt lon="-0.823876" lat="44.208248"></trkpt>
+   <trkpt lon="-0.823116" lat="44.207664"></trkpt>
+   <trkpt lon="-0.822671" lat="44.207334"></trkpt>
+   <trkpt lon="-0.821381" lat="44.206314"></trkpt>
+   <trkpt lon="-0.817054" lat="44.203005"></trkpt>
+   <trkpt lon="-0.814040" lat="44.200690"></trkpt>
+   <trkpt lon="-0.812618" lat="44.199605"></trkpt>
+   <trkpt lon="-0.811926" lat="44.199078"></trkpt>
+   <trkpt lon="-0.806846" lat="44.195186"></trkpt>
+   <trkpt lon="-0.806318" lat="44.194870"></trkpt>
+   <trkpt lon="-0.805782" lat="44.194603"></trkpt>
+   <trkpt lon="-0.804957" lat="44.194314"></trkpt>
+   <trkpt lon="-0.804138" lat="44.194088"></trkpt>
+  </trkseg>
+ </trk>
+</gpx>

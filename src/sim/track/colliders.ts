@@ -2,8 +2,8 @@ import type RAPIER_TYPES from "@dimforge/rapier3d-deterministic-compat";
 import { isLightProp } from "../lightProps";
 import { RAPIER } from "../rapier";
 import type { MeshData, SceneryItem, Track } from "../types";
-import { embankment, GROUND_Y } from "./ribbon";
-import { startArch } from "./scenery";
+import { embankment, GROUND_Y, shoulderStrips } from "./ribbon";
+import { finishArch, startArch } from "./scenery";
 
 /** Hauteur des colliders de décor : assez haut pour qu'une voiture ne monte jamais dessus */
 const OBSTACLE_HEIGHT = 4;
@@ -44,22 +44,37 @@ export const addTrackColliders = (
   scenery: SceneryItem[],
 ): void => {
   addTrimesh(world, track.ribbon);
-  const bank = embankment(track.points, track.width, track.closed);
-  if (bank) addTrimesh(world, bank);
+  if (track.terrain) addTrimesh(world, track.terrain);
+  else {
+    const bank = embankment(track.points, track.widths, track.closed);
+    if (bank) addTrimesh(world, bank);
+  }
+  if (!track.closed)
+    // Sur spéciale, le terrain n'a pas de talus dessous : les bas-côtés portent eux-mêmes les roues.
+    for (const strip of shoulderStrips(
+      track.points,
+      track.widths,
+      track.shoulders,
+      false,
+    ))
+      addTrimesh(world, strip);
 
-  const xs = track.points.map((p) => p.x);
-  const zs = track.points.map((p) => p.z);
-  const centerX = (Math.min(...xs) + Math.max(...xs)) / 2;
-  const centerZ = (Math.min(...zs) + Math.max(...zs)) / 2;
-  world.createCollider(
-    RAPIER.ColliderDesc.cuboid(
-      (Math.max(...xs) - Math.min(...xs)) / 2 + GROUND_MARGIN,
-      GROUND_THICKNESS / 2,
-      (Math.max(...zs) - Math.min(...zs)) / 2 + GROUND_MARGIN,
-    )
-      .setTranslation(centerX, GROUND_Y - GROUND_THICKNESS / 2, centerZ)
-      .setFriction(0.6),
-  );
+  // Avec un terrain, rien sous la voiture hors du couloir : `recovery` la remet en piste.
+  if (!track.terrain) {
+    const xs = track.points.map((p) => p.x);
+    const zs = track.points.map((p) => p.z);
+    const centerX = (Math.min(...xs) + Math.max(...xs)) / 2;
+    const centerZ = (Math.min(...zs) + Math.max(...zs)) / 2;
+    world.createCollider(
+      RAPIER.ColliderDesc.cuboid(
+        (Math.max(...xs) - Math.min(...xs)) / 2 + GROUND_MARGIN,
+        GROUND_THICKNESS / 2,
+        (Math.max(...zs) - Math.min(...zs)) / 2 + GROUND_MARGIN,
+      )
+        .setTranslation(centerX, GROUND_Y - GROUND_THICKNESS / 2, centerZ)
+        .setFriction(0.6),
+    );
+  }
 
   for (const item of scenery)
     if (item.colliderRadius > 0 && !isLightProp(item.kind))
@@ -71,14 +86,18 @@ export const addTrackColliders = (
         item.colliderRadius,
       );
 
-  const arch = startArch(track);
-  const yaw = 2 * Math.atan2(arch.rotation.y, arch.rotation.w);
-  for (const side of [-1, 1])
-    addObstacle(
-      world,
-      arch.position.x + Math.cos(yaw) * side * arch.halfSpan,
-      arch.position.y + GROUND_Y,
-      arch.position.z - Math.sin(yaw) * side * arch.halfSpan,
-      0.3,
-    );
+  const arches = track.closed
+    ? [startArch(track)]
+    : [startArch(track), finishArch(track)];
+  for (const arch of arches) {
+    const yaw = 2 * Math.atan2(arch.rotation.y, arch.rotation.w);
+    for (const side of [-1, 1])
+      addObstacle(
+        world,
+        arch.position.x + Math.cos(yaw) * side * arch.halfSpan,
+        arch.position.y + GROUND_Y,
+        arch.position.z - Math.sin(yaw) * side * arch.halfSpan,
+        0.3,
+      );
+  }
 };

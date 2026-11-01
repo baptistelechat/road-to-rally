@@ -17,3 +17,9 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Bouton pour relancer le tour et aide selon le périphérique actif
 - Blocage du jeu sur téléphone
 - Compteurs de performance et capture de diagnostic avec `F9` ou `LB`
+- Sélecteur de carte avec deux vraies routes de France, Road et Mountain, et un record par carte
+- Vrai relief low-poly autour de la route, largeur de route selon OpenStreetMap
+- Spéciales du départ à l'arrivée : la voiture attend le premier coup de gaz, puis s'arrête seule après la ligne
+- Import d'un fichier GPX pour générer sa propre spéciale, avec progression, annulation et réouverture hors ligne
+- Remise en piste à l'endroit où la route a été quittée sur une spéciale
+- Aperçu de chaque piste avec `/track-preview?map=`

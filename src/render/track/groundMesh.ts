@@ -1,9 +1,17 @@
-import { GROUND_Y } from "@/sim/track/ribbon";
-import type { MeshData, Track } from "@/sim/types";
+// Chemins relatifs : `src/geo/` importe ce fichier, y compris hors de Next.
+import { GROUND_Y } from "../../sim/track/ribbon";
+import type { MeshData, Track } from "../../sim/types";
 
 /** Taille d'une maille : assez fine pour des taches de terre, assez grosse pour rester à ~15 000 triangles */
 const CELL = 16;
 const MARGIN = 480;
+/** Sur une grande spéciale, la maille grossit plutôt que de faire exploser le nombre de triangles */
+const MAX_CELLS_PER_SIDE = 200;
+
+/** Hauteur de la bordure du terrain, en mètres */
+const SKIRT_DROP = 80;
+/** En dessous de cette distance à l'axe, un bord libre borde la route, pas le couloir */
+const SKIRT_MIN_DISTANCE = 100;
 
 const GRASS: [number, number, number] = [0.33, 0.45, 0.2];
 const GRASS_DARK: [number, number, number] = [0.25, 0.37, 0.17];
@@ -30,27 +38,91 @@ const noise = (x: number, z: number): number => {
   );
 };
 
+/** Herbe et terre à ce point du plan : le même sol sur le circuit et sur le terrain d'une spéciale. */
+export const groundColor = (x: number, z: number): [number, number, number] => {
+  const green = noise(x / 40, z / 40);
+  const dirt = Math.max(0, noise(x / 90 + 50, z / 90) - 0.62) * 2.6;
+  const channel = (k: 0 | 1 | 2): number =>
+    mix(mix(GRASS[k], GRASS_DARK[k], green), DIRT[k], dirt);
+  return [channel(0), channel(1), channel(2)];
+};
+
+/** Bordure qui plonge sous le bord extérieur du terrain : vu de l'autre côté d'une vallée, il garde une épaisseur. */
+export const withSkirt = (terrain: MeshData, track: Track): MeshData => {
+  const { positions, indices, colors } = terrain;
+  const count = positions.length / 3;
+  const key = (a: number, b: number): number => a * count + b;
+  const directed = new Set<number>();
+  for (let t = 0; t < indices.length; t += 3)
+    for (let k = 0; k < 3; k++)
+      directed.add(key(indices[t + k], indices[t + (k + 1) % 3]));
+
+  const lowPositions: number[] = [];
+  const lowColors: number[] = [];
+  const faces: number[] = [];
+  const low = new Map<number, number>();
+  const lowered = (v: number): number => {
+    const known = low.get(v);
+    if (known !== undefined) return known;
+    const id = count + lowPositions.length / 3;
+    lowPositions.push(
+      positions[v * 3],
+      positions[v * 3 + 1] - SKIRT_DROP,
+      positions[v * 3 + 2],
+    );
+    if (colors) lowColors.push(...colors.subarray(v * 3, v * 3 + 3));
+    low.set(v, id);
+    return id;
+  };
+  for (let t = 0; t < indices.length; t += 3)
+    for (let k = 0; k < 3; k++) {
+      const a = indices[t + k];
+      const b = indices[t + (k + 1) % 3];
+      if (directed.has(key(b, a))) continue;
+      // Bord libre : le contour extérieur, pas celui que les bas-côtés recouvrent.
+      const x = (positions[a * 3] + positions[b * 3]) / 2;
+      const z = (positions[a * 3 + 2] + positions[b * 3 + 2]) / 2;
+      if (track.nearest(x, z).distance < SKIRT_MIN_DISTANCE) continue;
+      faces.push(b, a, lowered(a), b, lowered(a), lowered(b));
+    }
+
+  const join = (base: Float32Array, extra: number[]): Float32Array => {
+    const merged = new Float32Array(base.length + extra.length);
+    merged.set(base);
+    merged.set(extra, base.length);
+    return merged;
+  };
+  const allFaces = new Uint32Array(indices.length + faces.length);
+  allFaces.set(indices);
+  allFaces.set(faces, indices.length);
+  return {
+    positions: join(positions, lowPositions),
+    indices: allFaces,
+    colors: colors && join(colors, lowColors),
+  };
+};
+
 /** Grand sol d'herbe et de terre en couleurs de sommet, plat à `GROUND_Y`. Le talus et le bas-côté sont posés dessus. */
 export const groundMesh = (track: Track): MeshData => {
   const xs = track.points.map((p) => p.x);
   const zs = track.points.map((p) => p.z);
   const minX = Math.min(...xs) - MARGIN;
   const minZ = Math.min(...zs) - MARGIN;
-  const cols = Math.ceil((Math.max(...xs) + MARGIN - minX) / CELL) + 1;
-  const rows = Math.ceil((Math.max(...zs) + MARGIN - minZ) / CELL) + 1;
+  const spanX = Math.max(...xs) + MARGIN - minX;
+  const spanZ = Math.max(...zs) + MARGIN - minZ;
+  const cell = Math.max(CELL, Math.max(spanX, spanZ) / MAX_CELLS_PER_SIDE);
+  const cols = Math.ceil(spanX / cell) + 1;
+  const rows = Math.ceil(spanZ / cell) + 1;
 
   const positions = new Float32Array(cols * rows * 3);
   const colors = new Float32Array(cols * rows * 3);
   for (let r = 0; r < rows; r++)
     for (let c = 0; c < cols; c++) {
-      const x = minX + c * CELL;
-      const z = minZ + r * CELL;
+      const x = minX + c * cell;
+      const z = minZ + r * cell;
       const o = (r * cols + c) * 3;
       positions.set([x, GROUND_Y, z], o);
-      const green = noise(x / 40, z / 40);
-      const dirt = Math.max(0, noise(x / 90 + 50, z / 90) - 0.62) * 2.6;
-      for (let k = 0; k < 3; k++)
-        colors[o + k] = mix(mix(GRASS[k], GRASS_DARK[k], green), DIRT[k], dirt);
+      colors.set(groundColor(x, z), o);
     }
 
   const indices = new Uint32Array((cols - 1) * (rows - 1) * 6);
