@@ -33,3 +33,6 @@ register: decisions
 | [BDR-20261102121514-1](decisions/BDR-20261102121514-1.md) | 2026-11-02 | Effets de course calés sur le son, côté rendu | #animation #particules #echappement #web-audio #etincelles #rendu | actif |
 | [BDR-20261102121514-2](decisions/BDR-20261102121514-2.md) | 2026-11-02 | CarState donne la charge et le serrage réels, pas les pédales | #simulation #marche-arriere #carstate #pedales #audio #feux | actif |
 | [BDR-20261102121514-3](decisions/BDR-20261102121514-3.md) | 2026-11-02 | Feux de recul dans les blocs arrière, disques pour les replays | #feux-recul #modele-3d #disques-frein #replay #voiture #animation | actif |
+| [BDR-20261102200843-1](decisions/BDR-20261102200843-1.md) | 2026-11-02 | Copilote développé en parallèle de l'epic 3 | #roadmap #epics #copilote #parallele #epic-3 #epic-4 | actif |
+| [BDR-20261102200843-2](decisions/BDR-20261102200843-2.md) | 2026-11-02 | Voix du copilote en mots enregistrés | #copilote #voix #web-audio #speechsynthesis #playbackrate #prd | actif |
+| [BDR-20261102200843-3](decisions/BDR-20261102200843-3.md) | 2026-11-02 | Tous les virages annoncés, aucun saut de note | #copilote #notes #enfilade #pace-notes #annonces #gameplay | actif |

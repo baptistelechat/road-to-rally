@@ -147,3 +147,14 @@ Session sur les animations en course. Baptiste voulait de petites explosions à 
 - [BDR-20261102121514-1](decisions/BDR-20261102121514-1.md) — Effets de course calés sur le son, côté rendu
 - [BDR-20261102121514-2](decisions/BDR-20261102121514-2.md) — CarState donne la charge et le serrage réels, pas les pédales
 - [LRN-20261102121514-4](learnings/LRN-20261102121514-4.md) — Un crissement à notes pures miaule
+
+---
+
+Session de cadrage du copilote, sans code. Baptiste étant sur l'epic 3, le copilote de l'epic 4 a été retenu comme chantier indépendant. Les fiches 4.6, 4.7 et 4.8 ont été écrites, puis revues : voix en mots enregistrés au lieu de `speechSynthesis`, plus aucun saut de note, mot « enfilade » pour les passages très serrés, et trois nouvelles fiches : icônes de virage (4.9), mini-carte (4.10) et options (4.11). Une piste d'essai « Pace notes » est prévue dans le sélecteur, car aucune piste actuelle n'a de note 6. La première version annonçait une marge faible en montagne : le calcul à rebours a montré que tout tient à l'heure. Ces chiffres restent des estimations, à confirmer au volant. La provenance de la voix reste à choisir. Fiches commitées dans `85fd78c`, sans push.
+
+**Entrées clés :**
+
+- [BDR-20261102200843-1](decisions/BDR-20261102200843-1.md) — copilote en parallèle de l'epic 3
+- [BDR-20261102200843-2](decisions/BDR-20261102200843-2.md) — voix en mots enregistrés
+- [BDR-20261102200843-3](decisions/BDR-20261102200843-3.md) — tous les virages annoncés
+- [LRN-20261102200843-4](learnings/LRN-20261102200843-4.md) — l'écart entre virages ne mesure pas le temps de parole
