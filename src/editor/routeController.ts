@@ -3,13 +3,16 @@ import { RouteRefused, type FetchRoute } from "@/geo/brouter";
 import { StageError } from "@/geo/errors";
 import type { LatLon } from "@/geo/gpx";
 import { fetchReturnRoute, RETURN_LOST, RETURN_REFUSED } from "./roundTrip";
+import { fetchRunoff } from "./runoff";
 import {
   addAnchor,
   applyRoutes,
+  assembleRoad,
   insertAnchor,
   moveAnchor,
   removeAnchor,
   reverseTrace,
+  runoffsToFetch,
   type TraceEdit,
 } from "./trace";
 import type { EditorTrace } from "./types";
@@ -21,11 +24,15 @@ export interface RouteStatus {
   error: string | null;
   /** Une panne : `retry()` a un sens. Pas un point refusé, qui resterait refusé. */
   canRetry: boolean;
+  /** La route au-delà des lignes est en cours de recherche, de quel côté */
+  runoffs?: { before: boolean; after: boolean };
 }
 
 export interface RouteControllerOptions {
   /** `fetchRoute` de `src/geo/brouter.ts`, remplaçable sans réseau */
   fetchRoute: FetchRoute;
+  /** La route au-delà des lignes. Absent : la ligne droite, sans réseau. */
+  fetchRunoffRoute?: FetchRoute;
   getTrace: () => EditorTrace;
   /** Nouveau tracé valide : à pousser dans l'historique et le brouillon. `notice` : ce que le geste a changé d'autre. */
   commit: (trace: EditorTrace, notice?: string) => void;
@@ -42,6 +49,8 @@ export interface RouteController {
   returnByRoad: () => Promise<void>;
   cancelReturn: () => Promise<void>;
   retry: () => Promise<void>;
+  /** Un tracé déjà calculé, une variante par exemple : seuls ses prolongements restent à demander */
+  adopt: (trace: EditorTrace) => Promise<void>;
   /** Annule la requête en cours et efface le message : à appeler avant `undo`, `redo` ou « tout vider » */
   cancel: () => void;
 }
@@ -56,12 +65,45 @@ interface Gesture {
 
 export const createRouteController = ({
   fetchRoute,
+  fetchRunoffRoute,
   getTrace,
   commit,
   onStatus,
 }: RouteControllerOptions): RouteController => {
   let current: AbortController | null = null;
   let failed: Gesture | null = null;
+
+  const needsRunoffs = (trace: EditorTrace): boolean => {
+    if (!fetchRunoffRoute) return false;
+    const { runIn, runOut } = runoffsToFetch(trace);
+    return runIn || runOut;
+  };
+
+  /** Seuls les bouts qui ont bougé partent au réseau : ajouter un point ne redemande pas le départ. */
+  const withRunoffs = async (
+    trace: EditorTrace,
+    signal: AbortSignal,
+  ): Promise<EditorTrace> => {
+    if (!fetchRunoffRoute) return trace;
+    const stale = runoffsToFetch(trace);
+    if (stale.runIn || stale.runOut)
+      onStatus({
+        pending: true,
+        error: null,
+        canRetry: false,
+        runoffs: { before: stale.runIn, after: stale.runOut },
+      });
+    const road = assembleRoad(trace.segments);
+    const [runIn, runOut] = await Promise.all([
+      stale.runIn
+        ? fetchRunoff(road, true, fetchRunoffRoute, signal)
+        : trace.runIn,
+      stale.runOut
+        ? fetchRunoff([...road].reverse(), false, fetchRunoffRoute, signal)
+        : trace.runOut,
+    ]);
+    return { ...trace, runIn, runOut };
+  };
 
   const run = async (request: Gesture): Promise<void> => {
     current?.abort();
@@ -74,7 +116,7 @@ export const createRouteController = ({
     const withReturn =
       request.asksReturn === true ||
       (edit.trace.returnRoute !== null && edit.trace !== getTrace());
-    if (edit.pairs.length === 0 && !withReturn) {
+    if (edit.pairs.length === 0 && !withReturn && !needsRunoffs(edit.trace)) {
       onStatus(IDLE);
       if (edit.trace !== getTrace()) commit(edit.trace);
       return;
@@ -94,13 +136,15 @@ export const createRouteController = ({
         onStatus({ pending: false, error: result.refusal, canRetry: false });
         return;
       }
+      const settled = await withRunoffs(result.trace, gesture.signal);
+      if (gesture.signal.aborted) return;
       if (!withReturn) {
         onStatus(IDLE);
-        commit(result.trace);
+        commit(settled);
         return;
       }
       const returnRoute = await fetchReturnRoute(
-        result.trace,
+        settled,
         fetchRoute,
         gesture.signal,
       );
@@ -112,10 +156,10 @@ export const createRouteController = ({
       onStatus(IDLE);
       commit(
         {
-          ...result.trace,
+          ...settled,
           returnRoute,
           returnFromAnchorIndex: returnRoute
-            ? result.trace.anchors.length - 1
+            ? settled.anchors.length - 1
             : null,
         },
         returnRoute ? undefined : RETURN_LOST,
@@ -164,6 +208,7 @@ export const createRouteController = ({
         pairs: [],
       })),
     retry: () => (failed ? run(failed) : Promise.resolve()),
+    adopt: (trace) => runEdit(() => ({ trace, pairs: [] })),
     cancel: () => {
       current?.abort();
       failed = null;

@@ -34,9 +34,20 @@ import {
 } from "../../src/game/stageCache";
 import { loadStage } from "../../src/game/useStageImport";
 import type { BRouterRoute, FetchRoute } from "../../src/geo/brouter";
-import { STEP } from "../../src/geo/config";
-import { parseGpx, traceFromGpx, type LatLon } from "../../src/geo/gpx";
-import { buildStage, type StageInputs } from "../../src/geo/pipeline";
+import { EDITOR_RUNOFF, STEP } from "../../src/geo/config";
+import {
+  closestOnPolyline,
+  parseGpx,
+  project,
+  traceFromGpx,
+  unproject,
+  type LatLon,
+} from "../../src/geo/gpx";
+import {
+  buildStage,
+  buildStageWithWarnings,
+  type StageInputs,
+} from "../../src/geo/pipeline";
 import { parsePlaceName } from "../../src/geo/placeName";
 import { stageHash } from "../../src/geo/stageHash";
 import type { StageData } from "../../src/sim/types";
@@ -68,7 +79,12 @@ const traceOf = (points: LatLon[]): EditorTrace => ({
 
 const checkSameFingerprint = (id: string): StageInputs => {
   const inputs = loadInputs(id);
-  const gpx = stageGpx(traceOf(parseGpx(inputs.gpx)));
+  // Le chemin écrit tel quel, comme un aller-retour : les fixtures portent déjà leur prolongement, et leur marque est de 250 m.
+  const points = parseGpx(inputs.gpx);
+  const gpx = stageGpx({
+    ...traceOf(points),
+    returnRoute: { path: points, realReturn: [] },
+  }).replace(`rally-runoff=${EDITOR_RUNOFF}`, "rally-runoff=250");
   assert.deepEqual(
     traceFromGpx(gpx).points,
     traceFromGpx(inputs.gpx).points,
@@ -458,10 +474,45 @@ const checkPlaceName = (): void => {
   assert.equal(parsePlaceName("pas du json"), null);
 };
 
+/** Story 3.9 : posée sur un point de l'axe, la chicane sort du pipeline à moins de 2 m de ce point. */
+const checkChicaneOnGeneratedStage = (road: StageInputs): void => {
+  const axis = traceFromGpx(road.gpx);
+  const index = Math.floor(axis.points.length / 2);
+  const position = unproject(axis.points[index], axis.origin);
+  const { stage, warnings } = buildStageWithWarnings(
+    {
+      ...road,
+      terrain: null,
+      chicanes: [{ position, side: "left" }],
+    },
+    "Spéciale",
+  );
+  assert.deepEqual(warnings, []);
+  assert.equal(stage.obstacles?.length, 2, "une chicane, deux blocs");
+  const [first, second] = stage.obstacles ?? [];
+
+  const { x, z } = project(position, stage.origin);
+  const { distance: offset } = closestOnPolyline(
+    { x, z },
+    stage.points.map((point) => ({ x: point.x, z: point.z })),
+  );
+  assert.ok(offset < 2, `${offset} m de l'axe de la spéciale`);
+
+  let s = 0;
+  for (let i = 1; i <= index; i++) {
+    const a = stage.points[i - 1];
+    const b = stage.points[i];
+    s += Math.hypot(b.x - a.x, b.y - a.y, b.z - a.z);
+  }
+  const center = (first.s + second.s) / 2;
+  assert.ok(Math.abs(center - s) < 2, `${center - s} m le long de la route`);
+};
+
 export default async function check(): Promise<void> {
   const road = checkSameFingerprint("road");
   checkSameFingerprint("mountain");
   checkNameOutOfKey(parseGpx(road.gpx));
+  checkChicaneOnGeneratedStage(road);
   await checkCache(road);
 
   const stage = buildStage({ ...road, terrain: null }, "Spéciale");

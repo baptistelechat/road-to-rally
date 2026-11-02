@@ -6,7 +6,8 @@ import {
   EDITOR_RUNOFF,
 } from "@/geo/config";
 import { project, type LatLon } from "@/geo/gpx";
-import type { Anchor, EditorTrace, Segment, SegmentWay } from "./types";
+import { isFreshRunoff, straightRunoff } from "./runoff";
+import type { Anchor, EditorTrace, Runoff, Segment, SegmentWay } from "./types";
 
 /** Portion à demander à BRouter. `from` et `to` confondus : on cherche seulement où un point isolé accroche. */
 export interface RoutePair {
@@ -154,6 +155,9 @@ export const reverseTrace = (trace: EditorTrace): EditorTrace =>
     ? trace
     : {
         ...trace,
+        // Chacun part de sa ligne : ils changent seulement de bout.
+        runIn: trace.runOut,
+        runOut: trace.runIn,
         anchors: [...trace.anchors].reverse(),
         segments: [...trace.segments].reverse().map((segment) => ({
           ...segment,
@@ -253,25 +257,97 @@ export const assembleRoad = (segments: Segment[]): LatLon[] => {
   return points;
 };
 
-/** Le tracé complet, retour compris : ce que le GPX contient. */
-export const assembleTrace = (
-  trace: Pick<EditorTrace, "segments" | "returnRoute">,
-): LatLon[] => trace.returnRoute?.path ?? assembleRoad(trace.segments);
+/** Les points d'un prolongement, en s'éloignant de la ligne. Périmé ou absent : la ligne droite, le temps qu'un geste le redemande. */
+const runoffPoints = (
+  runoff: Runoff | null | undefined,
+  road: LatLon[],
+): LatLon[] =>
+  isFreshRunoff(runoff, road) ? runoff.points : straightRunoff(road).points;
 
-/** Ce qui se roule deux fois compte deux fois. */
+/** L'aller d'un aller-retour, depuis le début de son prolongement : le retour le recopie en entier. */
+export const assembleOutward = (
+  trace: Pick<EditorTrace, "segments"> & { runIn?: Runoff | null },
+): LatLon[] => {
+  const road = assembleRoad(trace.segments);
+  if (road.length < 2) return road;
+  return [...runoffPoints(trace.runIn, road).slice(1).reverse(), ...road];
+};
+
+/** Le tracé complet, prolongements et retour compris : ce que le GPX contient. */
+export const assembleTrace = (
+  trace: Pick<EditorTrace, "segments" | "returnRoute"> & {
+    runIn?: Runoff | null;
+    runOut?: Runoff | null;
+  },
+): LatLon[] => {
+  if (trace.returnRoute) return trace.returnRoute.path;
+  const road = assembleRoad(trace.segments);
+  if (road.length < 2) return road;
+  const back = [...road].reverse();
+  return [
+    ...assembleOutward(trace),
+    ...runoffPoints(trace.runOut, back).slice(1),
+  ];
+};
+
+/** Ce qui se roule deux fois compte deux fois. Le prolongement ne compte pas. */
 export const traceLength = (trace: EditorTrace): number => {
   if (!trace.returnRoute)
     return trace.segments.reduce((total, segment) => total + segment.length, 0);
   const { path } = trace.returnRoute;
-  return path.reduce(
+  const whole = path.reduce(
     (total, point, i) => (i > 0 ? total + distance(path[i - 1], point) : 0),
     0,
   );
+  return whole - 2 * EDITOR_RUNOFF;
 };
 
-/** Longueur roulée au chrono, hors vraie route gardée à chaque bout. */
+/** Longueur roulée au chrono, du premier point au dernier. */
 export const stageLength = (trace: EditorTrace): number =>
-  Math.max(0, traceLength(trace) - 2 * EDITOR_RUNOFF);
+  Math.max(0, traceLength(trace));
+
+/** Quels bouts n'ont pas de vraie route. Un aller-retour finit sur son départ : un seul bout compte. */
+export const inventedEnds = (
+  trace: Pick<EditorTrace, "runIn" | "runOut" | "returnRoute">,
+): { before: boolean; after: boolean } => {
+  const before = trace.runIn?.invented === true;
+  return {
+    before,
+    after: trace.returnRoute ? before : trace.runOut?.invented === true,
+  };
+};
+
+/** Pourquoi la spéciale ne peut pas se rouler faute de route au-delà d'une ligne, et à quel point. `null` : rien à redire. */
+export const missingRunoff = (
+  trace: EditorTrace,
+): { message: string; position: LatLon } | null => {
+  const { anchors } = trace;
+  if (anchors.length === 0) return null;
+  const { before, after } = inventedEnds(trace);
+  if (before)
+    return {
+      message: `Il faut ${EDITOR_RUNOFF} m de vraie route libre avant le départ, et celle qui y mène rejoint le tracé ou s'arrête. Déplace le premier point, par exemple plus loin sur la route.`,
+      position: anchors[0].position,
+    };
+  if (after)
+    return {
+      message: `Il faut ${EDITOR_RUNOFF} m de vraie route libre après l'arrivée, et celle qui en part rejoint le tracé ou s'arrête. Déplace le dernier point, par exemple un peu avant.`,
+      position: anchors[anchors.length - 1].position,
+    };
+  return null;
+};
+
+/** Ce qu'un geste doit encore demander au réseau pour que les prolongements suivent le tracé. */
+export const runoffsToFetch = (
+  trace: EditorTrace,
+): { runIn: boolean; runOut: boolean } => {
+  const road = assembleRoad(trace.segments);
+  if (road.length < 2) return { runIn: false, runOut: false };
+  return {
+    runIn: !isFreshRunoff(trace.runIn, road),
+    runOut: !isFreshRunoff(trace.runOut, [...road].reverse()),
+  };
+};
 
 /** Distance de chaque point depuis le premier, pour le panneau latéral. */
 export const anchorDistances = (trace: EditorTrace): number[] => {

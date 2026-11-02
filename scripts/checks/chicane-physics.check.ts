@@ -420,10 +420,7 @@ const checkSweep = (stage: StageData): void => {
     },
     rotation: { x: 0, y: 0, z: 0, w: 1 },
   });
-  vehicle.step(
-    { steer: 0, throttle: 0, brake: 0, handbrake: false },
-    FIXED_DT,
-  );
+  vehicle.step({ steer: 0, throttle: 0, brake: 0, handbrake: false }, FIXED_DT);
   world.step();
   assert.ok(
     vehicle.state().wheels.every((wheel) => !wheel.inContact),
@@ -565,10 +562,10 @@ const checkRemovals = (gpx: string): void => {
   const twice = removedFor([good, good]);
   assert.equal(twice.blocks, 2);
   assert.match(twice.warnings[0], /de la précédente/);
-  // Sur un pont.
+  // Sur un pont : gardée, le jeu n'en dessine aucun pour l'instant.
   const bridge = removedFor([good], wayAlong(LENGTH, { bridge: "yes" }));
-  assert.equal(bridge.blocks, 0);
-  assert.match(bridge.warnings[0], /d'un pont/);
+  assert.equal(bridge.blocks, 2);
+  assert.deepEqual(bridge.warnings, []);
   // Le bloc mordrait sur l'autre branche d'une épingle, 8 m plus loin : retirée.
   const branch = (x: number, from: number, to: number): Vec3[] => {
     const points: Vec3[] = [];

@@ -12,7 +12,12 @@ export const HoverMarker = () => {
   });
   if (!position) return null;
   return (
-    <MapMarker longitude={position.lon} latitude={position.lat}>
+    // Sur le marqueur lui-même : il suit le pointeur et attraperait le clic destiné au point en dessous.
+    <MapMarker
+      longitude={position.lon}
+      latitude={position.lat}
+      className="pointer-events-none"
+    >
       <MarkerContent className="pointer-events-none">
         <span className="block size-3 rounded-full border-2 border-neutral-900 bg-amber-300" />
       </MarkerContent>

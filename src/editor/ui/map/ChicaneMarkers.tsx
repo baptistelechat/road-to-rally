@@ -1,8 +1,6 @@
 "use client";
 
-import { Construction } from "lucide-react";
-import type { MapMouseEvent } from "maplibre-gl";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   MapMarker,
@@ -10,10 +8,23 @@ import {
   MarkerPopup,
   useMap,
 } from "@/components/ui/map";
+import { EDITOR_CHICANE_MIN_GAP } from "@/geo/config";
 import type { LatLon } from "@/geo/gpx";
-import { snapToBand, type ListedChicane } from "../../chicanes";
-import { nearestOnTrace } from "../../hover";
+import {
+  SIGN_ART_BENDS,
+  SIGN_ART_BORDER,
+  SIGN_ART_FIELD,
+  SIGN_ART_HEIGHT,
+  SIGN_ART_RIM,
+  SIGN_ART_WIDTH,
+  type SignOutline,
+} from "@/render/scenery/chicaneSignArt";
+import { chicaneBends, snapToBand, type ListedChicane } from "../../chicanes";
+import { nearestIndex, nearestOnTrace } from "../../hover";
 import { editorStore, useEditor } from "../../store";
+import type { ChicaneSide } from "../../types";
+import type { AxisZone } from "../../zones";
+import { AxisZones } from "./AxisZones";
 import { useChicanes } from "../useChicanes";
 
 /** Portée du clic droit autour du tracé, en pixels : la chicane se recale ensuite sur la route */
@@ -21,10 +32,29 @@ const ADD_PIXELS = 40;
 /** Écart invisible, en degrés (0,1 mm), voir `ChicaneMarker` */
 const REDRAW_NUDGE = 1e-9;
 
-const SIDE_LABEL = { left: "à gauche", right: "à droite" } as const;
+const toPoints = (outline: SignOutline): string =>
+  outline.map(([x, y]) => `${x},${y}`).join(" ");
+
+/**
+ * Le panneau du jeu, comme sur un roadbook : il se lit dans le sens du pilote, quel que soit le sens de la route sur la carte.
+ * Dessiné pour un premier virage à droite, donc un premier bloc à gauche. L'autre côté en est le miroir.
+ */
+const ChicaneSign = ({ side }: { side: ChicaneSide }) => (
+  <svg
+    viewBox={`0 0 ${SIGN_ART_WIDTH} ${SIGN_ART_HEIGHT}`}
+    aria-hidden="true"
+    className={`block h-8 w-9 drop-shadow-md ${side === "right" ? "-scale-x-100" : ""}`}
+  >
+    <polygon points={toPoints(SIGN_ART_RIM)} fill="#f5f4f0" />
+    <polygon points={toPoints(SIGN_ART_BORDER)} fill="#d01c1f" />
+    <polygon points={toPoints(SIGN_ART_FIELD)} fill="#f5f4f0" />
+    <polygon points={toPoints(SIGN_ART_BENDS)} fill="#111111" />
+  </svg>
+);
 
 const ChicaneMarker = ({ chicane }: { chicane: ListedChicane }) => {
   const pending = useEditor((state) => state.status.pending);
+  const moving = useEditor((state) => state.mapMode === "move");
   const axis = useEditor((state) => state.analysis?.axis ?? null);
   const flip = useEditor((state) => state.flipChicaneSide);
   const remove = useEditor((state) => state.removeChicaneById);
@@ -45,45 +75,58 @@ const ChicaneMarker = ({ chicane }: { chicane: ListedChicane }) => {
       // des props qui changent à chaque mouvement le remettent sur la route.
       longitude={longitude + (tick % 2) * REDRAW_NUDGE}
       latitude={latitude}
-      draggable={!pending && axis !== null}
+      draggable={moving && !pending && axis !== null}
       onDragStart={() => editorStore.setState({ dragging: true })}
       onDrag={(lngLat) => {
-        setDragged(snap(lngLat));
+        const position = snap(lngLat);
+        setDragged(position);
         setTick((value) => value + 1);
+        // La zone suit : on voit où ça passe avant de lâcher.
+        if (position)
+          editorStore.setState({
+            draggedChicane: { id: chicane.id, position },
+          });
       }}
       onDragEnd={(lngLat) => {
         const position = snap(lngLat);
-        editorStore.setState({ dragging: false });
+        editorStore.setState({ dragging: false, draggedChicane: null });
         if (position) move(chicane.id, position);
         setDragged(null);
         setDropCount((value) => value + 1);
       }}
     >
-      <MarkerContent>
+      <MarkerContent className={moving ? "cursor-grab" : undefined}>
         <span
-          title={`Chicane ${chicane.origin === "auto" ? "automatique" : "à toi"} : à glisser le long du tracé`}
-          className={`grid size-6 place-items-center rounded-sm border-2 shadow-md ${chicane.origin === "auto" ? "border-white bg-orange-500 text-neutral-900" : "border-orange-500 bg-white text-neutral-900"}`}
+          title={`Chicane ${chicaneBends(chicane.side)}, ${chicane.origin === "auto" ? "automatique" : "à toi"}${moving ? " : à glisser le long du tracé" : ""}`}
+          className="relative block"
         >
-          <Construction aria-hidden="true" className="size-3.5" />
+          <ChicaneSign side={chicane.side} />
+          {chicane.origin === "player" && (
+            <span className="absolute -top-0.5 -right-0.5 size-2.5 rounded-full border border-white bg-orange-500" />
+          )}
         </span>
       </MarkerContent>
-      <MarkerPopup>
-        <p className="mb-2 text-xs">
-          Chicane, premier bloc {SIDE_LABEL[chicane.side]}
-        </p>
-        <div className="flex gap-1">
-          <Button variant="outline" size="sm" onClick={() => flip(chicane.id)}>
-            Changer de côté
-          </Button>
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={() => remove(chicane.id)}
-          >
-            Supprimer
-          </Button>
-        </div>
-      </MarkerPopup>
+      {!moving && (
+        <MarkerPopup>
+          <p className="mb-2 text-xs">Chicane {chicaneBends(chicane.side)}</p>
+          <div className="flex gap-1">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => flip(chicane.id)}
+            >
+              Changer de côté
+            </Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => remove(chicane.id)}
+            >
+              Supprimer
+            </Button>
+          </div>
+        </MarkerPopup>
+      )}
     </MapMarker>
   );
 };
@@ -93,30 +136,59 @@ const AddOnContextMenu = () => {
   const { map } = useMap();
   useEffect(() => {
     if (!map) return;
-    const handle = ({ point, originalEvent }: MapMouseEvent): void => {
-      const { history, addChicaneAt } = editorStore.getState();
+    // L'événement du navigateur : celui de MapLibre se perd si la souris bouge d'un rien pendant le clic.
+    const container = map.getCanvasContainer();
+    const handle = (event: MouseEvent): void => {
+      const { history, addChicaneAt, mapMode } = editorStore.getState();
+      const { left, top } = container.getBoundingClientRect();
       const hit = nearestOnTrace(
         history.present.segments,
-        point,
+        { x: event.clientX - left, y: event.clientY - top },
         ({ lat, lon }) => map.project([lon, lat]),
         ADD_PIXELS,
       );
       if (!hit) return;
-      originalEvent.preventDefault();
-      addChicaneAt(hit.position);
+      event.preventDefault();
+      if (mapMode === "edit") addChicaneAt(hit.position);
+      else
+        editorStore.setState({
+          notice: "Passe en mode Éditer pour poser une chicane.",
+        });
     };
-    map.on("contextmenu", handle);
-    return () => {
-      map.off("contextmenu", handle);
-    };
+    container.addEventListener("contextmenu", handle);
+    return () => container.removeEventListener("contextmenu", handle);
   }, [map]);
   return null;
+};
+
+/** La place que prend chaque chicane sur la route : deux bandes qui se touchent, c'est l'écart minimal. */
+const ChicaneZones = ({ chicanes }: { chicanes: ListedChicane[] }) => {
+  const axis = useEditor((state) => state.analysis?.axis?.latLon ?? null);
+  const dragged = useEditor((state) => state.draggedChicane);
+  const zones = useMemo(
+    () =>
+      axis
+        ? chicanes.map(
+            ({ id, index }): AxisZone => ({
+              id,
+              index:
+                dragged?.id === id
+                  ? nearestIndex(axis, dragged.position)
+                  : index,
+              reach: EDITOR_CHICANE_MIN_GAP / 2,
+            }),
+          )
+        : [],
+    [axis, chicanes, dragged],
+  );
+  return axis && <AxisZones zones={zones} axis={axis} />;
 };
 
 export const ChicaneMarkers = () => {
   const chicanes = useChicanes();
   return (
     <>
+      <ChicaneZones chicanes={chicanes} />
       <AddOnContextMenu />
       {chicanes.map((chicane) => (
         <ChicaneMarker key={chicane.id} chicane={chicane} />

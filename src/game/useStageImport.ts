@@ -1,7 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { sortChicaneRequests, type ChicaneRequest } from "@/geo/chicanes";
+import {
+  sortChicaneRequests,
+  type ChicaneRemoval,
+  type ChicaneRequest,
+} from "@/geo/chicanes";
 import { StageError, type StageErrorCode } from "@/geo/errors";
 import type { StageStep } from "@/geo/pipeline";
 import { runStageWorker } from "@/geo/stageWorkerClient";
@@ -13,6 +17,8 @@ export interface ImportedStage {
   stage: StageData;
   /** À montrer au joueur : la génération a continué en mode dégradé */
   warnings: string[];
+  /** Les chicanes retirées parmi eux, avec leur endroit */
+  removals?: ChicaneRemoval[];
 }
 
 /** Avec le GPX qui l'a produite : l'éditeur la range sous cette clé avant de quitter la page. */

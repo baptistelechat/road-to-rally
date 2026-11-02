@@ -149,8 +149,16 @@ export const BROUTER_RETRY_DELAY = 1000;
 export const ANCHOR_MAX_SNAP = 150;
 /** Écart toléré entre deux segments à leur point commun, recollé ensuite : au-delà, ils ne suivent pas la même route, en mètres */
 export const ANCHOR_JUNCTION_TOLERANCE = 5;
-/** Vraie route gardée avant le départ et après l'arrivée, en mètres : le `rally-runoff` des GPX produits */
-export const EDITOR_RUNOFF = 250;
+/** Route gardée avant le premier point et après le dernier, en mètres : le `rally-runoff` des GPX produits */
+export const EDITOR_RUNOFF = 200;
+/** Distance visée à BRouter pour ce prolongement, en mètres : un peu plus que ce qu'on garde */
+export const EDITOR_RUNOFF_REACH = 250;
+/** Longueur de route qui donne la direction du prolongement, en mètres */
+export const EDITOR_RUNOFF_PROBE = 30;
+/** Écarts essayés auprès de BRouter autour de cette direction, en degrés */
+export const EDITOR_RUNOFF_BEARINGS = [0, 40, -40];
+/** Hors chrono, une rue piétonne est une vraie route : le profil voiture la contourne, jusqu'à 1 km de détour pour 250 m à Clisson */
+export const EDITOR_RUNOFF_PROFILE = "shortest";
 
 // --- Garde-fous de l'éditeur (story 3.3). Ils jugent le tracé sans modifier la spéciale. ---
 
@@ -227,8 +235,8 @@ export const CHICANE_BARRIER_HEIGHT = 1.2;
 export const CHICANE_SKIRT = 0.6;
 /** Écart toléré entre une chicane demandée et l'axe, en mètres : au-delà, elle est retirée plutôt que déplacée */
 export const CHICANE_SNAP_TOLERANCE = 15;
-/** Écart minimal entre deux chicanes demandées, en mètres : plus près, la seconde gênerait la sortie de la première */
-export const CHICANE_MIN_SEPARATION = 100;
+/** Écart minimal entre deux chicanes demandées, en mètres : 1 m sous la limite de l'éditeur, pour qu'une chicane qu'il accepte ne soit jamais retirée au millimètre */
+export const CHICANE_MIN_SEPARATION = 99;
 
 // --- Aller-retour (story 3.7) ---
 
@@ -259,8 +267,8 @@ export const WIDEN_ARM_CONTEXT = 8;
 export const EDITOR_RETURN_PROBE = 500;
 /** Bras donné comme commun avant ce point : deux voies séparées jusque-là font quand même une jonction, en mètres */
 export const EDITOR_RETURN_LEAD = 100;
-/** Écart minimal entre deux chicanes le long du tracé, en mètres : une chicane en mesure 26 */
-export const EDITOR_CHICANE_MIN_GAP = 80;
+/** Écart minimal entre deux chicanes le long du tracé, en mètres : au-delà de 94, le panneau d'annonce de la seconde sort de la première */
+export const EDITOR_CHICANE_MIN_GAP = 100;
 /** Une chicane du joueur se recale à cette distance au plus, en mètres : une branche voisine, plus loin, ne la récupère pas */
 export const EDITOR_CHICANE_SETTLE_REACH = 10;
 /** Une chicane automatique à cette distance d'une chicane supprimée ne revient pas, en mètres */

@@ -438,7 +438,11 @@ export const splitRoundTrip = (
     while (fork > 0 && gaps[fork] > tolerance) fork--;
     if (
       fork >= ROUND_TRIP_MIN_ARM &&
-      !pinched([...go.slice(fork), ...back.slice(1, exitOf(go[fork])), go[fork]])
+      !pinched([
+        ...go.slice(fork),
+        ...back.slice(1, exitOf(go[fork])),
+        go[fork],
+      ])
     )
       break;
   }
@@ -613,7 +617,10 @@ export const selfCrossingRefusal = (
 ): StageError =>
   new StageError(
     "selfCrossing",
-    `Le tracé se croise ou repasse sur lui-même : le ${formatKm((contact.a - runoffPoints) * STEP)} rejoint le ${formatKm((contact.b - runoffPoints) * STEP)}.`,
+    // Avant le départ, `formatKm` afficherait « km 0,00 » : un endroit où le joueur n'a rien tracé.
+    contact.a < runoffPoints
+      ? `Le tracé se croise : la route ajoutée avant le départ rejoint le ${formatKm((contact.b - runoffPoints) * STEP)}. Déplace le premier point.`
+      : `Le tracé se croise ou repasse sur lui-même : le ${formatKm((contact.a - runoffPoints) * STEP)} rejoint le ${formatKm((contact.b - runoffPoints) * STEP)}.`,
   );
 
 /**

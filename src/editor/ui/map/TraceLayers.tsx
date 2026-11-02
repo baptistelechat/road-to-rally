@@ -12,7 +12,7 @@ import {
 import type { LatLon } from "@/geo/gpx";
 import { toCoordinates } from "../../hover";
 import { axisIndex, useEditor } from "../../store";
-import { assembleTrace } from "../../trace";
+import { assembleTrace, inventedEnds } from "../../trace";
 
 const NO_POINTS: LatLon[] = [];
 
@@ -42,7 +42,13 @@ const HatchedRoute = ({ id, points }: { id: string; points: LatLon[] }) => {
 };
 
 const LineFlag = ({ position, label }: { position: LatLon; label: string }) => (
-  <MapMarker longitude={position.lon} latitude={position.lat}>
+  // Au-dessus de la ligne et sans prise : le drapeau tombe pile sur le premier ou le dernier point, qu'il ne doit ni cacher ni bloquer.
+  <MapMarker
+    longitude={position.lon}
+    latitude={position.lat}
+    offset={[0, -26]}
+    className="pointer-events-none"
+  >
     <MarkerContent className="cursor-default">
       <span className="grid size-6 place-items-center rounded-full border border-white bg-neutral-900 text-white shadow-md">
         <Flag aria-hidden="true" className="size-3.5" />
@@ -62,19 +68,35 @@ export const TraceLayers = () => {
     state.highlightStraight ? state.stats?.longestStraight : undefined,
   );
 
-  const route = useMemo(() => toCoordinates(assembleTrace(trace)), [trace]);
-  const rolled = useMemo(
-    () => toCoordinates(axis?.latLon ?? NO_POINTS),
-    [axis],
-  );
+  // Une ligne droite provisoire n'est jamais montrée : la carte ne dessine pas une route qui n'existe pas.
+  const ends = useMemo(() => inventedEnds(trace), [trace]);
+  const route = useMemo(() => {
+    const points = assembleTrace(trace);
+    return toCoordinates(
+      points.slice(
+        ends.before ? 1 : 0,
+        ends.after ? points.length - 1 : points.length,
+      ),
+    );
+  }, [trace, ends]);
+  const rolled = useMemo(() => {
+    if (!axis) return toCoordinates(NO_POINTS);
+    const { latLon, runoffPoints } = axis;
+    return toCoordinates(
+      latLon.slice(
+        ends.before ? runoffPoints : 0,
+        ends.after ? latLon.length - runoffPoints : latLon.length,
+      ),
+    );
+  }, [axis, ends]);
   const [before, after] = useMemo(() => {
     if (!axis) return [NO_POINTS, NO_POINTS];
     const { latLon, runoffPoints } = axis;
     return [
-      latLon.slice(0, runoffPoints + 1),
-      latLon.slice(latLon.length - 1 - runoffPoints),
+      ends.before ? NO_POINTS : latLon.slice(0, runoffPoints + 1),
+      ends.after ? NO_POINTS : latLon.slice(latLon.length - 1 - runoffPoints),
     ];
-  }, [axis]);
+  }, [axis, ends]);
   const straightLine = useMemo(() => {
     if (!axis || !straight) return toCoordinates(NO_POINTS);
     const count = axis.latLon.length;

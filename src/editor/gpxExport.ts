@@ -11,7 +11,8 @@ const escapeXml = (text: string): string =>
 
 /** Même tracé, même texte au caractère près. Le seul `<desc>` est le marquage : un autre tromperait `traceFromGpx`. */
 export const traceToGpx = (
-  trace: Pick<EditorTrace, "name" | "segments" | "returnRoute">,
+  trace: Pick<EditorTrace, "name" | "segments" | "returnRoute"> &
+    Partial<Pick<EditorTrace, "runIn" | "runOut">>,
 ): string =>
   [
     '<?xml version="1.0" encoding="UTF-8"?>',

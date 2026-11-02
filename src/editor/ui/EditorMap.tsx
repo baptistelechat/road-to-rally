@@ -35,6 +35,8 @@ export const EditorMap = ({ onMapClick, children }: EditorMapProps) => {
       zoom={FRANCE_ZOOM}
       // Replié, le crédit des tuiles disparaîtrait au premier déplacement de la carte.
       attributionControl={{ compact: false }}
+      // Le clic droit pose une chicane : il ne doit pas aussi faire tourner la carte.
+      dragRotate={false}
     >
       <BasemapTuning basemap={basemap} />
       <PlaceSearch />

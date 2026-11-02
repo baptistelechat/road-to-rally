@@ -21,6 +21,14 @@ import {
   CHICANE_STACK_ROWS,
 } from "@/geo/config";
 import type { SceneryKind } from "@/sim/types";
+import {
+  SIGN_ART_BENDS,
+  SIGN_ART_BORDER,
+  SIGN_ART_FIELD,
+  SIGN_ART_HEIGHT,
+  SIGN_ART_RIM,
+  SIGN_ART_WIDTH,
+} from "./chicaneSignArt";
 
 type Rgb = [number, number, number];
 
@@ -258,51 +266,18 @@ const WARNING_SIGN_Y = 2.45;
 const WARNING_SIGN_DEPTH = 0.06;
 const WARNING_POLE_Z = -WARNING_SIGN_DEPTH - 0.06;
 
-/** Le dessin du panneau A1c sur une image de 577 × 508, ramené à une largeur de 1 autour de son centre. */
+/** Le dessin du panneau, ramené à une largeur de 1 autour de son centre. */
 const artwork = (points: Outline): Outline =>
-  points.map(([x, y]) => [(x - 288.5) / 577, (254 - y) / 577]);
+  points.map(([x, y]) => [
+    (x - SIGN_ART_WIDTH / 2) / SIGN_ART_WIDTH,
+    (SIGN_ART_HEIGHT / 2 - y) / SIGN_ART_WIDTH,
+  ]);
 
-/** Coins cassés, comme ceux arrondis d'une vraie tôle. Dans le sens direct : la tranche se construit vers l'extérieur. */
-const SIGN_RIM = artwork([
-  [276, 22],
-  [12.5, 486],
-  [25, 508],
-  [552, 508],
-  [564.5, 486],
-  [301, 22],
-]);
-const SIGN_BORDER = artwork([
-  [279, 26],
-  [22, 481],
-  [32, 498],
-  [545, 498],
-  [555, 481],
-  [298, 26],
-]);
-const SIGN_FIELD = artwork([
-  [288.5, 70],
-  [65, 458],
-  [512, 458],
-]);
-/** Double virage, le premier à droite. */
-const SIGN_BENDS = artwork([
-  [203, 442],
-  [203, 300],
-  [212, 278],
-  [235, 268],
-  [260, 280],
-  [307, 318],
-  [307, 222],
-  [328, 188],
-  [351, 222],
-  [351, 340],
-  [342, 363],
-  [320, 375],
-  [297, 364],
-  [246, 322],
-  [246, 442],
-  [224, 415],
-]);
+/** Dans le sens direct : la tranche se construit vers l'extérieur. */
+const SIGN_RIM = artwork(SIGN_ART_RIM);
+const SIGN_BORDER = artwork(SIGN_ART_BORDER);
+const SIGN_FIELD = artwork(SIGN_ART_FIELD);
+const SIGN_BENDS = artwork(SIGN_ART_BENDS);
 
 /** Tranche d'un contour tourné dans le sens direct, de z = 0 à z = -`depth`. Sans face avant : rien à superposer au dessin, donc rien qui clignote. */
 const edgeStrip = (

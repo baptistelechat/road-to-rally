@@ -25,6 +25,6 @@ Jeu de rallye dans le navigateur : le joueur trace une spéciale sur une carte d
 - `pnpm check:determinism` lance tous les fichiers `scripts/checks/*.check.ts` (environ 3 min 30) ; `pnpm check:determinism stage geo` ne lance que ceux nommés. La suite complète alourdit le développement : la lancer le moins possible, en arrière-plan, une seule commande lourde à la fois.
   - Suite complète : uniquement juste avant un push ou un merge, ou si Baptiste la demande. Jamais en fin de tâche.
   - Pendant le développement : aucun check, sauf pour comprendre un doute précis, et alors seulement celui du sujet.
-  - Fin de tâche sur le code, `src/sim/` et `src/geo/` compris : `pnpm lint`, `pnpm build` et une fois le ou les checks du sujet (trois au plus).
+  - Fin de tâche sur le code, `src/sim/` et `src/geo/` compris : `pnpm lint` et `pnpm build`, aucun check.
   - Documentation ou mémoire uniquement : rien.
   - Jamais pendant que Baptiste joue ou teste, ni en parallèle de navigateurs : son PC a déjà planté.

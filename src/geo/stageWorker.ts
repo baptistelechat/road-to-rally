@@ -33,7 +33,11 @@ const generate = async (request: StageWorkerRequest): Promise<void> => {
           onProgress: (step) => scope.postMessage({ kind: "progress", step }),
         })
       : { inputs: request.inputs, warnings: [] };
-  const { stage, warnings: removed } = buildStageWithWarnings(
+  const {
+    stage,
+    warnings: removed,
+    removals,
+  } = buildStageWithWarnings(
     request.kind === "generate" && request.chicanes
       ? { ...inputs, chicanes: request.chicanes }
       : inputs,
@@ -41,7 +45,7 @@ const generate = async (request: StageWorkerRequest): Promise<void> => {
   );
   stage.hash = stageHash(stage);
   scope.postMessage(
-    { kind: "done", stage, warnings: [...warnings, ...removed] },
+    { kind: "done", stage, warnings: [...warnings, ...removed], removals },
     meshBuffers(stage.terrain),
   );
 };

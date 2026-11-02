@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { computeAutoChicanes } from "../../src/editor/autoChicanes";
+import { overlappingZones, zoneSpan } from "../../src/editor/zones";
 import {
   chicaneBand,
   chicaneRequests,
@@ -711,7 +712,20 @@ const checkVariants = async (): Promise<void> => {
   assert.match(roundTrip.getState().notice ?? "", /Retire d'abord le retour/);
 };
 
+/** Deux zones qui se touchent, c'est l'écart minimal : à 100 m oui, à 98 m non. */
+const checkZones = (): void => {
+  const zone = (id: string, index: number) => ({ id, index, reach: 50 });
+  assert.deepEqual([...overlappingZones([zone("a", 100), zone("b", 150)])], []);
+  assert.deepEqual(
+    [...overlappingZones([zone("a", 100), zone("b", 149), zone("c", 400)])],
+    ["a", "b"],
+  );
+  assert.deepEqual(zoneSpan(zone("a", 10), 40), [0, 35]);
+  assert.deepEqual(zoneSpan(zone("a", 30), 40), [5, 39]);
+};
+
 export default async function editorElementsCheck(): Promise<void> {
+  checkZones();
   await checkRoundabouts();
   await checkRoundTripGestures();
   checkAutoChicanes();

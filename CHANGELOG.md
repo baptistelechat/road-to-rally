@@ -42,6 +42,11 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Modification d'une spéciale après l'avoir testée : la rouler à nouveau remplace la version précédente, et une confirmation protège les changements non roulés
 - Fonds de carte satellite, clair et sombre dans l'éditeur, avec relief, boussole et localisation
 - Panneau de virages à l'approche de chaque chicane, en miroir selon le côté, et chevrons sur les bottes
+- Modes Éditer et Déplacer sur la carte de l'éditeur, pour créer des éléments ou les glisser sans risque d'erreur
+- Calque des routes de l'IGN sur le fond satellite de l'éditeur
+- Zone de 100 m autour de chaque chicane sur la carte, qui passe au rouge si elle en touche une autre, avec l'écart actuel et le décalage à faire
+- Clic sur un point, une chicane ou une alerte du panneau pour centrer la carte dessus
+- Indicateur de chargement pendant la recherche de la route avant le départ et après l'arrivée
 
 ### Changed
 
@@ -53,6 +58,16 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Carte de tracé de l'éditeur déplacée sur `/editor/trace`, et routes plus lisibles sur le fond sombre
 - Chicanes moins hautes, deux rangs de bottes : la sortie se voit par-dessus en caméra poursuite, et reste cachée en vue capot
 - Clic droit plus tolérant pour ajouter une chicane à côté du tracé
+- Le premier point du tracé est désormais le départ et le dernier l'arrivée, avec 200 m de vraie route ajoutés au-delà, hors chrono. Sans route libre, l'éditeur demande de déplacer le point au lieu d'inventer une route
+- Marqueurs de chicane en forme de panneau triangulaire du jeu, avec le sens du premier virage, et sens indiqué dans la liste (« droite puis gauche »)
+- Les ponts et tunnels ne retirent plus les chicanes
+- Le message de virage arrondi indique le rayon appliqué et l'écart avec la route réelle
+- Alertes de chicane retirée plus précises, avec l'écart réel, et conservées après une modification tant que la chicane n'a pas bougé
+- Le clic droit ne fait plus tourner la carte de l'éditeur
+
+### Removed
+
+- Noms de lieux sur le fond satellite de l'éditeur
 
 ### Fixed
 
@@ -63,3 +78,7 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - GPX marqués avec leur propre prolongement : un tracé qui se croise est maintenant refusé dès sa lecture, avec l'endroit indiqué
 - Marqueur de chicane qui restait à côté de la route une fois glissé : il revient sur le tracé
 - Textures de chicane qui clignotaient au loin
+- Chicane acceptée par l'éditeur puis retirée à la génération parce que trop proche d'une ligne ou d'une autre chicane
+- Curseur qui tremblait près du tracé et clic droit qui ne posait pas de chicane
+- Alertes et drapeaux qui empêchaient d'attraper un point sur la carte
+- Kilomètre d'une chicane différent entre la liste et l'alerte

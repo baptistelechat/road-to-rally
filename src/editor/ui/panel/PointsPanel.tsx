@@ -2,6 +2,7 @@
 
 import {
   ArrowLeftRight,
+  Loader2,
   Redo2,
   RotateCw,
   Route,
@@ -11,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { formatKm } from "@/geo/errors";
 import { canRedo, canUndo } from "../../history";
-import { useEditor } from "../../store";
+import { editorStore, useEditor } from "../../store";
 import { anchorDistances, stageLength } from "../../trace";
 import { ReturnAction } from "./ReturnAction";
 
@@ -89,7 +90,18 @@ const RouteMessages = () => {
   return (
     <div aria-live="polite" className="space-y-1 text-xs empty:hidden">
       {status.pending && (
-        <p className="text-muted-foreground">Calcul de la route…</p>
+        <p className="flex items-center gap-1 text-muted-foreground">
+          <Loader2 aria-hidden="true" className="size-3 animate-spin" />
+          {status.runoffs
+            ? `Recherche de la route ${
+                status.runoffs.before && status.runoffs.after
+                  ? "avant le départ et après l'arrivée"
+                  : status.runoffs.before
+                    ? "avant le départ"
+                    : "après l'arrivée"
+              }…`
+            : "Calcul de la route…"}
+        </p>
       )}
       {notice && <p className="text-muted-foreground">{notice}</p>}
       {status.error && (
@@ -117,6 +129,7 @@ const RouteMessages = () => {
 export const PointsPanel = () => {
   const trace = useEditor((state) => state.history.present);
   const pending = useEditor((state) => state.status.pending);
+  const runoffs = useEditor((state) => state.status.runoffs);
   const removePoint = useEditor((state) => state.removePoint);
   const searchVariants = useEditor((state) => state.searchVariants);
   const searching = useEditor((state) => state.variants?.kind === "searching");
@@ -141,9 +154,23 @@ export const PointsPanel = () => {
         <ol className="max-h-48 space-y-1 overflow-y-auto">
           {trace.anchors.map((anchor, i) => (
             <li key={anchor.id} className="flex items-center gap-2">
-              <span className="flex-1 tabular-nums">
+              <button
+                type="button"
+                title="Voir sur la carte"
+                className="flex-1 rounded text-left tabular-nums hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                onClick={() =>
+                  editorStore.setState({ focus: { position: anchor.position } })
+                }
+              >
                 Point {i + 1}, {formatKm(distances[i])}
-              </span>
+              </button>
+              {((i === 0 && runoffs?.before) ||
+                (i === trace.anchors.length - 1 && runoffs?.after)) && (
+                <Loader2
+                  aria-hidden="true"
+                  className="size-3 animate-spin text-muted-foreground"
+                />
+              )}
               {i > 0 && (
                 <Button
                   variant="ghost"
@@ -176,10 +203,11 @@ export const PointsPanel = () => {
       )}
       <ReturnAction />
       <p className="text-xs text-muted-foreground">
-        Trait bleu : la route réelle. Trait blanc : la route roulée. Hachures :
-        les zones de dégagement, avant le départ et après l&apos;arrivée. Trait
-        violet : la portion roulée dans les deux sens. Glisse un point pour le
-        déplacer, ou le tracé pour ajouter un passage.
+        Le premier point est le départ, le dernier l&apos;arrivée. Trait bleu :
+        la route réelle. Trait blanc : la route roulée. Hachures : la route
+        ajoutée au-delà des lignes, hors chrono. Trait violet : la portion
+        roulée dans les deux sens. En mode Éditer, un clic pose un point et
+        glisser le tracé ajoute un passage. En mode Déplacer, glisse les points.
       </p>
     </div>
   );

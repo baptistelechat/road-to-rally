@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import type { LatLon } from "@/geo/gpx";
 import { editorStore, useEditor } from "../store";
 import { EditorLayout } from "./EditorLayout";
 import { MapLayers } from "./map/MapLayers";
@@ -37,16 +38,29 @@ const useUndoShortcuts = (): void => {
   }, []);
 };
 
+/** Hors du composant : stable, sans réabonner la carte. En mode déplacement, un clic à côté d'un point ne crée rien. */
+const handleMapClick = (position: LatLon): void => {
+  const { mapMode, addPoint } = editorStore.getState();
+  if (mapMode === "edit") void addPoint(position);
+};
+
 /** L'orchestrateur de l'éditeur : `EditorLayout` place, le store porte l'état. */
 export const EditorApp = () => {
   const trace = useEditor((state) => state.history.present);
-  const addPoint = useEditor((state) => state.addPoint);
-  useTraceAnalysis(trace.segments, trace.returnRoute);
+  useTraceAnalysis(
+    trace.segments,
+    trace.returnRoute,
+    trace.runIn,
+    trace.runOut,
+  );
   useUndoShortcuts();
+  useEffect(() => {
+    void editorStore.getState().refreshRunoffs();
+  }, []);
 
   return (
     <EditorLayout
-      onMapClick={addPoint}
+      onMapClick={handleMapClick}
       mapChildren={<MapLayers />}
       profile={trace.segments.length > 0 ? <ProfilePanel /> : undefined}
       points={

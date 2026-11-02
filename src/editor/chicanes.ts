@@ -9,6 +9,7 @@ import {
   EDITOR_CHICANE_SETTLE_REACH,
   STEP,
 } from "@/geo/config";
+import { formatKm } from "@/geo/errors";
 import { closestOnPolyline, project, unproject, type LatLon } from "@/geo/gpx";
 import { nearestIndex } from "./hover";
 import { assembleRoad, distance, type ApplyResult } from "./trace";
@@ -46,10 +47,35 @@ export const chicaneBand = ({
   runoffPoints,
   roundTrip,
 }: ChicaneAxis): { from: number; to: number } => {
-  const clearance = Math.ceil(CHICANE_LINE_CLEARANCE / STEP);
+  // Un point de marge : tout juste à la limite, le pipeline la voit au millimètre près du mauvais côté et retire la chicane.
+  const clearance = Math.ceil(CHICANE_LINE_CLEARANCE / STEP) + 1;
   const last = roundTrip ? roundTrip.armEnd : latLon.length - 1 - runoffPoints;
   return { from: runoffPoints + clearance, to: last - clearance };
 };
+
+/** Ce que le pilote fait, pas où est le bloc : un premier bloc à gauche se contourne par la droite. */
+export const chicaneBends = (side: ChicaneSide): string =>
+  side === "left" ? "droite puis gauche" : "gauche puis droite";
+
+/** Le même texte partout : la liste et les alertes ne doivent jamais donner deux kilomètres différents. */
+export const chicaneKm = (index: number, runoffPoints: number): string =>
+  formatKm((index - runoffPoints) * STEP);
+
+/** Une phrase par paire trop proche, avec ce qu'il manque : une chicane d'avant la règle n'est refusée qu'à la génération sinon. */
+export const chicaneSpacingWarnings = (
+  chicanes: ListedChicane[],
+  runoffPoints: number,
+): string[] =>
+  chicanes.flatMap((chicane, i) => {
+    const previous = chicanes[i - 1];
+    if (!previous) return [];
+    const spacing = (chicane.index - previous.index) * STEP;
+    return spacing >= EDITOR_CHICANE_MIN_GAP
+      ? []
+      : [
+          `Du ${chicaneKm(previous.index, runoffPoints)} au ${chicaneKm(chicane.index, runoffPoints)} : ${spacing} m entre les deux, il en faut ${EDITOR_CHICANE_MIN_GAP}. Décale-en une de ${EDITOR_CHICANE_MIN_GAP - spacing} m.`,
+        ];
+  });
 
 /** Le point permis le plus proche. Sur toute la bande : c'est le joueur qui vise, pas une ancienne position. `null` : aucune place. */
 const bandIndex = (axis: ChicaneAxis, position: LatLon): number | null => {

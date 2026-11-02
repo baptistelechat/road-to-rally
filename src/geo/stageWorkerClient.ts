@@ -1,6 +1,6 @@
 // Côté fil principal du Worker de génération. Ce module ne charge pas le pipeline : seul le Worker le fait.
 import type { StageData } from "../sim/types";
-import type { ChicaneRequest } from "./chicanes";
+import type { ChicaneRemoval, ChicaneRequest } from "./chicanes";
 import { StageError, type StageErrorCode } from "./errors";
 import type { StageInputs, StageStep } from "./pipeline";
 
@@ -11,13 +11,20 @@ export type StageWorkerRequest =
 
 export type StageWorkerResponse =
   | { kind: "progress"; step: StageStep }
-  | { kind: "done"; stage: StageData; warnings: string[] }
+  | {
+      kind: "done";
+      stage: StageData;
+      warnings: string[];
+      removals: ChicaneRemoval[];
+    }
   | { kind: "error"; code: StageErrorCode; message: string };
 
 export interface GeneratedStage {
   stage: StageData;
   /** À montrer au joueur : la génération a continué en mode dégradé */
   warnings: string[];
+  /** Les chicanes retirées parmi eux, avec leur endroit */
+  removals?: ChicaneRemoval[];
 }
 
 interface RunOptions {
@@ -53,7 +60,11 @@ export const runStageWorker = (
       }
       close();
       if (data.kind === "done")
-        resolve({ stage: data.stage, warnings: data.warnings });
+        resolve({
+          stage: data.stage,
+          warnings: data.warnings,
+          removals: data.removals,
+        });
       else reject(new StageError(data.code, data.message));
     };
     worker.onerror = (event) => {

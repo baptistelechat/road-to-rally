@@ -18,17 +18,23 @@ const SATELLITE: StyleSpecification = {
       maxzoom: 19,
       attribution: "© IGN Géoplateforme",
     },
-    // Noms de lieux sur la photo : sans eux, on ne sait plus où on est en dézoomant.
-    labels: {
+    // Les routes et leurs noms sur la photo, fond transparent : on trace sur elles, comme sur une vue hybride.
+    roads: {
       type: "raster",
-      tiles: ignTiles("GEOGRAPHICALNAMES.NAMES", "image/png"),
+      tiles: ignTiles("TRANSPORTNETWORKS.ROADS", "image/png"),
       tileSize: 256,
+      minzoom: 6,
       maxzoom: 18,
     },
   },
   layers: [
     { id: "ortho", type: "raster", source: "ortho" },
-    { id: "labels", type: "raster", source: "labels" },
+    {
+      id: "roads",
+      type: "raster",
+      source: "roads",
+      paint: { "raster-opacity": 0.8 },
+    },
   ],
 };
 

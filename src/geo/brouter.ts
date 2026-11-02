@@ -13,6 +13,8 @@ import { requestText, type HttpOptions, type RetryPolicy } from "./http";
 export interface BRouterOptions extends HttpOptions {
   /** Index de l'itinéraire, de 0 à 3 (story 3.10) */
   alternativeIdx?: number;
+  /** Profil BRouter, `BROUTER_PROFILE` par défaut */
+  profile?: string;
 }
 
 export interface BRouterRoute {
@@ -195,7 +197,7 @@ const lonLat = (point: LatLon): string =>
 
 export const fetchRoute: FetchRoute = async (from, to, options = {}) => {
   const url =
-    `${BROUTER_URL}?lonlats=${lonLat(from)}|${lonLat(to)}&profile=${BROUTER_PROFILE}` +
+    `${BROUTER_URL}?lonlats=${lonLat(from)}|${lonLat(to)}&profile=${options.profile ?? BROUTER_PROFILE}` +
     `&alternativeidx=${options.alternativeIdx ?? 0}&format=geojson`;
   const text = await requestText(url, {}, POLICY, {
     ...options,

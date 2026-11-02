@@ -10,6 +10,7 @@ import type { MeshData, SharedRange, StageData, Vec3 } from "../sim/types";
 import {
   chicaneExclusions,
   resolveChicanes,
+  type ChicaneRemoval,
   type ChicaneRequest,
 } from "./chicanes";
 import {
@@ -29,11 +30,7 @@ import {
 import { throwIfAborted, type HttpOptions } from "./http";
 import { assertCovered, fetchAltitudes } from "./ign";
 import { deduceRoadAttributes, fetchOsmWays, type OsmWay } from "./osm";
-import {
-  buildProfile,
-  closeRoundTripProfile,
-  symmetrizeFork,
-} from "./profile";
+import { buildProfile, closeRoundTripProfile, symmetrizeFork } from "./profile";
 import { buildTerrain, corridorNodes } from "./terrain";
 
 export { PIPELINE_VERSION };
@@ -194,6 +191,8 @@ export interface BuiltStage {
   stage: StageData;
   /** Chicanes retirées, à montrer au joueur */
   warnings: string[];
+  /** Les mêmes, avec leur endroit */
+  removals: ChicaneRemoval[];
 }
 
 /** Pure : mêmes entrées, même spéciale et mêmes avertissements au bit près. */
@@ -209,10 +208,7 @@ export const buildStageWithWarnings = (
   };
   const uniqueCount = uniqueAxis(trace).length;
   // Pas une `StageError` : le joueur n'y est jamais confronté, seul un cache périmé y mène.
-  if (
-    hash !== inputs.axisHash ||
-    inputs.altitudes.length !== uniqueCount
-  )
+  if (hash !== inputs.axisHash || inputs.altitudes.length !== uniqueCount)
     throw new Error(
       `Les altitudes en cache ne correspondent plus à l'axe (${inputs.axisHash} contre ${hash}) : relancer avec --refresh.`,
     );
@@ -257,8 +253,7 @@ export const buildStageWithWarnings = (
     unique,
     widths,
     shared &&
-      ((i, j) =>
-        isForkPair(i, j, shared.armEnd, shared.returnStart, reach)),
+      ((i, j) => isForkPair(i, j, shared.armEnd, shared.returnStart, reach)),
   );
   if (contact)
     throw new StageError(
@@ -295,7 +290,7 @@ export const buildStageWithWarnings = (
   }
 
   // Sur l'axe unique : une chicane d'aller-retour n'existe qu'une fois, et le retour la franchit en sens inverse.
-  const { blocks, warnings } = resolveChicanes(
+  const { blocks, warnings, removals } = resolveChicanes(
     inputs.chicanes ?? [],
     unique,
     widths,
@@ -303,12 +298,8 @@ export const buildStageWithWarnings = (
     {
       startS,
       finishS,
-      excluded: chicaneExclusions(
-        unique,
-        widths,
-        shared || undefined,
-        structures,
-      ),
+      // ponytail: ponts et tunnels ignorés, le jeu n'en dessine aucun pour l'instant ; passer `structures` ici le jour où il y en aura.
+      excluded: chicaneExclusions(unique, widths, shared || undefined),
     },
   );
 
@@ -340,6 +331,7 @@ export const buildStageWithWarnings = (
       hash: "",
     },
     warnings,
+    removals,
   };
 };
 

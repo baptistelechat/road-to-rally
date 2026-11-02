@@ -76,10 +76,21 @@ const isReturnRoute = (value: unknown): value is ReturnRoute =>
   Array.isArray(value.realReturn) &&
   value.realReturn.every(isLatLon);
 
+const isRunoff = (value: unknown): boolean =>
+  value === null ||
+  (isRecord(value) &&
+    Array.isArray(value.points) &&
+    value.points.length >= 2 &&
+    value.points.every(isLatLon) &&
+    isLatLon(value.probe) &&
+    typeof value.invented === "boolean");
+
 /** Un segment par paire de points voisins, dans l'ordre, sans quoi le tracé ne s'assemble pas. */
 const isTrace = (value: unknown): value is EditorTrace => {
   if (
     !isRecord(value) ||
+    !isRunoff(value.runIn) ||
+    !isRunoff(value.runOut) ||
     (value.returnRoute !== null && !isReturnRoute(value.returnRoute)) ||
     typeof value.chicanesEnabled !== "boolean" ||
     typeof value.name !== "string" ||
@@ -116,7 +127,13 @@ const isTrace = (value: unknown): value is EditorTrace => {
 /** Un brouillon d'avant ces champs reste lisible : le joueur n'y avait encore rien choisi. */
 const withDefaults = (value: unknown): unknown =>
   isRecord(value) && !Array.isArray(value)
-    ? { returnRoute: null, chicanesEnabled: true, ...value }
+    ? {
+        runIn: null,
+        runOut: null,
+        returnRoute: null,
+        chicanesEnabled: true,
+        ...value,
+      }
     : value;
 
 /** Un tracé relu d'ailleurs que du brouillon : `null` s'il est illisible. */

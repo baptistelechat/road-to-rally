@@ -28,6 +28,7 @@ export const InsertHandle = () => {
   const { map } = useMap();
   const trace = useEditor((state) => state.history.present);
   const pending = useEditor((state) => state.status.pending);
+  const editing = useEditor((state) => state.mapMode === "edit");
   const insertPoint = useEditor((state) => state.insertPoint);
   const [hit, setHit] = useState<TraceHit | null>(null);
   const [dragged, setDragged] = useState<LatLon | null>(null);
@@ -59,8 +60,15 @@ export const InsertHandle = () => {
         found && axis ? nearestIndex(axis.latLon, found.position) * STEP : null;
       if (hoverS !== state.hoverS) editorStore.setState({ hoverS });
     };
-    const handleOut = (): void => {
-      if (holding.current) return;
+    const handleOut = ({ originalEvent }: MapMouseEvent): void => {
+      // Passer du canevas à la poignée n'est pas quitter la carte : sinon elle disparaît sous le pointeur, revient, et le curseur tremble.
+      const { relatedTarget } = originalEvent;
+      if (
+        holding.current ||
+        (relatedTarget instanceof Element &&
+          relatedTarget.closest(".maplibregl-marker"))
+      )
+        return;
       setHit(null);
       editorStore.setState({ hoverS: null });
     };
@@ -99,7 +107,7 @@ export const InsertHandle = () => {
         dashArray={[2, 2]}
         interactive={false}
       />
-      {hit && !pending && (
+      {hit && !pending && editing && (
         <MapMarker
           longitude={hit.position.lon}
           latitude={hit.position.lat}

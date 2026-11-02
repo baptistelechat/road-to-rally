@@ -10,13 +10,14 @@ import {
 } from "lucide-react";
 import { useId } from "react";
 import { Button } from "@/components/ui/button";
-import { STEP } from "@/geo/config";
-import { formatKm } from "@/geo/errors";
-import type { ListedChicane } from "../../chicanes";
-import { useEditor } from "../../store";
+import {
+  chicaneBends,
+  chicaneKm,
+  chicaneSpacingWarnings,
+  type ListedChicane,
+} from "../../chicanes";
+import { editorStore, useEditor } from "../../store";
 import { useChicanes } from "../useChicanes";
-
-const SIDE_LABEL = { left: "gauche", right: "droite" } as const;
 
 const countLabel = (count: number): string =>
   count === 0
@@ -33,7 +34,7 @@ const ChicaneRow = ({ chicane }: { chicane: ListedChicane }) => {
   const nudge = useEditor((state) => state.nudgeChicaneBy);
   const flip = useEditor((state) => state.flipChicaneSide);
   const remove = useEditor((state) => state.removeChicaneById);
-  const km = formatKm((chicane.index - runoffPoints) * STEP);
+  const km = chicaneKm(chicane.index, runoffPoints);
   const actions = [
     {
       label: `Reculer la chicane du ${km}`,
@@ -58,10 +59,22 @@ const ChicaneRow = ({ chicane }: { chicane: ListedChicane }) => {
   ];
   return (
     <li className="flex items-center gap-1">
-      <span className="flex-1 text-xs tabular-nums">
-        {km}, {SIDE_LABEL[chicane.side]}
-        {chicane.origin === "player" ? ", à toi" : ""}
-      </span>
+      <button
+        type="button"
+        title="Voir sur la carte"
+        className="flex-1 rounded text-left text-xs tabular-nums hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+        onClick={() =>
+          editorStore.setState({ focus: { position: chicane.position } })
+        }
+      >
+        {/* Le même point que sur la carte, avec son texte pour un lecteur d'écran. */}
+        {chicane.origin === "player" && (
+          <span className="mr-1 inline-block size-2 rounded-full border border-white bg-orange-500">
+            <span className="sr-only">Placée par toi : </span>
+          </span>
+        )}
+        {km}, {chicaneBends(chicane.side)}
+      </button>
       {actions.map(({ label, Icon, run }) => (
         <Button
           key={label}
@@ -87,6 +100,10 @@ export const ChicanePanel = () => {
   const axisReady = useEditor((state) => state.analysis?.axis != null);
   const tooNarrow = useEditor((state) => state.autoChicanes?.tooNarrow ?? 0);
   const pending = useEditor((state) => state.status.pending);
+  const notice = useEditor((state) => state.notice);
+  const runoffPoints = useEditor(
+    (state) => state.analysis?.axis?.runoffPoints ?? 0,
+  );
   const add = useEditor((state) => state.addChicaneAt);
   const setEnabled = useEditor((state) => state.setChicanesEnabled);
   const reset = useEditor((state) => state.resetAutoChicanes);
@@ -120,9 +137,16 @@ export const ChicanePanel = () => {
             : "Chicanes retirées"}
         </span>
       </label>
+      {/* Aussi ici : un refus affiché seulement plus haut passerait inaperçu une fois le panneau défilé. */}
+      {notice && <p className="text-xs text-amber-400">{notice}</p>}
 
       {trace.chicanesEnabled && (
         <>
+          {chicaneSpacingWarnings(chicanes, runoffPoints).map((warning) => (
+            <p key={warning} className="text-xs text-amber-400">
+              {warning}
+            </p>
+          ))}
           {chicanes.length > 0 && (
             <ul className="max-h-40 space-y-1 overflow-y-auto">
               {/* Par rang, pas par identifiant : déplacer une automatique la fait changer d'identifiant, et le clavier perdrait son bouton. */}
@@ -169,8 +193,12 @@ export const ChicanePanel = () => {
             )}
           </div>
           <p className="text-xs text-muted-foreground">
-            Glisse une chicane le long du tracé, ou fais un clic droit près du
-            tracé pour en ajouter une : elle se place sur la route.
+            En mode Déplacer, glisse une chicane le long du tracé. En mode
+            Éditer, un clic droit près du tracé en ajoute une. Le panneau est
+            celui du jeu : il montre le premier virage dans le sens du pilote.
+            Un point orange marque les chicanes que tu as placées. La bande
+            autour de chacune est la place qu&apos;elle prend : elle passe au
+            rouge si elle en touche une autre.
           </p>
         </>
       )}

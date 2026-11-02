@@ -17,6 +17,7 @@ import { readDraftStage, writeDraftStage } from "../../draft";
 import { editorStore, rollBlocker, stageGpx, useEditor } from "../../store";
 import type { EditorTrace } from "../../types";
 import { useChicanes } from "../useChicanes";
+import { RemovedChicanes } from "./RemovedChicanes";
 
 const FALLBACK_NAME = "Ma spéciale";
 const IDLE_STATUS: ImportStatus = { kind: "idle" };
@@ -108,6 +109,15 @@ export const RollPanel = () => {
   const degraded = current?.degraded;
   const settled = degraded || current?.storageFailed;
   const running = status.kind === "running" && !settled;
+  // Après une modification, seules disparaissent les chicanes déplacées ou supprimées : les autres restent à traiter sans régénérer.
+  const removals = outcome?.degraded?.removals ?? [];
+  const remaining = removals.filter(({ position }) =>
+    chicanes.some(
+      (chicane) =>
+        chicane.position.lat === position.lat &&
+        chicane.position.lon === position.lon,
+    ),
+  );
 
   const roll = (): void => {
     setOutcome(null);
@@ -145,11 +155,16 @@ export const RollPanel = () => {
 
       {degraded ? (
         <div role="alert" className="space-y-2 text-xs">
-          {degraded.warnings.map((warning) => (
-            <p key={warning} className="text-amber-400">
-              {warning}
-            </p>
-          ))}
+          {degraded.warnings
+            .filter(
+              (warning) => !removals.some(({ message }) => message === warning),
+            )
+            .map((warning) => (
+              <p key={warning} className="text-amber-400">
+                {warning}
+              </p>
+            ))}
+          <RemovedChicanes removals={removals} />
           <div className="flex gap-2">
             <Button size="sm" onClick={() => open(degraded)}>
               Rouler quand même
@@ -165,6 +180,14 @@ export const RollPanel = () => {
         </Button>
       ) : (
         <>
+          {remaining.length > 0 && (
+            <div className="space-y-2 text-xs">
+              <p className="text-muted-foreground">
+                À la dernière génération :
+              </p>
+              <RemovedChicanes removals={remaining} />
+            </div>
+          )}
           {status.kind === "failed" && !settled && (
             <Button variant="outline" size="sm" onClick={retry}>
               Réessayer

@@ -22,6 +22,7 @@ import {
   addAnchor,
   anchorDistances,
   applyRoutes,
+  assembleRoad,
   assembleTrace,
   distance,
   insertAnchor,
@@ -288,7 +289,8 @@ const assertSegmentsAsked = async (): Promise<void> => {
 
 /** Ni doublon ni trou : chaque jonction est le point de son ancrage, présent une seule fois. */
 const assertAssembly = (trace: EditorTrace): void => {
-  const points = assembleTrace(trace);
+  // Les segments seuls : les prolongements s'ajoutent de part et d'autre, et `assertGpx` les contrôle.
+  const points = assembleRoad(trace.segments);
   for (let i = 1; i < points.length; i++)
     assert.ok(
       points[i].lat !== points[i - 1].lat ||
@@ -321,7 +323,8 @@ const assertJunctions = async (): Promise<void> => {
     A_M.length,
     A_M.length + M_B.length,
   ]);
-  assert.equal(stageLength(three), traceLength(three) - 2 * EDITOR_RUNOFF);
+  // Le premier point est le départ, le dernier l'arrivée : le prolongement ne compte pas.
+  assert.equal(stageLength(three), traceLength(three));
 
   // Un écart infime à une jonction est recollé, un écart réel est refusé.
   const shifted = (degrees: number): BRouterRoute => ({
@@ -626,7 +629,7 @@ const assertGpx = async (): Promise<void> => {
     traceToGpx(JSON.parse(JSON.stringify(named)) as EditorTrace),
   );
   assert.equal(gpx.match(/<desc>/g)?.length, 1);
-  assert.match(gpx, /<desc>rally-runoff=250<\/desc>/);
+  assert.match(gpx, /<desc>rally-runoff=200<\/desc>/);
   assert.match(gpx, /OpenStreetMap/);
   const raw = parseGpx(gpx);
   assert.equal(raw.length, assembleTrace(named).length);

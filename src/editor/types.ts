@@ -56,12 +56,26 @@ export interface ReturnRoute {
   realReturn: LatLon[];
 }
 
+/** La route au-delà d'une ligne, hors du chrono. Toujours dans le sens qui s'éloigne de la ligne. */
+export interface Runoff {
+  /** Le premier est le point posé par le joueur */
+  points: LatLon[];
+  /** Le point de la route d'où vient la direction : s'il change, ce prolongement ne vaut plus */
+  probe: LatLon;
+  /** Aucune route libre : une ligne droite provisoire, qui bloque « Rouler » */
+  invented: boolean;
+}
+
 /** Document édité : ce que l'historique d'annulation et le brouillon conservent. */
 export interface EditorTrace {
   name: string;
   anchors: Anchor[];
   /** Un segment par paire de points voisins, dans l'ordre. Ne décrit que l'aller d'un aller-retour. */
   segments: Segment[];
+  /** Avant le premier point, qui est le départ */
+  runIn: Runoff | null;
+  /** Après le dernier point, qui est l'arrivée. Sans effet sur un aller-retour, qui finit sur son départ. */
+  runOut: Runoff | null;
   /** Le retour part de ce point, toujours le dernier (story 3.7). `null` : pas d'aller-retour. */
   returnFromAnchorIndex: number | null;
   returnRoute: ReturnRoute | null;
@@ -77,6 +91,8 @@ export const EMPTY_TRACE: Readonly<EditorTrace> = {
   name: "",
   anchors: [],
   segments: [],
+  runIn: null,
+  runOut: null,
   returnFromAnchorIndex: null,
   returnRoute: null,
   chicanes: [],

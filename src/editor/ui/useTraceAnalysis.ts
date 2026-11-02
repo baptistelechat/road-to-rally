@@ -12,7 +12,8 @@ import {
   stageGpx,
   type EditorIssue,
 } from "../store";
-import type { ReturnRoute, Segment } from "../types";
+import { inventedEnds } from "../trace";
+import type { ReturnRoute, Runoff, Segment } from "../types";
 
 const messageOf = (error: unknown, fallback: string): string =>
   error instanceof StageError ? error.message : fallback;
@@ -64,21 +65,31 @@ const loadProfile = async (
 const analyze = async (
   segments: Segment[],
   returnRoute: ReturnRoute | null,
+  runIn: Runoff | null,
+  runOut: Runoff | null,
   signal: AbortSignal,
 ): Promise<void> => {
   try {
     const { analysis, chicanes } = await runAnalyzeWorker(
-      stageGpx({ segments, returnRoute }),
+      stageGpx({ segments, returnRoute, runIn, runOut }),
       { widthsByHighway: segments, realReturn: returnRoute?.realReturn },
       signal,
     );
     if (signal.aborted) return;
     const { axis } = analysis;
+    // La ligne droite provisoire n'existe pas pour le joueur : ce qu'elle touche n'est pas son problème.
+    const ends = inventedEnds({ runIn, runOut, returnRoute });
+    const onProvisional = (s: number | undefined): boolean =>
+      s !== undefined &&
+      ((ends.before && s < 0) ||
+        (ends.after && axis !== null && s > axis.length));
     editorStore.setState({
       analysis,
       analyzing: false,
       analysisError: null,
-      issues: analysis.issues,
+      issues: analysis.issues.filter(
+        ({ s, otherS }) => !onProvisional(s) && !onProvisional(otherS),
+      ),
       stats: axis ? computeTraceStats(axis.points, axis.runoffPoints) : null,
       autoChicanes: chicanes,
       ...(axis ? {} : { profile: null, profileStatus: "idle" as const }),
@@ -104,6 +115,8 @@ const analyze = async (
 export const useTraceAnalysis = (
   segments: Segment[],
   returnRoute: ReturnRoute | null,
+  runIn: Runoff | null,
+  runOut: Runoff | null,
 ): void => {
   useEffect(() => {
     if (segments.length === 0) {
@@ -123,7 +136,7 @@ export const useTraceAnalysis = (
     }
     const controller = new AbortController();
     editorStore.setState({ analyzing: true });
-    void analyze(segments, returnRoute, controller.signal);
+    void analyze(segments, returnRoute, runIn, runOut, controller.signal);
     return () => controller.abort();
-  }, [segments, returnRoute]);
+  }, [segments, returnRoute, runIn, runOut]);
 };

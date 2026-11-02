@@ -15,6 +15,7 @@ import {
   CHICANE_MIN_BLOCKED,
   CHICANE_MIN_PASSAGE,
   CHICANE_MIN_SEPARATION,
+  EDITOR_CHICANE_MIN_GAP,
   CHICANE_MIN_STRAIGHT,
   CHICANE_PASSAGE_RATIO,
   CHICANE_SHOULDER_OVERHANG,
@@ -355,8 +356,7 @@ export const chicaneExclusions = (
   }
   if (!shared) return excluded;
   const { armEnd, returnStart } = shared;
-  const around =
-    roadForkReach(axis, widths, armEnd, returnStart) + FORK_MARGIN;
+  const around = roadForkReach(axis, widths, armEnd, returnStart) + FORK_MARGIN;
   // La plage de retour va jusqu'au bout du tracé, quelle que soit la longueur de l'axe reçu.
   excluded.push(
     { from: s[Math.max(0, armEnd - around)], to: s[armEnd + around] },
@@ -408,11 +408,20 @@ const touchesOtherRoad = (
       isNearBlock(block, point.x, point.z, widths[i] / 2),
   );
 
+export interface ChicaneRemoval {
+  message: string;
+  /** La raison seule : l'éditeur la remet avec son propre kilomètre, celui de sa liste */
+  reason: string;
+  position: LatLon;
+}
+
 export interface ChicaneResolution {
   /** Blocs prêts à rouler, triés par abscisse */
   blocks: ChicaneBlock[];
   /** Une phrase par chicane retirée, à montrer au joueur */
   warnings: string[];
+  /** Les mêmes, avec l'endroit demandé : l'éditeur y amène le joueur */
+  removals: ChicaneRemoval[];
 }
 
 /**
@@ -435,19 +444,22 @@ export const resolveChicanes = (
     excluded,
   );
   const warnings: string[] = [];
+  const removals: ChicaneRemoval[] = [];
   const snapped = sortChicaneRequests(requests)
     .map(({ position, side }) => {
       const { x, z } = project(position, origin);
-      return { side, ...snapToAxis(axis, s, x, z) };
+      return { side, position, ...snapToAxis(axis, s, x, z) };
     })
     .sort((a, b) => a.s - b.s || a.side.localeCompare(b.side));
 
   const blocks: ChicaneBlock[] = [];
   let previous = Number.NEGATIVE_INFINITY;
-  for (const { s: center, side, distance } of snapped) {
+  for (const { s: center, side, distance, position } of snapped) {
     const at = formatKm(center - startS);
     const remove = (why: string): void => {
-      warnings.push(`La chicane du ${at} a été retirée : ${why}.`);
+      const message = `La chicane du ${at} a été retirée : ${why}.`;
+      warnings.push(message);
+      removals.push({ message, reason: why, position });
     };
     if (distance > CHICANE_SNAP_TOLERANCE) {
       remove(`elle est à ${Math.round(distance)} m de la route`);
@@ -455,13 +467,17 @@ export const resolveChicanes = (
     }
     if (!allowed.some(({ from, to }) => center >= from && center <= to)) {
       remove(
-        "elle tombe trop près du départ, de l'arrivée, d'un pont ou d'une jonction",
+        center < startS + CHICANE_LINE_CLEARANCE
+          ? `elle tombe trop près du départ (il faut ${CHICANE_LINE_CLEARANCE} m)`
+          : center > finishS - CHICANE_LINE_CLEARANCE
+            ? `elle tombe trop près de l'arrivée (il faut ${CHICANE_LINE_CLEARANCE} m)`
+            : `elle tombe trop près d'une jonction (il faut ${CHICANE_EXCLUDED_CLEARANCE} m)`,
       );
       continue;
     }
     if (center - previous < CHICANE_MIN_SEPARATION) {
       remove(
-        `elle est à moins de ${CHICANE_MIN_SEPARATION} m de la précédente`,
+        `elle est à ${Math.round(center - previous)} m de la précédente, il en faut au moins ${EDITOR_CHICANE_MIN_GAP}`,
       );
       continue;
     }
@@ -480,5 +496,5 @@ export const resolveChicanes = (
     blocks.push(...pair);
     previous = center;
   }
-  return { blocks, warnings };
+  return { blocks, warnings, removals };
 };

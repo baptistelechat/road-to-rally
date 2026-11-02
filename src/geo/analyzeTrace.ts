@@ -9,6 +9,7 @@ import {
   LINE_BRANCH_CLEARANCE,
   LINE_BRANCH_DETOUR,
   MAX_STAGE_LENGTH,
+  MIN_RADIUS,
   ROUND_TRIP_RETURN_DEVIATION,
   STEP,
   WIDENED_DEVIATION,
@@ -414,7 +415,7 @@ export const analyzeTrace = (
   for (const { index, deviation, road } of findWidened(gpxText, trace))
     issues.push({
       code: "widened",
-      message: `Au ${formatKm(startOf(index))}, le virage est trop serré pour la voiture : la route roulée s'écarte de ${Math.round(deviation)} m de la route réelle.`,
+      message: `Au ${formatKm(startOf(index))}, le virage est arrondi à ${MIN_RADIUS} m de rayon : la route roulée s'écarte de ${Math.round(deviation)} m de la route réelle.`,
       s: startOf(index),
       position: at(index),
       blocking: false,

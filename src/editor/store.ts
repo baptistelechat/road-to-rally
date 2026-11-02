@@ -4,7 +4,7 @@ import { createStore } from "zustand/vanilla";
 import type { TraceAnalysis, TraceIssue } from "@/geo/analyzeTrace";
 import { runAnalyzeWorker } from "@/geo/analyzeWorkerClient";
 import { fetchRoute, type FetchRoute } from "@/geo/brouter";
-import { STEP } from "@/geo/config";
+import { EDITOR_RUNOFF_PROFILE, STEP } from "@/geo/config";
 import type { LatLon } from "@/geo/gpx";
 import type { PreviewProfile } from "@/geo/previewProfile";
 import type { TraceStats } from "@/geo/traceStats";
@@ -29,7 +29,7 @@ import {
   type History,
 } from "./history";
 import { createRouteController, type RouteStatus } from "./routeController";
-import type { ApplyResult } from "./trace";
+import { missingRunoff, type ApplyResult } from "./trace";
 import { EMPTY_TRACE, type AutoChicanes, type EditorTrace } from "./types";
 import { findVariants, type AnalyzeFn, type RouteVariant } from "./variants";
 
@@ -41,6 +41,8 @@ export type EditorIssue = Omit<TraceIssue, "code"> & {
 };
 
 export type ProfileStatus = "idle" | "loading" | "failed" | "outOfFrance";
+
+export type MapMode = "edit" | "move";
 
 /** La recherche d'autres routes pour un segment. `null` : aucune, ou elle ne vaut plus pour le tracé actuel. */
 export type VariantState =
@@ -64,6 +66,10 @@ export interface EditorState {
   draftSaved: boolean;
   /** Un point ou la poignée d'insertion est en cours de glissement */
   dragging: boolean;
+  /** La chicane en cours de glissement, déjà recalée sur la route : sa zone la suit */
+  draggedChicane: { id: string; position: LatLon } | null;
+  /** `edit` : un clic crée. `move` : les éléments se glissent, et aucun clic ne crée rien. Hors de l'historique. */
+  mapMode: MapMode;
 
   analyzing: boolean;
   analysis: TraceAnalysis | null;
@@ -107,6 +113,8 @@ export interface EditorState {
   searchVariants: (segmentIndex: number) => Promise<void>;
   chooseVariant: (variant: RouteVariant) => void;
   dismissVariants: () => void;
+  /** À l'ouverture : un brouillon d'avant ces prolongements reçoit la vraie route. Sans effet s'ils sont à jour. */
+  refreshRunoffs: () => Promise<void>;
 }
 
 const IDLE: RouteStatus = { pending: false, error: null, canRetry: false };
@@ -122,7 +130,8 @@ const VARIANT_ROUND_TRIP_NOTICE =
  * car la clé du cache dépend de ce texte. Le nom suit à côté, dans la demande au Worker.
  */
 export const stageGpx = (
-  trace: Pick<EditorTrace, "segments" | "returnRoute">,
+  trace: Pick<EditorTrace, "segments" | "returnRoute"> &
+    Partial<Pick<EditorTrace, "runIn" | "runOut">>,
 ): string => traceToGpx({ ...trace, name: "" });
 
 const analyzeInWorker: AnalyzeFn = (gpx, options, signal) =>
@@ -132,6 +141,7 @@ export const createEditorStore = (
   routeFetcher: FetchRoute,
   initial: EditorTrace = readDraft(),
   analyze: AnalyzeFn = analyzeInWorker,
+  runoffFetcher?: FetchRoute,
 ) =>
   createStore<EditorState>()((set, get) => {
     const persist = (trace: EditorTrace): void =>
@@ -162,6 +172,7 @@ export const createEditorStore = (
 
     const controller = createRouteController({
       fetchRoute: routeFetcher,
+      fetchRunoffRoute: runoffFetcher,
       getTrace: () => get().history.present,
       commit: commitRoute,
       onStatus: (status) => set({ status, notice: null }),
@@ -218,6 +229,8 @@ export const createEditorStore = (
       notice: null,
       draftSaved: true,
       dragging: false,
+      draggedChicane: null,
+      mapMode: "edit",
       analyzing: false,
       analysis: null,
       analysisError: null,
@@ -311,12 +324,21 @@ export const createEditorStore = (
             });
         }
       },
-      chooseVariant: (variant) => commitRoute(variant.trace),
+      chooseVariant: (variant) => {
+        void controller.adopt(variant.trace);
+      },
+      refreshRunoffs: () => controller.adopt(get().history.present),
       dismissVariants: closeVariants,
     };
   });
 
-export const editorStore = createEditorStore(fetchRoute);
+export const editorStore = createEditorStore(
+  fetchRoute,
+  undefined,
+  undefined,
+  (from, to, options) =>
+    fetchRoute(from, to, { ...options, profile: EDITOR_RUNOFF_PROFILE }),
+);
 
 export const useEditor = <T>(selector: (state: EditorState) => T): T =>
   useStore(editorStore, selector);
@@ -327,6 +349,8 @@ export const rollBlocker = (state: EditorState): string | null => {
     return "Pose au moins deux points pour tracer une route.";
   if (state.status.pending) return "La route est en cours de calcul.";
   if (state.analyzing) return "Vérification du tracé en cours.";
+  const missing = missingRunoff(state.history.present);
+  if (missing) return missing.message;
   const blocking = state.issues.find((issue) => issue.blocking);
   if (blocking) return blocking.message;
   if (state.analysis) return null;

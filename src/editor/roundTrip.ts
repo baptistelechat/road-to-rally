@@ -2,7 +2,7 @@
 import { RouteRefused, type FetchRoute } from "@/geo/brouter";
 import { EDITOR_RETURN_LEAD, EDITOR_RETURN_PROBE } from "@/geo/config";
 import { splitRoundTrip, type LatLon } from "@/geo/gpx";
-import { assembleRoad, distance } from "./trace";
+import { assembleOutward, distance } from "./trace";
 import type { EditorTrace, ReturnRoute } from "./types";
 
 export const RETURN_REFUSED =
@@ -57,11 +57,11 @@ export const returnProbe = (go: LatLon[]): number =>
 
 /** Un point refusé par BRouter revient au même qu'un cul-de-sac. Une panne lève : le geste se réessaie. */
 export const fetchReturnRoute = async (
-  { segments }: Pick<EditorTrace, "segments">,
+  trace: Pick<EditorTrace, "segments" | "runIn">,
   fetchRoute: FetchRoute,
   signal: AbortSignal,
 ): Promise<ReturnRoute | null> => {
-  const go = assembleRoad(segments);
+  const go = assembleOutward(trace);
   if (go.length < 2) return null;
   try {
     const { points } = await fetchRoute(

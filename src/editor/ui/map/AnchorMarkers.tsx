@@ -32,6 +32,7 @@ const AnchorMarker = ({
   onDragEnd,
 }: AnchorMarkerProps) => {
   const removePoint = useEditor((state) => state.removePoint);
+  const moving = useEditor((state) => state.mapMode === "move");
   const toLatLon = ({ lat, lng }: { lat: number; lng: number }): LatLon => ({
     lat,
     lon: lng,
@@ -40,29 +41,34 @@ const AnchorMarker = ({
     <MapMarker
       longitude={anchor.position.lon}
       latitude={anchor.position.lat}
-      draggable={draggable}
+      draggable={draggable && moving}
       onDragStart={() => editorStore.setState({ dragging: true })}
       onDrag={(lngLat) => onDrag(toLatLon(lngLat))}
       onDragEnd={(lngLat) => onDragEnd(toLatLon(lngLat))}
     >
-      <MarkerContent>
-        <span className="grid size-6 place-items-center rounded-full border-2 border-white bg-sky-600 text-xs font-bold text-white shadow-md">
-          {rank}
+      <MarkerContent className={moving ? "cursor-grab" : undefined}>
+        {/* Une marge autour de la pastille : plus facile à attraper en mode déplacement. */}
+        <span className={moving ? "block p-2" : "block"}>
+          <span className="grid size-6 place-items-center rounded-full border-2 border-white bg-sky-600 text-xs font-bold text-white shadow-md">
+            {rank}
+          </span>
         </span>
       </MarkerContent>
-      <MarkerPopup>
-        <p className="mb-2 text-xs">Point {rank}</p>
-        <div className="flex flex-col gap-1">
-          {isLast && <ReturnAction />}
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={() => void removePoint(anchor.id)}
-          >
-            Supprimer ce point
-          </Button>
-        </div>
-      </MarkerPopup>
+      {!moving && (
+        <MarkerPopup>
+          <p className="mb-2 text-xs">Point {rank}</p>
+          <div className="flex flex-col gap-1">
+            {isLast && <ReturnAction />}
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => void removePoint(anchor.id)}
+            >
+              Supprimer ce point
+            </Button>
+          </div>
+        </MarkerPopup>
+      )}
     </MapMarker>
   );
 };
