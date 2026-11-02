@@ -36,3 +36,5 @@ register: learnings
 | [LRN-20261102121514-4](learnings/LRN-20261102121514-4.md) | 2026-11-02 | Un crissement à notes pures miaule | #audio #web-audio #sound-design #pneus #crissement #labo-son |
 | [LRN-20261102121514-5](learnings/LRN-20261102121514-5.md) | 2026-11-02 | ENAMETOOLONG : commande Bash trop longue sous Windows | #bash #windows #enametoolong #heredoc #outillage #claude-code |
 | [LRN-20261102200843-4](learnings/LRN-20261102200843-4.md) | 2026-11-02 | L'écart entre virages ne mesure pas le temps de parole | #copilote #timing #mesure #planification #estimation #notes |
+| [LRN-20261102224247-2](learnings/LRN-20261102224247-2.md) | 2026-11-02 | Tester une voix de synthèse par transcription, avec témoin | #tts #whisper #transcription #voix #test #temoin #faster-whisper |
+| [LRN-20261102224247-3](learnings/LRN-20261102224247-3.md) | 2026-11-02 | Le planning à rebours amplifie la marge d'accélération | #copilote #timing #planification #plan-accel #reglage #notes |

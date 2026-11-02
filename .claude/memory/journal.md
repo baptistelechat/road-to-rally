@@ -158,3 +158,14 @@ Session de cadrage du copilote, sans code. Baptiste étant sur l'epic 3, le copi
 - [BDR-20261102200843-2](decisions/BDR-20261102200843-2.md) — voix en mots enregistrés
 - [BDR-20261102200843-3](decisions/BDR-20261102200843-3.md) — tous les virages annoncés
 - [LRN-20261102200843-4](learnings/LRN-20261102200843-4.md) — l'écart entre virages ne mesure pas le temps de parole
+
+---
+
+Développement des stories 4.6 à 4.11 du copilote, découpé en lots confiés à des subagents : calcul des notes et carte « Pace notes », voix en mots enregistrés, moment des annonces, branchement dans la boucle de jeu, icônes, mini-carte et panneau d'options. La provenance de la voix a pris le plus de temps : Piper, seule famille testée d'abord pour sa licence claire, donnait des annonces courtes incomprises par une transcription, alors qu'une voix Windows témoin passait. Kokoro (`ff_siwis`) a passé le test, et le script de génération est gardé dans le dépôt pour ajouter des mots plus tard.
+
+Les vraies durées des mots (0,585 s contre 0,38 s estimées) ont révélé un retard au départ de `mountain` et des contrôles trop optimistes. Le contrôle utilise maintenant les fichiers réels. L'exception du départ couvre les phrases enchaînées sans pause, et le cumul de la diction lente et de l'allure ×1,6 n'est pas garanti. La mini-carte est activée par défaut à la demande de Baptiste. Le code est poussé (`e6d96de`), avec 22/22 contrôles passés. Rien n'a été testé dans un navigateur : Baptiste fait les tests et donnera ses retours à la prochaine session sur la mini-carte, la voix et les icônes.
+
+**Entrées clés :**
+
+- [BDR-20261102224247-1](decisions/BDR-20261102224247-1.md) — Voix du copilote générée avec Kokoro
+- [LRN-20261102224247-2](learnings/LRN-20261102224247-2.md) — Tester une voix de synthèse par transcription, avec témoin

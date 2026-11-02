@@ -36,3 +36,4 @@ register: decisions
 | [BDR-20261102200843-1](decisions/BDR-20261102200843-1.md) | 2026-11-02 | Copilote développé en parallèle de l'epic 3 | #roadmap #epics #copilote #parallele #epic-3 #epic-4 | actif |
 | [BDR-20261102200843-2](decisions/BDR-20261102200843-2.md) | 2026-11-02 | Voix du copilote en mots enregistrés | #copilote #voix #web-audio #speechsynthesis #playbackrate #prd | actif |
 | [BDR-20261102200843-3](decisions/BDR-20261102200843-3.md) | 2026-11-02 | Tous les virages annoncés, aucun saut de note | #copilote #notes #enfilade #pace-notes #annonces #gameplay | actif |
+| [BDR-20261102224247-1](decisions/BDR-20261102224247-1.md) | 2026-11-02 | Voix du copilote générée avec Kokoro | #copilote #voix #kokoro #piper #licence #tts #wav | actif |
