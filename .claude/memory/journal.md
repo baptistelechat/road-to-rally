@@ -119,3 +119,17 @@ Cadrage puis développement de l'epic 3, l'éditeur de spéciales. Baptiste a de
 - [BDR-20261102122033-2](decisions/BDR-20261102122033-2.md) — Lignes à 250 m des bouts du tracé dessiné
 - [BDR-20261102122033-4](decisions/BDR-20261102122033-4.md) — Chicane en barrière de rubalise
 - [BLK-20261102122033-11](blockers/BLK-20261102122033-11.md) — Worker MapLibre chargé depuis unpkg
+
+---
+
+Session sur le confort de l'éditeur et le rendu des chicanes, itérée avec Baptiste au volant. La carte reçoit trois fonds (satellite par défaut, clair, sombre), le relief, la boussole et la localisation. L'éditeur est réorganisé : `/editor` devient un accueil qui liste les spéciales d'IndexedDB, `/editor/trace` porte la carte, et une spéciale garde son tracé pour pouvoir être modifiée, la nouvelle version remplaçant l'ancienne. Une page `/my-stages` a existé le temps d'un échange avant d'être fondue dans cet accueil.
+
+Côté chicanes : deux rangs de bottes à 2,2 m, chevrons, et un panneau d'annonce refait trois fois. Rond bleu d'abord, puis triangle sans éclairage rejeté comme « PNG plaqué », enfin tôle éclairée, avec le dessin inversé après un retour au volant. Le clignotement est corrigé en supprimant les faces superposées. Le recalage manuel n'était pas un défaut de données : le marqueur restait sous le pointeur.
+
+Avant le push, la suite complète a échoué sur `fingerprint` et `geo` : le passage à `PIPELINE_VERSION` 6 demandait de régénérer les spéciales livrées. Après `pnpm bake:stages`, 25/25, et `main` poussé avec `aa4506a` et `aeddf40`. Pendant un test, tout le stockage des spéciales du navigateur intégré à l'app a été vidé au lieu des seules entrées d'essai ; signalé à Baptiste, et les tests suivants n'ont retiré que leurs entrées.
+
+**Entrées clés :**
+
+- [BDR-20261102162710-1](decisions/BDR-20261102162710-1.md) — La spéciale garde son tracé, la rouler à nouveau la remplace
+- [BDR-20261102162710-2](decisions/BDR-20261102162710-2.md) — Panneau d'annonce : le dessin suit le premier écart du pilote
+- [LRN-20261102162710-3](learnings/LRN-20261102162710-3.md) — Changer PIPELINE_VERSION impose pnpm bake:stages

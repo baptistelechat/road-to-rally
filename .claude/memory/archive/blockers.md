@@ -11,3 +11,4 @@ register: archive-blockers
 | [ZBLK-20261101150421-6](blockers/ZBLK-20261101150421-6.md) | 2026-11-01 | Lag au défilement des drapeaux à la manette | #lag #manette #gamepad #drapeaux #canvas #performance #garage | résolu le 2026-11-01 |
 | [ZBLK-20261101170343-5](blockers/ZBLK-20261101170343-5.md) | 2026-11-01 | Fond noir des plaques non reproduit, correctif à confirmer | #plaques #canvas #alpha #garage #three | résolu le 2026-11-01 |
 | [ZBLK-20261101202404-3](blockers/ZBLK-20261101202404-3.md) | 2026-11-01 | Tests navigateur qui font planter le PC de Baptiste | #playwright #performance #tests #navigateur #windows | résolu le 2026-11-01 |
+| [ZBLK-20261102122033-10](blockers/ZBLK-20261102122033-10.md) | 2026-11-02 | Suite de checks invisible, tâche tuée alors que tout passait | #checks #background #tail #push #determinisme | résolu le 2026-11-02 |

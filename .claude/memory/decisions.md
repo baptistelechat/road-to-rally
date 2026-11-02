@@ -30,3 +30,5 @@ register: decisions
 | [BDR-20261102122033-3](decisions/BDR-20261102122033-3.md) | 2026-11-02 | mapcn tel quel avec son fond CARTO | #mapcn #maplibre #carto #shadcn #editeur #epic-3 | actif |
 | [BDR-20261102122033-4](decisions/BDR-20261102122033-4.md) | 2026-11-02 | Chicane : barrière de rubalise fixe et piles de bottes | #chicane #rapier #collider #bottes #gameplay #epic-3 | actif |
 | [BDR-20261102122033-5](decisions/BDR-20261102122033-5.md) | 2026-11-02 | Éditeur et jeu séparés par une vraie navigation | #editeur #webgl #indexeddb #navigation #nextjs #epic-3 | actif |
+| [BDR-20261102162710-1](decisions/BDR-20261102162710-1.md) | 2026-11-02 | La spéciale garde son tracé, la rouler à nouveau la remplace | #editeur #indexeddb #brouillon #navigation #chicane-test #epic-3 | actif |
+| [BDR-20261102162710-2](decisions/BDR-20261102162710-2.md) | 2026-11-02 | Panneau d'annonce : le dessin suit le premier écart du pilote | #chicane #panneau #rendu #three #gameplay #epic-3 | actif |
