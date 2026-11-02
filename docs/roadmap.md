@@ -71,4 +71,6 @@ Le détail suit la proximité : les epics 1 et 2 ont une fiche par story, les su
 
 Monde entier, classements en ligne, rallye multi-spéciales, réglages voiture exposés au joueur, comptes, anti-triche, multijoueur, météo, nuit.
 
+Idées d'animation en attente de décision : transfert de masse accentué à l'image, vibration moteur de la caisse.
+
 Trois choses à préparer quand même dès la v0, sans construire la fonctionnalité : **pas de physique fixe, enregistrement des entrées, paramètres voiture dans un objet de config.**

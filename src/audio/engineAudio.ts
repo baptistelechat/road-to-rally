@@ -7,7 +7,13 @@ import {
   enginePreset,
   type EnginePresetId,
 } from "./enginePresets";
-import { createEngineVoice, type EngineVoice } from "./engineVoice";
+import { createTireVoice, type ParamWriter, type TireVoice } from "./tireVoice";
+import {
+  createEngineVoice,
+  DEFAULT_LAYERS,
+  type EngineVoice,
+  type PopListener,
+} from "./engineVoice";
 
 export interface CarAudio {
   /** Tente de lancer le son : sans geste du joueur, le navigateur peut le bloquer */
@@ -19,6 +25,8 @@ export interface CarAudio {
   /** Menu pause : coupe tout le son, sans toucher au réglage du joueur. Appelable à chaque image. */
   setPaused: (paused: boolean) => void;
   update: (state: CarState, dt: number) => void;
+  /** Prévient à chaque détonation d'échappement, même son coupé : les flammes partent en même temps. */
+  setPopListener: (listener: PopListener | null) => void;
   setMuted: (muted: boolean) => void;
   /** Renvoie le nouvel état */
   toggleMute: () => boolean;
@@ -79,7 +87,7 @@ interface Graph {
   compressor: DynamicsCompressorNode;
   engine: EngineVoice;
   shiftGain: GainNode;
-  skid: NoiseVoice;
+  tires: TireVoice;
   grass: NoiseVoice;
   wind: NoiseVoice;
   thumpNoise: NoiseVoice;
@@ -92,6 +100,8 @@ const buildGraph = (
   ctx: AudioContext,
   destination: AudioNode,
   engineId: EnginePresetId,
+  onPop: PopListener,
+  write: ParamWriter,
 ): Graph => {
   const nodes: AudioNode[] = [];
   const track = <T extends AudioNode>(node: T): T => {
@@ -128,6 +138,8 @@ const buildGraph = (
     shiftGain,
     enginePreset(engineId),
     carConfig.engine,
+    DEFAULT_LAYERS,
+    onPop,
   );
 
   // Un seul tampon de bruit blanc en boucle alimente toutes les voix de bruit.
@@ -148,7 +160,7 @@ const buildGraph = (
     return { source, filter, gain };
   };
 
-  const skid = noiseVoice("bandpass", 1400, 2.2);
+  const tires = createTireVoice(ctx, master, write);
   const grass = noiseVoice("lowpass", 320, 0.7);
   const wind = noiseVoice("bandpass", 400, 0.6);
   const thumpNoise = noiseVoice("lowpass", 180, 0.7);
@@ -160,14 +172,14 @@ const buildGraph = (
   thumpOsc.connect(thumpGain);
 
   thumpOsc.start();
-  for (const voice of [skid, grass, wind, thumpNoise]) voice.source.start();
+  for (const voice of [grass, wind, thumpNoise]) voice.source.start();
 
   return {
     master,
     compressor,
     engine,
     shiftGain,
-    skid,
+    tires,
     grass,
     wind,
     thumpNoise,
@@ -225,6 +237,7 @@ export const createCarAudio = (
   let lastShiftAt = Number.NEGATIVE_INFINITY;
   let lastThumpAt = Number.NEGATIVE_INFINITY;
   let writes = 0;
+  let popListener: PopListener | null = null;
   const targets = new Map<AudioParam, number>();
 
   const setParam = (
@@ -284,7 +297,15 @@ export const createCarAudio = (
     if (!ctx) ctx = injected ?? resolveContext();
     if (!ctx) return;
     if (!graph) {
-      graph = buildGraph(ctx, ctx.destination, engineId);
+      const audio = ctx;
+      graph = buildGraph(
+        ctx,
+        ctx.destination,
+        engineId,
+        (delayS, strength) => popListener?.(delayS, strength),
+        (param, value, timeConstant) =>
+          setParam(param, value, audio.currentTime, timeConstant),
+      );
       applyMaster();
       if (typeof document !== "undefined")
         document.addEventListener("visibilitychange", onVisibility);
@@ -329,10 +350,7 @@ export const createCarAudio = (
       stepS,
     );
 
-    // Crissement sur l'asphalte
-    const skidAmount = ramp(0.25, 0.95, maxAsphaltSlip) * ramp(1.5, 8, speed);
-    setParam(graph.skid.gain.gain, skidAmount * 0.3, now, 0.05);
-    setParam(graph.skid.filter.frequency, 1100 + skidAmount * 1200, now, 0.08);
+    graph.tires.update(maxAsphaltSlip, speed);
 
     // Roulement sur l'herbe
     setParam(
@@ -379,6 +397,9 @@ export const createCarAudio = (
       (paused ? ctx.suspend() : ctx.resume()).catch(() => undefined);
     },
     update,
+    setPopListener: (listener) => {
+      popListener = listener;
+    },
     setMuted,
     toggleMute: () => {
       setMuted(!muted);
@@ -412,8 +433,8 @@ export const createCarAudio = (
       if (graph) {
         graph.engine.dispose();
         graph.thumpOsc.stop();
+        graph.tires.dispose();
         for (const voice of [
-          graph.skid,
           graph.grass,
           graph.wind,
           graph.thumpNoise,

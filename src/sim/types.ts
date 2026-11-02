@@ -67,7 +67,9 @@ export interface CarState extends Pose {
   rpm: number;
   /** 1 à N en marche avant, -1 en marche arrière, 0 au point mort */
   gear: number;
+  /** Charge du moteur, 0 à 1 : en marche arrière, c'est la pédale de frein qui la donne */
   throttle: number;
+  /** Serrage des freins, 0 à 1 : en marche arrière, c'est la pédale d'accélérateur qui le donne */
   brake: number;
   handbrake: boolean;
   wheels: WheelState[];

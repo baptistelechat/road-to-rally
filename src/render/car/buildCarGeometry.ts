@@ -24,6 +24,8 @@ import {
 export interface WheelPart {
   /** Géométrie centrée sur le moyeu, axe de rotation X, jante tournée vers l'extérieur */
   geometry: BufferGeometry;
+  /** Disque de frein derrière les branches : il braque avec la roue, mais ne tourne pas */
+  disc: BufferGeometry;
   /** Centre de roue au repos dans le repère de la voiture */
   position: Vec3;
 }
@@ -32,6 +34,8 @@ export interface CarGeometry {
   body: BufferGeometry;
   /** À part pour pouvoir les allumer au freinage */
   brakeLights: BufferGeometry;
+  /** À part pour pouvoir les allumer en marche arrière */
+  reverseLights: BufferGeometry;
   /** Plaques avant et arrière, à texturer */
   plates: BufferGeometry;
   /** Numéros de portière et de capot, à texturer */
@@ -45,12 +49,14 @@ export interface CarGeometry {
 // Couleurs hors livrée
 const TIRE = rgb("#1b1b1d");
 const RIM_FLOOR = rgb("#141416");
+const DISC = rgb("#7a7a80");
 const PLASTIC = rgb("#26262a");
 const WELL = rgb("#0c0c0e");
 const GLASS = rgb("#1a2a35");
 const LENS = rgb("#fff3c4");
 const AMBER = rgb("#e8901c");
 const BRAKE_OFF = rgb("#b3231a");
+const REVERSE_OFF = rgb("#cfcdc4");
 const PLATE = rgb("#f7f4ea");
 const INK = rgb("#17171a");
 
@@ -81,7 +87,48 @@ const ROOF_REAR = 1.12;
 const PLATE_HALF_WIDTH = 0.21;
 const DECAL_GAP = 0.004;
 
+// Échappement, côté droit
+const EXHAUST = { x: 0.45, h: 0.27, radius: 0.045, inset: 0.1, length: 0.2 };
+
 const lerp = (a: number, b: number, t: number): number => a + (b - a) * t;
+
+const carGroundY = (config: CarConfig): number =>
+  Math.min(
+    ...Array.from(
+      { length: WHEEL_COUNT },
+      (_, i) =>
+        wheelRestPosition(config, i).y - wheelAxle(config, i).wheelRadius,
+    ),
+  );
+
+/** Sortie du pot dans le repère de la voiture. */
+export const exhaustOutlet = (config: CarConfig = carConfig): Vec3 => ({
+  x: EXHAUST.x,
+  y: carGroundY(config) + EXHAUST.h,
+  z: config.bodyHalfExtents.z - EXHAUST.inset + EXHAUST.length,
+});
+
+const buildBrakeDisc = (
+  radius: number,
+  width: number,
+  side: number,
+): BufferGeometry => {
+  const mesh = createMeshBuilder();
+  // Entre le fond de jante (largeur / 2 - 0,05) et les branches.
+  const face = width / 2 - 0.038;
+  mesh.lathe(
+    "x",
+    [0, 0, 0],
+    side,
+    [
+      [face, radius * 0.66 - 0.045],
+      [face, 0],
+    ],
+    [DISC],
+    WHEEL_SIDES,
+  );
+  return mesh.toGeometry();
+};
 
 const buildWheel = (
   radius: number,
@@ -169,6 +216,7 @@ export const buildCarGeometry = (
 ): CarGeometry => {
   const body = createMeshBuilder();
   const brake = createMeshBuilder();
+  const reverse = createMeshBuilder();
   const primary = rgb(livery.primary);
   const secondary = rgb(livery.secondary);
   const accent = rgb(livery.accent);
@@ -179,9 +227,7 @@ export const buildCarGeometry = (
   const axles = Array.from({ length: WHEEL_COUNT }, (_, i) =>
     wheelAxle(config, i),
   );
-  const groundY = Math.min(
-    ...rests.map((rest, i) => rest.y - axles[i].wheelRadius),
-  );
+  const groundY = carGroundY(config);
   const Y = (h: number): number => groundY + h;
 
   const nose = -config.bodyHalfExtents.z;
@@ -642,12 +688,24 @@ export const buildCarGeometry = (
     [0, 0, 1],
   );
   for (const side of SIDES) {
-    const [x0, x1] = [side * 0.38, side * (panelX - 0.02)];
-    brake.box(
-      [Math.min(x0, x1), Y(0.7), tail - 0.08],
-      [Math.max(x0, x1), Y(0.82), tail + 0.012],
-      BRAKE_OFF,
-    );
+    // Bloc arrière d'époque : le tiers intérieur est le feu de recul.
+    const [inner, outer] = [0.38, panelX - 0.02];
+    const split = inner + (outer - inner) / 3;
+    const lamp = (
+      builder: ReturnType<typeof createMeshBuilder>,
+      from: number,
+      to: number,
+      color: Rgb,
+    ): void => {
+      const [x0, x1] = [side * from, side * to];
+      builder.box(
+        [Math.min(x0, x1), Y(0.7), tail - 0.08],
+        [Math.max(x0, x1), Y(0.82), tail + 0.012],
+        color,
+      );
+    };
+    lamp(reverse, inner, split, REVERSE_OFF);
+    lamp(brake, split, outer, BRAKE_OFF);
   }
   // Support de plaque, recouvert par la texture. Vue de face, la droite est +X à l'arrière et -X à l'avant.
   const plate = (halfX: number, h0: number, h1: number, z: number): V3[] => [
@@ -685,12 +743,12 @@ export const buildCarGeometry = (
   );
   body.lathe(
     "z",
-    [0.45, Y(0.27), tail - 0.1],
+    [EXHAUST.x, Y(EXHAUST.h), tail - EXHAUST.inset],
     1,
     [
-      [0, 0.045],
-      [0.2, 0.045],
-      [0.2, 0],
+      [0, EXHAUST.radius],
+      [EXHAUST.length, EXHAUST.radius],
+      [EXHAUST.length, 0],
     ],
     [rgb("#6a6a70"), WELL],
     8,
@@ -754,12 +812,18 @@ export const buildCarGeometry = (
       Math.sign(rest.x),
       livery,
     ),
+    disc: buildBrakeDisc(
+      axles[i].wheelRadius,
+      axles[i].wheelWidth,
+      Math.sign(rest.x),
+    ),
     position: rest,
   }));
 
   return {
     body: body.toGeometry(),
     brakeLights: brake.toGeometry(),
+    reverseLights: reverse.toGeometry(),
     plates: decalQuads(plateQuads),
     numbers: decalQuads(numberQuads),
     flags: decalQuads(flagQuads),

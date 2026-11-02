@@ -509,8 +509,9 @@ export const createVehicle = (
       forwardSpeed: dot(linearVelocity, forward),
       rpm,
       gear,
-      throttle,
-      brake,
+      // En marche arrière, les pédales s'échangent : le frein entraîne le moteur, l'accélérateur serre les freins.
+      throttle: gear < 0 ? brake : throttle,
+      brake: gear < 0 ? throttle : brake,
       handbrake,
       impact,
       wheels: wheels.map((wheel, i) => {

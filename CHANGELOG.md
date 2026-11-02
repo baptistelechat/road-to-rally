@@ -37,6 +37,10 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Bouton pour couper ou remettre le son dans le menu pause
 - Choix du moteur au garage entre 4 cylindres atmo, 4 cylindres turbo et 5 cylindres, avec une démo sonore à la sélection et une pastille sur le moteur validé, conservé en course
 - Page `/labo-son` pour écouter les moteurs et régler chaque couche du son
+- Animations en course : flammes et étincelles à l'échappement, calées sur les pétarades, à-coup de la caisse et de la caméra aux passages de rapport, mottes d'herbe et de terre projetées hors piste, gerbe d'étincelles sur les chocs
+- Disques de frein visibles derrière les jantes, qui rougissent aux gros freinages
+- Feux de recul blancs dans les blocs arrière, allumés en marche arrière
+- Crissement de pneus sur l'asphalte, en plus du souffle du dérapage, réglable dans une section dédiée de `/labo-son`
 
 ### Changed
 
@@ -48,9 +52,11 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Le sélecteur de carte passe du HUD au menu de départ et de pause
 - Le choix de la carte devient une liste qui s'ouvre, à la souris comme à la manette, où A valide et B referme
 - En pause, A à la manette active la ligne sélectionnée au lieu de reprendre directement la course
+- Le menu de départ se parcourt à la manette comme le menu pause, ce qui permet d'y choisir la carte
 
 ### Fixed
 
 - Bavettes qui traversaient la route : elles sont plus courtes et restent au-dessus du sol à l'assiette de repos
 - Caméra du garage qui s'inversait à la manette en passant au-dessus de la voiture : elle se bloque au sommet, comme à la souris
 - Son du moteur absent après un changement de carte tant que le joueur n'avait pas de nouveau cliqué
+- Feux stop allumés en marche arrière et moteur qui sonnait comme au frein moteur en reculant

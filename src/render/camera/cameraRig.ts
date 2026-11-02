@@ -1,6 +1,7 @@
 // Logique pure de la caméra : aucun React, aucun accès à la simulation, utilisable sans navigateur.
 // Le lissage est exponentiel et dépend du temps écoulé, jamais d'un facteur fixe par image.
 import { Euler, Quaternion, Vector3 } from "three";
+import { createShiftJolt } from "@/render/fx/shiftJolt";
 import type { CarState, Pose, Track, Vec3 } from "@/sim/types";
 
 export type CameraMode = "chase" | "hood";
@@ -13,6 +14,8 @@ export interface RigInput {
   /** Part des roues au sol qui sont sur l'herbe, 0 à 1 */
   grass: number;
   impact: number;
+  /** Rapport engagé : son changement donne un à-coup. Constant = aucun à-coup. */
+  gear: number;
   /** Rotation demandée autour de la voiture, -1 à 1, en poursuite seulement */
   orbit: number;
 }
@@ -72,6 +75,8 @@ export const RIG_TUNING = {
   shakeImpact: 0.007,
   impactDecay: 7,
   hoodShakeScale: 0.6,
+  /** Plongée de la caméra au passage de rapport, en radians */
+  shiftPitch: 0.008,
 } as const;
 
 export const damp = (
@@ -138,6 +143,7 @@ export const fillRigInput = (
   out.forwardSpeed = state.forwardSpeed;
   out.grass = contacts > 0 ? grass / contacts : 0;
   out.impact = state.impact;
+  out.gear = state.gear;
 };
 
 /** `groundAt` absent ou qui renvoie `null` : la caméra ignore le relief. */
@@ -168,6 +174,7 @@ export const createCameraRig = (
   let shake = 0;
   let kick = 0;
   let lastImpact = 0;
+  const shiftJolt = createShiftJolt();
 
   const step = (
     input: RigInput,
@@ -289,8 +296,12 @@ export const createCameraRig = (
     );
     const scale = mode === "chase" ? 1 : tuning.hoodShakeScale;
     const amplitude = (shake + kick * tuning.shakeImpact) * scale;
+    if (instant) shiftJolt.reset(input.gear);
+    const nod = instant ? 0 : shiftJolt.update(input.gear, dt);
     euler.set(
-      pitch + amplitude * (Math.sin(time * 37) + 0.5 * Math.sin(time * 61)),
+      pitch -
+        nod * tuning.shiftPitch * scale +
+        amplitude * (Math.sin(time * 37) + 0.5 * Math.sin(time * 61)),
       yaw + orbit + amplitude * 0.7 * Math.sin(time * 43 + 1),
       roll + amplitude * 0.5 * Math.sin(time * 29 + 2),
     );

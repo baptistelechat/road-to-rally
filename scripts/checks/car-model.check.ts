@@ -33,6 +33,8 @@ const allGeometries = (car: CarGeometry): BufferGeometry[] => [
   car.body,
   car.brakeLights,
   ...car.wheels.map((wheel) => wheel.geometry),
+  ...car.wheels.map((wheel) => wheel.disc),
+  car.reverseLights,
 ];
 
 const check = async (): Promise<void> => {

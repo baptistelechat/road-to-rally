@@ -36,7 +36,6 @@ import {
 } from "./hudStore";
 import { applyMenuAction } from "./Hud/applyMenuAction";
 
-const CONFIRM_BUTTON = 0;
 const START_BUTTON = 9;
 
 const readBestLap = (key: string): number | null => {
@@ -99,8 +98,8 @@ export const useGameLoop = ({
   const cameraOrbit = useRef(0);
   const bestLap = useRef<number | null>(null);
   const lastLap = useRef<number | null>(null);
-  // Tenus au départ : le bouton qui a réveillé la manette ne déclenche rien.
-  const padHeld = useRef({ confirm: true, start: true });
+  // Tenu au départ : le bouton qui a réveillé la manette ne déclenche rien.
+  const startHeld = useRef(true);
   const menuRepeat = useRef<MenuRepeat>({ held: undefined, wait: 0 });
   const pose = useRef<Pose>({
     position: { x: 0, y: 0, z: 0 },
@@ -135,17 +134,14 @@ export const useGameLoop = ({
     const input = controller.current;
     info.current.steps = 0;
     const pad = findStandardPad(window);
-    const confirm = pad?.buttons[CONFIRM_BUTTON]?.pressed ?? false;
     const start = pad?.buttons[START_BUTTON]?.pressed ?? false;
-    // Sur le front de pression seulement : un A tenu (frein à main) ne doit pas refermer le menu pause.
+    const soundBlocked = audio.isBlocked();
     const screen = nextScreen(
       useHudStore.getState().screen,
-      audio.isBlocked(),
-      confirm && !padHeld.current.confirm,
-      start && !padHeld.current.start,
+      soundBlocked,
+      start && !startHeld.current,
     );
-    padHeld.current.confirm = confirm;
-    padHeld.current.start = start;
+    startHeld.current = start;
     setHudScreen(screen);
     audio.setPaused(screen === "pause");
     // Relevé aussi en course : un A tenu (frein à main) à l'ouverture du menu ne clique sur rien.
@@ -153,8 +149,8 @@ export const useGameLoop = ({
       ? pollMenuRepeat(menuRepeat.current, readMenuAction(pad), delta)
       : null;
     if (!pad) menuRepeat.current.held = undefined;
-    if (menuAction && screen === "pause" && document.hasFocus())
-      applyMenuAction(menuAction);
+    if (menuAction && screen !== "race" && document.hasFocus())
+      applyMenuAction(menuAction, soundBlocked);
     cameraOrbit.current =
       pad && screen === "race" && document.hasFocus()
         ? readCameraOrbit(pad)

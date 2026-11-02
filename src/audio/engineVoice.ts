@@ -23,6 +23,9 @@ export const DEFAULT_LAYERS: EngineLayers = {
   turbo: 1,
 };
 
+/** Appelé à chaque détonation programmée : dans combien de secondes elle part, et sa force. */
+export type PopListener = (delayS: number, strength: number) => void;
+
 export interface EngineVoice {
   /** `rpm` et `throttle` (0 à 1) à chaque image ; le rythme des ordres audio est limité ici. */
   update: (rpm: number, throttle: number, dt: number) => void;
@@ -100,7 +103,7 @@ const saturationCurve = (): Float32Array<ArrayBuffer> => {
 };
 
 /** Valeurs aléatoires reliées en ligne droite, jouées en boucle pour faire vivre un paramètre. */
-const randomSignal = (
+export const randomSignal = (
   ctx: BaseAudioContext,
   seconds: number,
   stepHz: number,
@@ -125,6 +128,7 @@ export const createEngineVoice = (
   preset: EnginePreset,
   range: RevRange,
   initialLayers: EngineLayers = DEFAULT_LAYERS,
+  onPop?: PopListener,
 ): EngineVoice => {
   const layers: EngineLayers = { ...initialLayers };
   const nodes: AudioNode[] = [];
@@ -320,6 +324,7 @@ export const createEngineVoice = (
   const pop = (at: number, strength: number): void => {
     const peak = preset.pops.level * layers.pops * strength;
     if (peak <= 0) return;
+    onPop?.(at - ctx.currentTime, strength);
     const decay = 0.012 + Math.random() * 0.03;
     const end = at + decay * 7;
     const gain = ctx.createGain();

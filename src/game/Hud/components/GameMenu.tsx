@@ -43,6 +43,7 @@ export const GameMenu = ({
         <button
           type="button"
           autoFocus
+          data-needs-sound={paused ? undefined : ""}
           className={`w-full rounded bg-amber-400 px-4 py-3 font-bold text-black hover:bg-amber-300 ${menuFocus}`}
           onClick={() => setHudScreen("race")}
         >

@@ -3,6 +3,8 @@
 import { ENGINE_PRESETS } from "@/audio/enginePresets";
 import type { EngineLayer } from "@/audio/engineVoice";
 import { carConfig } from "@/sim/carConfig";
+import { RangeField } from "./RangeField";
+import { TireLab } from "./TireLab";
 import { useSoundLab } from "./useSoundLab";
 
 const { idleRpm, redlineRpm } = carConfig.engine;
@@ -19,47 +21,6 @@ const LAYER_LABELS: Record<EngineLayer, string> = {
 const LAYERS = Object.keys(LAYER_LABELS) as EngineLayer[];
 const FOCUS_RING =
   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400";
-
-interface RangeFieldProps {
-  id: string;
-  label: string;
-  value: number;
-  max: number;
-  min?: number;
-  step: number;
-  readout: string;
-  disabled?: boolean;
-  danger?: boolean;
-  onChange: (value: number) => void;
-  onPointerDown?: () => void;
-  onPointerUp?: () => void;
-}
-
-const RangeField = ({
-  id,
-  label,
-  readout,
-  danger = false,
-  onChange,
-  ...input
-}: RangeFieldProps) => (
-  <div className="flex-1">
-    <label
-      htmlFor={id}
-      className="mb-2 flex justify-between font-mono text-sm tabular-nums"
-    >
-      <span>{label}</span>
-      <span>{readout}</span>
-    </label>
-    <input
-      id={id}
-      type="range"
-      onChange={(event) => onChange(Number(event.target.value))}
-      className={`w-full disabled:opacity-40 ${danger ? "accent-red-500" : "accent-amber-400"}`}
-      {...input}
-    />
-  </div>
-);
 
 export const SoundLab = () => {
   const lab = useSoundLab();
@@ -158,6 +119,8 @@ export const SoundLab = () => {
             ),
           )}
         </div>
+
+        <TireLab />
       </div>
     </main>
   );

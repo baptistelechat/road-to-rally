@@ -30,6 +30,7 @@ const createInput = (): RigInput => ({
   forwardSpeed: 0,
   grass: 0,
   impact: 0,
+  gear: 0,
   orbit: 0,
 });
 
@@ -64,6 +65,7 @@ export const GameCamera = ({
     if (reducedMotion.current) {
       input.current.grass = 0;
       input.current.impact = 0;
+      input.current.gear = 0;
     }
 
     const respawn = source.getRespawnCount();

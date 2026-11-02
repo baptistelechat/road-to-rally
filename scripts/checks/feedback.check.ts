@@ -1,20 +1,38 @@
 import assert from "node:assert/strict";
 import { Vector3 } from "three";
 import { createCarAudio } from "../../src/audio/engineAudio";
+import {
+  createTireVoice,
+  DEFAULT_TIRE_SOUND,
+  squealAmount,
+} from "../../src/audio/tireVoice";
 import { updateRumble } from "../../src/audio/gamepadRumble";
 import {
   HUD_PERIOD_MS,
   pushHud,
   setLapTimes,
   nextScreen,
+  setHudScreen,
   useHudStore,
 } from "../../src/game/hudStore";
+import { applyMenuAction } from "../../src/game/Hud/applyMenuAction";
 import {
   createCameraRig,
   type CameraMode,
   type RigInput,
 } from "../../src/render/camera/cameraRig";
-import { createDustPool, DUST_POOL_SIZE } from "../../src/render/fx/dustPool";
+import { discGlow, stepDiscHeat } from "../../src/render/car/brakeDisc";
+import {
+  clodRate,
+  createDustPool,
+  DUST_POOL_SIZE,
+} from "../../src/render/fx/dustPool";
+import { createExhaustFlash } from "../../src/render/fx/exhaustFlash";
+import {
+  createImpactDetector,
+  impactContact,
+} from "../../src/render/fx/impactSpark";
+import { createShiftJolt } from "../../src/render/fx/shiftJolt";
 import { createSkidPool, SKID_SEGMENTS } from "../../src/render/fx/skidPool";
 import { wheelContactPoint } from "../../src/render/fx/wheelContact";
 import { carConfig, wheelRestPosition } from "../../src/sim/carConfig";
@@ -64,6 +82,7 @@ const input = (
   forwardSpeed: -Math.sin(yaw) * velocity.x - Math.cos(yaw) * velocity.z,
   grass: 0,
   impact: 0,
+  gear: 0,
   orbit: 0,
 });
 
@@ -377,6 +396,25 @@ const checkAudio = (): void => {
     "le choc doit être audible",
   );
 
+  // Crissement : muet tant que le pneu accroche ou que la voiture roule au pas, plein en pleine glisse.
+  const { threshold } = DEFAULT_TIRE_SOUND;
+  assert.equal(squealAmount(threshold - 0.1, 30, threshold), 0);
+  assert.equal(squealAmount(1, 2, threshold), 0);
+  assert.equal(squealAmount(1, 30, threshold), 1);
+  const peak = (slip: number): number => {
+    const levels = new Map<AudioParam, number>();
+    const voice = createTireVoice(
+      createFakeAudio().context,
+      createFakeAudio().context.destination,
+      (param, value) => levels.set(param, value),
+    );
+    voice.update(slip, 30);
+    voice.dispose();
+    return Math.max(...levels.values());
+  };
+  // Au repos, seule la hauteur des bandes reste écrite : moins haute qu'avec la pleine glisse.
+  assert.ok(peak(1) > peak(0), "la glisse doit changer la voix des pneus");
+
   // Le changement de rapport et les états extrêmes ne plantent pas.
   audio.update(carState({ rpm: 4000, gear: 3 }), 1 / 30);
   audio.update(carState({ rpm: 0, gear: 0, wheels: [] }), 1 / 30);
@@ -388,16 +426,15 @@ const checkAudio = (): void => {
 };
 
 const checkHud = (): void => {
-  // Menu à la manette : A ne fait rien en course, Start ouvre et ferme la pause.
-  assert.equal(nextScreen("race", false, true, false), "race");
-  assert.equal(nextScreen("race", false, false, true), "pause");
-  assert.equal(nextScreen("pause", false, false, true), "race");
-  // En pause, A reste sur le menu : c'est la ligne sélectionnée qui décide.
-  assert.equal(nextScreen("pause", false, true, false), "pause");
-  assert.equal(nextScreen("pause", false, false, false), "pause");
-  // Départ refusé tant que le son est bloqué.
-  assert.equal(nextScreen("start", true, true, true), "start");
-  assert.equal(nextScreen("start", false, true, false), "race");
+  // Menu à la manette : Start ouvre et ferme la pause.
+  assert.equal(nextScreen("race", false, false), "race");
+  assert.equal(nextScreen("race", false, true), "pause");
+  assert.equal(nextScreen("pause", false, true), "race");
+  assert.equal(nextScreen("pause", false, false), "pause");
+  // Au départ, Start lance la course, sauf tant que le son est bloqué.
+  assert.equal(nextScreen("start", true, true), "start");
+  assert.equal(nextScreen("start", false, true), "race");
+  assert.equal(nextScreen("start", false, false), "start");
 
   // Une seconde à 144 Hz, vitesse qui change à chaque image : au plus 10 publications.
   let publications = 0;
@@ -511,12 +548,145 @@ const checkFx = (): void => {
   }
 };
 
+const checkCarFx = (): void => {
+  // Flamme : elle attend son heure, part une seule fois, puis s'éteint.
+  const flash = createExhaustFlash();
+  let started = 0;
+  const tick = (dt: number): number =>
+    flash.update(dt, () => {
+      started++;
+    });
+  flash.trigger(0.1, 1);
+  assert.equal(tick(0.05), 0);
+  assert.equal(started, 0);
+  assert.ok(tick(0.06) > 0.5);
+  assert.equal(started, 1);
+  tick(0.2);
+  assert.equal(tick(0.01), 0);
+  assert.equal(started, 1);
+  // Une image très longue saute la flamme sans perdre ses étincelles.
+  flash.trigger(0, 1);
+  assert.equal(tick(1), 0);
+  assert.equal(started, 2);
+
+  // À-coup : rien à rapport constant ni vers la marche arrière, plus fort en montant.
+  const peakAfter = (from: number, to: number): number => {
+    const jolt = createShiftJolt();
+    jolt.update(from, 1 / 60);
+    let peak = Math.abs(jolt.update(to, 1 / 60));
+    for (let i = 0; i < 60; i++)
+      peak = Math.max(peak, Math.abs(jolt.update(to, 1 / 60)));
+    return peak;
+  };
+  assert.equal(peakAfter(2, 2), 0);
+  assert.equal(peakAfter(1, -1), 0);
+  assert.ok(peakAfter(2, 3) > 0.3);
+  assert.ok(peakAfter(3, 2) < peakAfter(2, 3));
+  const settled = createShiftJolt();
+  settled.update(2, 1 / 60);
+  settled.update(3, 1 / 60);
+  let last = 1;
+  for (let i = 0; i < 120; i++) last = settled.update(3, 1 / 60);
+  assert.ok(Math.abs(last) < 0.01, `à-coup non amorti : ${last}`);
+  // Une caméra recalée ne tressaille pas.
+  settled.reset(1);
+  assert.equal(settled.update(1, 1 / 60), 0);
+
+  // Mottes : sur l'herbe seulement, et plus la roue glisse, plus il y en a.
+  assert.equal(clodRate("asphalt", 1, 30), 0);
+  assert.equal(clodRate("grass", 1, 2), 0);
+  assert.ok(clodRate("grass", 1, 25) > clodRate("grass", 0, 25));
+
+  // Disques : froids sans freiner, rouges après un gros freinage, puis refroidissent.
+  let heat = 0;
+  for (let i = 0; i < 60; i++) heat = stepDiscHeat(heat, 0, 40, 0.6, 1 / 60);
+  assert.equal(discGlow(heat), 0);
+  for (let i = 0; i < 180; i++) heat = stepDiscHeat(heat, 1, 40, 0.6, 1 / 60);
+  assert.ok(discGlow(heat) > 0.5, `lueur ${discGlow(heat)}`);
+  const hot = heat;
+  for (let i = 0; i < 600; i++) heat = stepDiscHeat(heat, 0, 0, 0.6, 1 / 60);
+  assert.ok(heat < hot * 0.25);
+
+  // Choc : seul un front montant assez fort donne des étincelles, et un frottement n'en crache pas à chaque image.
+  const detector = createImpactDetector();
+  assert.equal(detector.update(0.1, 1 / 60), 0);
+  assert.equal(detector.update(0.8, 1 / 60), 0.8);
+  assert.equal(detector.update(0.7, 1 / 60), 0, "le choc retombe");
+  assert.equal(detector.update(0.75, 1 / 60), 0, "trop tôt après le précédent");
+  for (let i = 0; i < 10; i++) detector.update(0.2, 1 / 60);
+  assert.equal(detector.update(0.6, 1 / 60), 0.6);
+
+  // La voiture repart vers +Z : le contact est sur le nez (-Z), et la voiture tournée d'un quart de tour suit.
+  const halves = { x: 1, y: 0.5, z: 2 };
+  const contact = new Vector3();
+  const away = new Vector3();
+  const atOrigin = {
+    position: { x: 10, y: 1, z: 0 },
+    rotation: { x: 0, y: 0, z: 0, w: 1 },
+  };
+  impactContact(atOrigin, { x: 0, y: 0, z: 5 }, halves, contact, away);
+  assert.ok(contact.distanceTo(new Vector3(10, 1, -2)) < 1e-6);
+  assert.ok(away.distanceTo(new Vector3(0, 0, 1)) < 1e-6);
+  // Quart de tour : le côté droit local (+X) regarde vers -Z du monde.
+  impactContact(
+    { ...atOrigin, rotation: yawQuat(Math.PI / 2) },
+    { x: 0, y: 0, z: 5 },
+    halves,
+    contact,
+    away,
+  );
+  assert.ok(contact.distanceTo(new Vector3(10, 1, -1)) < 1e-6);
+  // Sans variation de vitesse : l'avant, sans NaN.
+  impactContact(atOrigin, { x: 0, y: 0, z: 0 }, halves, contact, away);
+  assert.ok(contact.distanceTo(new Vector3(10, 1, -2)) < 1e-6);
+
+  // Une détonation écrit dans le pool.
+  const dust = createDustPool();
+  dust.burst({ x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, 1);
+  assert.ok(dust.emitted() >= 3);
+  const sparked = dust.emitted();
+  dust.impactSparks({ x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, away, 1, 0.5);
+  assert.ok(dust.emitted() - sparked >= 20, "gerbe trop maigre");
+};
+
+const checkMenuAction = (): void => {
+  let clicks = 0;
+  const button = {
+    dataset: { needsSound: "" },
+    click: () => {
+      clicks++;
+    },
+    focus: () => undefined,
+  };
+  const page = globalThis as { document?: unknown };
+  page.document = {
+    activeElement: button,
+    querySelector: (selector: string) =>
+      selector === "dialog[open]" ? { querySelectorAll: () => [button] } : null,
+  };
+  // Son bloqué : A ne lance pas la course, une fois débloqué si.
+  applyMenuAction("confirm", true);
+  assert.equal(clicks, 0);
+  applyMenuAction("confirm", false);
+  assert.equal(clicks, 1);
+  // B reprend la course en pause, mais ne la lance pas depuis le menu de départ.
+  setHudScreen("start");
+  applyMenuAction("cancel", false);
+  assert.equal(useHudStore.getState().screen, "start");
+  setHudScreen("pause");
+  applyMenuAction("cancel", false);
+  assert.equal(useHudStore.getState().screen, "race");
+  delete page.document;
+};
+
 export default async function check(): Promise<void> {
   checkCadence();
   checkNoAndReverse();
   checkAudio();
   checkHud();
   checkFx();
+  checkCarFx();
+  checkMenuAction();
   // Sans manette ni `getGamepads` : la vibration ne fait rien, sans planter.
   updateRumble(carState({ impact: 1, speed: 30 }), 0);
 }

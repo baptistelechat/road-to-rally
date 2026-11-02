@@ -10,6 +10,9 @@ import { GameCamera } from "@/render/camera/GameCamera";
 import { CarModel } from "@/render/car/CarModel";
 import { loadLivery } from "@/render/car/livery";
 import { DustParticles } from "@/render/fx/DustParticles";
+import { createDustPool } from "@/render/fx/dustPool";
+import { ExhaustFlame } from "@/render/fx/ExhaustFlame";
+import { ImpactSparks } from "@/render/fx/ImpactSparks";
 import { SkidMarks } from "@/render/fx/SkidMarks";
 import { LightPropsView } from "@/render/scenery/LightPropsView";
 import { SceneryView } from "@/render/scenery/SceneryView";
@@ -42,6 +45,7 @@ interface SceneProps {
 const Scene = ({ sim, audio, useBot, bestLapKey }: SceneProps) => {
   const [cameraMode, setCameraMode] = useState<"chase" | "hood">("chase");
   const [livery] = useState(loadLivery);
+  const [dust] = useState(createDustPool);
   const staticScenery = useMemo(
     () => sim.scenery.filter((item) => !isLightProp(item.kind)),
     [sim],
@@ -72,7 +76,9 @@ const Scene = ({ sim, audio, useBot, bestLapKey }: SceneProps) => {
       {/* Les trois panneaux à la fois : FPS, ms et mémoire. */}
       <Stats className="!top-auto !bottom-4 !left-1/2 !flex -translate-x-1/2 gap-px [&>canvas]:!block" />
       <CarModel source={source} livery={livery} />
-      <DustParticles source={source} />
+      <DustParticles source={source} pool={dust} />
+      <ExhaustFlame source={source} audio={audio} dust={dust} />
+      <ImpactSparks source={source} dust={dust} />
       <SkidMarks source={source} />
       <Diagnostics sim={sim} audio={audio} info={info} captureRef={capture} />
     </>

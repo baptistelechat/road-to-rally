@@ -1,13 +1,18 @@
 "use client";
 
 import { useFrame } from "@react-three/fiber";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import type { CarSource } from "@/render/carSource";
-import { createDustPool } from "./dustPool";
+import type { DustPool } from "./dustPool";
 
-/** Poussière sur l'herbe, fumée sur l'asphalte. */
-export const DustParticles = ({ source }: { source: CarSource }) => {
-  const [pool] = useState(createDustPool);
+/** Poussière et mottes sur l'herbe, fumée sur l'asphalte. */
+export const DustParticles = ({
+  source,
+  pool,
+}: {
+  source: CarSource;
+  pool: DustPool;
+}) => {
   const lastRespawn = useRef(0);
 
   useEffect(() => () => pool.dispose(), [pool]);
