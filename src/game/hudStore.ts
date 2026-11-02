@@ -1,9 +1,23 @@
 // État du HUD. Poussé à environ 10 Hz, pour ne pas refaire le rendu React à chaque pas de simulation.
 import { create } from "zustand";
 import type { RecoveryStatus } from "@/sim/recovery";
+import type { PaceNote } from "@/sim/track/paceNotes";
 import type { CarState } from "@/sim/types";
+import {
+  type CopilotOptions,
+  loadCopilotOptions,
+  saveCopilotOptions,
+} from "./copilotOptions";
 
 export const HUD_PERIOD_MS = 100;
+/** Icônes de virage affichées au plus */
+const PACE_ICONS = 3;
+
+export interface HudPaceCall {
+  text: string;
+  /** Deux annonces identiques à la suite restent deux annonces pour un lecteur d'écran */
+  id: number;
+}
 
 export interface LapTimes {
   lapMs: number | null;
@@ -25,6 +39,11 @@ export interface HudState extends LapTimes {
   diag: string | null;
   /** Arrivée franchie sur une spéciale */
   finished: boolean;
+  /** Prochains virages annoncés, le plus proche d'abord */
+  paceNotes: readonly PaceNote[];
+  /** Dernière annonce, en toutes lettres */
+  paceCall: HudPaceCall | null;
+  copilotOptions: CopilotOptions;
 }
 
 export const useHudStore = create<HudState>(() => ({
@@ -36,6 +55,9 @@ export const useHudStore = create<HudState>(() => ({
   recovery: null,
   diag: null,
   finished: false,
+  paceNotes: [],
+  paceCall: null,
+  copilotOptions: loadCopilotOptions(),
   lapMs: null,
   lastLapMs: null,
   bestLapMs: null,
@@ -122,6 +144,31 @@ export const setHudDiag = (diag: string | null): void => {
 export const setHudFinished = (finished: boolean): void => {
   if (useHudStore.getState().finished !== finished)
     useHudStore.setState({ finished });
+};
+
+/** Appelable à chaque image : seul un changement de la liste affichée met à jour le HUD. */
+export const setHudPaceNotes = (notes: readonly PaceNote[]): void => {
+  const current = useHudStore.getState().paceNotes;
+  const shown = notes.slice(0, PACE_ICONS);
+  if (
+    shown.length !== current.length ||
+    shown.some((note, i) => note !== current[i])
+  )
+    useHudStore.setState({ paceNotes: shown });
+};
+
+let paceCallId = 0;
+
+export const setHudPaceCall = (text: string | null): void => {
+  useHudStore.setState({
+    paceCall: text === null ? null : { text, id: ++paceCallId },
+  });
+};
+
+/** Choix du joueur : seul cet appel écrit dans le stockage, le chargement d'une session n'y touche pas. */
+export const setCopilotOptions = (copilotOptions: CopilotOptions): void => {
+  saveCopilotOptions(copilotOptions);
+  useHudStore.setState({ copilotOptions });
 };
 
 let restartRequested = false;

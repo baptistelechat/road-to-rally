@@ -41,6 +41,10 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Disques de frein visibles derrière les jantes, qui rougissent aux gros freinages
 - Feux de recul blancs dans les blocs arrière, allumés en marche arrière
 - Crissement de pneus sur l'asphalte, en plus du souffle du dérapage, réglable dans une section dédiée de `/labo-son`
+- Copilote en course : tous les virages sont notés de 1 à 6 et annoncés par une voix française, assez tôt pour préparer le virage selon la vitesse, avec crêtes, bosses et enfilades
+- Icônes des prochains virages à l'écran et mini-carte de la spéciale
+- Options du copilote dans le menu : voix, vitesse de diction, volume, icônes et mini-carte, à la souris, au clavier et à la manette, conservées d'une session à l'autre
+- Carte d'essai « Pace notes » avec un virage de chaque note, et écoute de la voix dans `/labo-son`
 
 ### Changed
 

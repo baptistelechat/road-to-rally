@@ -3,6 +3,7 @@
 import { ENGINE_PRESETS } from "@/audio/enginePresets";
 import type { EngineLayer } from "@/audio/engineVoice";
 import { carConfig } from "@/sim/carConfig";
+import { CopilotLab } from "./CopilotLab";
 import { RangeField } from "./RangeField";
 import { TireLab } from "./TireLab";
 import { useSoundLab } from "./useSoundLab";
@@ -121,6 +122,7 @@ export const SoundLab = () => {
         </div>
 
         <TireLab />
+        <CopilotLab />
       </div>
     </main>
   );

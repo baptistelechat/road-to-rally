@@ -8,7 +8,9 @@ import { initRapier } from "@/sim/rapier";
 import { createSimulation, type Simulation } from "@/sim/simulation";
 import { parseStage } from "@/sim/track/stageCodec";
 import type { StageData } from "@/sim/types";
-import { setHudMuted, setHudScreen } from "./hudStore";
+import { createCopilot, type Copilot } from "./copilot";
+import { applyVoiceOptions } from "./copilotOptions";
+import { setHudMuted, setHudScreen, useHudStore } from "./hudStore";
 import type { GameMap } from "./maps";
 import type { ImportedStage } from "./useStageImport";
 
@@ -35,6 +37,7 @@ const nextPaint = (): Promise<void> =>
 export interface GameSession {
   sim: Simulation;
   audio: CarAudio;
+  copilot: Copilot;
   /** Avertissements à montrer au joueur */
   notices: readonly string[];
 }
@@ -60,6 +63,7 @@ export const useGameSession = (
   useEffect(() => {
     let cancelled = false;
     let created: Simulation | null = null;
+    let copilot: Copilot | null = null;
     const download = new AbortController();
     // Créé ici et non en `useMemo` : un ancien moteur continuerait de jouer après chaque mise à jour à chaud.
     const audio = createCarAudio(undefined, loadLivery().engine);
@@ -75,6 +79,7 @@ export const useGameSession = (
     void Promise.all([
       initRapier(),
       imported?.stage ??
+        map.createStage?.() ??
         (map.stageUrl ? loadStage(map.stageUrl, download.signal) : undefined),
     ])
       .then(async ([, stage]) => {
@@ -87,9 +92,14 @@ export const useGameSession = (
           console.info(
             `Colliders et simulation créés en ${Math.round(creationMs)} ms`,
           );
+        copilot = createCopilot(created, audio);
+        applyVoiceOptions(copilot, useHudStore.getState().copilotOptions);
+        // Sans bloquer le jeu : un mot manquant s'affiche dans la console et les icônes continuent.
+        void copilot.voice.load();
         setGame({
           sim: created,
           audio,
+          copilot,
           notices: [
             ...(imported?.warnings ?? []),
             ...(imported && creationMs > LONG_CREATION_MS
@@ -113,6 +123,7 @@ export const useGameSession = (
       setGame(null);
       window.removeEventListener("keydown", unlock);
       window.removeEventListener("pointerup", unlock);
+      copilot?.reset();
       audio.dispose();
       // Le canvas se démonte après ce nettoyage : une image de plus lirait un monde déjà libéré.
       // `get()` : R3F remplace `internal` juste après `onCreated`, l'objet reçu alors est déjà périmé.

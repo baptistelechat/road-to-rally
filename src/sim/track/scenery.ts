@@ -64,7 +64,7 @@ export const finishArch = (track: Track): Pose & { halfSpan: number } =>
   archAt(track, track.finishS);
 
 /** Courbure signée en chaque point sur une fenêtre de 10 pas : positive quand la route tourne à droite. */
-const signedCurvature = (track: Track): number[] => {
+export const signedCurvature = (track: Track): number[] => {
   const { points, closed } = track;
   const n = points.length;
   const span = 5;

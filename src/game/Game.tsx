@@ -19,6 +19,7 @@ import { SceneryView } from "@/render/scenery/SceneryView";
 import { TrackView } from "@/render/track/TrackView";
 import { isLightProp } from "@/sim/lightProps";
 import type { Simulation } from "@/sim/simulation";
+import type { Copilot } from "./copilot";
 import { Diagnostics } from "./diag/Diagnostics";
 import { Hud } from "./Hud";
 import { setHudMuted } from "./hudStore";
@@ -38,11 +39,12 @@ const TuningPanel =
 interface SceneProps {
   sim: Simulation;
   audio: CarAudio;
+  copilot: Copilot;
   useBot: boolean;
   bestLapKey: string;
 }
 
-const Scene = ({ sim, audio, useBot, bestLapKey }: SceneProps) => {
+const Scene = ({ sim, audio, copilot, useBot, bestLapKey }: SceneProps) => {
   const [cameraMode, setCameraMode] = useState<"chase" | "hood">("chase");
   const [livery] = useState(loadLivery);
   const [dust] = useState(createDustPool);
@@ -54,6 +56,7 @@ const Scene = ({ sim, audio, useBot, bestLapKey }: SceneProps) => {
   const { source, info, cameraOrbit } = useGameLoop({
     sim,
     audio,
+    copilot,
     useBot,
     bestLapKey,
     onToggleCamera: () =>
@@ -135,11 +138,14 @@ export const Game = () => {
         <Scene
           sim={game.sim}
           audio={game.audio}
+          copilot={game.copilot}
           useBot={params.has("bot")}
           bestLapKey={map.bestLapKey}
         />
       </Canvas>
       <Hud
+        sim={game.sim}
+        copilot={game.copilot}
         map={map.id}
         mapLabel={map.label}
         closed={game.sim.track.closed}

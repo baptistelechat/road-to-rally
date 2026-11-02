@@ -2,6 +2,7 @@
 // Après la construction du graphe, tout paramètre passe par `setTargetAtTime`, pour ne pas faire de clics.
 import { carConfig } from "@/sim/carConfig";
 import type { CarState } from "@/sim/types";
+import type { VoiceBus } from "./copilotVoice";
 import {
   DEFAULT_ENGINE,
   enginePreset,
@@ -27,6 +28,8 @@ export interface CarAudio {
   update: (state: CarState, dt: number) => void;
   /** Prévient à chaque détonation d'échappement, même son coupé : les flammes partent en même temps. */
   setPopListener: (listener: PopListener | null) => void;
+  /** Point d'entrée de la voix du copilote : le son coupé et la pause s'y appliquent. `null` avant le premier `start()`. */
+  voiceBus: () => VoiceBus | null;
   setMuted: (muted: boolean) => void;
   /** Renvoie le nouvel état */
   toggleMute: () => boolean;
@@ -400,6 +403,8 @@ export const createCarAudio = (
     setPopListener: (listener) => {
       popListener = listener;
     },
+    voiceBus: () =>
+      ctx && graph ? { context: ctx, output: graph.master } : null,
     setMuted,
     toggleMute: () => {
       setMuted(!muted);
@@ -434,11 +439,7 @@ export const createCarAudio = (
         graph.engine.dispose();
         graph.thumpOsc.stop();
         graph.tires.dispose();
-        for (const voice of [
-          graph.grass,
-          graph.wind,
-          graph.thumpNoise,
-        ])
+        for (const voice of [graph.grass, graph.wind, graph.thumpNoise])
           voice.source.stop();
         for (const node of graph.nodes) node.disconnect();
       }

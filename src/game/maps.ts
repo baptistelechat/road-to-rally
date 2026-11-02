@@ -1,11 +1,14 @@
 // Les cartes du jeu. L'identifiant vit dans l'URL (`?map=`), le nom de la piste s'affiche en anglais.
+import { createNotesBenchStage } from "@/sim/track/notesBenchTrack";
 import type { StageData } from "@/sim/types";
 
 export interface GameMap {
   id: string;
   label: string;
-  /** `null` : le circuit du sandbox, sans fichier à charger */
+  /** `null` : pas de fichier à charger, le circuit du sandbox sauf si `createStage` existe */
   stageUrl: string | null;
+  /** Spéciale calculée sur place */
+  createStage?: () => StageData;
   bestLapKey: string;
 }
 
@@ -30,6 +33,14 @@ export const MAPS: readonly GameMap[] = [
     label: "Mountain",
     stageUrl: "/stages/mountain.json",
     bestLapKey: "rally:best-lap-ms:mountain",
+  },
+  // Piste d'essai du copilote, à réévaluer avant la mise en ligne de l'epic 6.
+  {
+    id: "notes",
+    label: "Pace notes",
+    stageUrl: null,
+    createStage: createNotesBenchStage,
+    bestLapKey: "rally:best-lap-ms:notes",
   },
 ];
 

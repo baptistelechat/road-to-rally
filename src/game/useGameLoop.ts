@@ -22,6 +22,7 @@ import { botInput } from "@/sim/bot";
 import { createFixedStepper, FIXED_DT } from "@/sim/fixedStep";
 import type { Simulation } from "@/sim/simulation";
 import { NEUTRAL_INPUT, type CarInput, type Pose } from "@/sim/types";
+import type { Copilot } from "./copilot";
 import {
   consumeRestartRequest,
   pushHud,
@@ -58,6 +59,7 @@ const writeBestLap = (key: string, ms: number): void => {
 interface GameLoopOptions {
   sim: Simulation;
   audio: CarAudio;
+  copilot: Copilot;
   useBot: boolean;
   /** Clé `localStorage` du meilleur temps de la carte */
   bestLapKey: string;
@@ -76,6 +78,7 @@ export interface LoopInfo {
 export const useGameLoop = ({
   sim,
   audio,
+  copilot,
   useBot,
   bestLapKey,
   onToggleCamera,
@@ -126,6 +129,7 @@ export const useGameLoop = ({
 
   const restart = (): void => {
     sim.restart();
+    copilot.reset();
     recorder.current = createInputRecorder();
     lastLap.current = null;
   };
@@ -179,8 +183,11 @@ export const useGameLoop = ({
       if (action === "mute") setHudMuted(audio.toggleMute());
       if (action === "restart") restart();
       if (action === "diag") onDiagRequest();
-      if (action === "pause" && screen !== "start")
-        setHudScreen(screen === "race" ? "pause" : "race");
+      if (action === "pause") {
+        // Échap suit B : d'abord la liste et le panneau, puis la course.
+        if (screen === "race") setHudScreen("pause");
+        else applyMenuAction("cancel", soundBlocked);
+      }
     }
     if (consumeRestartRequest()) restart();
 
@@ -202,6 +209,7 @@ export const useGameLoop = ({
     r.w = out.w;
 
     audio.update(to, delta);
+    copilot.update(delta, screen);
     // Hors course, l'état figé vibrerait sans fin.
     if (screen === "race") updateRumble(to);
     pushHud(to);

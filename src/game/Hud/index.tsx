@@ -1,11 +1,15 @@
 "use client";
 
+import type { Copilot } from "@/game/copilot";
 import { useHudStore } from "@/game/hudStore";
 import type { ImportedStage } from "@/game/useStageImport";
 import type { RecoveryStatus } from "@/sim/recovery";
+import type { Simulation } from "@/sim/simulation";
 import { Chrono, FinishBanner } from "./components/Chrono";
 import { ControlsHelp } from "./components/ControlsHelp";
 import { GameMenu } from "./components/GameMenu";
+import { MiniMap } from "./components/MiniMap";
+import { PaceNotes } from "./components/PaceNotes";
 import { StageNotices } from "./components/StageNotices";
 import { label, panel } from "./hudStyles";
 
@@ -98,6 +102,8 @@ const RecoveryCountdown = () => {
 };
 
 interface HudProps {
+  sim: Simulation;
+  copilot: Copilot;
   /** Identifiant de la carte en cours */
   map: string;
   mapLabel: string;
@@ -111,6 +117,8 @@ interface HudProps {
 
 /** HUD en DOM, à placer par-dessus le canvas. Seuls les boutons et le sélecteur captent les clics. */
 export const Hud = ({
+  sim,
+  copilot,
   map,
   mapLabel,
   closed,
@@ -127,12 +135,15 @@ export const Hud = ({
       <SoundStatus />
     </div>
     <DiagToast />
+    <PaceNotes />
+    <MiniMap sim={sim} />
     <FinishBanner />
     <RecoveryCountdown />
     <GameMenu
       map={map}
       mapLabel={mapLabel}
       closed={closed}
+      copilot={copilot}
       onImported={onImported}
       onToggleMute={onToggleMute}
     />
