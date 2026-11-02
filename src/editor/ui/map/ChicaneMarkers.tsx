@@ -16,8 +16,10 @@ import { nearestOnTrace } from "../../hover";
 import { editorStore, useEditor } from "../../store";
 import { useChicanes } from "../useChicanes";
 
-/** Portée du clic droit autour du tracé, en pixels */
-const ADD_PIXELS = 14;
+/** Portée du clic droit autour du tracé, en pixels : la chicane se recale ensuite sur la route */
+const ADD_PIXELS = 40;
+/** Écart invisible, en degrés (0,1 mm), voir `ChicaneMarker` */
+const REDRAW_NUDGE = 1e-9;
 
 const SIDE_LABEL = { left: "à gauche", right: "à droite" } as const;
 
@@ -28,6 +30,8 @@ const ChicaneMarker = ({ chicane }: { chicane: ListedChicane }) => {
   const remove = useEditor((state) => state.removeChicaneById);
   const move = useEditor((state) => state.moveChicaneTo);
   const [dragged, setDragged] = useState<LatLon | null>(null);
+  const [tick, setTick] = useState(0);
+  const [dropCount, setDropCount] = useState(0);
   const { lat: latitude, lon: longitude } = dragged ?? chicane.position;
 
   const snap = ({ lat, lng }: { lat: number; lng: number }): LatLon | null =>
@@ -35,17 +39,24 @@ const ChicaneMarker = ({ chicane }: { chicane: ListedChicane }) => {
 
   return (
     <MapMarker
-      longitude={longitude}
+      // Lâché, il garderait la place du pointeur si aucune prop ne change : une nouvelle clé le pose sur sa vraie position.
+      key={dropCount}
+      // MapLibre déplace le marqueur sous le pointeur, et le même point de route ne le ramènerait pas :
+      // des props qui changent à chaque mouvement le remettent sur la route.
+      longitude={longitude + (tick % 2) * REDRAW_NUDGE}
       latitude={latitude}
       draggable={!pending && axis !== null}
       onDragStart={() => editorStore.setState({ dragging: true })}
-      // La nouvelle position revient par les props : le marqueur reste sur la route pendant le glissement.
-      onDrag={(lngLat) => setDragged(snap(lngLat))}
+      onDrag={(lngLat) => {
+        setDragged(snap(lngLat));
+        setTick((value) => value + 1);
+      }}
       onDragEnd={(lngLat) => {
         const position = snap(lngLat);
         editorStore.setState({ dragging: false });
         if (position) move(chicane.id, position);
         setDragged(null);
+        setDropCount((value) => value + 1);
       }}
     >
       <MarkerContent>

@@ -1,8 +1,16 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Map as MapView, MapControls } from "@/components/ui/map";
 import type { LatLon } from "@/geo/gpx";
+import { BasemapSwitch } from "./map/BasemapSwitch";
+import { BasemapTuning } from "./map/BasemapTuning";
+import {
+  BASEMAP_STYLES,
+  readBasemap,
+  writeBasemap,
+  type BasemapId,
+} from "./map/basemaps";
 import { MapClickHandler } from "./MapClickHandler";
 import { PlaceSearch } from "./PlaceSearch";
 
@@ -15,17 +23,31 @@ interface EditorMapProps {
   children?: ReactNode;
 }
 
-export const EditorMap = ({ onMapClick, children }: EditorMapProps) => (
-  <MapView
-    theme="dark"
-    center={FRANCE_CENTER}
-    zoom={FRANCE_ZOOM}
-    // Replié, le crédit CARTO et OpenStreetMap disparaîtrait au premier déplacement de la carte.
-    attributionControl={{ compact: false }}
-  >
-    <PlaceSearch />
-    <MapControls />
-    {onMapClick && <MapClickHandler onMapClick={onMapClick} />}
-    {children}
-  </MapView>
-);
+export const EditorMap = ({ onMapClick, children }: EditorMapProps) => {
+  const [basemap, setBasemap] = useState<BasemapId>(readBasemap);
+
+  return (
+    <MapView
+      // Le panneau reste sombre : `theme` ne fait que désigner l'entrée de `styles`.
+      theme="dark"
+      styles={{ dark: BASEMAP_STYLES[basemap] }}
+      center={FRANCE_CENTER}
+      zoom={FRANCE_ZOOM}
+      // Replié, le crédit des tuiles disparaîtrait au premier déplacement de la carte.
+      attributionControl={{ compact: false }}
+    >
+      <BasemapTuning basemap={basemap} />
+      <PlaceSearch />
+      <BasemapSwitch
+        value={basemap}
+        onChange={(id) => {
+          setBasemap(id);
+          writeBasemap(id);
+        }}
+      />
+      <MapControls showCompass showLocate />
+      {onMapClick && <MapClickHandler onMapClick={onMapClick} />}
+      {children}
+    </MapView>
+  );
+};

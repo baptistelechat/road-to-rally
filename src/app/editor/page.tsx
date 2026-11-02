@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { EditorLoader } from "./EditorLoader";
+import { EditorHome } from "./EditorHome";
 
 export const metadata: Metadata = { title: "Éditeur · Rally" };
 
-const EditorPage = () => <EditorLoader />;
+const EditorPage = () => <EditorHome />;
 
 export default EditorPage;

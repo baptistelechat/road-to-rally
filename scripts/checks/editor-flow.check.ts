@@ -2,6 +2,13 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import {
+  clearDraft,
+  parseTrace,
+  readDraftStage,
+  writeDraftStage,
+  type DraftStorage,
+} from "../../src/editor/draft";
 import { nearestIndex, nearestOnTrace } from "../../src/editor/hover";
 import {
   axisIndex,
@@ -18,6 +25,8 @@ import {
   mapSearch,
 } from "../../src/game/maps";
 import {
+  deleteStoredStage,
+  listStoredStages,
   readCachedStage,
   readCustomStage,
   stageCacheKey,
@@ -102,6 +111,17 @@ const installFakeIndexedDb = (): Map<IDBValidKey, unknown> => {
     put: (value: unknown, key: IDBValidKey) => {
       data.set(key, structuredClone(value));
     },
+    delete: (key: IDBValidKey) => {
+      data.delete(key);
+    },
+    getAllKeys: () => {
+      const request = {
+        result: [...data.keys()],
+        onsuccess: null as (() => void) | null,
+      };
+      queueMicrotask(() => request.onsuccess?.());
+      return request;
+    },
   };
   const db = {
     transaction: () => {
@@ -154,7 +174,25 @@ const checkCache = async (inputs: StageInputs): Promise<void> => {
   data.set("cassée", { ...stage, points: "rien" });
   assert.equal(await quietly(() => readCustomStage("cassée")), null);
   data.set("périmée", { ...stage, pipelineVersion: -1 });
-  assert.equal(await readCustomStage("périmée"), null);
+  // Une ancienne version se rejoue sur demande, sans jamais resservir pour une nouvelle génération.
+  assert.equal((await readCustomStage("périmée"))?.stage.hash, stage.hash);
+  assert.equal(await readCachedStage("périmée"), null);
+
+  // La liste montre les spéciales, la plus récente d'abord, et la suppression n'en retire qu'une.
+  data.set("récente", { ...stage, generatedAt: "2099-01-01T00:00:00.000Z" });
+  const listed = await listStoredStages();
+  assert.deepEqual(
+    listed?.map(({ key, outdated }) => [key, outdated]),
+    [
+      ["récente", false],
+      ["cassée", false],
+      ["périmée", true],
+    ],
+  );
+  assert.equal(listed?.[0].length, stage.finishS - stage.startS);
+  assert.equal(await deleteStoredStage("récente"), true);
+  assert.equal(data.has("récente"), false);
+  assert.equal(data.has("périmée"), true);
 
   // Une spéciale complète se reprend pour le même tracé.
   const fullKey = await storeCustomStage(gpx, { stage, warnings: [] });
@@ -173,6 +211,33 @@ const checkCache = async (inputs: StageInputs): Promise<void> => {
   const degraded = await readCustomStage(degradedKey);
   assert.equal(degraded?.stage.hash, stage.hash);
   assert.deepEqual(degraded?.warnings, warnings);
+
+  // Le tracé voyage avec la spéciale : c'est lui que « Modifier » rouvre.
+  const edited = traceOf(parseGpx(gpx));
+  const editedKey = await storeCustomStage(
+    gpx,
+    { stage, warnings: [] },
+    edited,
+  );
+  const stored = (await listStoredStages())?.find(
+    (found) => found.key === editedKey,
+  );
+  assert.deepEqual(parseTrace(stored?.trace), edited);
+  assert.equal(parseTrace({ anchors: "rien" }), null);
+  assert.equal((await readCustomStage(key))?.stage.hash, stage.hash);
+
+  // Le lien entre le brouillon et sa spéciale, effacé avec le brouillon.
+  const values = new Map<string, string>();
+  const storage: DraftStorage = {
+    getItem: (name) => values.get(name) ?? null,
+    setItem: (name, value) => values.set(name, value),
+    removeItem: (name) => values.delete(name),
+  };
+  assert.equal(readDraftStage(storage), null);
+  writeDraftStage("clé", storage);
+  assert.equal(readDraftStage(storage), "clé");
+  clearDraft(storage);
+  assert.equal(readDraftStage(storage), null);
 
   // Rouvrir un tracé déjà généré ne démarre aucun Worker, et le nom suit la demande.
   await storeCustomStage(gpx, { stage, warnings: [] });

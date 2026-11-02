@@ -3,11 +3,9 @@
 import { ArrowLeft } from "lucide-react";
 import { useId, type ReactNode } from "react";
 import { buttonVariants } from "@/components/ui/button";
+import { EDITOR_URL } from "@/game/maps";
 import type { LatLon } from "@/geo/gpx";
 import { EditorMap } from "./EditorMap";
-
-// Une vraie navigation : la carte et son contexte WebGL sont libérés avant que la scène 3D n'en ouvre un autre.
-const GAME_URL = "/";
 
 interface EditorLayoutProps {
   /** Clic sur le fond de carte, jamais sur la recherche ou les contrôles */
@@ -69,12 +67,13 @@ export const EditorLayout = ({
       className="flex max-h-[45%] w-full shrink-0 flex-col overflow-y-auto border-t md:max-h-none md:w-80 md:border-t-0 md:border-l"
     >
       <header className="flex items-center gap-2 border-b px-2 py-2">
+        {/* Une vraie navigation : la carte et son contexte WebGL sont libérés. */}
         <a
-          href={GAME_URL}
+          href={EDITOR_URL}
           className={buttonVariants({ variant: "ghost", size: "sm" })}
         >
           <ArrowLeft aria-hidden="true" />
-          Retour au jeu
+          Mes spéciales
         </a>
         <h1 className="text-sm font-semibold">Éditeur</h1>
       </header>

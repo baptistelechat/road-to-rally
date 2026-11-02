@@ -1,7 +1,7 @@
 // Tous les seuils du pipeline géo. Changer une valeur qui modifie le résultat impose d'incrémenter PIPELINE_VERSION.
 
 /** Version du pipeline, recopiée dans `StageData.pipelineVersion` */
-export const PIPELINE_VERSION = 5;
+export const PIPELINE_VERSION = 6;
 
 // --- Axe (story 2.1) ---
 
@@ -217,8 +217,10 @@ export const CHICANE_SHOULDER_OVERHANG = 3;
 export const CHICANE_BLOCK_DEPTH = 2.2;
 /** Épaisseur de la pile de bottes, entre les deux barrières, en mètres */
 export const CHICANE_STACK_DEPTH = 1.2;
-/** Hauteur de la pile au-dessus de la route, en mètres : dépasse les 2,94 m de l'œil de la caméra de poursuite, donc cache toute la sortie */
-export const CHICANE_STACK_HEIGHT = 3.3;
+/** Rangs de bottes empilés */
+export const CHICANE_STACK_ROWS = 2;
+/** Hauteur de la pile au-dessus de la route, en mètres : la vue capot ne voit pas derrière, la caméra de poursuite (2,94 m) voit la sortie par-dessus */
+export const CHICANE_STACK_HEIGHT = 2.2;
 /** Hauteur de la barrière de rubalise, en mètres */
 export const CHICANE_BARRIER_HEIGHT = 1.2;
 /** Partie enterrée des modèles sous le niveau de la route, en mètres : rien ne flotte en pente ni sur un bas-côté en contrebas */

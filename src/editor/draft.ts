@@ -11,6 +11,8 @@ import {
 } from "./types";
 
 export const DRAFT_KEY = "rally-editor-draft";
+/** La spéciale que ce brouillon modifie : la rouler à nouveau la remplace, sans en créer une de plus. */
+const DRAFT_STAGE_KEY = "rally-editor-draft-stage";
 
 export type DraftStorage = Pick<Storage, "getItem" | "setItem" | "removeItem">;
 
@@ -117,6 +119,12 @@ const withDefaults = (value: unknown): unknown =>
     ? { returnRoute: null, chicanesEnabled: true, ...value }
     : value;
 
+/** Un tracé relu d'ailleurs que du brouillon : `null` s'il est illisible. */
+export const parseTrace = (value: unknown): EditorTrace | null => {
+  const parsed = withDefaults(value);
+  return isTrace(parsed) ? parsed : null;
+};
+
 /** L'accès à `localStorage` lui-même peut lever, et il n'existe pas côté serveur. */
 const defaultStorage = (): DraftStorage | null => {
   try {
@@ -130,10 +138,10 @@ export const readDraft = (
   storage: DraftStorage | null = defaultStorage(),
 ): EditorTrace => {
   try {
-    const parsed = withDefaults(
+    const parsed = parseTrace(
       JSON.parse(storage?.getItem(DRAFT_KEY) ?? "null"),
     );
-    if (isTrace(parsed)) return parsed;
+    if (parsed) return parsed;
   } catch {
     // Brouillon vide ci-dessous.
   }
@@ -158,6 +166,30 @@ export const clearDraft = (
 ): void => {
   try {
     storage?.removeItem(DRAFT_KEY);
+    storage?.removeItem(DRAFT_STAGE_KEY);
+  } catch {
+    // Rien à sauver.
+  }
+};
+
+export const readDraftStage = (
+  storage: DraftStorage | null = defaultStorage(),
+): string | null => {
+  try {
+    return storage?.getItem(DRAFT_STAGE_KEY) ?? null;
+  } catch {
+    return null;
+  }
+};
+
+/** Sans lien enregistré, le prochain « Rouler » crée simplement une spéciale de plus. */
+export const writeDraftStage = (
+  key: string | null,
+  storage: DraftStorage | null = defaultStorage(),
+): void => {
+  try {
+    if (key) storage?.setItem(DRAFT_STAGE_KEY, key);
+    else storage?.removeItem(DRAFT_STAGE_KEY);
   } catch {
     // Rien à sauver.
   }

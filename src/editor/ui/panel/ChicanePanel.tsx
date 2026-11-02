@@ -169,8 +169,8 @@ export const ChicanePanel = () => {
             )}
           </div>
           <p className="text-xs text-muted-foreground">
-            Glisse une chicane le long du tracé, ou fais un clic droit sur le
-            tracé pour en ajouter une.
+            Glisse une chicane le long du tracé, ou fais un clic droit près du
+            tracé pour en ajouter une : elle se place sur la route.
           </p>
         </>
       )}

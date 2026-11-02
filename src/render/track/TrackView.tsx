@@ -7,7 +7,7 @@ import { embankment, lateralStrip, shoulderStrips } from "@/sim/track/ribbon";
 import { FORK_MARGIN, roadForkReach } from "@/sim/track/roadContact";
 import { finishArch, startArch } from "@/sim/track/scenery";
 import type { MeshData, Track, Vec3 } from "@/sim/types";
-import { ChicaneView } from "../scenery/ChicaneView";
+import { approachSigns, ChicaneView } from "../scenery/ChicaneView";
 import { groundMesh, withSkirt } from "./groundMesh";
 import { Arch } from "./TrackFurniture";
 
@@ -75,7 +75,8 @@ const outsideFork = (mesh: MeshData, track: Track): MeshData => {
   if (!track.shared) return mesh;
   const { armEnd, returnStart } = track.shared;
   const { points, widths } = track.unique;
-  const reach = roadForkReach(points, widths, armEnd, returnStart) + FORK_MARGIN;
+  const reach =
+    roadForkReach(points, widths, armEnd, returnStart) + FORK_MARGIN;
   const kept: number[] = [];
   for (let t = 0; t < mesh.indices.length; t += 6) {
     // Deux sommets par point de l'axe : le premier du quad donne son segment.
@@ -117,6 +118,10 @@ const crossLine = (
 /** Sol ou terrain, talus, bas-côté, route, marquage, repères et arches d'un tracé quelconque. */
 export const TrackView = ({ track }: { track: Track }) => {
   const hasTerrain = track.terrain !== null;
+  const signs = useMemo(
+    () => approachSigns(track.obstacles, track, track.shared !== null),
+    [track],
+  );
 
   const geometries = useMemo(() => {
     const { closed, terrain } = track;
@@ -253,7 +258,7 @@ export const TrackView = ({ track }: { track: Track }) => {
       )}
       <Arch track={track} place={startArch} />
       {!track.closed && <Arch track={track} place={finishArch} />}
-      <ChicaneView blocks={track.obstacles} />
+      <ChicaneView blocks={track.obstacles} signs={signs} />
     </group>
   );
 };

@@ -5,7 +5,7 @@ import { useCallback, useEffect, useId, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { customStageUrl } from "@/game/maps";
 import { StageProgress } from "@/game/Hud/components/StageProgress";
-import { storeCustomStage } from "@/game/stageCache";
+import { deleteStoredStage, storeCustomStage } from "@/game/stageCache";
 import {
   useStageImport,
   type ImportStatus,
@@ -13,6 +13,7 @@ import {
 } from "@/game/useStageImport";
 import { fetchPlaceName } from "@/geo/placeName";
 import { chicaneRequests } from "../../chicanes";
+import { readDraftStage, writeDraftStage } from "../../draft";
 import { editorStore, rollBlocker, stageGpx, useEditor } from "../../store";
 import type { EditorTrace } from "../../types";
 import { useChicanes } from "../useChicanes";
@@ -49,8 +50,16 @@ const usePlaceDefault = (): string => {
 
 /** Écrire d'abord, naviguer ensuite : une vraie navigation perd tout ce qui n'est pas sur le disque. */
 const openStage = async (loaded: LoadedStage): Promise<boolean> => {
-  const key = await storeCustomStage(loaded.gpx, loaded);
+  const { history, name } = editorStore.getState();
+  const key = await storeCustomStage(loaded.gpx, loaded, {
+    ...history.present,
+    name,
+  });
   if (!key) return false;
+  // Tracer, tester, corriger : la version testée remplace la précédente, la liste ne se remplit pas d'essais.
+  const previous = readDraftStage();
+  if (previous && previous !== key) await deleteStoredStage(previous);
+  writeDraftStage(key);
   window.location.assign(customStageUrl(key));
   return true;
 };

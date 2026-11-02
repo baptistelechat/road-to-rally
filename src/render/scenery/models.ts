@@ -1,12 +1,16 @@
 import {
   BoxGeometry,
   BufferAttribute,
-  type BufferGeometry,
+  BufferGeometry,
   ConeGeometry,
   CylinderGeometry,
   DodecahedronGeometry,
   IcosahedronGeometry,
   MeshStandardMaterial,
+  Path,
+  Shape,
+  ShapeGeometry,
+  Vector2,
 } from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import {
@@ -14,6 +18,7 @@ import {
   CHICANE_SKIRT,
   CHICANE_STACK_DEPTH,
   CHICANE_STACK_HEIGHT,
+  CHICANE_STACK_ROWS,
 } from "@/geo/config";
 import type { SceneryKind } from "@/sim/types";
 
@@ -90,6 +95,7 @@ const STRAW: Rgb[] = [
   [0.82, 0.67, 0.3],
 ];
 const TWINE: Rgb = [0.52, 0.39, 0.15];
+const TWINE_WIDTH = 0.06;
 
 /** Longueur d'un module en travers de la route : la vue en met autant que le bloc en demande. */
 export const CHICANE_BARRIER_MODULE = 2;
@@ -126,7 +132,7 @@ const chicaneBarrier = (): BufferGeometry => {
 
 /** Bottes carrées posées en quinconce : une pile sans jour, contrairement aux bottes rondes qui laisseraient voir la sortie. */
 const hayStack = (): BufferGeometry => {
-  const rows = 3;
+  const rows = CHICANE_STACK_ROWS;
   const baleHeight = CHICANE_STACK_HEIGHT / rows;
   const half = CHICANE_STACK_MODULE / 2;
   const bale = half;
@@ -142,29 +148,238 @@ const hayStack = (): BufferGeometry => {
       const length = edges[i + 1] - edges[i];
       const x = (edges[i] + edges[i + 1]) / 2;
       const y = (bottom + top) / 2;
+      const slab = (width: number, color: Rgb, at: number): BufferGeometry =>
+        part(
+          new BoxGeometry(width, top - bottom, CHICANE_STACK_DEPTH),
+          color,
+          at,
+          y,
+        );
+      // La ficelle est une tranche de la botte, pas une pièce posée dessus : deux faces presque confondues clignotent au loin.
+      const straw = (length - TWINE_WIDTH) / 2;
+      const color = STRAW[(row + i) % STRAW.length];
       bales.push(
-        part(
-          new BoxGeometry(length, top - bottom, CHICANE_STACK_DEPTH),
-          STRAW[(row + i) % STRAW.length],
-          x,
-          y,
-        ),
-        part(
-          new BoxGeometry(0.06, top - bottom, CHICANE_STACK_DEPTH + 0.02),
-          TWINE,
-          x,
-          y,
-        ),
+        slab(straw, color, x - (straw + TWINE_WIDTH) / 2),
+        slab(TWINE_WIDTH, TWINE, x),
+        slab(straw, color, x + (straw + TWINE_WIDTH) / 2),
       );
     }
   }
   return merged(...bales);
 };
 
+const SIGN_BLUE: Rgb = [0.03, 0.27, 0.82];
+const SIGN_WHITE: Rgb = [0.97, 0.97, 0.97];
+const SIGN_POLE: Rgb = [0.5, 0.5, 0.52];
+
+type Outline = [number, number][];
+
+const scaled = (points: Outline, scale: number): Vector2[] =>
+  points.map(([x, y]) => new Vector2(x * scale, y * scale));
+
+/** `hole` y découpe une forme, pour que rien ne se superpose. */
+const polygon = (
+  points: Outline,
+  scale: number,
+  hole?: Outline,
+): ShapeGeometry => {
+  const shape = new Shape().setFromPoints(scaled(points, scale));
+  if (hole) shape.holes.push(new Path().setFromPoints(scaled(hole, scale)));
+  return new ShapeGeometry(shape);
+};
+
+/** Espacement des panneaux à chevron sur la pile, un par module : la vue répartit, comme pour les barrières. */
+export const CHICANE_CHEVRON_MODULE = 2;
+const CHEVRON_SIZE = CHICANE_STACK_HEIGHT - CHICANE_BARRIER_HEIGHT;
+const CHEVRON_Y = CHICANE_BARRIER_HEIGHT + CHEVRON_SIZE / 2;
+const CHEVRON_LEFT: [number, number][] = [
+  [-0.5, 0],
+  [-0.02, 0.5],
+  [0.5, 0.5],
+  [0.01, 0],
+  [0.5, -0.5],
+  [-0.02, -0.5],
+];
+
+/** Zones bleues autour du chevron : des pièces voisines dans un même plan, sans rien de superposé qui puisse clignoter. */
+const CHEVRON_BLUE: [number, number][][] = [
+  [
+    [-0.5, 0],
+    [-0.02, 0.5],
+    [-0.5, 0.5],
+  ],
+  [
+    [-0.5, 0],
+    [-0.5, -0.5],
+    [-0.02, -0.5],
+  ],
+  [
+    [0.5, 0.5],
+    [0.01, 0],
+    [0.5, -0.5],
+  ],
+];
+const SQUARE: [number, number][] = [
+  [-0.5, -0.5],
+  [0.5, -0.5],
+  [0.5, 0.5],
+  [-0.5, 0.5],
+];
+
+/** Chevron posé devant la pile, au-dessus de la barrière. Une carte sans épaisseur, face au pilote en +Z, grise au dos. `rotateZ` = π : il pointe à droite. */
+const chevronPanel = (rotateZ: number): BufferGeometry =>
+  merged(
+    part(
+      polygon(CHEVRON_LEFT, CHEVRON_SIZE),
+      SIGN_WHITE,
+      0,
+      CHEVRON_Y,
+      0,
+      rotateZ,
+    ),
+    ...CHEVRON_BLUE.map((zone) =>
+      part(polygon(zone, CHEVRON_SIZE), SIGN_BLUE, 0, CHEVRON_Y, 0, rotateZ),
+    ),
+    part(
+      polygon(SQUARE, CHEVRON_SIZE).rotateY(Math.PI),
+      SIGN_POLE,
+      0,
+      CHEVRON_Y,
+    ),
+  );
+
+const SIGN_RED: Rgb = [0.68, 0.1, 0.07];
+const SIGN_PAINT_WHITE: Rgb = [0.88, 0.87, 0.84];
+const SIGN_BLACK: Rgb = [0.03, 0.03, 0.03];
+/** Largeur du panneau d'annonce et hauteur de son centre, en mètres */
+const WARNING_SIGN_WIDTH = 1.7;
+const WARNING_SIGN_Y = 2.45;
+/** Épaisseur de la tôle et de son cadre, en mètres : c'est elle qui accroche la lumière sur les bords */
+const WARNING_SIGN_DEPTH = 0.06;
+const WARNING_POLE_Z = -WARNING_SIGN_DEPTH - 0.06;
+
+/** Le dessin du panneau A1c sur une image de 577 × 508, ramené à une largeur de 1 autour de son centre. */
+const artwork = (points: Outline): Outline =>
+  points.map(([x, y]) => [(x - 288.5) / 577, (254 - y) / 577]);
+
+/** Coins cassés, comme ceux arrondis d'une vraie tôle. Dans le sens direct : la tranche se construit vers l'extérieur. */
+const SIGN_RIM = artwork([
+  [276, 22],
+  [12.5, 486],
+  [25, 508],
+  [552, 508],
+  [564.5, 486],
+  [301, 22],
+]);
+const SIGN_BORDER = artwork([
+  [279, 26],
+  [22, 481],
+  [32, 498],
+  [545, 498],
+  [555, 481],
+  [298, 26],
+]);
+const SIGN_FIELD = artwork([
+  [288.5, 70],
+  [65, 458],
+  [512, 458],
+]);
+/** Double virage, le premier à droite. */
+const SIGN_BENDS = artwork([
+  [203, 442],
+  [203, 300],
+  [212, 278],
+  [235, 268],
+  [260, 280],
+  [307, 318],
+  [307, 222],
+  [328, 188],
+  [351, 222],
+  [351, 340],
+  [342, 363],
+  [320, 375],
+  [297, 364],
+  [246, 322],
+  [246, 442],
+  [224, 415],
+]);
+
+/** Tranche d'un contour tourné dans le sens direct, de z = 0 à z = -`depth`. Sans face avant : rien à superposer au dessin, donc rien qui clignote. */
+const edgeStrip = (
+  points: Outline,
+  scale: number,
+  depth: number,
+): BufferGeometry => {
+  const positions = points.flatMap(([ax, ay], i) => {
+    const [bx, by] = points[(i + 1) % points.length];
+    const [x0, y0, x1, y1] = [ax * scale, ay * scale, bx * scale, by * scale];
+    return [
+      [x0, y0, 0],
+      [x0, y0, -depth],
+      [x1, y1, -depth],
+      [x0, y0, 0],
+      [x1, y1, -depth],
+      [x1, y1, 0],
+    ].flat();
+  });
+  const geometry = new BufferGeometry();
+  geometry.setAttribute(
+    "position",
+    new BufferAttribute(new Float32Array(positions), 3),
+  );
+  geometry.computeVertexNormals();
+  return geometry;
+};
+
+/** Panneau d'annonce en triangle : une tôle épaisse, face au pilote en +Z, sur un poteau rond avec sa traverse. `mirrored` : le premier virage part à gauche. */
+const warningSign = (mirrored: boolean): BufferGeometry => {
+  const bends: Outline = mirrored
+    ? SIGN_BENDS.map(([x, y]) => [-x, y])
+    : SIGN_BENDS;
+  const face = (geometry: BufferGeometry, color: Rgb): BufferGeometry =>
+    part(geometry, color, 0, WARNING_SIGN_Y);
+  const poleTop = WARNING_SIGN_Y + 0.35;
+  return merged(
+    part(
+      new CylinderGeometry(0.045, 0.045, poleTop + CHICANE_SKIRT, 8),
+      SIGN_POLE,
+      0,
+      (poleTop - CHICANE_SKIRT) / 2,
+      WARNING_POLE_Z,
+    ),
+    part(
+      new BoxGeometry(WARNING_SIGN_WIDTH * 0.7, 0.07, 0.03),
+      SIGN_POLE,
+      0,
+      WARNING_SIGN_Y - 0.3,
+      -WARNING_SIGN_DEPTH - 0.015,
+    ),
+    face(polygon(SIGN_RIM, WARNING_SIGN_WIDTH, SIGN_BORDER), SIGN_PAINT_WHITE),
+    face(polygon(SIGN_BORDER, WARNING_SIGN_WIDTH, SIGN_FIELD), SIGN_RED),
+    face(polygon(SIGN_FIELD, WARNING_SIGN_WIDTH, bends), SIGN_PAINT_WHITE),
+    face(polygon(bends, WARNING_SIGN_WIDTH), SIGN_BLACK),
+    face(
+      edgeStrip(SIGN_RIM, WARNING_SIGN_WIDTH, WARNING_SIGN_DEPTH),
+      SIGN_POLE,
+    ),
+    part(
+      polygon(SIGN_RIM, WARNING_SIGN_WIDTH).rotateY(Math.PI),
+      SIGN_POLE,
+      0,
+      WARNING_SIGN_Y,
+      -WARNING_SIGN_DEPTH,
+    ),
+  );
+};
+
 // Origine au centre du module, au niveau de la route : la partie sous y = 0 reste enterrée.
 export const CHICANE_GEOMETRY = {
   chicaneBarrier: chicaneBarrier(),
   hayStack: hayStack(),
+  chevronLeft: chevronPanel(0),
+  chevronRight: chevronPanel(Math.PI),
+  signLeft: warningSign(true),
+  signRight: warningSign(false),
 };
 
 export const SCENERY_MATERIAL = new MeshStandardMaterial({

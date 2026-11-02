@@ -52,7 +52,10 @@ export const importedMap = ({ name, hash }: StageData): GameMap => ({
 
 /** Une spéciale créée dans l'éditeur : `?map=custom&stage=<clé du cache>`. */
 export const CUSTOM_MAP_ID = "custom";
+/** L'accueil de l'éditeur : nouvelle spéciale, ou reprise d'une spéciale créée. */
 export const EDITOR_URL = "/editor";
+/** La carte où l'on trace, sur le brouillon en cours. */
+export const EDITOR_TRACE_URL = "/editor/trace";
 
 export const customStageUrl = (key: string): string =>
   `/?map=${CUSTOM_MAP_ID}&stage=${encodeURIComponent(key)}`;

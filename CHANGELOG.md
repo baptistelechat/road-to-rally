@@ -38,6 +38,10 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Chicanes sur les longues lignes droites : barrière de rubalise fixe, avec des bottes empilées derrière pour cacher la sortie. Elles se déplacent, se suppriment ou s'ajoutent dans l'éditeur
 - Suggestion de variantes plus sinueuses entre deux points de l'éditeur
 - Accès à l'éditeur depuis le sélecteur de carte
+- Accueil de l'éditeur sur `/editor` : nouvelle spéciale, liste des spéciales créées ou importées, et suppression après confirmation
+- Modification d'une spéciale après l'avoir testée : la rouler à nouveau remplace la version précédente, et une confirmation protège les changements non roulés
+- Fonds de carte satellite, clair et sombre dans l'éditeur, avec relief, boussole et localisation
+- Panneau de virages à l'approche de chaque chicane, en miroir selon le côté, et chevrons sur les bottes
 
 ### Changed
 
@@ -46,6 +50,9 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Drapeaux plus lisses, avec des triangles plus petits et plus discrets
 - Bottes de paille tantôt debout, tantôt couchées, posées selon la pente du terrain
 - Plus aucun arbre sur les pentes trop raides des spéciales
+- Carte de tracé de l'éditeur déplacée sur `/editor/trace`, et routes plus lisibles sur le fond sombre
+- Chicanes moins hautes, deux rangs de bottes : la sortie se voit par-dessus en caméra poursuite, et reste cachée en vue capot
+- Clic droit plus tolérant pour ajouter une chicane à côté du tracé
 
 ### Fixed
 
@@ -54,3 +61,5 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Décompte hors piste qui continuait une fois revenu sur la route après une sortie à grande vitesse
 - Routes à double sens trop étroites dans les GPX importés quand OpenStreetMap n'indiquait qu'une voie
 - GPX marqués avec leur propre prolongement : un tracé qui se croise est maintenant refusé dès sa lecture, avec l'endroit indiqué
+- Marqueur de chicane qui restait à côté de la route une fois glissé : il revient sur le tracé
+- Textures de chicane qui clignotaient au loin

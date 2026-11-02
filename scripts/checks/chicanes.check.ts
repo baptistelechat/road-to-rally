@@ -2,7 +2,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { Color } from "three";
+import { type BufferGeometry, Color } from "three";
 import {
   chicaneBlocks,
   chicaneWidth,
@@ -82,16 +82,36 @@ export default async function chicanesCheck(): Promise<void> {
     "la voiture doit tenir entre les deux blocs",
   );
 
-  // Caméras : la pile dépasse leur hauteur, donc rien de ce qui est derrière n'est visible sur route plate.
+  // Caméras : la pile cache la sortie à la vue capot, la poursuite voit par-dessus.
   const chaseEye = carConfig.ride.height + RIG_TUNING.chaseHeight;
   const hoodEye = carConfig.ride.height + RIG_TUNING.hoodOffset.y;
-  assert.ok(CHICANE_STACK_HEIGHT > chaseEye + 0.2, `poursuite à ${chaseEye} m`);
+  assert.ok(CHICANE_STACK_HEIGHT < chaseEye, `poursuite à ${chaseEye} m`);
   assert.ok(CHICANE_STACK_HEIGHT > hoodEye + 0.2, `capot à ${hoodEye} m`);
 
   // Modèles : hauteurs annoncées, et le rouge et le blanc du ruban sur les deux faces.
   CHICANE_GEOMETRY.hayStack.computeBoundingBox();
   const stackTop = CHICANE_GEOMETRY.hayStack.boundingBox?.max.y ?? 0;
   assert.ok(Math.abs(stackTop - CHICANE_STACK_HEIGHT) < 1e-6);
+
+  // Panneau d'annonce : le dessin noir de l'un est le miroir exact de l'autre, et son premier virage part du bon côté.
+  const bendsSpan = (geometry: BufferGeometry): [number, number] => {
+    const colors = geometry.getAttribute("color");
+    const positions = geometry.getAttribute("position");
+    let min = Infinity;
+    let max = -Infinity;
+    for (let i = 0; i < colors.count; i++) {
+      if (colors.getX(i) > 0.1) continue;
+      min = Math.min(min, positions.getX(i));
+      max = Math.max(max, positions.getX(i));
+    }
+    return [min, max];
+  };
+  const [rightMin, rightMax] = bendsSpan(CHICANE_GEOMETRY.signRight);
+  const [leftMin, leftMax] = bendsSpan(CHICANE_GEOMETRY.signLeft);
+  // L'entrée du dessin est décalée à l'opposé du premier virage.
+  assert.ok(-rightMin > rightMax, "premier virage à droite");
+  assert.ok(Math.abs(leftMin + rightMax) < 1e-6);
+  assert.ok(Math.abs(leftMax + rightMin) < 1e-6);
   const barrierColors = CHICANE_GEOMETRY.chicaneBarrier.getAttribute("color");
   const tones = new Set<string>();
   for (let i = 0; i < barrierColors.count; i++)

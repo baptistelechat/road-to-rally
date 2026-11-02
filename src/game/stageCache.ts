@@ -1,5 +1,6 @@
 // Spéciales déjà générées, dans IndexedDB. Les typed arrays y restent tels quels, sans passer par du JSON.
 // Toute panne (navigation privée, stockage plein, entrée illisible) revient à ne pas avoir de cache.
+import type { EditorTrace } from "@/editor/types";
 import { sortChicaneRequests, type ChicaneRequest } from "@/geo/chicanes";
 import { PIPELINE_VERSION } from "@/geo/config";
 import { hashText } from "@/geo/stageHash";
@@ -34,13 +35,16 @@ const openDatabase = (): Promise<IDBDatabase> =>
     request.onblocked = () => reject(new Error("IndexedDB bloqué"));
   });
 
-/** `parseStage` valide le reste : le terrain en typed arrays, lui, se vérifie ici sans le recopier. */
-const validEntry = (value: unknown): StageData | null => {
+/**
+ * `parseStage` valide le reste : le terrain en typed arrays, lui, se vérifie ici sans le recopier.
+ * `anyVersion` : une spéciale rouverte à la demande. Une nouvelle génération du même tracé, elle, ne reprend jamais une ancienne version.
+ */
+const validEntry = (value: unknown, anyVersion = false): StageData | null => {
   if (typeof value !== "object" || value === null) return null;
   const entry = value as Partial<StageData>;
   const { terrain = null } = entry;
   if (
-    entry.pipelineVersion !== PIPELINE_VERSION ||
+    (!anyVersion && entry.pipelineVersion !== PIPELINE_VERSION) ||
     !entry.hash ||
     (terrain !== null &&
       (!(terrain.positions instanceof Float32Array) ||
@@ -114,23 +118,27 @@ export const storeCustomStage = async (
     warnings,
     chicanes,
   }: GeneratedStage & { chicanes?: ChicaneRequest[] },
+  /** Le tracé d'origine : sans lui, la spéciale se roule mais ne se modifie plus. */
+  trace?: EditorTrace,
 ): Promise<string | null> => {
   const base = stageCacheKey(gpx, chicanes);
   const degraded = warnings.length > 0;
   const key = degraded ? `${base}${DEGRADED_SUFFIX}` : base;
-  const entry: StageData | DegradedEntry = degraded
-    ? { ...stage, warnings }
-    : stage;
+  const entry: StageData | DegradedEntry = {
+    ...stage,
+    ...(degraded ? { warnings } : {}),
+    ...(trace ? { trace } : {}),
+  };
   return (await writeCachedStage(key, entry)) ? key : null;
 };
 
-/** Absente, d'une ancienne version du pipeline ou illisible : `null`, jamais une erreur. */
+/** Absente ou illisible : `null`, jamais une erreur. Une ancienne version se rejoue telle qu'elle a été générée. */
 export const readCustomStage = async (
   key: string,
 ): Promise<GeneratedStage | null> => {
   try {
     const value = await readEntry(key);
-    const stage = validEntry(value);
+    const stage = validEntry(value, true);
     if (!stage) return null;
     const { warnings } = value as Partial<DegradedEntry>;
     return {
@@ -142,5 +150,85 @@ export const readCustomStage = async (
   } catch (error) {
     console.warn("Cache des spéciales illisible", error);
     return null;
+  }
+};
+
+/** Une ligne de la liste des spéciales. */
+export interface StoredStage {
+  key: string;
+  name: string;
+  /** Du départ à l'arrivée, en mètres */
+  length: number;
+  chicanes: number;
+  generatedAt: string;
+  outdated: boolean;
+  degraded: boolean;
+  /** Tel que rangé, à valider avant usage. Absent d'une spéciale importée ou plus ancienne. */
+  trace: unknown;
+}
+
+const summarize = (key: string, value: unknown): StoredStage | null => {
+  if (typeof value !== "object" || value === null) return null;
+  const entry = value as Partial<StageData> & { trace?: unknown };
+  if (
+    typeof entry.name !== "string" ||
+    typeof entry.startS !== "number" ||
+    typeof entry.finishS !== "number"
+  )
+    return null;
+  return {
+    key,
+    name: entry.name,
+    length: entry.finishS - entry.startS,
+    chicanes: (entry.obstacles?.length ?? 0) / 2,
+    generatedAt: entry.generatedAt ?? "",
+    outdated: entry.pipelineVersion !== PIPELINE_VERSION,
+    degraded: key.endsWith(DEGRADED_SUFFIX),
+    trace: entry.trace,
+  };
+};
+
+/**
+ * Toutes les spéciales du navigateur, de la plus récente à la plus ancienne. `null` : stockage illisible.
+ * ponytail: relit chaque entrée, terrain compris, une à une pour ne pas toutes les garder en mémoire ; un store de résumés si la liste devient lente.
+ */
+export const listStoredStages = async (): Promise<StoredStage[] | null> => {
+  try {
+    const db = await openDatabase();
+    const keys = await new Promise<IDBValidKey[]>((resolve, reject) => {
+      const request = db.transaction(STORE).objectStore(STORE).getAllKeys();
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+    db.close();
+    const stages: StoredStage[] = [];
+    for (const key of keys) {
+      if (typeof key !== "string") continue;
+      const stage = summarize(key, await readEntry(key));
+      if (stage) stages.push(stage);
+    }
+    return stages.sort((a, b) => b.generatedAt.localeCompare(a.generatedAt));
+  } catch (error) {
+    console.warn("Cache des spéciales illisible", error);
+    return null;
+  }
+};
+
+/** `false` si le stockage a refusé : la spéciale est toujours là. */
+export const deleteStoredStage = async (key: string): Promise<boolean> => {
+  try {
+    const db = await openDatabase();
+    await new Promise<void>((resolve, reject) => {
+      const transaction = db.transaction(STORE, "readwrite");
+      transaction.objectStore(STORE).delete(key);
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error);
+      transaction.onabort = () => reject(transaction.error);
+    });
+    db.close();
+    return true;
+  } catch (error) {
+    console.warn("Spéciale non supprimée", error);
+    return false;
   }
 };

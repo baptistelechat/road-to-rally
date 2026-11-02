@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { readDraftStage } from "@/editor/draft";
 import {
   CUSTOM_MAP_ID,
   EDITOR_OPTION,
+  EDITOR_TRACE_URL,
   EDITOR_URL,
   IMPORT_OPTION,
   IMPORTED_MAP_ID,
@@ -13,6 +15,12 @@ import {
 import type { ImportedStage } from "@/game/useStageImport";
 import { label, panel } from "../hudStyles";
 import { StageImportPanel } from "./StageImportPanel";
+
+/** Retour sur la carte si le brouillon est bien le tracé de cette spéciale, sinon à l'accueil de l'éditeur. */
+const editorReturnUrl = (): string =>
+  new URLSearchParams(window.location.search).get("stage") === readDraftStage()
+    ? EDITOR_TRACE_URL
+    : EDITOR_URL;
 
 interface MapSelectProps {
   map: string;
@@ -66,7 +74,7 @@ export const MapSelect = ({ map, mapLabel, onImported }: MapSelectProps) => {
       {map === CUSTOM_MAP_ID && (
         <a
           // Une vraie navigation : la scène 3D est libérée avant la carte, et le brouillon attend dans `localStorage`.
-          href={EDITOR_URL}
+          href={editorReturnUrl()}
           className={`${panel} pointer-events-auto px-3 py-2 text-xs font-semibold transition-colors hover:bg-white/15 focus-visible:outline-2 focus-visible:outline-amber-400`}
         >
           Retour à l&apos;éditeur
