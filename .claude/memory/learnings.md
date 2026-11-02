@@ -27,5 +27,6 @@ register: learnings
 | [LRN-20261101170343-2](learnings/LRN-20261101170343-2.md) | 2026-11-01 | R3F : cadre d'ombre via orthographicCamera attachée | #r3f #three #ombres #shadow-camera #directional-light |
 | [LRN-20261101170343-3](learnings/LRN-20261101170343-3.md) | 2026-11-01 | Canvas transparent en texture : alpha prémultiplié | #three #canvas #texture #alpha #premultiply #halo |
 | [LRN-20261101202404-2](learnings/LRN-20261101202404-2.md) | 2026-11-01 | `development` bouge pendant qu'on travaille sur `main` | #git #branches #development #changelog #collaboration #conflit |
-| [LRN-20261102122033-6](learnings/LRN-20261102122033-6.md) | 2026-11-02 | BRouter : trois limites à connaître pour un éditeur | #brouter #routing #osm #editeur #accrochage #epic-3 |
+| [LRN-20261102122033-6](learnings/LRN-20261102122033-6.md) | 2026-11-02 | BRouter : quatre limites à connaître pour un éditeur | #brouter #routing #osm #editeur #accrochage #epic-3 |
 | [LRN-20261102162710-3](learnings/LRN-20261102162710-3.md) | 2026-11-02 | Changer PIPELINE_VERSION impose pnpm bake:stages | #pipeline #fingerprint #bake-stages #checks #push |
+| [LRN-20261102212945-3](learnings/LRN-20261102212945-3.md) | 2026-11-02 | Prolongement valide au calcul, faux quand le tracé grandit | #editeur #runoff #validation #cache #croisement #epic-3 |

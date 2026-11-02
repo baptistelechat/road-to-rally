@@ -26,9 +26,11 @@ register: decisions
 | [BDR-20261101170343-1](decisions/BDR-20261101170343-1.md) | 2026-11-01 | Garage : coque sans ombre, objets avec, caméra bornée | #garage #decor #ombres #camera #three #r3f | actif |
 | [BDR-20261101202404-1](decisions/BDR-20261101202404-1.md) | 2026-11-01 | `lanes=1` ignoré sur les grandes routes à double sens | #osm #overpass #largeur #lanes #oneway #pipeline | actif |
 | [BDR-20261102122033-1](decisions/BDR-20261102122033-1.md) | 2026-11-02 | Aller-retour autorisé, sans plateforme à la jonction | #aller-retour #rond-point #terrain #nearest #jonction #epic-3 | actif |
-| [BDR-20261102122033-2](decisions/BDR-20261102122033-2.md) | 2026-11-02 | Lignes à 250 m des bouts du tracé dessiné | #editeur #runoff #brouter #gpx #lignes #epic-3 | actif |
+| [BDR-20261102122033-2](decisions/BDR-20261102122033-2.md) | 2026-11-02 | Lignes à 250 m des bouts du tracé dessiné | #editeur #runoff #brouter #gpx #lignes #epic-3 | inactif |
 | [BDR-20261102122033-3](decisions/BDR-20261102122033-3.md) | 2026-11-02 | mapcn tel quel avec son fond CARTO | #mapcn #maplibre #carto #shadcn #editeur #epic-3 | actif |
 | [BDR-20261102122033-4](decisions/BDR-20261102122033-4.md) | 2026-11-02 | Chicane : barrière de rubalise fixe et piles de bottes | #chicane #rapier #collider #bottes #gameplay #epic-3 | actif |
 | [BDR-20261102122033-5](decisions/BDR-20261102122033-5.md) | 2026-11-02 | Éditeur et jeu séparés par une vraie navigation | #editeur #webgl #indexeddb #navigation #nextjs #epic-3 | actif |
 | [BDR-20261102162710-1](decisions/BDR-20261102162710-1.md) | 2026-11-02 | La spéciale garde son tracé, la rouler à nouveau la remplace | #editeur #indexeddb #brouillon #navigation #chicane-test #epic-3 | actif |
 | [BDR-20261102162710-2](decisions/BDR-20261102162710-2.md) | 2026-11-02 | Panneau d'annonce : le dessin suit le premier écart du pilote | #chicane #panneau #rendu #three #gameplay #epic-3 | actif |
+| [BDR-20261102212945-1](decisions/BDR-20261102212945-1.md) | 2026-11-02 | Premier point au départ, dernier à l'arrivée, 200 m au-delà | #editeur #runoff #brouter #lignes #playtest #epic-3 | actif |
+| [BDR-20261102212945-2](decisions/BDR-20261102212945-2.md) | 2026-11-02 | Chicanes : zones de 100 m, ponts et tunnels ignorés | #chicanes #zones #editeur #pipeline #pipeline-version #epic-3 | actif |

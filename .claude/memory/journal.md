@@ -133,3 +133,19 @@ Avant le push, la suite complète a échoué sur `fingerprint` et `geo` : le pas
 - [BDR-20261102162710-1](decisions/BDR-20261102162710-1.md) — La spéciale garde son tracé, la rouler à nouveau la remplace
 - [BDR-20261102162710-2](decisions/BDR-20261102162710-2.md) — Panneau d'annonce : le dessin suit le premier écart du pilote
 - [LRN-20261102162710-3](learnings/LRN-20261102162710-3.md) — Changer PIPELINE_VERSION impose pnpm bake:stages
+
+---
+
+Point sur l'epic 3, puis longue passe de playtest : Baptiste jouait et envoyait ses remarques, corrigées à chaud sans aucune commande lourde.
+
+Le changement de fond porte sur les lignes de course. Le premier point devient le départ et le dernier l'arrivée, avec un prolongement ajouté au-delà. Le chemin a été heurté : la ligne droite de secours a traversé des bâtiments et Baptiste l'a refusée, alors qu'une décision l'avait déjà écartée. Un refus venait d'un prolongement jamais revérifié quand le tracé grandissait, un autre de la rue piétonne que le profil voiture contourne : 1 052 m contre 276 m à Clisson, trouvé en rejouant le cas sur le vrai BRouter.
+
+Le reste : calque routes IGN sur le satellite, modes Éditer et Déplacer, marqueurs qui ne bloquent plus la prise d'un point, panneau du jeu sur les chicanes, clic pour centrer la carte, alertes de chicane cliquables et conservées, zones de 100 m réutilisables. L'écart entre chicanes est passé par 50 et 80 m avant 100 m, une fois le panneau d'annonce recalculé.
+
+À la fermeture, lint, build et six vérifications passent, après correction de deux tests qui supposaient l'ancien format. Commit `024cd2e`, sans push. La suite complète et les vérifications navigateur restent à faire.
+
+**Entrées clés :**
+
+- [BDR-20261102212945-1](decisions/BDR-20261102212945-1.md) — Premier point au départ, dernier à l'arrivée, 200 m au-delà
+- [BDR-20261102212945-2](decisions/BDR-20261102212945-2.md) — Chicanes : zones de 100 m, ponts et tunnels ignorés
+- [BLK-20261102212945-5](blockers/BLK-20261102212945-5.md) — Vérifications navigateur de l'epic 3 encore à faire
