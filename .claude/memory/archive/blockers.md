@@ -11,3 +11,4 @@ register: archive-blockers
 | [ZBLK-20261101150421-6](blockers/ZBLK-20261101150421-6.md) | 2026-11-01 | Lag au défilement des drapeaux à la manette | #lag #manette #gamepad #drapeaux #canvas #performance #garage | résolu le 2026-11-01 |
 | [ZBLK-20261101170343-5](blockers/ZBLK-20261101170343-5.md) | 2026-11-01 | Fond noir des plaques non reproduit, correctif à confirmer | #plaques #canvas #alpha #garage #three | résolu le 2026-11-01 |
 | [ZBLK-20261101191443-6](blockers/ZBLK-20261101191443-6.md) | 2026-11-01 | Boutons A et Start du menu non testés à la manette | #menu #pause #gamepad #test | résolu le 2026-11-01 |
+| [ZBLK-20261101233659-8](blockers/ZBLK-20261101233659-8.md) | 2026-11-01 | preview_start échoue si next dev tourne déjà | #nextjs #preview #dev-server #port #outillage | résolu le 2026-11-01 |

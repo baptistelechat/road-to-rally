@@ -137,3 +137,13 @@ Commit `2d0dc73` poussé sur `development`. GitHub a affiché que les changement
 - [BDR-20261101233659-1](decisions/BDR-20261101233659-1.md) — moteur choisi au garage, stocké dans la livrée
 - [BDR-20261101233659-2](decisions/BDR-20261101233659-2.md) — labo son conservé pour les futurs moteurs
 - [LRN-20261101233659-4](learnings/LRN-20261101233659-4.md) — un son continu se juge en course, pas sur une démo
+
+## 2026-11-02
+
+Session sur les animations en course. Baptiste voulait de petites explosions à l'échappement : six pistes proposées, puis flammes calées sur les détonations du son, à-coup de la caisse et de la caméra aux passages de rapport, mottes d'herbe et disques de frein rougeoyants. Ses essais ont révélé que les pédales brutes de la marche arrière faisaient rougir les disques et multipliaient les flammes : corrigé à la source dans `vehicle.ts`, ce qui a aussi réglé les feux stop et le son en recul. Le menu de départ se parcourt maintenant à la manette, validé par lui sur sa vraie manette. Ajout de feux de recul (feux coupés gardés, feux de pare-chocs retirés après essai), puis d'un crissement de pneus : la première version à oscillateurs miaulait, refaite en bruit filtré et réglable dans `/labo-son`, timbre Rauque retenu puis baissé d'environ 2 dB. Enfin, étincelles sur choc, vues en jeu contre un poteau du portique. Baptiste signale que son bug de son au démarrage a disparu sans explication : aucun changement connu ne le justifie, il peut revenir. Transfert de masse accentué et vibration moteur restent en attente de sa décision. Commit `59ffb65` poussé sur `development`.
+
+**Entrées clés :**
+
+- [BDR-20261102121514-1](decisions/BDR-20261102121514-1.md) — Effets de course calés sur le son, côté rendu
+- [BDR-20261102121514-2](decisions/BDR-20261102121514-2.md) — CarState donne la charge et le serrage réels, pas les pédales
+- [LRN-20261102121514-4](learnings/LRN-20261102121514-4.md) — Un crissement à notes pures miaule

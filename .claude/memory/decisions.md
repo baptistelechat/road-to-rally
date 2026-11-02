@@ -30,3 +30,6 @@ register: decisions
 | [BDR-20261101233659-1](decisions/BDR-20261101233659-1.md) | 2026-11-01 | Moteur choisi au garage, stocké dans la livrée | #garage #moteur #audio #web-audio #livree #personnalisation | actif |
 | [BDR-20261101233659-2](decisions/BDR-20261101233659-2.md) | 2026-11-01 | Labo son conservé pour les futurs moteurs | #labo-son #audio #moteur #outillage #garage | actif |
 | [BDR-20261101233659-3](decisions/BDR-20261101233659-3.md) | 2026-11-01 | Pastille du garage : le moteur validé, pas celui essayé | #garage #manette #menu #ui #feedback #moteur | actif |
+| [BDR-20261102121514-1](decisions/BDR-20261102121514-1.md) | 2026-11-02 | Effets de course calés sur le son, côté rendu | #animation #particules #echappement #web-audio #etincelles #rendu | actif |
+| [BDR-20261102121514-2](decisions/BDR-20261102121514-2.md) | 2026-11-02 | CarState donne la charge et le serrage réels, pas les pédales | #simulation #marche-arriere #carstate #pedales #audio #feux | actif |
+| [BDR-20261102121514-3](decisions/BDR-20261102121514-3.md) | 2026-11-02 | Feux de recul dans les blocs arrière, disques pour les replays | #feux-recul #modele-3d #disques-frein #replay #voiture #animation | actif |

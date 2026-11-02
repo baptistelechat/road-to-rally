@@ -33,3 +33,5 @@ register: learnings
 | [LRN-20261101233659-5](learnings/LRN-20261101233659-5.md) | 2026-11-01 | Un cycle irrégulier dans PeriodicWave évite un AudioWorklet | #web-audio #periodicwave #synthese #moteur #audioworklet #performance |
 | [LRN-20261101233659-6](learnings/LRN-20261101233659-6.md) | 2026-11-01 | Mesurer un son Web Audio sans l'entendre | #web-audio #analyser #test #strict-mode #navigateur #diagnostic |
 | [LRN-20261101233659-7](learnings/LRN-20261101233659-7.md) | 2026-11-01 | WaveShaper bloque le signal au-delà de ±1 | #web-audio #waveshaper #saturation #clipping #synthese #moteur |
+| [LRN-20261102121514-4](learnings/LRN-20261102121514-4.md) | 2026-11-02 | Un crissement à notes pures miaule | #audio #web-audio #sound-design #pneus #crissement #labo-son |
+| [LRN-20261102121514-5](learnings/LRN-20261102121514-5.md) | 2026-11-02 | ENAMETOOLONG : commande Bash trop longue sous Windows | #bash #windows #enametoolong #heredoc #outillage #claude-code |
