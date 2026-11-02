@@ -49,6 +49,19 @@ Le détail suit la proximité : les epics 1 et 2 ont une fiche par story, les su
 | [2.8](stories/epic-2-pipeline-geo/2.8-determinisme-cache.md)  | Déterminisme et cache               | ⬜     |
 | [2.9](stories/epic-2-pipeline-geo/2.9-playtest.md)            | Playtest de passage                 | ⬜     |
 
+## Epic 4 : copilote
+
+Détaché du reste de l'epic car il ne dépend pas de l'éditeur : à faire dans cet ordre, avant ou après 4.1. La mini-carte est la première à reporter si le temps manque.
+
+| Story                                                  | Sujet               | Statut |
+| ------------------------------------------------------ | ------------------- | ------ |
+| [4.6](stories/epic-4-course/4.6-calcul-notes.md)       | Calcul des notes    | ⬜     |
+| [4.7](stories/epic-4-course/4.7-voix-copilote.md)      | Voix du copilote    | ⬜     |
+| [4.8](stories/epic-4-course/4.8-moment-note.md)        | Moment de la note   | ⬜     |
+| [4.9](stories/epic-4-course/4.9-icones-virages.md)     | Icônes de virage    | ⬜     |
+| [4.10](stories/epic-4-course/4.10-mini-carte.md)       | Mini-carte          | ⬜     |
+| [4.11](stories/epic-4-course/4.11-options-copilote.md) | Options du copilote | ⬜     |
+
 ✅ validé · 🟡 code livré et vérifié par les tests, jugement au volant de Baptiste attendu · ⬜ à faire
 
 ## Décisions de cadrage
@@ -66,6 +79,8 @@ Le détail suit la proximité : les epics 1 et 2 ont une fiche par story, les su
 | Largeur          | Variable le long de la route, stockée par point                                 | Une route étroite et une départementale ne se conduisent pas pareil, et le contrat `Track` est encore facile à changer                                   |
 | Cartes de test   | Circuit du sandbox gardé, au choix avec une départementale et une montagne      | Le circuit reste le banc d'essai du pilotage, les deux autres testent le pipeline sur de vraies routes                                                   |
 | Altitude         | IGN pour la route et le terrain, jamais l'altitude de BRouter en jeu            | Le terrain demande une grille que BRouter ne donne pas, et deux sources différentes feraient flotter la route. Mesures dans la story 2.2                 |
+| Voix du copilote | Mots enregistrés et enchaînés, à la place de `speechSynthesis`                  | Aucun délai imprévisible, la même voix partout, et une durée de phrase connue d'avance pour annoncer à l'heure                                           |
+| Annonces         | Tous les virages annoncés, aucun saut, enfilade pour les passages très serrés   | Estimé sur `mountain` : la parole tient même 1,6 fois au-dessus de l'allure de référence. Mesures dans la story 4.8                                      |
 
 ## Hors v0
 
