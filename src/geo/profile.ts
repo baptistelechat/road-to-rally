@@ -5,6 +5,7 @@ import {
   PROFILE_MAX_ITERATIONS,
   PROFILE_MEDIAN_RADIUS,
   PROFILE_SMOOTH_RADIUS,
+  ROUND_TRIP_FORK_FADE,
   STEP,
 } from "./config";
 import { boxSmooth, medianFilter } from "./smooth";
@@ -64,6 +65,54 @@ const limitProfile = (input: number[]): number[] => {
     if (clean) break;
   }
   return y;
+};
+
+/**
+ * Fourche d'un aller-retour : à même distance de la jonction, aller et retour se rapprochent de `share` de leur écart
+ * (0 : le retour rejoint l'aller, 0,5 : ils se retrouvent au milieu), à plein jusqu'à `reach` points, puis en fondu.
+ */
+export const symmetrizeFork = (
+  values: number[],
+  armEnd: number,
+  returnStart: number,
+  reach: number,
+  share: number,
+): number[] => {
+  const result = [...values];
+  for (
+    let k = 0;
+    k <= reach + ROUND_TRIP_FORK_FADE && armEnd + k < returnStart - k;
+    k++
+  ) {
+    const go = values[armEnd + k];
+    const back = values[returnStart - k];
+    const target = go + (back - go) * share;
+    const t = Math.max(0, (k - reach) / ROUND_TRIP_FORK_FADE);
+    const weight = 1 - t * t * (3 - 2 * t);
+    result[armEnd + k] = go + (target - go) * weight;
+    result[returnStart - k] = back + (target - back) * weight;
+  }
+  return result;
+};
+
+/**
+ * Profil d'un aller-retour, calculé sur le bras et la boucle : la boucle revient exactement à l'altitude de la jonction,
+ * son écart de fermeture réparti sur tout le tour, puis les deux bras de la fourche se calent l'un sur l'autre.
+ */
+export const closeRoundTripProfile = (
+  profile: number[],
+  armEnd: number,
+  returnStart: number,
+  reach: number,
+): number[] => {
+  const closure = profile[returnStart] - profile[armEnd];
+  const closed = profile.map((value, i) =>
+    i > armEnd
+      ? value - (closure * (i - armEnd)) / (returnStart - armEnd)
+      : value,
+  );
+  closed[returnStart] = closed[armEnd];
+  return symmetrizeFork(closed, armEnd, returnStart, reach, 0.5);
 };
 
 /** Altitudes absolutes de la route, en mètres : fidèles à la vraie pente, sans les bosses parasites du relief brut. */

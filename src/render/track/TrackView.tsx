@@ -4,8 +4,10 @@ import { useEffect, useMemo } from "react";
 import { BufferAttribute, BufferGeometry } from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { embankment, lateralStrip, shoulderStrips } from "@/sim/track/ribbon";
+import { FORK_MARGIN, roadForkReach } from "@/sim/track/roadContact";
 import { finishArch, startArch } from "@/sim/track/scenery";
 import type { MeshData, Track, Vec3 } from "@/sim/types";
+import { ChicaneView } from "../scenery/ChicaneView";
 import { groundMesh, withSkirt } from "./groundMesh";
 import { Arch } from "./TrackFurniture";
 
@@ -23,7 +25,7 @@ const FINISH_COLUMNS = 8;
  * Hauteur du marquage en chaque point. En virage et en pente, chaque quad de route est gauche :
  * sa diagonale passe au-dessus d'une bande à 1 cm, qui disparaît par endroits le long de l'intérieur du virage.
  */
-const lineLifts = ({ points, widths, closed }: Track): number[] => {
+const lineLifts = ({ unique: { points, widths }, closed }: Track): number[] => {
   const n = points.length;
   const at = (i: number): Vec3 =>
     closed ? points[(i + n) % n] : points[Math.max(0, Math.min(n - 1, i))];
@@ -65,6 +67,25 @@ const toGeometry = (mesh: MeshData): BufferGeometry => {
   return geometry;
 };
 
+/**
+ * Retire le marquage de la fourche d'un aller-retour : aller et retour s'y recouvrent, leurs lignes s'y couperaient au hasard
+ * et, à quelques millimètres près, disparaîtraient l'une sous l'autre.
+ */
+const outsideFork = (mesh: MeshData, track: Track): MeshData => {
+  if (!track.shared) return mesh;
+  const { armEnd, returnStart } = track.shared;
+  const { points, widths } = track.unique;
+  const reach = roadForkReach(points, widths, armEnd, returnStart) + FORK_MARGIN;
+  const kept: number[] = [];
+  for (let t = 0; t < mesh.indices.length; t += 6) {
+    // Deux sommets par point de l'axe : le premier du quad donne son segment.
+    const segment = mesh.indices[t] >> 1;
+    if (Math.abs(segment - armEnd) > reach && segment < returnStart - reach)
+      kept.push(...mesh.indices.subarray(t, t + 6));
+  }
+  return { positions: mesh.positions, indices: Uint32Array.from(kept) };
+};
+
 /** Pavés en travers de la route à l'abscisse `s`, sur un segment de l'axe pour épouser la pente. */
 const crossLine = (
   track: Track,
@@ -98,7 +119,8 @@ export const TrackView = ({ track }: { track: Track }) => {
   const hasTerrain = track.terrain !== null;
 
   const geometries = useMemo(() => {
-    const { points, closed, widths, shoulders, terrain } = track;
+    const { closed, terrain } = track;
+    const { points, widths, shoulders } = track.unique;
     // Le talus descend vers le sol plat : avec un terrain, il n'a plus lieu d'être.
     const bank = terrain ? null : embankment(points, widths, closed);
     const lifts = lineLifts(track);
@@ -108,7 +130,16 @@ export const TrackView = ({ track }: { track: Track }) => {
       lift: number[],
     ): BufferGeometry =>
       toGeometry(
-        lateralStrip(points, closed, widths.map(left), widths.map(right), lift),
+        outsideFork(
+          lateralStrip(
+            points,
+            closed,
+            widths.map(left),
+            widths.map(right),
+            lift,
+          ),
+          track,
+        ),
       );
     const [shoulderLeft, shoulderRight] = shoulderStrips(
       points,
@@ -130,14 +161,17 @@ export const TrackView = ({ track }: { track: Track }) => {
         lifts,
       ),
       lineCenter: toGeometry(
-        dashed(
-          lateralStrip(
-            points,
-            closed,
-            -CENTER_LINE_WIDTH / 2,
-            CENTER_LINE_WIDTH / 2,
-            lifts,
+        outsideFork(
+          dashed(
+            lateralStrip(
+              points,
+              closed,
+              -CENTER_LINE_WIDTH / 2,
+              CENTER_LINE_WIDTH / 2,
+              lifts,
+            ),
           ),
+          track,
         ),
       ),
       lineRight: strip(
@@ -146,7 +180,9 @@ export const TrackView = ({ track }: { track: Track }) => {
         lifts,
       ),
       // Le circuit garde son allure : ni ligne au sol, ni seconde arche.
-      startLine: closed ? null : crossLine(track, track.startS, 1),
+      // Aller-retour : les deux lignes tombent au même endroit, le damier sert aux deux.
+      startLine:
+        closed || track.shared ? null : crossLine(track, track.startS, 1),
       finishLine: closed
         ? null
         : crossLine(track, track.finishS, FINISH_COLUMNS),
@@ -217,6 +253,7 @@ export const TrackView = ({ track }: { track: Track }) => {
       )}
       <Arch track={track} place={startArch} />
       {!track.closed && <Arch track={track} place={finishArch} />}
+      <ChicaneView blocks={track.obstacles} />
     </group>
   );
 };

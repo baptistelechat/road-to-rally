@@ -23,6 +23,9 @@ export const WHEEL_RAY_GROUPS = collisionGroups(
   0xffff & ~LIGHT_MEMBERSHIP,
 );
 
+/** Colliders que les rayons de suspension ignorent, mais que la caisse percute. */
+export const RAY_IGNORED_GROUPS = collisionGroups(LIGHT_MEMBERSHIP, 0xffff);
+
 export const isHay = (kind: SceneryKind): boolean =>
   kind === "hay" || kind === "hayUpright";
 
@@ -133,7 +136,7 @@ export const createLightProps = (
     world.createCollider(
       colliderFor(item)
         .setFriction(0.7)
-        .setCollisionGroups(collisionGroups(LIGHT_MEMBERSHIP, 0xffff)),
+        .setCollisionGroups(RAY_IGNORED_GROUPS),
       body,
     );
     return body;

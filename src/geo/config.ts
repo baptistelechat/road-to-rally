@@ -136,3 +136,136 @@ export const TERRAIN_BLEND_GROWTH = 0.01;
 export const TERRAIN_BLEND_REACH = 200;
 /** Arête maximale d'un triangle entre nœuds, 1,5 diagonale de la plus grande maille : au-delà, il bouche un creux au bord */
 export const TERRAIN_MAX_NODE_EDGE = 136;
+
+// --- Routage de l'éditeur (story 3.2) ---
+
+export const BROUTER_URL = "https://brouter.de/brouter";
+export const BROUTER_PROFILE = "car-fast";
+export const BROUTER_TIMEOUT = 15000;
+/** Une seule reprise : le serveur public n'a pas de limite publiée et le joueur attend */
+export const BROUTER_MAX_RETRIES = 1;
+export const BROUTER_RETRY_DELAY = 1000;
+/** Au-delà, un point est refusé : BRouter accroche sans prévenir jusqu'à 280 m, en mètres */
+export const ANCHOR_MAX_SNAP = 150;
+/** Écart toléré entre deux segments à leur point commun, recollé ensuite : au-delà, ils ne suivent pas la même route, en mètres */
+export const ANCHOR_JUNCTION_TOLERANCE = 5;
+/** Vraie route gardée avant le départ et après l'arrivée, en mètres : le `rally-runoff` des GPX produits */
+export const EDITOR_RUNOFF = 250;
+
+// --- Garde-fous de l'éditeur (story 3.3). Ils jugent le tracé sans modifier la spéciale. ---
+
+/** Une ligne de départ ou d'arrivée plus proche que ça d'une autre branche est refusée, en mètres (LRN-20261101163654-5) */
+export const LINE_BRANCH_CLEARANCE = 25;
+/**
+ * Un point est sur une autre branche si la route fait ce détour pour y arriver : abscisse / distance à vol d'oiseau.
+ * Un angle droit monte à √2 et reste la même branche, une épingle commence à π/2.
+ */
+export const LINE_BRANCH_DETOUR = 1.5;
+/** Au-delà, l'écart entre l'axe roulé et la route d'origine est signalé, en mètres */
+export const WIDENED_DEVIATION = 5;
+/** Deux écarts plus proches que ça le long de l'axe forment une seule portion signalée, en mètres */
+export const WIDENED_MERGE = 50;
+/** Portée de la recherche du point le plus proche, de part et d'autre de la dernière position, en mètres */
+export const WIDENED_SEARCH_REACH = 60;
+
+// --- Profil et score du tracé dans l'éditeur (stories 3.5 et 3.6). Aucune de ces valeurs ne touche à la spéciale générée. ---
+
+/** Un point d'altitude IGN tous les combien de mètres pour l'aperçu */
+export const PREVIEW_ALTITUDE_SPACING = 20;
+/** Rayon de la moyenne sur la courbure, en points de part et d'autre */
+export const TRACE_CURVATURE_SMOOTH_RADIUS = 4;
+/** Au-dessus de ce rayon, en mètres, la route ne tourne pas assez pour compter un virage */
+export const TRACE_TURN_MAX_RADIUS = 150;
+/** Changement de cap minimal d'un virage, en degrés */
+export const TRACE_TURN_MIN_ANGLE = 25;
+/** Deux virages du même côté plus proches que ça comptent pour un, en mètres */
+export const TRACE_TURN_MERGE_GAP = 60;
+/** Une épingle tourne d'au moins cet angle, en degrés, sous ce rayon, en mètres */
+export const TRACE_HAIRPIN_MIN_ANGLE = 150;
+export const TRACE_HAIRPIN_MAX_RADIUS = 25;
+/** Au-dessus de ce rayon, en mètres, la portion compte comme une ligne droite */
+export const TRACE_STRAIGHT_MIN_RADIUS = 400;
+/** Verdict selon les virages par km : en dessous, « roulante » ; puis « sinueuse » ; au-delà, « très sinueuse » */
+export const TRACE_VERDICT_ROLLING_MAX = 2;
+export const TRACE_VERDICT_WINDING_MAX = 5;
+
+// --- Chicanes (story 3.8) ---
+
+/** Une ligne droite ne s'écarte jamais de plus que ça de sa corde, en mètres : à 2 m, on la passe sans tourner dans la largeur de `road` */
+export const CHICANE_STRAIGHT_TOLERANCE = 2;
+/** Longueur à partir de laquelle une ligne droite reçoit une chicane, en mètres */
+export const CHICANE_MIN_STRAIGHT = 400;
+/** Écart minimal entre deux chicanes, en mètres : c'est le plafond d'une par km */
+export const CHICANE_SPACING = 1000;
+/** Distance gardée avec les lignes de départ et d'arrivée, en mètres */
+export const CHICANE_LINE_CLEARANCE = 150;
+/** Distance gardée avec les plages exclues (ponts, jonctions), en mètres */
+export const CHICANE_EXCLUDED_CLEARANCE = 60;
+/** Distance gardée avec les extrémités de la ligne droite, pour voir la chicane arriver, en mètres */
+export const CHICANE_STRAIGHT_MARGIN = 100;
+/** Distance entre les centres des deux blocs le long de la route, en mètres : à régler au volant */
+export const CHICANE_GAP = 24;
+/** Passage libre minimal, en mètres : 1,8 m de voiture, roues comprises, et 0,6 m de marge de chaque côté */
+export const CHICANE_MIN_PASSAGE = 3;
+/** Part de la largeur laissée libre : la chicane reste aussi serrée sur une route large */
+export const CHICANE_PASSAGE_RATIO = 0.5;
+/** Largeur de route que chaque bloc doit couvrir pour forcer un écart, en mètres. Avec le passage minimal : route de 5 m au moins. */
+export const CHICANE_MIN_BLOCKED = 2;
+/** Prolongement du bloc au-delà du bord de la route, en mètres : pas de contournement par le bas-côté */
+export const CHICANE_SHOULDER_OVERHANG = 3;
+/** Épaisseur d'un bloc le long de la route, barrières comprises, en mètres */
+export const CHICANE_BLOCK_DEPTH = 2.2;
+/** Épaisseur de la pile de bottes, entre les deux barrières, en mètres */
+export const CHICANE_STACK_DEPTH = 1.2;
+/** Hauteur de la pile au-dessus de la route, en mètres : dépasse les 2,94 m de l'œil de la caméra de poursuite, donc cache toute la sortie */
+export const CHICANE_STACK_HEIGHT = 3.3;
+/** Hauteur de la barrière de rubalise, en mètres */
+export const CHICANE_BARRIER_HEIGHT = 1.2;
+/** Partie enterrée des modèles sous le niveau de la route, en mètres : rien ne flotte en pente ni sur un bas-côté en contrebas */
+export const CHICANE_SKIRT = 0.6;
+/** Écart toléré entre une chicane demandée et l'axe, en mètres : au-delà, elle est retirée plutôt que déplacée */
+export const CHICANE_SNAP_TOLERANCE = 15;
+/** Écart minimal entre deux chicanes demandées, en mètres : plus près, la seconde gênerait la sortie de la première */
+export const CHICANE_MIN_SEPARATION = 100;
+
+// --- Aller-retour (story 3.7) ---
+
+/** Un point du GPX recopie un autre s'il en est à moins de ça, en mètres : l'éditeur écrit deux fois les mêmes coordonnées */
+export const ROUND_TRIP_COPY_TOLERANCE = 0.01;
+/** Bras commun minimal pour reconnaître un aller-retour, en mètres : en dessous, c'est une simple boucle fermée */
+export const ROUND_TRIP_MIN_ARM = 20;
+/** En dessous, en mètres, ce qui reste entre l'aller et le retour n'est pas une boucle mais un cul-de-sac. Au-dessus, c'est le rayon qui tranche. */
+export const ROUND_TRIP_MIN_LOOP = 20;
+/** Écart de hauteur toléré entre aller et retour dans la fourche, en mètres : à confirmer au volant */
+export const ROUND_TRIP_MAX_FORK_GAP = 0.05;
+/** Fondu autour de la fourche, en points : au-delà, chaque passage retrouve sa propre altitude */
+export const ROUND_TRIP_FORK_FADE = 15;
+/** Écart signalé entre la vraie route de retour et la recopie de l'aller, en mètres */
+export const ROUND_TRIP_RETURN_DEVIATION = 5;
+/** Écart aller / retour réels sous lequel leur route est commune, en mètres. La seconde si la première ne laisse aucun bras : voies séparées par un îlot. */
+export const ROUND_TRIP_FORK_TOLERANCES = [1.5, 5];
+/** Largeur de route supposée pour juger si les deux côtés d'une boucle ont la place de coexister, en mètres */
+export const ROUND_TRIP_SPLIT_WIDTH = 6.5;
+/** Longueur sur laquelle le vrai retour est rabattu sur la jonction, en mètres */
+export const ROUND_TRIP_REJOIN = 30;
+/** Points du bras pris en compte pour la courbure à la jonction : elle n'est pas un bout de route */
+export const WIDEN_ARM_CONTEXT = 8;
+
+// --- Éditeur : retour, chicanes du joueur et variantes (stories 3.7, 3.9 et 3.10). Rien ici ne touche à la spéciale générée. ---
+
+/** Le retour réel n'est demandé à BRouter que sur cette distance après le retournement, en mètres : au-delà, il recopie l'aller */
+export const EDITOR_RETURN_PROBE = 500;
+/** Bras donné comme commun avant ce point : deux voies séparées jusque-là font quand même une jonction, en mètres */
+export const EDITOR_RETURN_LEAD = 100;
+/** Écart minimal entre deux chicanes le long du tracé, en mètres : une chicane en mesure 26 */
+export const EDITOR_CHICANE_MIN_GAP = 80;
+/** Une chicane du joueur se recale à cette distance au plus, en mètres : une branche voisine, plus loin, ne la récupère pas */
+export const EDITOR_CHICANE_SETTLE_REACH = 10;
+/** Une chicane automatique à cette distance d'une chicane supprimée ne revient pas, en mètres */
+export const EDITOR_CHICANE_REMOVED_REACH = 100;
+/** Pas d'un déplacement au clavier, en mètres */
+export const EDITOR_CHICANE_NUDGE = 20;
+/** Requêtes par recherche de variantes, `alternativeidx` de 0 à 3 */
+export const VARIANT_REQUESTS = 4;
+/** Deux routes qui ne s'écartent jamais de plus que ça sont la même, en mètres */
+export const VARIANT_SAME_ROUTE_GAP = 25;

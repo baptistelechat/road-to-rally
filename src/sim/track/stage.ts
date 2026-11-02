@@ -8,12 +8,19 @@ export const createStageTrack = (stage: StageData): Track => {
     startS: stage.startS,
     finishS: stage.finishS,
     terrain: stage.terrain,
+    shared: stage.shared,
+    obstacles: stage.obstacles,
   });
   if (!stage.terrain) return track;
   const height = createMeshHeight([
     stage.terrain,
     track.ribbon,
-    ...shoulderStrips(track.points, track.widths, track.shoulders, false),
+    ...shoulderStrips(
+      track.unique.points,
+      track.unique.widths,
+      track.unique.shoulders,
+      false,
+    ),
   ]);
   return {
     ...track,

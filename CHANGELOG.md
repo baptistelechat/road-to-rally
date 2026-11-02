@@ -30,6 +30,14 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Import d'un fichier GPX pour générer sa propre spéciale, avec progression, annulation et réouverture hors ligne
 - Remise en piste à l'endroit où la route a été quittée sur une spéciale
 - Aperçu de chaque piste avec `/track-preview?map=`
+- Éditeur de spéciales sur `/editor` : carte, recherche de lieu et tracé automatique sur les vraies routes entre les points posés, avec déplacement, insertion, suppression, inversion et annulation, et brouillon conservé
+- Contrôle du tracé en direct dans l'éditeur : longueur, croisements, routes qui se touchent, lignes trop proches d'une autre portion et sortie de France, avec l'endroit indiqué sur la carte
+- Profil d'altitude et score du tracé dans l'éditeur : virages par km, épingles, dénivelé, plus longue ligne droite et verdict
+- Bouton « Rouler » qui génère la spéciale tracée et lance la course, avec retour à l'éditeur
+- Aller-retour sur une même route, autour d'un rond-point ou d'une boucle
+- Chicanes sur les longues lignes droites : barrière de rubalise fixe, avec des bottes empilées derrière pour cacher la sortie. Elles se déplacent, se suppriment ou s'ajoutent dans l'éditeur
+- Suggestion de variantes plus sinueuses entre deux points de l'éditeur
+- Accès à l'éditeur depuis le sélecteur de carte
 
 ### Changed
 
@@ -45,3 +53,4 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Caméra du garage qui s'inversait à la manette en passant au-dessus de la voiture : elle se bloque au sommet, comme à la souris
 - Décompte hors piste qui continuait une fois revenu sur la route après une sortie à grande vitesse
 - Routes à double sens trop étroites dans les GPX importés quand OpenStreetMap n'indiquait qu'une voie
+- GPX marqués avec leur propre prolongement : un tracé qui se croise est maintenant refusé dès sa lecture, avec l'endroit indiqué

@@ -33,6 +33,8 @@ export interface Simulation {
   /** Un pas de `FIXED_DT`. Renvoie le temps du tour en ms si un tour vient de se boucler. */
   step: (input: CarInput) => number | null;
   state: () => CarState;
+  /** Abscisse suivie sur un tracé ouvert : sur un aller-retour, une position seule ne dit pas quel passage */
+  routeS: () => number;
   /** Décompte de remise en piste en cours, à afficher */
   recovery: () => RecoveryStatus | null;
   /** Pose au pas précédent, pour interpoler le rendu */
@@ -177,11 +179,13 @@ export const createSimulation = (
         rotation: current.rotation,
         velocity: current.linearVelocity,
         offRoute,
+        routeS: open ? route.s() : undefined,
       });
       if (shouldRespawn) teleport(respawnPose(x, z));
       return lapMs;
     },
     state: () => current,
+    routeS: () => route.s(),
     recovery: () => recovery.status(),
     previousPose: () => previous,
     respawn: () => {

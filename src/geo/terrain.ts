@@ -28,6 +28,8 @@ const CORRIDOR_AXIS_STRIDE = 8;
 /** Axe échantillonné pour le fondu : 4 m suffisent, la limite varie lentement */
 const BLEND_AXIS_STRIDE = 2;
 const BLEND_GRID_CELL = 32;
+/** Deux sommets du contour d'un aller-retour plus proches que ça n'en font qu'un, en mètres */
+const CONTOUR_SNAP = 0.03;
 
 /**
  * Nœuds de grille autour de l'axe, triés : maille fine dans le couloir, puis de plus en plus large.
@@ -226,9 +228,134 @@ const triangleAt = (
   return -1;
 };
 
+/** Sommets imposés au terrain, et les arêtes qui le découpent. `at` : index de l'axe, pour dire où ça coince. */
+interface Contour {
+  positions: Float32Array;
+  constraints: { a: number; b: number; at: number }[];
+}
+
+/** Bords extérieurs des deux bas-côtés, fermés aux deux bouts. Sommets : bord gauche, puis bord droit. */
+const stripContour = (left: MeshData, right: MeshData, n: number): Contour => {
+  const positions = new Float32Array(2 * n * 3);
+  for (let i = 0; i < n; i++) {
+    positions.set(left.positions.subarray(i * 6, i * 6 + 3), i * 3);
+    positions.set(right.positions.subarray(i * 6 + 3, i * 6 + 6), (n + i) * 3);
+  }
+  const constraints: Contour["constraints"] = [];
+  for (let i = 0; i + 1 < n; i++) {
+    constraints.push({ a: i, b: i + 1, at: i });
+    constraints.push({ a: n + i, b: n + i + 1, at: i });
+  }
+  constraints.push({ a: 0, b: n, at: 0 });
+  constraints.push({ a: n - 1, b: 2 * n - 1, at: n - 1 });
+  return { positions, constraints };
+};
+
+/**
+ * Aller-retour : contour de l'union des bandes du bras et de la boucle. Le bord extérieur court du départ à la fin de
+ * la boucle, le bord intérieur du bras le rejoint à la jonction, et les deux bords intérieurs de la boucle, qui se croisent
+ * une fois à la pointe de l'îlot, ferment l'îlot sur lui-même. `points` : le bras et la boucle, la jonction `armEnd` au retour en dernier.
+ */
+const forkContour = (
+  points: Vec3[],
+  left: MeshData,
+  right: MeshData,
+  armEnd: number,
+  runoffPoints: number,
+): Contour => {
+  const n = points.length;
+  const leftAt = (i: number): Vec3 => ({
+    x: left.positions[i * 6],
+    y: left.positions[i * 6 + 1],
+    z: left.positions[i * 6 + 2],
+  });
+  const rightAt = (i: number): Vec3 => ({
+    x: right.positions[i * 6 + 3],
+    y: right.positions[i * 6 + 4],
+    z: right.positions[i * 6 + 5],
+  });
+  // Le sens du tour dit de quel côté est l'îlot : à gauche sur un giratoire français, pas forcément sur une boucle de route.
+  let turning = 0;
+  for (let i = armEnd; i + 1 < n; i++)
+    turning += points[i].x * points[i + 1].z - points[i + 1].x * points[i].z;
+  const innerAt = turning > 0 ? rightAt : leftAt;
+  const outerAt = turning > 0 ? leftAt : rightAt;
+
+  const vertices: Vec3[] = [];
+  const seen = createSpatialGrid(CONTOUR_SNAP);
+  const vertex = (v: Vec3): number => {
+    const cx = Math.floor(v.x / CONTOUR_SNAP);
+    const cz = Math.floor(v.z / CONTOUR_SNAP);
+    for (let ox = -1; ox <= 1; ox++)
+      for (let oz = -1; oz <= 1; oz++)
+        for (const k of seen.at(cx + ox, cz + oz) ?? [])
+          if (Math.hypot(vertices[k].x - v.x, vertices[k].z - v.z) < CONTOUR_SNAP)
+            return k;
+    seen.insert(vertices.length, v.x, v.z, v.x, v.z);
+    vertices.push(v);
+    return vertices.length - 1;
+  };
+  const constraints: Contour["constraints"] = [];
+  const link = (a: number, b: number, at: number): void => {
+    if (a !== b) constraints.push({ a, b, at });
+  };
+  const chain = (ids: number[], at: (k: number) => number): void => {
+    for (let k = 0; k + 1 < ids.length; k++) link(ids[k], ids[k + 1], at(k));
+  };
+
+  const outer = points.slice(0, n - 1).map((_, i) => vertex(outerAt(i)));
+  const armInner = points.slice(0, armEnd + 1).map((_, i) => vertex(innerAt(i)));
+  chain(outer, (k) => k);
+  chain(armInner, (k) => k);
+  link(armInner[armEnd], outer[outer.length - 1], armEnd);
+  link(armInner[0], outer[0], 0);
+
+  // Pointe de l'îlot : le premier croisement des deux bords intérieurs de la boucle, en partant de la jonction.
+  const middle = Math.floor((armEnd + n) / 2);
+  let tip: { i: number; j: number; at: Vec3 } | null = null;
+  for (let i = armEnd + 1; i < middle && !tip; i++) {
+    const a = innerAt(i);
+    const b = innerAt(i + 1);
+    for (let j = n - 2; j > middle && !tip; j--) {
+      const c = innerAt(j);
+      const d = innerAt(j - 1);
+      const rx = b.x - a.x;
+      const rz = b.z - a.z;
+      const sx = d.x - c.x;
+      const sz = d.z - c.z;
+      const denom = rx * sz - rz * sx;
+      if (denom === 0) continue;
+      const t = ((c.x - a.x) * sz - (c.z - a.z) * sx) / denom;
+      const u = ((c.x - a.x) * rz - (c.z - a.z) * rx) / denom;
+      if (t >= 0 && t <= 1 && u >= 0 && u <= 1)
+        tip = {
+          i,
+          j,
+          at: { x: a.x + rx * t, y: (a.y + c.y) / 2, z: a.z + rz * t },
+        };
+    }
+  }
+  if (!tip)
+    throw new StageError(
+      "roadContact",
+      `Le retournement du ${formatKm((armEnd - runoffPoints) * STEP)} ne laisse pas d'îlot au milieu : la boucle est trop petite pour la largeur de la route.`,
+    );
+  const { i: tipI, j: tipJ, at: tipAt } = tip;
+  const tipVertex = vertex(tipAt);
+  const island = [tipVertex];
+  for (let i = tipI + 1; i < tipJ; i++) island.push(vertex(innerAt(i)));
+  island.push(tipVertex);
+  chain(island, (k) => tipI + k);
+
+  const positions = new Float32Array(vertices.length * 3);
+  vertices.forEach((v, k) => positions.set([v.x, v.y, v.z], k * 3));
+  return { positions, constraints };
+};
+
 /**
  * Terrain conforme à la route : Delaunay contraint sur les nœuds et les bords extérieurs des bas-côtés.
  * Ces bords sortent de `shoulderStrips`, la fonction même qui fait les bas-côtés : mêmes sommets au bit près, pas de marche.
+ * `armEnd`, sur un aller-retour : `points` et `widths` sont le bras et la boucle, sans la recopie.
  */
 export const buildTerrain = (
   points: Vec3[],
@@ -237,6 +364,7 @@ export const buildTerrain = (
   gridAltitudes: number[],
   baseAltitude: number,
   runoffPoints: number,
+  armEnd?: number,
 ): MeshData => {
   const n = points.length;
   const shoulders = shoulderWidths(points, widths, false);
@@ -268,17 +396,19 @@ export const buildTerrain = (
     ),
   ];
 
-  // Sommets : bord gauche, bord droit, puis les nœuds conservés. En Float32 dès le départ, comme dans le rendu.
+  // Sommets : le contour, puis les nœuds conservés. En Float32 dès le départ, comme dans le rendu.
+  const contour =
+    armEnd === undefined
+      ? stripContour(left, right, n)
+      : forkContour(points, left, right, armEnd, runoffPoints);
+  const fixed = contour.positions.length / 3;
   const kept = nodes.flatMap((_, i) => (heights[i] === null ? [] : [i]));
-  const positions = new Float32Array((2 * n + kept.length) * 3);
-  for (let i = 0; i < n; i++) {
-    positions.set(left.positions.subarray(i * 6, i * 6 + 3), i * 3);
-    positions.set(right.positions.subarray(i * 6 + 3, i * 6 + 6), (n + i) * 3);
-  }
+  const positions = new Float32Array((fixed + kept.length) * 3);
+  positions.set(contour.positions);
   kept.forEach((node, k) => {
-    positions[(2 * n + k) * 3] = nodes[node].x;
-    positions[(2 * n + k) * 3 + 1] = heights[node] ?? 0;
-    positions[(2 * n + k) * 3 + 2] = nodes[node].z;
+    positions[(fixed + k) * 3] = nodes[node].x;
+    positions[(fixed + k) * 3 + 1] = heights[node] ?? 0;
+    positions[(fixed + k) * 3 + 2] = nodes[node].z;
   });
   const vertexCount = positions.length / 3;
   const coords = new Float64Array(vertexCount * 2);
@@ -300,12 +430,7 @@ export const buildTerrain = (
       );
     }
   };
-  for (let i = 0; i + 1 < n; i++) {
-    constrain(i, i + 1, i);
-    constrain(n + i, n + i + 1, i);
-  }
-  constrain(0, n, 0);
-  constrain(n - 1, 2 * n - 1, n - 1);
+  for (const { a, b, at } of contour.constraints) constrain(a, b, at);
 
   // Le contour fermé par les contraintes délimite la route : on la vide depuis l'intérieur.
   const { triangles, halfedges } = del;
@@ -317,7 +442,7 @@ export const buildTerrain = (
   while (stack.length > 0) {
     const t = stack.pop() ?? 0;
     for (let e = t * 3; e < t * 3 + 3; e++) {
-      if (triangles[e] >= 2 * n)
+      if (triangles[e] >= fixed)
         throw new Error("Le vide de la route a débordé sur le terrain");
       const twin = halfedges[e];
       if (twin < 0 || constraints.isConstrained(e)) continue;
@@ -346,9 +471,9 @@ export const buildTerrain = (
     const b = triangles[t * 3 + 1];
     const c = triangles[t * 3 + 2];
     if (
-      a >= 2 * n &&
-      b >= 2 * n &&
-      c >= 2 * n &&
+      a >= fixed &&
+      b >= fixed &&
+      c >= fixed &&
       Math.max(length2(a, b), length2(b, c), length2(c, a)) > maxEdge2
     )
       continue;

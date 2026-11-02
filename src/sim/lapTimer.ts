@@ -43,7 +43,7 @@ export const createLapTimer = (track: Track, start: Pose): LapTimer => {
       if (routeS !== undefined)
         while (next < CHECKPOINT_COUNT && routeS - startS >= next * spacing)
           next++;
-      const sample = track.nearest(x, z);
+      const sample = track.nearest(x, z, routeS);
       const progress = track.closed
         ? (sample.s - startS + track.length) % track.length
         : sample.s - startS;

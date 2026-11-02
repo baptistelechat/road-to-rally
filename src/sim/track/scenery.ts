@@ -1,4 +1,5 @@
 import { isHay, isLightProp } from "../lightProps";
+import { isNearBlock } from "./obstacles";
 import { SHOULDER_WIDTH } from "./ribbon";
 import type { Pose, SceneryItem, SceneryKind, Track, Vec3 } from "../types";
 
@@ -41,6 +42,8 @@ const HAY_RIM: [number, number][] = [
 ];
 /** Somme des dx² (ou dz²) sur le tour : le dénominateur de la pente aux moindres carrés. */
 const HAY_RIM_WEIGHT = 2 * HAY_FOOTPRINT ** 2 + 4 * HAY_DIAGONAL ** 2;
+/** Dégagement du décor autour d'un bloc de chicane, en mètres : la chicane se lit, rien ne s'y coince */
+const BLOCK_CLEARANCE = 4;
 
 // Générateur mulberry32 : Math.random casserait le déterminisme.
 const createRandom = (seed: number): (() => number) => {
@@ -102,7 +105,8 @@ export const finishArch = (track: Track): Pose & { halfSpan: number } =>
 
 /** Courbure signée en chaque point sur une fenêtre de 10 pas : positive quand la route tourne à droite. */
 const signedCurvature = (track: Track): number[] => {
-  const { points, closed } = track;
+  const { closed } = track;
+  const { points } = track.unique;
   const n = points.length;
   const span = 5;
   return points.map((p, i) => {
@@ -125,9 +129,12 @@ const signedCurvature = (track: Track): number[] => {
 export const generateScenery = (track: Track, seed: number): SceneryItem[] => {
   const random = createRandom(seed);
   const items: SceneryItem[] = [];
-  const { points, closed, widths } = track;
+  const { closed } = track;
+  // Un aller-retour reçoit son décor une seule fois : le retour longe celui de l'aller.
+  const { points, widths } = track.unique;
   const n = points.length;
   const step = stepOf(track);
+  const span = track.shared ? step * (n - 1) : track.length;
   // Voisin sur l'axe : on boucle sur un tracé fermé, on s'arrête aux extrémités sur un tracé ouvert.
   const at = (i: number) =>
     closed ? points[(i + n) % n] : points[Math.max(0, Math.min(n - 1, i))];
@@ -331,9 +338,9 @@ export const generateScenery = (track: Track, seed: number): SceneryItem[] => {
   }
 
   // Plots blancs tous les 100 m, de chaque côté : repères de vitesse, et on peut les renverser.
-  for (let s = 0; s < track.length; s += POST_SPACING) {
+  for (let s = 0; s < span; s += POST_SPACING) {
     const i = closed
-      ? Math.round((s / track.length) * n) % n
+      ? Math.round((s / span) * n) % n
       : Math.min(n - 2, Math.round(s / step));
     const p = points[i];
     const q = points[(i + 1) % n];
@@ -370,13 +377,17 @@ export const generateScenery = (track: Track, seed: number): SceneryItem[] => {
   );
   return items.filter(
     (item) =>
-      !isHay(item.kind) ||
-      standing.every(
-        (other) =>
-          Math.hypot(
-            other.position.x - item.position.x,
-            other.position.z - item.position.z,
-          ) > HAY_CLEARANCE,
-      ),
+      // Retiré après coup : les tirages ne se décalent pas, le reste du décor ne bouge pas.
+      !track.obstacles.some((block) =>
+        isNearBlock(block, item.position.x, item.position.z, BLOCK_CLEARANCE),
+      ) &&
+      (!isHay(item.kind) ||
+        standing.every(
+          (other) =>
+            Math.hypot(
+              other.position.x - item.position.x,
+              other.position.z - item.position.z,
+            ) > HAY_CLEARANCE,
+        )),
   );
 };

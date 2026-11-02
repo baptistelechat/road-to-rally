@@ -1,5 +1,5 @@
 import type RAPIER_TYPES from "@dimforge/rapier3d-deterministic-compat";
-import { isLightProp } from "../lightProps";
+import { isLightProp, RAY_IGNORED_GROUPS } from "../lightProps";
 import { RAPIER } from "../rapier";
 import type { MeshData, SceneryItem, Track } from "../types";
 import { embankment, GROUND_Y, shoulderStrips } from "./ribbon";
@@ -9,6 +9,9 @@ import { finishArch, startArch } from "./scenery";
 const OBSTACLE_HEIGHT = 4;
 const GROUND_THICKNESS = 10;
 const GROUND_MARGIN = 2000;
+/** Glissant, à peine élastique : la voiture s'arrête contre la barrière sans y accrocher ni rebondir. */
+const BLOCK_FRICTION = 0.2;
+const BLOCK_RESTITUTION = 0.1;
 
 const addTrimesh = (world: RAPIER_TYPES.World, mesh: MeshData): void => {
   // FIX_INTERNAL_EDGES : la caisse ne doit pas accrocher les arêtes entre triangles coplanaires.
@@ -46,15 +49,19 @@ export const addTrackColliders = (
   addTrimesh(world, track.ribbon);
   if (track.terrain) addTrimesh(world, track.terrain);
   else {
-    const bank = embankment(track.points, track.widths, track.closed);
+    const bank = embankment(
+      track.unique.points,
+      track.unique.widths,
+      track.closed,
+    );
     if (bank) addTrimesh(world, bank);
   }
   if (!track.closed)
     // Sur spéciale, le terrain n'a pas de talus dessous : les bas-côtés portent eux-mêmes les roues.
     for (const strip of shoulderStrips(
-      track.points,
-      track.widths,
-      track.shoulders,
+      track.unique.points,
+      track.unique.widths,
+      track.unique.shoulders,
       false,
     ))
       addTrimesh(world, strip);
@@ -100,4 +107,29 @@ export const addTrackColliders = (
         0.3,
       );
   }
+
+  // Un bloc plein sur toute sa longueur, pas un collider par poteau : la caisse a son CCD, rien ne passe entre deux.
+  // Dernier créé et dans l'ordre de la liste : sans chicane, le monde reste le même au bit près.
+  for (const block of track.obstacles)
+    world.createCollider(
+      RAPIER.ColliderDesc.cuboid(
+        block.span / 2,
+        (block.height + block.skirt) / 2,
+        block.depth / 2,
+      )
+        .setTranslation(
+          block.position.x,
+          block.position.y + (block.height - block.skirt) / 2,
+          block.position.z,
+        )
+        .setRotation({
+          x: 0,
+          y: Math.sin(block.yaw / 2),
+          z: 0,
+          w: Math.cos(block.yaw / 2),
+        })
+        .setFriction(BLOCK_FRICTION)
+        .setRestitution(BLOCK_RESTITUTION)
+        .setCollisionGroups(RAY_IGNORED_GROUPS),
+    );
 };

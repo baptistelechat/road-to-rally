@@ -95,9 +95,53 @@ export interface TrackSample {
   width: number;
 }
 
+/**
+ * Aller-retour : la fin de l'axe recopie son début en sens inverse. Pour tout k de 0 à `armEnd`,
+ * `points[returnStart + k]` et sa largeur valent exactement `points[armEnd - k]` et la sienne, et `returnStart + armEnd` est le dernier index.
+ */
+export interface SharedRange {
+  /** Index de la jonction à l'aller : le bras finit ici, la boucle commence */
+  armEnd: number;
+  /** Index de la jonction au retour : la boucle finit ici, sur les mêmes coordonnées, et la recopie commence */
+  returnStart: number;
+}
+
+export type ChicaneSide = "left" | "right";
+
+/**
+ * Un bloc de chicane : barrière sur les deux faces, pile de bottes entre les deux.
+ * Repère du bloc : X = en travers de la route vers la droite, Y = haut, Z = le long de la route.
+ */
+export interface ChicaneBlock {
+  /** Abscisse du centre du bloc */
+  s: number;
+  /** Bord de la route auquel le bloc s'accroche */
+  side: ChicaneSide;
+  /** Décalage du centre du bloc depuis l'axe, positif à droite */
+  lateral: number;
+  /** Longueur en travers de la route, bas-côté compris */
+  span: number;
+  /** Largeur de route laissée libre à côté du bloc */
+  passage: number;
+  /** Épaisseur le long de la route */
+  depth: number;
+  /** Hauteur au-dessus de `position.y` */
+  height: number;
+  /** Partie enterrée sous `position.y` */
+  skirt: number;
+  /** Centre du bloc au niveau de la route */
+  position: Vec3;
+  /** Rotation autour de Y en radians : l'axe X local pointe à droite de la route */
+  yaw: number;
+}
+
 export interface Track {
   /** Points de l'axe à pas constant, sans doublon de fermeture */
   points: Vec3[];
+  /** Aller-retour : ce que la fin de l'axe recopie. `null` sur tout autre tracé. */
+  shared: SharedRange | null;
+  /** Ce qui existe une seule fois : ruban, collisions, décor et marquage ne parcourent que ça. Sans `shared`, tout l'axe. */
+  unique: { points: Vec3[]; widths: number[]; shoulders: number[] };
   closed: boolean;
   /** Largeur la plus grande du tracé. Pour la largeur locale : `widths` ou `nearest().width`. */
   width: number;
@@ -113,16 +157,21 @@ export interface Track {
   ribbon: MeshData;
   /** Terrain d'une spéciale, `null` sur le circuit qui garde son sol plat */
   terrain: MeshData | null;
-  /** Point de l'axe le plus proche, sur le plan horizontal */
-  nearest: (x: number, z: number) => TrackSample;
+  /** Blocs de chicane, fixes, triés par abscisse. Vide sans chicane. */
+  obstacles: ChicaneBlock[];
+  /**
+   * Point de l'axe le plus proche, sur le plan horizontal. Sans référence, ou hors aller-retour : au bit près le même, et le
+   * premier passage en cas de superposition. Avec `nearS`, l'abscisse suivie : le passage de la voiture, pas le premier venu.
+   */
+  nearest: (x: number, z: number, nearS?: number) => TrackSample;
   surfaceAt: (x: number, z: number) => Surface;
   /** Altitude du sol en (x, z), `null` hors du couloir d'une spéciale */
   groundAt: (x: number, z: number) => number | null;
   /** Pose de départ, dans le sens de la route */
   startPose: Pose;
-  /** Pose de remise en piste au plus proche de (x, z), dans le sens de la route */
+  /** Pose de remise en piste au plus proche de (x, z), dans le sens de la route, reculée hors de tout bloc de chicane */
   respawnPose: (x: number, z: number) => Pose;
-  /** Pose de remise en piste à une abscisse donnée, dans le sens de la route */
+  /** Pose de remise en piste à une abscisse donnée, dans le sens de la route, reculée hors de tout bloc de chicane */
   poseAt: (s: number) => Pose;
   /** Point de l'axe le plus proche d'une abscisse. Le pas réel varie avec la pente : pas de division par le pas moyen. */
   indexAt: (s: number) => number;
@@ -145,6 +194,10 @@ export interface StageData {
   /** Abscisses des lignes de départ et d'arrivée le long de `points` */
   startS: number;
   finishS: number;
+  /** Aller-retour sur la même route (story 3.7). Absent sur tout autre tracé. */
+  shared?: SharedRange;
+  /** Blocs de chicane déjà calculés, triés par abscisse (story 3.8). Absent sans chicane. */
+  obstacles?: ChicaneBlock[];
   /** Terrain conforme à la route, `null` tant que le pipeline ne le produit pas */
   terrain: MeshData | null;
   /** Version du pipeline : tout changement de seuil l'incrémente */

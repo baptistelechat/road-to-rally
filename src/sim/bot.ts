@@ -42,7 +42,12 @@ const radiusAt = (
   return cross < 1e-6 ? Infinity : (ab * bc * ac) / (2 * cross);
 };
 
-export const botInput = (state: CarState, track: Track): CarInput => {
+/** `routeS`, sur un aller-retour : l'abscisse suivie, `Simulation.routeS()`. Sans elle, le bot repart sur l'aller au retour. */
+export const botInput = (
+  state: CarState,
+  track: Track,
+  routeS?: number,
+): CarInput => {
   const { points, length, closed } = track;
   const count = points.length;
   const spacing = length / (closed ? count : count - 1);
@@ -54,7 +59,7 @@ export const botInput = (state: CarState, track: Track): CarInput => {
   // Sur tracé ouvert, le pas réel : la pente d'un long prolongement ferait dériver le pas moyen de plusieurs mètres.
   const toIndex = (s: number): number =>
     closed ? Math.round(s / spacing) : track.indexAt(s);
-  const here = track.nearest(state.position.x, state.position.z);
+  const here = track.nearest(state.position.x, state.position.z, routeS);
   // Sur un tracé ouvert, la route peut faire 3,5 m en épingle : on coupe moins la corde.
   const lookahead = Math.max(closed ? 7 : 4.5, state.speed * 0.55);
   const target = at(toIndex(here.s + lookahead));

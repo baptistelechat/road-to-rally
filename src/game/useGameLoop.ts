@@ -114,7 +114,7 @@ export const useGameLoop = ({
     info.current.steps = 0;
     const alpha = stepper.advance(delta, () => {
       const sampled: CarInput = input?.sample(FIXED_DT) ?? NEUTRAL_INPUT;
-      const applied = useBot ? botInput(sim.state(), sim.track) : sampled;
+      const applied = useBot ? botInput(sim.state(), sim.track, sim.routeS()) : sampled;
       recorder.current.record(applied);
       info.current.applied = applied;
       info.current.steps++;

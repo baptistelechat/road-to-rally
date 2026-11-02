@@ -2,6 +2,7 @@
 
 import { OrbitControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { MAPS, mapFromParam, mapSearch } from "@/game/maps";
 import { Atmosphere } from "@/render/Atmosphere";
@@ -132,6 +133,12 @@ export const TrackPreview = () => {
             {label}
           </a>
         ))}
+        <Link
+          href="/track-preview/chicanes"
+          className="font-semibold underline-offset-2 hover:underline"
+        >
+          Chicanes
+        </Link>
       </nav>
     </div>
   );

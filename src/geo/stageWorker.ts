@@ -1,7 +1,7 @@
 // Génère une spéciale hors du fil principal. Ni `Track` ni Rapier ici : seules les données traversent.
 import type { MeshData } from "../sim/types";
 import { StageError } from "./errors";
-import { buildStage, fetchStageInputs } from "./pipeline";
+import { buildStageWithWarnings, fetchStageInputs } from "./pipeline";
 import { stageHash } from "./stageHash";
 import type {
   StageWorkerRequest,
@@ -33,10 +33,15 @@ const generate = async (request: StageWorkerRequest): Promise<void> => {
           onProgress: (step) => scope.postMessage({ kind: "progress", step }),
         })
       : { inputs: request.inputs, warnings: [] };
-  const stage = buildStage(inputs, request.name);
+  const { stage, warnings: removed } = buildStageWithWarnings(
+    request.kind === "generate" && request.chicanes
+      ? { ...inputs, chicanes: request.chicanes }
+      : inputs,
+    request.name,
+  );
   stage.hash = stageHash(stage);
   scope.postMessage(
-    { kind: "done", stage, warnings },
+    { kind: "done", stage, warnings: [...warnings, ...removed] },
     meshBuffers(stage.terrain),
   );
 };

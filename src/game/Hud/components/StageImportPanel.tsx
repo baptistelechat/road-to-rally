@@ -1,30 +1,9 @@
 "use client";
 
 import { useId } from "react";
-import type { StageErrorCode } from "@/geo/errors";
-import type { StageStep } from "@/geo/pipeline";
 import { useStageImport, type ImportedStage } from "@/game/useStageImport";
 import { label, panel } from "../hudStyles";
-
-const STEPS: readonly { id: StageStep; label: string }[] = [
-  { id: "lecture", label: "Lecture du tracé" },
-  { id: "relief", label: "Relief" },
-  { id: "routes", label: "Routes" },
-  { id: "terrain", label: "Terrain" },
-  { id: "finalisation", label: "Finalisation" },
-];
-
-const ERROR_TITLES: Record<StageErrorCode, string> = {
-  empty: "Tracé refusé",
-  tooShort: "Tracé refusé",
-  tooLong: "Tracé refusé",
-  selfCrossing: "Tracé refusé",
-  roadContact: "Tracé refusé",
-  outOfFrance: "Hors de France",
-  network: "Réseau coupé",
-  service: "Service indisponible",
-  aborted: "Génération annulée",
-};
+import { StageProgress } from "./StageProgress";
 
 const button =
   "rounded border border-white/25 px-3 py-1 text-xs font-semibold transition-colors hover:bg-white/15 focus-visible:outline-2 focus-visible:outline-amber-400";
@@ -42,9 +21,6 @@ export const StageImportPanel = ({
   const id = useId();
   const { status, choose, retry, cancel } = useStageImport(onReady);
   const running = status.kind === "running";
-  const stepIndex = running
-    ? STEPS.findIndex((step) => step.id === status.step)
-    : -1;
 
   return (
     <dialog
@@ -75,30 +51,7 @@ export const StageImportPanel = ({
         />
       </div>
 
-      <div aria-live="polite" className="min-h-10 space-y-1 text-sm">
-        {status.kind === "running" && (
-          <>
-            <p>
-              Étape {stepIndex + 1} sur {STEPS.length} :{" "}
-              {STEPS[stepIndex].label}
-            </p>
-            <progress
-              aria-label={`Génération de ${status.fileName}`}
-              max={STEPS.length}
-              value={stepIndex + 1}
-              className="h-2 w-full accent-amber-400"
-            />
-          </>
-        )}
-        {status.kind === "failed" && (
-          <div role="alert">
-            <p className="font-semibold text-amber-400">
-              {ERROR_TITLES[status.code]}
-            </p>
-            <p className="text-white/80">{status.message}</p>
-          </div>
-        )}
-      </div>
+      <StageProgress status={status} />
 
       <div className="flex justify-end gap-2">
         {running ? (

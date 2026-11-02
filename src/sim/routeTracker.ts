@@ -28,7 +28,7 @@ export const createRouteTracker = (
 
   return {
     update: (x, y, z) => {
-      const here = track.nearest(x, z);
+      const here = track.nearest(x, z, routeS);
       const onRoad =
         here.distance <= here.width / 2 + SHOULDER_WIDTH &&
         Math.abs(y - here.point.y) < ROUTE_MAX_HEIGHT;
