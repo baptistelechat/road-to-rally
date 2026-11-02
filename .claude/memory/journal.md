@@ -107,4 +107,15 @@ La suite complète des checks ne se lance plus que juste avant un push ou un mer
 - [BDR-20261101163654-3](decisions/BDR-20261101163654-3.md) — Remise en piste à l'abscisse où la route a été quittée
 - [BDR-20261101202404-1](decisions/BDR-20261101202404-1.md) — `lanes=1` ignoré sur les grandes routes à double sens
 - [LRN-20261101202404-2](learnings/LRN-20261101202404-2.md) — `development` bouge pendant qu'on travaille sur `main`
-- [BLK-20261101202404-3](blockers/BLK-20261101202404-3.md) — Tests navigateur qui font planter le PC de Baptiste
+- [ZBLK-20261101202404-3](archive/blockers/ZBLK-20261101202404-3.md) — Tests navigateur qui font planter le PC de Baptiste
+
+## 2026-11-02
+
+Cadrage puis développement de l'epic 3, l'éditeur de spéciales. Baptiste a demandé de s'inspirer de gpx.studio pour le tracé automatique entre plusieurs points, puis a corrigé le cadrage sur trois points : garder mapcn tel quel avec CARTO, remplacer les bottes des chicanes par une barrière de rubalise fixe avec des piles qui cachent la sortie, et autoriser l'aller-retour, d'abord retiré car incompatible avec le refus des superpositions. L'epic compte 11 stories, et 3.1 à 3.10 ont été codées par 8 agents en 3 vagues. Un prototype a validé l'aller-retour sans plateforme sur 3 vrais ronds-points. Le tracé réel a été vu dans le navigateur, mais personne n'a encore roulé sur une spéciale de l'éditeur : tout attend les validations de Baptiste et le playtest avec un ami. Suite complète à 25/25, commit a9dd1af poussé sur main. Restent ouverts : l'aire de demi-tour, le seuil de 5 cm et le Worker chargé depuis unpkg.
+
+**Entrées clés :**
+
+- [BDR-20261102122033-1](decisions/BDR-20261102122033-1.md) — Aller-retour autorisé, sans plateforme
+- [BDR-20261102122033-2](decisions/BDR-20261102122033-2.md) — Lignes à 250 m des bouts du tracé dessiné
+- [BDR-20261102122033-4](decisions/BDR-20261102122033-4.md) — Chicane en barrière de rubalise
+- [BLK-20261102122033-11](blockers/BLK-20261102122033-11.md) — Worker MapLibre chargé depuis unpkg
