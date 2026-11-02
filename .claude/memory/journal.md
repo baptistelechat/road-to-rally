@@ -149,3 +149,7 @@ Le reste : calque routes IGN sur le satellite, modes Éditer et Déplacer, marqu
 - [BDR-20261102212945-1](decisions/BDR-20261102212945-1.md) — Premier point au départ, dernier à l'arrivée, 200 m au-delà
 - [BDR-20261102212945-2](decisions/BDR-20261102212945-2.md) — Chicanes : zones de 100 m, ponts et tunnels ignorés
 - [BLK-20261102212945-5](blockers/BLK-20261102212945-5.md) — Vérifications navigateur de l'epic 3 encore à faire
+
+---
+
+Règle durcie par Baptiste après des checks lancés sans lui demander à la fermeture : plus aucun `pnpm check:determinism` sans son accord, même partiel ou avant un push. Commit `8db0b4b`.
