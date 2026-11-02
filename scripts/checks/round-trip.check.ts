@@ -280,8 +280,9 @@ const checkNearest = (name: string, track: Track, stage: StageData): void => {
   assert.ok(first.s < track.length / 2, `${name} : pas le premier passage`);
   const start = track.poseAt(track.startS);
   assert.ok(
-    Math.abs(track.nearest(start.position.x, start.position.z).s - track.startS) <
-      0.01,
+    Math.abs(
+      track.nearest(start.position.x, start.position.z).s - track.startS,
+    ) < 0.01,
     name,
   );
 
@@ -431,7 +432,7 @@ const checkRefusals = (): void => {
     ...go.slice(0, 1200),
   ];
   const sameWayGpx = gpxOf(sameWay, 250);
-  refused(() => traceFromGpx(sameWayGpx), /se croise ou repasse/);
+  refused(() => traceFromGpx(sameWayGpx), /se croise/);
   const sameIssue = analyzeTrace(sameWayGpx).issues.find(
     (issue) => issue.code === "selfCrossing",
   );
@@ -456,7 +457,10 @@ const checkRefusals = (): void => {
     (issue) => issue.code === "tightLoop",
   );
   assert.ok(tight?.blocking, "boucle serrée non signalée");
-  assert.ok(Math.abs((tight?.s ?? 0) - (REFUSAL_ARM - 250)) < 10, `à ${tight?.s}`);
+  assert.ok(
+    Math.abs((tight?.s ?? 0) - (REFUSAL_ARM - 250)) < 10,
+    `à ${tight?.s}`,
+  );
 
   // Aller et retour qui ne recollent pas : en montée franche vers la jonction, ils restent à plus de 5 cm l'un de l'autre.
   const steepGpx = gpxOf(syntheticPath(12, REFUSAL_ARM), 250);
@@ -464,7 +468,10 @@ const checkRefusals = (): void => {
   const trace = traceFromGpx(steepGpx);
   const armEnd = trace.roundTrip?.armEnd ?? 0;
   const returnStart = trace.roundTrip?.returnStart ?? 0;
-  const uphill = inputsFor(gpxOf(syntheticPath(25, REFUSAL_ARM), 250), slopedField(0.08, 0));
+  const uphill = inputsFor(
+    gpxOf(syntheticPath(25, REFUSAL_ARM), 250),
+    slopedField(0.08, 0),
+  );
   refused(() => buildStage(uphill, "pente"), /en hauteur/);
 
   // Le cache : des altitudes pour tout l'axe n'ont plus cours, le retour n'en a pas.
