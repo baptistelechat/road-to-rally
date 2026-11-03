@@ -2,6 +2,7 @@
 
 import { OrbitControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { MAPS, mapFromParam, mapSearch } from "@/game/maps";
 import { Atmosphere } from "@/render/Atmosphere";
@@ -40,7 +41,7 @@ const Preview = ({ track }: { track: Track }) => {
   return (
     <>
       <Canvas
-        shadows
+        shadows="percentage"
         dpr={[1, 2]}
         camera={{
           position: [center[0], center[1] + height, center[2] + 1],
@@ -136,6 +137,12 @@ export const TrackPreview = () => {
             {label}
           </a>
         ))}
+        <Link
+          href="/track-preview/chicanes"
+          className="font-semibold underline-offset-2 hover:underline"
+        >
+          Chicanes
+        </Link>
       </nav>
     </div>
   );

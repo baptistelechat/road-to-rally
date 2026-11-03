@@ -7,8 +7,12 @@ const CHECKPOINT_MARGIN = 6;
 const CHECKPOINT_WINDOW = 60;
 
 export interface LapTimer {
-  /** À appeler après chaque pas de simulation. Renvoie le temps en ms si un tour vient de se boucler ou si la spéciale s'achève. */
-  update: (x: number, z: number) => number | null;
+  /**
+   * À appeler après chaque pas de simulation. Renvoie le temps en ms si un tour vient de se boucler ou si la spéciale s'achève.
+   * `routeS`, sur un tracé ouvert : l'abscisse suivie sur la route. Tout point de passage qu'elle a dépassé est acquis,
+   * même franchi dans le décor : la voiture a bien fait le chemin, sinon l'arrivée deviendrait impossible à valider.
+   */
+  update: (x: number, z: number, routeS?: number) => number | null;
   reset: () => void;
   /** Temps du tour en cours en ms, calculé en pas et non à l'horloge. `null` avant le premier pas. */
   currentMs: () => number | null;
@@ -34,9 +38,12 @@ export const createLapTimer = (track: Track, start: Pose): LapTimer => {
   let finished = false;
 
   return {
-    update: (x, z) => {
+    update: (x, z, routeS) => {
       if (finished) return null;
-      const sample = track.nearest(x, z);
+      if (routeS !== undefined)
+        while (next < CHECKPOINT_COUNT && routeS - startS >= next * spacing)
+          next++;
+      const sample = track.nearest(x, z, routeS);
       const progress = track.closed
         ? (sample.s - startS + track.length) % track.length
         : sample.s - startS;

@@ -29,13 +29,21 @@ register: learnings
 | [LRN-20261101191443-1](learnings/LRN-20261101191443-1.md) | 2026-11-01 | Une manette ne débloque pas l'audio du navigateur | #web-audio #gamepad #autoplay #user-activation #audiocontext #browser-policy |
 | [LRN-20261101191443-2](learnings/LRN-20261101191443-2.md) | 2026-11-01 | Installer en PWA ne lève pas le blocage de l'audio | #pwa #web-audio #autoplay #chrome #pawzzle #user-activation |
 | [LRN-20261101191443-3](learnings/LRN-20261101191443-3.md) | 2026-11-01 | Blocage de l'audio non fiable dans le navigateur intégré | #browser-pane #web-audio #autoplay #test #audiocontext #claude-code |
+| [LRN-20261101202404-2](learnings/LRN-20261101202404-2.md) | 2026-11-01 | `development` bouge pendant qu'on travaille sur `main` | #git #branches #development #changelog #collaboration #conflit |
 | [LRN-20261101233659-4](learnings/LRN-20261101233659-4.md) | 2026-11-01 | Un son continu se juge en course, pas sur une démo | #audio #turbo #moteur #playtest #sound-design #demo |
 | [LRN-20261101233659-5](learnings/LRN-20261101233659-5.md) | 2026-11-01 | Un cycle irrégulier dans PeriodicWave évite un AudioWorklet | #web-audio #periodicwave #synthese #moteur #audioworklet #performance |
 | [LRN-20261101233659-6](learnings/LRN-20261101233659-6.md) | 2026-11-01 | Mesurer un son Web Audio sans l'entendre | #web-audio #analyser #test #strict-mode #navigateur #diagnostic |
 | [LRN-20261101233659-7](learnings/LRN-20261101233659-7.md) | 2026-11-01 | WaveShaper bloque le signal au-delà de ±1 | #web-audio #waveshaper #saturation #clipping #synthese #moteur |
 | [LRN-20261102121514-4](learnings/LRN-20261102121514-4.md) | 2026-11-02 | Un crissement à notes pures miaule | #audio #web-audio #sound-design #pneus #crissement #labo-son |
 | [LRN-20261102121514-5](learnings/LRN-20261102121514-5.md) | 2026-11-02 | ENAMETOOLONG : commande Bash trop longue sous Windows | #bash #windows #enametoolong #heredoc #outillage #claude-code |
+| [LRN-20261102122033-6](learnings/LRN-20261102122033-6.md) | 2026-11-02 | BRouter : quatre limites à connaître pour un éditeur | #brouter #routing #osm #editeur #accrochage #epic-3 |
+| [LRN-20261102162710-3](learnings/LRN-20261102162710-3.md) | 2026-11-02 | Changer PIPELINE_VERSION impose pnpm bake:stages | #pipeline #fingerprint #bake-stages #checks #push |
 | [LRN-20261102200843-4](learnings/LRN-20261102200843-4.md) | 2026-11-02 | L'écart entre virages ne mesure pas le temps de parole | #copilote #timing #mesure #planification #estimation #notes |
+| [LRN-20261102212945-3](learnings/LRN-20261102212945-3.md) | 2026-11-02 | Prolongement valide au calcul, faux quand le tracé grandit | #editeur #runoff #validation #cache #croisement #epic-3 |
 | [LRN-20261102224247-2](learnings/LRN-20261102224247-2.md) | 2026-11-02 | Tester une voix de synthèse par transcription, avec témoin | #tts #whisper #transcription #voix #test #temoin #faster-whisper |
 | [LRN-20261102224247-3](learnings/LRN-20261102224247-3.md) | 2026-11-02 | Le planning à rebours amplifie la marge d'accélération | #copilote #timing #planification #plan-accel #reglage #notes |
 | [LRN-20261103202354-4](learnings/LRN-20261103202354-4.md) | 2026-11-03 | Un check lancé seul avec tsx ne vérifie rien | #check-determinism #tsx #tests #faux-positif #scripts #checks |
+| [LRN-20261103205616-4](learnings/LRN-20261103205616-4.md) | 2026-11-03 | Brouillon éditeur : nouveau tag BRouter après recalcul seulement | #editor #brouter #draft #localstorage #segments |
+| [LRN-20261103205616-5](learnings/LRN-20261103205616-5.md) | 2026-11-03 | Objet posé à plat en pente : chaque module sur groundAt | #terrain #relief #render #groundAt #collider |
+| [LRN-20261103205616-6](learnings/LRN-20261103205616-6.md) | 2026-11-03 | Retour « dans la route » : horizontal ou vertical d'abord | #feedback #3d #diagnostic #playtest #relief |
+| [LRN-20261103211811-4](learnings/LRN-20261103211811-4.md) | 2026-11-03 | Pendant la ré-analyse, l'axe est celui de l'ancien tracé | #editor #analysis #stale-state #chicanes #zustand #race |

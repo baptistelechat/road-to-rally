@@ -7,7 +7,7 @@ import { lightPropCenter, type LightProps } from "@/sim/lightProps";
 import type { SceneryKind } from "@/sim/types";
 import { SCENERY_GEOMETRY, SCENERY_MATERIAL } from "./models";
 
-const KINDS: SceneryKind[] = ["hay", "post", "sign"];
+const KINDS: SceneryKind[] = ["hay", "hayUpright", "post", "sign"];
 
 /** Bottes, plots et panneaux mobiles : les matrices ne changent que si un objet a bougé. */
 export const LightPropsView = ({ props }: { props: LightProps }) => {

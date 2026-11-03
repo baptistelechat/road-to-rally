@@ -56,19 +56,72 @@ const forEachClosePair = (
 };
 
 /**
+ * Nombre de points, après la jonction d'un aller-retour, où l'aller et le retour de la boucle restent à moins de
+ * `clearance(k)` l'un de l'autre, à même distance de la jonction. Au-delà, ils se sont séparés.
+ */
+export const forkReach = (
+  points: { x: number; z: number }[],
+  armEnd: number,
+  returnStart: number,
+  clearance: (k: number) => number,
+): number => {
+  let last = 2;
+  for (let k = 1; armEnd + k < returnStart - k; k++) {
+    const go = points[armEnd + k];
+    const back = points[returnStart - k];
+    if (Math.hypot(go.x - back.x, go.z - back.z) >= clearance(k)) break;
+    last = k;
+  }
+  return last;
+};
+
+/** Marge autour de la fourche d'un aller-retour, en points : le bras touche aussi le retour juste avant la jonction. */
+export const FORK_MARGIN = 6;
+/** Les deux chaussées d'une fourche sont séparées quand ce vide les écarte, en mètres */
+export const FORK_CLEARANCE = 0.5;
+
+/** `forkReach` des chaussées : leurs bords se sont séparés. */
+export const roadForkReach = (
+  points: { x: number; z: number }[],
+  widths: number[],
+  armEnd: number,
+  returnStart: number,
+): number =>
+  forkReach(
+    points,
+    armEnd,
+    returnStart,
+    (k) => (widths[armEnd + k] + widths[returnStart - k]) / 2 + FORK_CLEARANCE,
+  );
+
+/** Le couple (a, b), a < b, se recouvre par construction : le bras ou l'aller de la boucle, contre la fin de la boucle. */
+export const isForkPair = (
+  a: number,
+  b: number,
+  armEnd: number,
+  returnStart: number,
+  reach: number,
+): boolean =>
+  Math.abs(a - armEnd) <= reach + FORK_MARGIN &&
+  b >= returnStart - reach - FORK_MARGIN;
+
+/**
  * Endroit où deux portions non voisines de l'axe ont leurs chaussées qui se touchent, sur le plan horizontal.
  * Couvre aussi les croisements. `null` si tout est dégagé. Sinon, la première rencontre le long de l'axe.
+ * `fork` : couple que l'aller-retour recouvre par construction, à ignorer.
  */
 // ponytail: compare les points et non les segments : précis à quelques cm pour un pas de 2 m, à revoir si le pas grandit.
 export const findRoadContact = (
   points: Vec3[],
   widths: number[],
+  fork?: (i: number, j: number) => boolean,
 ): { sA: number; sB: number } | null => {
   const s = abscissas(points, false);
   let best: [number, number] | null = null;
   forEachClosePair(points, Math.max(...widths), (i, j, d2) => {
     const half = (widths[i] + widths[j]) / 2;
     if (d2 >= half * half || s[j] - s[i] <= NEIGHBOUR_RATIO * half) return;
+    if (fork?.(i, j)) return;
     if (!best || i < best[0] || (i === best[0] && j < best[1])) best = [i, j];
   });
   // TypeScript ne suit pas l'affectation faite dans le rappel.

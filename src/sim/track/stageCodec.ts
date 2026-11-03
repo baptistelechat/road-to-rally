@@ -1,4 +1,11 @@
-import type { MeshData, StageData, Vec3 } from "../types";
+import type {
+  ChicaneBlock,
+  RoundaboutIsland,
+  MeshData,
+  SharedRange,
+  StageData,
+  Vec3,
+} from "../types";
 
 const fail = (field: string, why: string): never => {
   throw new Error(`Spéciale invalide : ${field} ${why}`);
@@ -58,6 +65,116 @@ const parseTerrain = (value: unknown): MeshData | null => {
   return mesh;
 };
 
+/** Une recopie annoncée doit être exacte : le ruban et les collisions n'existent qu'une fois, et le retour leur fait confiance. */
+const parseShared = (
+  value: unknown,
+  points: Vec3[],
+  widths: number[],
+): SharedRange => {
+  if (!isObject(value))
+    return fail("shared", "doit être { armEnd, returnStart }");
+  const armEnd = finite(value.armEnd, "shared.armEnd");
+  const returnStart = finite(value.returnStart, "shared.returnStart");
+  if (
+    !Number.isInteger(armEnd) ||
+    !Number.isInteger(returnStart) ||
+    armEnd < 1 ||
+    returnStart <= armEnd ||
+    returnStart + armEnd !== points.length - 1
+  )
+    fail("shared", "ne correspond pas à l'axe");
+  for (let k = 0; k <= armEnd; k++) {
+    const a = points[armEnd - k];
+    const b = points[returnStart + k];
+    if (
+      a.x !== b.x ||
+      a.y !== b.y ||
+      a.z !== b.z ||
+      widths[armEnd - k] !== widths[returnStart + k]
+    )
+      fail(
+        `points[${returnStart + k}]`,
+        `ne recopie pas points[${armEnd - k}]`,
+      );
+  }
+  return { armEnd, returnStart };
+};
+
+const parseObstacle = (value: unknown, i: number): ChicaneBlock => {
+  const field = `obstacles[${i}]`;
+  if (!isObject(value) || !isObject(value.position))
+    return fail(field, "doit être un bloc de chicane");
+  if (value.side !== "left" && value.side !== "right")
+    return fail(`${field}.side`, "doit être left ou right");
+  const positive = (key: string): number => {
+    const size = finite(value[key], `${field}.${key}`);
+    if (size <= 0) fail(`${field}.${key}`, "doit rester positif");
+    return size;
+  };
+  return {
+    s: finite(value.s, `${field}.s`),
+    side: value.side,
+    lateral: finite(value.lateral, `${field}.lateral`),
+    span: positive("span"),
+    passage: positive("passage"),
+    depth: positive("depth"),
+    height: positive("height"),
+    skirt: positive("skirt"),
+    position: {
+      x: finite(value.position.x, `${field}.position.x`),
+      y: finite(value.position.y, `${field}.position.y`),
+      z: finite(value.position.z, `${field}.position.z`),
+    },
+    yaw: finite(value.yaw, `${field}.yaw`),
+  };
+};
+
+/** L'ordre de création des colliders fait partie du déterminisme : une liste vide ou désordonnée est refusée. */
+const parseObstacles = (value: unknown): ChicaneBlock[] => {
+  if (!Array.isArray(value)) return fail("obstacles", "doit être un tableau");
+  if (value.length === 0) fail("obstacles", "doit être absent sans chicane");
+  const blocks = value.map(parseObstacle);
+  blocks.forEach((block, i) => {
+    if (i > 0 && block.s < blocks[i - 1].s)
+      fail(`obstacles[${i}].s`, "doit suivre l'ordre des abscisses");
+  });
+  return blocks;
+};
+
+const parseLanes = (value: unknown, count: number): number[] => {
+  const lanes = numbers(value, "lanes");
+  if (lanes.length !== count)
+    fail("lanes", "doit avoir un nombre de voies par point");
+  if (lanes.some((n) => !Number.isInteger(n) || n < 1))
+    fail("lanes", "doit être un entier positif");
+  return lanes;
+};
+
+const parseIslands = (value: unknown): RoundaboutIsland[] => {
+  if (!Array.isArray(value)) return fail("islands", "doit être un tableau");
+  if (value.length === 0) fail("islands", "doit être absent sans rond-point");
+  return value.map((island: unknown, i) => {
+    const field = `islands[${i}]`;
+    if (!isObject(island) || !isObject(island.position))
+      return fail(field, "doit être un îlot de rond-point");
+    const positive = (key: string): number => {
+      const size = finite(island[key], `${field}.${key}`);
+      if (size <= 0) fail(`${field}.${key}`, "doit rester positif");
+      return size;
+    };
+    return {
+      position: {
+        x: finite(island.position.x, `${field}.position.x`),
+        y: finite(island.position.y, `${field}.position.y`),
+        z: finite(island.position.z, `${field}.position.z`),
+      },
+      radius: positive("radius"),
+      height: positive("height"),
+      skirt: positive("skirt"),
+    };
+  });
+};
+
 /** Valide une spéciale lue en JSON. Toute donnée inattendue, vieille version comprise, lève une erreur claire. */
 export const parseStage = (json: unknown): StageData => {
   if (!isObject(json)) return fail("le fichier", "doit contenir un objet");
@@ -90,6 +207,18 @@ export const parseStage = (json: unknown): StageData => {
     widths,
     startS,
     finishS,
+    ...(json.shared !== undefined && {
+      shared: parseShared(json.shared, points, widths),
+    }),
+    ...(json.obstacles !== undefined && {
+      obstacles: parseObstacles(json.obstacles),
+    }),
+    ...(json.lanes !== undefined && {
+      lanes: parseLanes(json.lanes, points.length),
+    }),
+    ...(json.islands !== undefined && {
+      islands: parseIslands(json.islands),
+    }),
     terrain: parseTerrain(json.terrain),
     pipelineVersion: finite(json.pipelineVersion, "pipelineVersion"),
     generatedAt: text(json.generatedAt, "generatedAt"),

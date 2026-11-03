@@ -162,7 +162,7 @@ export const useGameLoop = ({
     // Dans les menus, ni voiture ni chrono.
     const alpha = stepper.advance(screen === "race" ? delta : 0, () => {
       const sampled: CarInput = input?.sample(FIXED_DT) ?? NEUTRAL_INPUT;
-      const applied = useBot ? botInput(sim.state(), sim.track) : sampled;
+      const applied = useBot ? botInput(sim.state(), sim.track, sim.routeS()) : sampled;
       recorder.current.record(applied);
       info.current.applied = applied;
       info.current.steps++;

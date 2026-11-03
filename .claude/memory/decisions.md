@@ -27,18 +27,32 @@ register: decisions
 | [BDR-20261101191443-4](decisions/BDR-20261101191443-4.md) | 2026-11-01 | Menu de départ et de pause, simulation gelée hors course | #menu #pause #gamepad #hud #web-audio #zustand | actif |
 | [BDR-20261101201935-1](decisions/BDR-20261101201935-1.md) | 2026-11-01 | Caméra de course : stick droit, retour au relâchement | #camera #gamepad #orbit #chase-cam #react-three-fiber #determinism | actif |
 | [BDR-20261101201935-2](decisions/BDR-20261101201935-2.md) | 2026-11-01 | Menu pause à la manette : focus, A pour ouvrir, B pour revenir | #menu #gamepad #focus #listbox #select #navigation #a11y | actif |
+| [BDR-20261101202404-1](decisions/BDR-20261101202404-1.md) | 2026-11-01 | `lanes=1` ignoré sur les grandes routes à double sens | #osm #overpass #largeur #lanes #oneway #pipeline | actif |
 | [BDR-20261101233659-1](decisions/BDR-20261101233659-1.md) | 2026-11-01 | Moteur choisi au garage, stocké dans la livrée | #garage #moteur #audio #web-audio #livree #personnalisation | actif |
 | [BDR-20261101233659-2](decisions/BDR-20261101233659-2.md) | 2026-11-01 | Labo son conservé pour les futurs moteurs | #labo-son #audio #moteur #outillage #garage | actif |
 | [BDR-20261101233659-3](decisions/BDR-20261101233659-3.md) | 2026-11-01 | Pastille du garage : le moteur validé, pas celui essayé | #garage #manette #menu #ui #feedback #moteur | actif |
 | [BDR-20261102121514-1](decisions/BDR-20261102121514-1.md) | 2026-11-02 | Effets de course calés sur le son, côté rendu | #animation #particules #echappement #web-audio #etincelles #rendu | actif |
 | [BDR-20261102121514-2](decisions/BDR-20261102121514-2.md) | 2026-11-02 | CarState donne la charge et le serrage réels, pas les pédales | #simulation #marche-arriere #carstate #pedales #audio #feux | actif |
 | [BDR-20261102121514-3](decisions/BDR-20261102121514-3.md) | 2026-11-02 | Feux de recul dans les blocs arrière, disques pour les replays | #feux-recul #modele-3d #disques-frein #replay #voiture #animation | actif |
+| [BDR-20261102122033-1](decisions/BDR-20261102122033-1.md) | 2026-11-02 | Aller-retour autorisé, sans plateforme à la jonction | #aller-retour #rond-point #terrain #nearest #jonction #epic-3 | actif |
+| [BDR-20261102122033-2](decisions/BDR-20261102122033-2.md) | 2026-11-02 | Lignes à 250 m des bouts du tracé dessiné | #editeur #runoff #brouter #gpx #lignes #epic-3 | inactif |
+| [BDR-20261102122033-3](decisions/BDR-20261102122033-3.md) | 2026-11-02 | mapcn tel quel avec son fond CARTO | #mapcn #maplibre #carto #shadcn #editeur #epic-3 | actif |
+| [BDR-20261102122033-4](decisions/BDR-20261102122033-4.md) | 2026-11-02 | Chicane : barrière de rubalise fixe et piles de bottes | #chicane #rapier #collider #bottes #gameplay #epic-3 | actif |
+| [BDR-20261102122033-5](decisions/BDR-20261102122033-5.md) | 2026-11-02 | Éditeur et jeu séparés par une vraie navigation | #editeur #webgl #indexeddb #navigation #nextjs #epic-3 | actif |
+| [BDR-20261102162710-1](decisions/BDR-20261102162710-1.md) | 2026-11-02 | La spéciale garde son tracé, la rouler à nouveau la remplace | #editeur #indexeddb #brouillon #navigation #chicane-test #epic-3 | actif |
+| [BDR-20261102162710-2](decisions/BDR-20261102162710-2.md) | 2026-11-02 | Panneau d'annonce : le dessin suit le premier écart du pilote | #chicane #panneau #rendu #three #gameplay #epic-3 | actif |
 | [BDR-20261102200843-1](decisions/BDR-20261102200843-1.md) | 2026-11-02 | Copilote développé en parallèle de l'epic 3 | #roadmap #epics #copilote #parallele #epic-3 #epic-4 | actif |
 | [BDR-20261102200843-2](decisions/BDR-20261102200843-2.md) | 2026-11-02 | Voix du copilote en mots enregistrés | #copilote #voix #web-audio #speechsynthesis #playbackrate #prd | actif |
 | [BDR-20261102200843-3](decisions/BDR-20261102200843-3.md) | 2026-11-02 | Tous les virages annoncés, aucun saut de note | #copilote #notes #enfilade #pace-notes #annonces #gameplay | actif |
+| [BDR-20261102212945-1](decisions/BDR-20261102212945-1.md) | 2026-11-02 | Premier point au départ, dernier à l'arrivée, 200 m au-delà | #editeur #runoff #brouter #lignes #playtest #epic-3 | actif |
+| [BDR-20261102212945-2](decisions/BDR-20261102212945-2.md) | 2026-11-02 | Chicanes : zones de 100 m, ponts et tunnels ignorés | #chicanes #zones #editeur #pipeline #pipeline-version #epic-3 | actif |
 | [BDR-20261102224247-1](decisions/BDR-20261102224247-1.md) | 2026-11-02 | Voix du copilote générée avec Kokoro | #copilote #voix #kokoro #piper #licence #tts #wav | actif |
 | [BDR-20261103202354-1](decisions/BDR-20261103202354-1.md) | 2026-11-03 | Panneaux du copilote en pilule colorée | #copilote #pace-notes #hud #icones #svg #enfilade #ui | actif |
 | [BDR-20261103202354-2](decisions/BDR-20261103202354-2.md) | 2026-11-03 | Resserrement annoncé avec la note d'entrée | #copilote #pace-notes #resserre #voix #sim #notes | actif |
 | [BDR-20261103202354-3](decisions/BDR-20261103202354-3.md) | 2026-11-03 | Crête : rayon vertical sous 100 m | #copilote #pace-notes #crete #seuil #relief #sandbox | actif |
+| [BDR-20261103205616-1](decisions/BDR-20261103205616-1.md) | 2026-11-03 | Îlot de rond-point : tag junction, hors de la route roulée | #roundabout #osm #rapier #barriere #pipeline #terrain | actif |
+| [BDR-20261103205616-2](decisions/BDR-20261103205616-2.md) | 2026-11-03 | Pointillés selon les voies OSM, jamais selon la largeur | #marquage #lanes #osm #render #pipeline | actif |
+| [BDR-20261103205616-3](decisions/BDR-20261103205616-3.md) | 2026-11-03 | Rayon minimal de virage abaissé à 5 m | #min-radius #widen #carrefour #pipeline #gpx | actif |
 | [BDR-20261103211134-2](decisions/BDR-20261103211134-2.md) | 2026-11-03 | Mini-carte : quatre styles, parcouru sur la longueur à plat | #minimap #hud #svg #routeS #options #raf | actif |
 | [BDR-20261103211134-3](decisions/BDR-20261103211134-3.md) | 2026-11-03 | Balance audio : bus moteur et effets, voix à part | #audio #web-audio #mix #options #slider #gamepad | actif |
+| [BDR-20261103211811-1](decisions/BDR-20261103211811-1.md) | 2026-11-03 | Epic 3 validé sans son critère de passage | #epic-3 #epic-4 #roadmap #playtest #validation #determinisme | actif |

@@ -61,6 +61,8 @@ export const useGameSession = (
 
   // Strict Mode lance cet effet deux fois en développement : on libère toujours le monde créé.
   useEffect(() => {
+    // Importée sur place ou créée dans l'éditeur : le même trajet.
+    const given = imported ?? map.custom ?? null;
     let cancelled = false;
     let created: Simulation | null = null;
     let copilot: Copilot | null = null;
@@ -78,12 +80,12 @@ export const useGameSession = (
     setHudScreen(params.has("bot") ? "race" : "start");
     void Promise.all([
       initRapier(),
-      imported?.stage ??
+      given?.stage ??
         map.createStage?.() ??
         (map.stageUrl ? loadStage(map.stageUrl, download.signal) : undefined),
     ])
       .then(async ([, stage]) => {
-        if (imported) await nextPaint();
+        if (given) await nextPaint();
         if (cancelled) return;
         const startedAt = performance.now();
         created = createSimulation(undefined, stage);
@@ -101,8 +103,8 @@ export const useGameSession = (
           audio,
           copilot,
           notices: [
-            ...(imported?.warnings ?? []),
-            ...(imported && creationMs > LONG_CREATION_MS
+            ...(given?.warnings ?? []),
+            ...(given && creationMs > LONG_CREATION_MS
               ? [
                   `La création des collisions a figé l'écran ${(creationMs / 1000).toFixed(1).replace(".", ",")} s.`,
                 ]

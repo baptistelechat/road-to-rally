@@ -5,6 +5,7 @@ import { Canvas } from "@react-three/fiber";
 import dynamic from "next/dynamic";
 import { useMemo, useRef, useState } from "react";
 import type { CarAudio } from "@/audio/engineAudio";
+import type { GeneratedStage } from "@/geo/stageWorkerClient";
 import { Atmosphere } from "@/render/Atmosphere";
 import { GameCamera } from "@/render/camera/GameCamera";
 import { CarModel } from "@/render/car/CarModel";
@@ -23,7 +24,7 @@ import type { Copilot } from "./copilot";
 import { Diagnostics } from "./diag/Diagnostics";
 import { Hud } from "./Hud";
 import { setHudMuted } from "./hudStore";
-import { importedMap, mapFromParam, mapSearch } from "./maps";
+import { customMap, importedMap, mapFromParam, mapSearch } from "./maps";
 import { useGameLoop } from "./useGameLoop";
 import { useGameSession } from "./useGameSession";
 import type { ImportedStage } from "./useStageImport";
@@ -91,13 +92,22 @@ const Scene = ({ sim, audio, copilot, useBot, bestLapKey }: SceneProps) => {
 const screen =
   "fixed inset-0 grid place-items-center bg-neutral-900 p-8 text-center text-neutral-400";
 
-export const Game = () => {
+interface GameProps {
+  /** Spéciale de l'éditeur, déjà relue depuis le cache par `GameEntry` */
+  initialStage?: GeneratedStage;
+}
+
+export const Game = ({ initialStage }: GameProps) => {
   const [imported, setImported] = useState<ImportedStage | null>(null);
   const params = useMemo(() => new URLSearchParams(window.location.search), []);
   const map = useMemo(
     () =>
-      imported ? importedMap(imported.stage) : mapFromParam(params.get("map")),
-    [params, imported],
+      imported
+        ? importedMap(imported.stage)
+        : initialStage
+          ? customMap(initialStage)
+          : mapFromParam(params.get("map")),
+    [params, imported, initialStage],
   );
   const { game, failed, canvasRootRef } = useGameSession(params, map, imported);
 
@@ -128,7 +138,7 @@ export const Game = () => {
   return (
     <div className="fixed inset-0 bg-neutral-900">
       <Canvas
-        shadows
+        shadows="percentage"
         dpr={[1, 1.75]}
         gl={{ antialias: true }}
         onCreated={(state) => {

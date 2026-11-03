@@ -25,6 +25,8 @@ export interface RecoveryInput {
   velocity: Vec3;
   /** Sur la route, mais sur une portion sans lien avec celle quittée : une chute ne fait ni perdre ni gagner de terrain */
   offRoute?: boolean;
+  /** Abscisse suivie sur un tracé ouvert : la tangente et la distance sont celles du passage de la voiture */
+  routeS?: number;
 }
 
 export interface Recovery {
@@ -75,13 +77,14 @@ export const createRecovery = (
   };
 
   return {
-    update: ({ held, position, rotation, velocity, offRoute }) => {
+    update: ({ held, position, rotation, velocity, offRoute, routeS }) => {
       if (!held) awaitingRelease = false;
       hold = held && !awaitingRelease ? hold + 1 : 0;
 
       const { distance, tangent, width } = track.nearest(
         position.x,
         position.z,
+        routeS,
       );
       isOff = distance > width / 2 + SHOULDER_WIDTH || offRoute === true;
       offroad = isOff ? offroad + 1 : Math.max(0, offroad - 1);

@@ -1,10 +1,27 @@
 "use client";
 
 import { useState } from "react";
-import { IMPORT_OPTION, IMPORTED_MAP_ID, MAPS, mapSearch } from "@/game/maps";
+import { readDraftStage } from "@/editor/draft";
+import {
+  CUSTOM_MAP_ID,
+  EDITOR_OPTION,
+  EDITOR_TRACE_URL,
+  EDITOR_URL,
+  IMPORT_OPTION,
+  IMPORTED_MAP_ID,
+  MAPS,
+  mapSearch,
+} from "@/game/maps";
 import type { ImportedStage } from "@/game/useStageImport";
+import { hudButton, menuFocus } from "../hudStyles";
 import { MenuSelect } from "./MenuSelect";
 import { StageImportPanel } from "./StageImportPanel";
+
+/** Retour sur la carte si le brouillon est bien le tracé de cette spéciale, sinon à l'accueil de l'éditeur. */
+const editorReturnUrl = (): string =>
+  new URLSearchParams(window.location.search).get("stage") === readDraftStage()
+    ? EDITOR_TRACE_URL
+    : EDITOR_URL;
 
 interface MapSelectProps {
   map: string;
@@ -22,8 +39,11 @@ export const MapSelect = ({ map, mapLabel, onImported }: MapSelectProps) => {
 
   const options = [
     ...MAPS.map(({ id, label: name }) => ({ id, name })),
-    ...(map === IMPORTED_MAP_ID ? [{ id: map, name: mapLabel }] : []),
+    ...(map === IMPORTED_MAP_ID || map === CUSTOM_MAP_ID
+      ? [{ id: map, name: mapLabel }]
+      : []),
     { id: IMPORT_OPTION, name: "Import GPX" },
+    { id: EDITOR_OPTION, name: "Editor" },
   ];
 
   return (
@@ -38,9 +58,25 @@ export const MapSelect = ({ map, mapLabel, onImported }: MapSelectProps) => {
             // Le champ du panneau d'import prend ensuite le focus.
             close();
             setImporting(true);
-          } else window.location.assign(mapSearch(id));
+          }
+          // Une vraie navigation : la scène 3D et son contexte WebGL sont libérés avant la carte de l'éditeur.
+          else if (id === EDITOR_OPTION)
+            window.location.assign(`${window.location.origin}/editor`);
+          else window.location.assign(mapSearch(id));
         }}
       />
+      {map === CUSTOM_MAP_ID && (
+        <button
+          type="button"
+          className={`${hudButton} ${menuFocus} w-full`}
+          // Une vraie navigation : la scène 3D est libérée avant la carte, et le brouillon attend dans `localStorage`.
+          onClick={() => {
+            window.location.href = editorReturnUrl();
+          }}
+        >
+          Retour à l&apos;éditeur
+        </button>
+      )}
       {importing && (
         <StageImportPanel
           onClose={() => setImporting(false)}

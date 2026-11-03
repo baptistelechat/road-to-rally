@@ -23,16 +23,24 @@ export const WHEEL_RAY_GROUPS = collisionGroups(
   0xffff & ~LIGHT_MEMBERSHIP,
 );
 
+/** Colliders que les rayons de suspension ignorent, mais que la caisse percute. */
+export const RAY_IGNORED_GROUPS = collisionGroups(LIGHT_MEMBERSHIP, 0xffff);
+
+export const isHay = (kind: SceneryKind): boolean =>
+  kind === "hay" || kind === "hayUpright";
+
 export const isLightProp = (kind: SceneryKind): boolean =>
-  kind === "hay" || kind === "post" || kind === "sign";
+  isHay(kind) || kind === "post" || kind === "sign";
+
+const CENTER_HEIGHT: Partial<Record<SceneryKind, number>> = {
+  hay: HAY_RADIUS,
+  hayUpright: HAY_HALF_LENGTH,
+  sign: SIGN_HALF_HEIGHT,
+};
 
 /** Hauteur du centre physique au-dessus du pied, là où le modèle 3D a son origine. */
 export const lightPropCenter = (item: SceneryItem): number =>
-  (item.kind === "hay"
-    ? HAY_RADIUS
-    : item.kind === "sign"
-      ? SIGN_HALF_HEIGHT
-      : POST_HALF_HEIGHT) * item.scale;
+  (CENTER_HEIGHT[item.kind] ?? POST_HALF_HEIGHT) * item.scale;
 
 export interface LightProps {
   items: SceneryItem[];
@@ -47,12 +55,40 @@ export interface LightProps {
   reset: () => void;
 }
 
-const yawRotation = (yaw: number) => {
-  const half = yaw / 2;
-  return { x: 0, y: Math.sin(half), z: 0, w: Math.cos(half) };
+/** Pose de départ : le pied sur le sol, l'axe vertical de l'objet le long de la normale du sol. */
+export const lightPropSpawn = (item: SceneryItem): Pose => {
+  const center = lightPropCenter(item);
+  const up = item.up ?? { x: 0, y: 1, z: 0 };
+  const half = item.yaw / 2;
+  const yawY = Math.sin(half);
+  const yawW = Math.cos(half);
+  // Le plus court quart de tour du vertical vers la normale, composé avec le cap.
+  const norm = Math.sqrt(2 * (1 + up.y));
+  const tiltX = up.z / norm;
+  const tiltZ = -up.x / norm;
+  const tiltW = (1 + up.y) / norm;
+  return {
+    position: {
+      x: item.position.x + up.x * center,
+      y: item.position.y + up.y * center,
+      z: item.position.z + up.z * center,
+    },
+    rotation: {
+      x: tiltX * yawW - tiltZ * yawY,
+      y: tiltW * yawY,
+      z: tiltZ * yawW + tiltX * yawY,
+      w: tiltW * yawW,
+    },
+  };
 };
 
 const colliderFor = (item: SceneryItem): RAPIER_TYPES.ColliderDesc => {
+  if (item.kind === "hayUpright") {
+    return RAPIER.ColliderDesc.cylinder(
+      HAY_HALF_LENGTH * item.scale,
+      HAY_RADIUS * item.scale,
+    ).setMass(HAY_MASS);
+  }
   if (item.kind === "hay") {
     // Axe du cylindre sur X local : la botte est couchée, comme son modèle, et roule au choc.
     const quarterTurn = Math.SQRT1_2;
@@ -83,14 +119,7 @@ export const createLightProps = (
   scenery: SceneryItem[],
 ): LightProps => {
   const items = scenery.filter((item) => isLightProp(item.kind));
-  const spawn = items.map((item) => ({
-    position: {
-      x: item.position.x,
-      y: item.position.y + lightPropCenter(item),
-      z: item.position.z,
-    },
-    rotation: yawRotation(item.yaw),
-  }));
+  const spawn = items.map(lightPropSpawn);
 
   const bodies = items.map((item, i) => {
     const body = world.createRigidBody(
@@ -107,7 +136,7 @@ export const createLightProps = (
     world.createCollider(
       colliderFor(item)
         .setFriction(0.7)
-        .setCollisionGroups(collisionGroups(LIGHT_MEMBERSHIP, 0xffff)),
+        .setCollisionGroups(RAY_IGNORED_GROUPS),
       body,
     );
     return body;

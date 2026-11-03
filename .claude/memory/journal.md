@@ -96,6 +96,21 @@ Commit f8d08ae. Reste : le playtest complet de la story 2.9, Firefox, la génér
 
 ---
 
+Session de validation de l'epic 2, puis clôture mouvementée. Les critères des stories 2.1 à 2.9 ont été cochés après relecture de ce qui avait réellement été testé. Huit restaient ouverts : Baptiste en a testé lui-même six après le plantage de son PC pendant mes tests Playwright, et a demandé de tout cocher. Deux réserves sont notées dans les stories : le gel d'environ 0,7 s à la création des collisions (2.7) et la course rejouée couverte seulement sur 30 s dans Node (2.8).
+
+Ses retours au volant ont donné quatre correctifs. Le décompte hors piste continuait après le retour sur la route, à cause d'un saut d'abscisse fixe de 25 m. `lanes=1` réduisait la D763 à 3,5 m. Les bottes de paille flottaient jusqu'à 82 cm sur Mountain : elles suivent maintenant la pente, une sur deux debout, à 7 cm du sol au pire. Les arbres ne poussent plus au-delà de 35°.
+
+La suite complète des checks ne se lance plus que juste avant un push ou un merge. À la clôture, j'ai déplacé le travail sur `development` sans qu'on me le demande, alors que Matthieu y poussait en parallèle : deux conflits de changelog et un push refusé. Baptiste a fait tout remettre sur `main`, où le commit `d9b99f4` a été poussé. `main` et `development` divergent donc, et il reste un commit local sur `development` et deux stash à nettoyer.
+
+**Entrées clés :**
+
+- [BDR-20261101163654-3](decisions/BDR-20261101163654-3.md) — Remise en piste à l'abscisse où la route a été quittée
+- [BDR-20261101202404-1](decisions/BDR-20261101202404-1.md) — `lanes=1` ignoré sur les grandes routes à double sens
+- [LRN-20261101202404-2](learnings/LRN-20261101202404-2.md) — `development` bouge pendant qu'on travaille sur `main`
+- [ZBLK-20261101202404-3](archive/blockers/ZBLK-20261101202404-3.md) — Tests navigateur qui font planter le PC de Baptiste
+
+---
+
 Son du moteur à l'arrivée sur le jeu : le navigateur exige un geste avant tout son, et une manette n'en est pas un. Après une tentative de message dans le HUD et une recommandation de PWA écartée grâce au retour d'expérience sur Pawzzle, on a retenu un menu de départ. Le sélecteur de carte y a été déplacé, puis le menu a aussi servi de menu pause avec Échap et Start, la simulation restant gelée hors course. Baptiste a fait retirer tous les textes d'aide : l'interface doit se comprendre seule. Le menu est commité et poussé (`0fda8ba`), avec checks, lint, build et react-doctor au vert. Baptiste a validé le son, la pause, Échap, ainsi que A et Start à la manette.
 
 **Entrées clés :**
@@ -140,6 +155,51 @@ Commit `2d0dc73` poussé sur `development`. GitHub a affiché que les changement
 
 ## 2026-11-02
 
+Cadrage puis développement de l'epic 3, l'éditeur de spéciales. Baptiste a demandé de s'inspirer de gpx.studio pour le tracé automatique entre plusieurs points, puis a corrigé le cadrage sur trois points : garder mapcn tel quel avec CARTO, remplacer les bottes des chicanes par une barrière de rubalise fixe avec des piles qui cachent la sortie, et autoriser l'aller-retour, d'abord retiré car incompatible avec le refus des superpositions. L'epic compte 11 stories, et 3.1 à 3.10 ont été codées par 8 agents en 3 vagues. Un prototype a validé l'aller-retour sans plateforme sur 3 vrais ronds-points. Le tracé réel a été vu dans le navigateur, mais personne n'a encore roulé sur une spéciale de l'éditeur : tout attend les validations de Baptiste et le playtest avec un ami. Suite complète à 25/25, commit a9dd1af poussé sur main. Restent ouverts : l'aire de demi-tour, le seuil de 5 cm et le Worker chargé depuis unpkg.
+
+**Entrées clés :**
+
+- [BDR-20261102122033-1](decisions/BDR-20261102122033-1.md) — Aller-retour autorisé, sans plateforme
+- [BDR-20261102122033-2](decisions/BDR-20261102122033-2.md) — Lignes à 250 m des bouts du tracé dessiné
+- [BDR-20261102122033-4](decisions/BDR-20261102122033-4.md) — Chicane en barrière de rubalise
+- [BLK-20261102122033-11](blockers/BLK-20261102122033-11.md) — Worker MapLibre chargé depuis unpkg
+
+---
+
+Session sur le confort de l'éditeur et le rendu des chicanes, itérée avec Baptiste au volant. La carte reçoit trois fonds (satellite par défaut, clair, sombre), le relief, la boussole et la localisation. L'éditeur est réorganisé : `/editor` devient un accueil qui liste les spéciales d'IndexedDB, `/editor/trace` porte la carte, et une spéciale garde son tracé pour pouvoir être modifiée, la nouvelle version remplaçant l'ancienne. Une page `/my-stages` a existé le temps d'un échange avant d'être fondue dans cet accueil.
+
+Côté chicanes : deux rangs de bottes à 2,2 m, chevrons, et un panneau d'annonce refait trois fois. Rond bleu d'abord, puis triangle sans éclairage rejeté comme « PNG plaqué », enfin tôle éclairée, avec le dessin inversé après un retour au volant. Le clignotement est corrigé en supprimant les faces superposées. Le recalage manuel n'était pas un défaut de données : le marqueur restait sous le pointeur.
+
+Avant le push, la suite complète a échoué sur `fingerprint` et `geo` : le passage à `PIPELINE_VERSION` 6 demandait de régénérer les spéciales livrées. Après `pnpm bake:stages`, 25/25, et `main` poussé avec `aa4506a` et `aeddf40`. Pendant un test, tout le stockage des spéciales du navigateur intégré à l'app a été vidé au lieu des seules entrées d'essai ; signalé à Baptiste, et les tests suivants n'ont retiré que leurs entrées.
+
+**Entrées clés :**
+
+- [BDR-20261102162710-1](decisions/BDR-20261102162710-1.md) — La spéciale garde son tracé, la rouler à nouveau la remplace
+- [BDR-20261102162710-2](decisions/BDR-20261102162710-2.md) — Panneau d'annonce : le dessin suit le premier écart du pilote
+- [LRN-20261102162710-3](learnings/LRN-20261102162710-3.md) — Changer PIPELINE_VERSION impose pnpm bake:stages
+
+---
+
+Point sur l'epic 3, puis longue passe de playtest : Baptiste jouait et envoyait ses remarques, corrigées à chaud sans aucune commande lourde.
+
+Le changement de fond porte sur les lignes de course. Le premier point devient le départ et le dernier l'arrivée, avec un prolongement ajouté au-delà. Le chemin a été heurté : la ligne droite de secours a traversé des bâtiments et Baptiste l'a refusée, alors qu'une décision l'avait déjà écartée. Un refus venait d'un prolongement jamais revérifié quand le tracé grandissait, un autre de la rue piétonne que le profil voiture contourne : 1 052 m contre 276 m à Clisson, trouvé en rejouant le cas sur le vrai BRouter.
+
+Le reste : calque routes IGN sur le satellite, modes Éditer et Déplacer, marqueurs qui ne bloquent plus la prise d'un point, panneau du jeu sur les chicanes, clic pour centrer la carte, alertes de chicane cliquables et conservées, zones de 100 m réutilisables. L'écart entre chicanes est passé par 50 et 80 m avant 100 m, une fois le panneau d'annonce recalculé.
+
+À la fermeture, lint, build et six vérifications passent, après correction de deux tests qui supposaient l'ancien format. Commit `024cd2e`, sans push. La suite complète et les vérifications navigateur restent à faire.
+
+**Entrées clés :**
+
+- [BDR-20261102212945-1](decisions/BDR-20261102212945-1.md) — Premier point au départ, dernier à l'arrivée, 200 m au-delà
+- [BDR-20261102212945-2](decisions/BDR-20261102212945-2.md) — Chicanes : zones de 100 m, ponts et tunnels ignorés
+- [ZBLK-20261102212945-5](archive/blockers/ZBLK-20261102212945-5.md) — Vérifications navigateur de l'epic 3 encore à faire
+
+---
+
+Règle durcie par Baptiste après des checks lancés sans lui demander à la fermeture : plus aucun `pnpm check:determinism` sans son accord, même partiel ou avant un push. Commit `8db0b4b`.
+
+---
+
 Session sur les animations en course. Baptiste voulait de petites explosions à l'échappement : six pistes proposées, puis flammes calées sur les détonations du son, à-coup de la caisse et de la caméra aux passages de rapport, mottes d'herbe et disques de frein rougeoyants. Ses essais ont révélé que les pédales brutes de la marche arrière faisaient rougir les disques et multipliaient les flammes : corrigé à la source dans `vehicle.ts`, ce qui a aussi réglé les feux stop et le son en recul. Le menu de départ se parcourt maintenant à la manette, validé par lui sur sa vraie manette. Ajout de feux de recul (feux coupés gardés, feux de pare-chocs retirés après essai), puis d'un crissement de pneus : la première version à oscillateurs miaulait, refaite en bruit filtré et réglable dans `/labo-son`, timbre Rauque retenu puis baissé d'environ 2 dB. Enfin, étincelles sur choc, vues en jeu contre un poteau du portique. Baptiste signale que son bug de son au démarrage a disparu sans explication : aucun changement connu ne le justifie, il peut revenir. Transfert de masse accentué et vibration moteur restent en attente de sa décision. Commit `59ffb65` poussé sur `development`.
 
 **Entrées clés :**
@@ -171,6 +231,29 @@ Les vraies durées des mots (0,585 s contre 0,38 s estimées) ont révélé un r
 - [LRN-20261102224247-2](learnings/LRN-20261102224247-2.md) — Tester une voix de synthèse par transcription, avec témoin
 
 ## 2026-11-03
+
+Session de retours de jeu sur l'éditeur et les spéciales. Correction d'abord d'une erreur React de clé en double dans le panneau des chicanes : avant la fin de l'analyse, toutes les chicanes tombaient au point 0 et produisaient des alertes « 0 m » identiques. Puis le rayon minimal de virage est passé de 8 à 5 m, pour que les carrefours en épingle restent proches de la vraie route.
+
+Gros morceau : les ronds-points. Détection par le tag OSM `junction` (Overpass pour la spéciale, arcs BRouter pour l'éditeur), cercle ajusté, îlot incassable en barrière de rubalise, cercle rouge sur la carte de l'éditeur. Il a fallu plusieurs allers-retours : brouillon de l'éditeur sans le nouveau tag, cache IndexedDB qui resservait l'ancienne spéciale faute d'incrément de version, barrière calée sur l'axe qui mordait sur l'asphalte des routes larges, et enfin cercle posé à plat qui flottait et s'enterrait sur un rond-point en pente (Gétigné, avenue Xavier Rineau). La règle finale : barrière à 0,5 m du bord roulé, modules posés sur le sol.
+
+Marquage : une ligne pointillée entre chaque paire de voies, le nombre de voies venant des tags OSM et non plus de la largeur, après correction de Baptiste. Commit `2ff34f8` (PIPELINE_VERSION 12). Reste à faire : `pnpm bake:stages`, puis les checks `fingerprint` et `geo`, avec l'accord de Baptiste.
+
+**Entrées clés :**
+
+- [BDR-20261103205616-1](decisions/BDR-20261103205616-1.md) — Îlot de rond-point : tag junction, hors de la route roulée
+- [BDR-20261103205616-2](decisions/BDR-20261103205616-2.md) — Pointillés selon les voies OSM, jamais selon la largeur
+- [ZBLK-20261103205616-7](archive/blockers/ZBLK-20261103205616-7.md) — Barrière d'îlot « dans la route » : c'était le relief
+
+---
+
+Point d'avancement de l'epic 3, puis nettoyage des warnings du terminal de dev. La clé React dupliquée venait des alertes d'écart de chicanes calculées sur l'axe du tracé d'avant pendant la ré-analyse (alertes masquées tant que `analyzing`, clé par rang). Le warning PCFSoftShadowMap est réglé par `shadows="percentage"` sur les quatre `<Canvas>`, et `THREE.Clock` vient de R3F lui-même. Passe navigateur en dev sur le Col de Turini : aucun appel Google, attribution lisible, garde-fou de distance, panne BRouter simulée avec Réessayer, vraie panne Overpass avec « Rouler quand même », parcours jusqu'au volant et retour avec chicanes conservées. Elle a trouvé un bug de focus clavier dans la liste des chicanes (clé construite sur le libellé), corrigé, et laissé quelques défauts ouverts. Baptiste a ensuite marqué tout l'epic 3 comme validé pour passer à l'epic 4. react-doctor sans remarque, commit c2d802c sans push.
+
+**Entrées clés :**
+
+- [BDR-20261103211811-1](decisions/BDR-20261103211811-1.md) — Epic 3 validé sans son critère de passage
+- [BLK-20261103211811-5](blockers/BLK-20261103211811-5.md) — Défauts relevés à la passe navigateur de l'epic 3
+
+---
 
 Session de corrections sur l'epic 4, centrée sur les panneaux du copilote. Méthode demandée par Baptiste : des propositions visuelles en maquettes, sa validation, puis l'intégration sur son « go ». Les icônes deviennent des pilules colorées selon la note, avec un badge LONG, une pastille bicolore et une flèche en spirale pour les virages qui se resserrent. La note d'entrée s'affiche en gros et la sortie en indice. Crête et bosse passent en pilules rouges, après trois séries de dessins pour la crête (vue du pilote retenue), et les enfilades reçoivent un cadre avec un zigzag, ouvert quand elles dépassent la bande.
 
