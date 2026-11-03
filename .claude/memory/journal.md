@@ -184,3 +184,14 @@ La voix (Kokoro, « long » au lieu de « longue ») est reportée à une sessio
 - [BDR-20261103202354-2](decisions/BDR-20261103202354-2.md) — Resserrement annoncé avec la note d'entrée
 - [BDR-20261103202354-3](decisions/BDR-20261103202354-3.md) — Crête : rayon vertical sous 100 m
 - [BLK-20261103202354-5](blockers/BLK-20261103202354-5.md) — Modèles Kokoro absents : « long » non régénéré
+
+---
+
+Refonte de la mini-carte. Quatre directions ont été maquettées (globale soignée, zoom nord en haut, zoom cap en haut, hybride), puis Baptiste a voulu les quatre en option. Le parcouru est en ambre et la route à venir en gris, avec une flèche orientée, un départ vert et un damier à l'arrivée. Au premier test, le trait ambre partait devant la voiture : `non-scaling-stroke` calculait les pointillés en pixels, et en pente `s` en 3D avançait plus vite que le trait à plat. La progression passe maintenant par `routeS()`, exposé en lecture seule sur la simulation, et par la longueur à plat du tracé. Un léger lag dans les cartes tournantes a disparu en passant de 10 Hz à `requestAnimationFrame`. Parmi cinq propositions, la boussole à aiguille a été retenue pour la carte nord en haut.
+
+Ajout d'une balance audio : bus moteur et effets devant le master, voix à part, trois curseurs à crans de 10 % jouables à la manette, sans phrase de test. La suite de déterminisme échouait parce que le nouveau `mini-map.check.ts` n'avait pas d'`export default`. Baptiste a coupé le déterminisme et le build : il fait les tests lui-même. Commit `da4244d` poussé sur `development`.
+
+**Entrées clés :**
+
+- [BDR-20261103211134-2](decisions/BDR-20261103211134-2.md) — Mini-carte : quatre styles, parcouru sur la longueur à plat
+- [BDR-20261103211134-3](decisions/BDR-20261103211134-3.md) — Balance audio : bus moteur et effets, voix à part

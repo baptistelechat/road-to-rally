@@ -40,3 +40,5 @@ register: decisions
 | [BDR-20261103202354-1](decisions/BDR-20261103202354-1.md) | 2026-11-03 | Panneaux du copilote en pilule colorée | #copilote #pace-notes #hud #icones #svg #enfilade #ui | actif |
 | [BDR-20261103202354-2](decisions/BDR-20261103202354-2.md) | 2026-11-03 | Resserrement annoncé avec la note d'entrée | #copilote #pace-notes #resserre #voix #sim #notes | actif |
 | [BDR-20261103202354-3](decisions/BDR-20261103202354-3.md) | 2026-11-03 | Crête : rayon vertical sous 100 m | #copilote #pace-notes #crete #seuil #relief #sandbox | actif |
+| [BDR-20261103211134-2](decisions/BDR-20261103211134-2.md) | 2026-11-03 | Mini-carte : quatre styles, parcouru sur la longueur à plat | #minimap #hud #svg #routeS #options #raf | actif |
+| [BDR-20261103211134-3](decisions/BDR-20261103211134-3.md) | 2026-11-03 | Balance audio : bus moteur et effets, voix à part | #audio #web-audio #mix #options #slider #gamepad | actif |
