@@ -169,3 +169,18 @@ Les vraies durées des mots (0,585 s contre 0,38 s estimées) ont révélé un r
 
 - [BDR-20261102224247-1](decisions/BDR-20261102224247-1.md) — Voix du copilote générée avec Kokoro
 - [LRN-20261102224247-2](learnings/LRN-20261102224247-2.md) — Tester une voix de synthèse par transcription, avec témoin
+
+## 2026-11-03
+
+Session de corrections sur l'epic 4, centrée sur les panneaux du copilote. Méthode demandée par Baptiste : des propositions visuelles en maquettes, sa validation, puis l'intégration sur son « go ». Les icônes deviennent des pilules colorées selon la note, avec un badge LONG, une pastille bicolore et une flèche en spirale pour les virages qui se resserrent. La note d'entrée s'affiche en gros et la sortie en indice. Crête et bosse passent en pilules rouges, après trois séries de dessins pour la crête (vue du pilote retenue), et les enfilades reçoivent un cadre avec un zigzag, ouvert quand elles dépassent la bande.
+
+En vérifiant le code, il est apparu que la note d'un virage qui se resserre était déjà celle de la sortie : ajout de `entryGrade`, la voix dit maintenant « quatre se resserre ». Baptiste a aussi constaté que seule la note la plus dure d'une enfilade était annoncée : chaque virage l'est désormais, avec un raccourci qui retire le mot « enfilade » en cas de retard. Enfin, il entendait trop de crêtes : le seuil passe de 150 à 100 m après mesure sur la montagne.
+
+La voix (Kokoro, « long » au lieu de « longue ») est reportée à une session dédiée, sans rien installer d'ici là. React-doctor a relevé 3 alertes sur les fichiers modifiés, corrigées. Commit e887a76 poussé sur development.
+
+**Entrées clés :**
+
+- [BDR-20261103202354-1](decisions/BDR-20261103202354-1.md) — Panneaux du copilote en pilule colorée
+- [BDR-20261103202354-2](decisions/BDR-20261103202354-2.md) — Resserrement annoncé avec la note d'entrée
+- [BDR-20261103202354-3](decisions/BDR-20261103202354-3.md) — Crête : rayon vertical sous 100 m
+- [BLK-20261103202354-5](blockers/BLK-20261103202354-5.md) — Modèles Kokoro absents : « long » non régénéré

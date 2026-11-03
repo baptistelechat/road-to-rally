@@ -37,3 +37,6 @@ register: decisions
 | [BDR-20261102200843-2](decisions/BDR-20261102200843-2.md) | 2026-11-02 | Voix du copilote en mots enregistrés | #copilote #voix #web-audio #speechsynthesis #playbackrate #prd | actif |
 | [BDR-20261102200843-3](decisions/BDR-20261102200843-3.md) | 2026-11-02 | Tous les virages annoncés, aucun saut de note | #copilote #notes #enfilade #pace-notes #annonces #gameplay | actif |
 | [BDR-20261102224247-1](decisions/BDR-20261102224247-1.md) | 2026-11-02 | Voix du copilote générée avec Kokoro | #copilote #voix #kokoro #piper #licence #tts #wav | actif |
+| [BDR-20261103202354-1](decisions/BDR-20261103202354-1.md) | 2026-11-03 | Panneaux du copilote en pilule colorée | #copilote #pace-notes #hud #icones #svg #enfilade #ui | actif |
+| [BDR-20261103202354-2](decisions/BDR-20261103202354-2.md) | 2026-11-03 | Resserrement annoncé avec la note d'entrée | #copilote #pace-notes #resserre #voix #sim #notes | actif |
+| [BDR-20261103202354-3](decisions/BDR-20261103202354-3.md) | 2026-11-03 | Crête : rayon vertical sous 100 m | #copilote #pace-notes #crete #seuil #relief #sandbox | actif |
