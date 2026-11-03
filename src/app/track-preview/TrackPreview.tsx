@@ -41,7 +41,7 @@ const Preview = ({ track }: { track: Track }) => {
   return (
     <>
       <Canvas
-        shadows
+        shadows="percentage"
         dpr={[1, 2]}
         camera={{
           position: [center[0], center[1] + height, center[2] + 1],

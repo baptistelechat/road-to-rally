@@ -174,7 +174,7 @@ export const ChicanePreview = () => {
     <div className="fixed inset-0 bg-neutral-900">
       <Canvas
         key={view.id}
-        shadows
+        shadows="percentage"
         dpr={[1, 2]}
         camera={{
           position: view.position,

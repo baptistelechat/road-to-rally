@@ -37,21 +37,25 @@ const ChicaneRow = ({ chicane }: { chicane: ListedChicane }) => {
   const km = chicaneKm(chicane.index, runoffPoints);
   const actions = [
     {
+      id: "back",
       label: `Reculer la chicane du ${km}`,
       Icon: ChevronDown,
       run: () => nudge(chicane.id, -1),
     },
     {
+      id: "forward",
       label: `Avancer la chicane du ${km}`,
       Icon: ChevronUp,
       run: () => nudge(chicane.id, 1),
     },
     {
+      id: "side",
       label: `Changer le côté de la chicane du ${km}`,
       Icon: ArrowLeftRight,
       run: () => flip(chicane.id),
     },
     {
+      id: "remove",
       label: `Supprimer la chicane du ${km}`,
       Icon: Trash2,
       run: () => remove(chicane.id),
@@ -75,9 +79,10 @@ const ChicaneRow = ({ chicane }: { chicane: ListedChicane }) => {
         )}
         {km}, {chicaneBends(chicane.side)}
       </button>
-      {actions.map(({ label, Icon, run }) => (
+      {/* Clé fixe : le libellé change avec le km, et un bouton recréé perdrait le focus à chaque pas. */}
+      {actions.map(({ id, label, Icon, run }) => (
         <Button
-          key={label}
+          key={id}
           variant="ghost"
           size="icon-xs"
           aria-label={label}
@@ -98,6 +103,7 @@ export const ChicanePanel = () => {
   const chicanes = useChicanes();
   const trace = useEditor((state) => state.history.present);
   const axisReady = useEditor((state) => state.analysis?.axis != null);
+  const analyzing = useEditor((state) => state.analyzing);
   const tooNarrow = useEditor((state) => state.autoChicanes?.tooNarrow ?? 0);
   const pending = useEditor((state) => state.status.pending);
   const notice = useEditor((state) => state.notice);
@@ -142,10 +148,11 @@ export const ChicanePanel = () => {
 
       {trace.chicanesEnabled && (
         <>
-          {/* Sans axe, toutes les chicanes sont au point 0 : des alertes « 0 m » fausses (et en double). */}
+          {/* Sans axe, ou avec celui du tracé d'avant pendant l'analyse, les chicanes tombent toutes au départ : des alertes « 0 m » fausses. */}
           {axisReady &&
-            chicaneSpacingWarnings(chicanes, runoffPoints).map((warning) => (
-              <p key={warning} className="text-xs text-amber-400">
+            !analyzing &&
+            chicaneSpacingWarnings(chicanes, runoffPoints).map((warning, i) => (
+              <p key={`${i}-${warning}`} className="text-xs text-amber-400">
                 {warning}
               </p>
             ))}

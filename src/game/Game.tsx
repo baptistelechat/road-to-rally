@@ -123,7 +123,7 @@ export const Game = ({ initialStage }: GameProps) => {
   return (
     <div className="fixed inset-0 bg-neutral-900">
       <Canvas
-        shadows
+        shadows="percentage"
         dpr={[1, 1.75]}
         gl={{ antialias: true }}
         onCreated={(state) => {

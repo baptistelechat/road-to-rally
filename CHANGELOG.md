@@ -86,3 +86,4 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Curseur qui tremblait près du tracé et clic droit qui ne posait pas de chicane
 - Alertes et drapeaux qui empêchaient d'attraper un point sur la carte
 - Kilomètre d'une chicane différent entre la liste et l'alerte
+- Boutons d'une chicane qui perdaient le focus au clavier après chaque déplacement

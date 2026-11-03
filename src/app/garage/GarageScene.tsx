@@ -59,7 +59,7 @@ export const GarageScene = () => {
   return (
     <div className="fixed inset-0 bg-[#0b0e14]">
       <Canvas
-        shadows
+        shadows="percentage"
         camera={{ position: [-4.4, 2, -5.2], fov: 44, near: 0.1, far: 60 }}
       >
         <color attach="background" args={[NIGHT]} />

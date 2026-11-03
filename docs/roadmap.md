@@ -12,7 +12,7 @@ Les epics suivent l'ordre des phases du PRD.
 | --- | -------------------------------------------------------------------------- | --------------------------------------------------------------------- | ---------- |
 | 1   | [Gameplay](stories/epic-1-gameplay/) : voiture, contrôles, tracé sandbox   | Tu as envie d'y rejouer 10 minutes sans rien d'autre                  | ✅ Validé  |
 | 2   | [Pipeline géo](stories/epic-2-pipeline-geo/) : GPX vers route et relief 3D | Une vraie spéciale de 5 km roulable sans bug de maillage              | ✅ Validé  |
-| 3   | [Éditeur sur carte](stories/epic-3-editeur/) : tracé assisté               | Un ami crée une spéciale sans ton aide                                | 🟡 À jouer |
+| 3   | [Éditeur sur carte](stories/epic-3-editeur/) : tracé assisté               | Un ami crée une spéciale sans ton aide                                | ✅ Validé  |
 | 4   | [Course](stories/epic-4-course.md) : chrono, fantôme, copilote             | Une spéciale complète se court du départ à l'arrivée, notes à l'heure | ⬜ À faire |
 | 5   | [Décor](stories/epic-5-decor.md) : bâtiments et forêts depuis les données  | 60 FPS sur un portable moyen dans un village                          | ⬜ À faire |
 | 6   | [Partage](stories/epic-6-partage.md) : tracé et temps dans l'URL           | Un ami ouvre le lien et tente de battre ton temps                     | ⬜ À faire |
@@ -53,17 +53,17 @@ Le détail suit la proximité : les epics 1 à 3 ont une fiche par story, les su
 
 | Story                                                      | Sujet                                    | Statut |
 | ---------------------------------------------------------- | ---------------------------------------- | ------ |
-| [3.1](stories/epic-3-editeur/3.1-carte-recherche.md)       | Carte et recherche de lieu               | 🟡     |
-| [3.2](stories/epic-3-editeur/3.2-trace-accroche.md)        | Tracé automatique entre plusieurs points | 🟡     |
-| [3.3](stories/epic-3-editeur/3.3-garde-fous.md)            | Garde-fous du tracé                      | 🟡     |
-| [3.4](stories/epic-3-editeur/3.4-du-trace-a-la-course.md)  | Du tracé à la course                     | 🟡     |
-| [3.5](stories/epic-3-editeur/3.5-profil-altitude.md)       | Profil d'altitude                        | 🟡     |
-| [3.6](stories/epic-3-editeur/3.6-score-trace.md)           | Score du tracé en direct                 | 🟡     |
-| [3.7](stories/epic-3-editeur/3.7-aller-retour.md)          | Aller-retour sur la même route           | 🟡     |
-| [3.8](stories/epic-3-editeur/3.8-chicanes.md)              | Chicanes automatiques                    | 🟡     |
-| [3.9](stories/epic-3-editeur/3.9-edition-elements.md)      | Édition des éléments                     | 🟡     |
-| [3.10](stories/epic-3-editeur/3.10-suggestion-variante.md) | Suggestion de variante (optionnelle)     | 🟡     |
-| [3.11](stories/epic-3-editeur/3.11-playtest.md)            | Playtest de passage                      | ⬜     |
+| [3.1](stories/epic-3-editeur/3.1-carte-recherche.md)       | Carte et recherche de lieu               | ✅     |
+| [3.2](stories/epic-3-editeur/3.2-trace-accroche.md)        | Tracé automatique entre plusieurs points | ✅     |
+| [3.3](stories/epic-3-editeur/3.3-garde-fous.md)            | Garde-fous du tracé                      | ✅     |
+| [3.4](stories/epic-3-editeur/3.4-du-trace-a-la-course.md)  | Du tracé à la course                     | ✅     |
+| [3.5](stories/epic-3-editeur/3.5-profil-altitude.md)       | Profil d'altitude                        | ✅     |
+| [3.6](stories/epic-3-editeur/3.6-score-trace.md)           | Score du tracé en direct                 | ✅     |
+| [3.7](stories/epic-3-editeur/3.7-aller-retour.md)          | Aller-retour sur la même route           | ✅     |
+| [3.8](stories/epic-3-editeur/3.8-chicanes.md)              | Chicanes automatiques                    | ✅     |
+| [3.9](stories/epic-3-editeur/3.9-edition-elements.md)      | Édition des éléments                     | ✅     |
+| [3.10](stories/epic-3-editeur/3.10-suggestion-variante.md) | Suggestion de variante (optionnelle)     | ✅     |
+| [3.11](stories/epic-3-editeur/3.11-playtest.md)            | Playtest de passage                      | ✅     |
 
 L'éditeur s'inspire de [gpx.studio](https://gpx.studio/fr/help/toolbar/routing) pour le tracé entre plusieurs points. Le parcours complet, de la carte au volant, fonctionne dès la story 3.4 : le reste s'y ajoute.
 
