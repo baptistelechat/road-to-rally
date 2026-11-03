@@ -1,7 +1,7 @@
 "use client";
 
 import { requestRestart, useHudStore } from "@/game/hudStore";
-import { label, panel } from "../hudStyles";
+import { hudButton, label, panel } from "../hudStyles";
 
 const formatLap = (ms: number | null): string => {
   if (ms === null) return "--:--.---";
@@ -40,7 +40,7 @@ export const Chrono = ({ closed }: { closed: boolean }) => {
       </dl>
       <button
         type="button"
-        className="pointer-events-auto mt-2 w-full rounded border border-white/25 px-2 py-1 text-xs font-semibold transition-colors hover:bg-white/15 focus-visible:outline-2 focus-visible:outline-amber-400"
+        className={`${hudButton} pointer-events-auto mt-2 w-full`}
         onClick={(event) => {
           requestRestart();
           // Sans ça, Espace (frein à main) relancerait le tour en cliquant à nouveau.

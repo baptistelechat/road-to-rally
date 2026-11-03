@@ -1,4 +1,9 @@
 import {
+  DEFAULT_ENGINE,
+  ENGINE_PRESETS,
+  type EnginePresetId,
+} from "@/audio/enginePresets";
+import {
   NUMBER_CHARS,
   NUMBER_LENGTH,
   NUMBER_STYLES,
@@ -29,6 +34,8 @@ export interface Livery extends LiveryColors {
   numberStyle: NumberStyle;
   /** Code pays du drapeau de custode */
   flag: string;
+  /** Son du moteur en course */
+  engine: EnginePresetId;
 }
 
 export const defaultColors: LiveryColors = {
@@ -45,6 +52,7 @@ export const defaultLivery: Livery = {
   numberText: "27",
   numberStyle: "classique",
   flag: DEFAULT_FLAG,
+  engine: DEFAULT_ENGINE,
 };
 
 const LIVERY_KEY = "rally:livery";
@@ -71,7 +79,7 @@ export const parseLivery = (raw: string | null): Livery => {
       if (typeof value === "string" && HEX_COLOR.test(value))
         livery[key] = value;
     }
-    const { plateText, plateStyle, numberText, numberStyle, flag } =
+    const { plateText, plateStyle, numberText, numberStyle, flag, engine } =
       stored ?? {};
     if (validText(plateText, PLATE_CHARS, PLATE_LENGTH))
       livery.plateText = plateText;
@@ -83,6 +91,8 @@ export const parseLivery = (raw: string | null): Livery => {
     if (number) livery.numberStyle = number.id;
     const country = FLAGS.find(({ id }) => id === flag);
     if (country) livery.flag = country.id;
+    const preset = ENGINE_PRESETS.find(({ id }) => id === engine);
+    if (preset) livery.engine = preset.id;
   } catch {
     // JSON illisible : on garde la livrée d'origine.
   }

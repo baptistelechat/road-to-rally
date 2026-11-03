@@ -89,7 +89,11 @@ export const TrackPreview = () => {
   const [failed, setFailed] = useState(false);
   const track = useMemo(
     () =>
-      map.stageUrl ? stage && createStageTrack(stage) : createSandboxTrack(),
+      map.createStage
+        ? createStageTrack(map.createStage())
+        : map.stageUrl
+          ? stage && createStageTrack(stage)
+          : createSandboxTrack(),
     [map, stage],
   );
 

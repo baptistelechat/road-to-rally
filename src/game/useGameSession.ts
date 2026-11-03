@@ -3,11 +3,14 @@
 import type { RootState } from "@react-three/fiber";
 import { type RefObject, useEffect, useRef, useState } from "react";
 import { createCarAudio, type CarAudio } from "@/audio/engineAudio";
+import { loadLivery } from "@/render/car/livery";
 import { initRapier } from "@/sim/rapier";
 import { createSimulation, type Simulation } from "@/sim/simulation";
 import { parseStage } from "@/sim/track/stageCodec";
 import type { StageData } from "@/sim/types";
-import { setHudMuted } from "./hudStore";
+import { createCopilot, type Copilot } from "./copilot";
+import { applyAudioOptions } from "./copilotOptions";
+import { setHudMuted, setHudScreen, useHudStore } from "./hudStore";
 import type { GameMap } from "./maps";
 import type { ImportedStage } from "./useStageImport";
 
@@ -34,6 +37,7 @@ const nextPaint = (): Promise<void> =>
 export interface GameSession {
   sim: Simulation;
   audio: CarAudio;
+  copilot: Copilot;
   /** Avertissements à montrer au joueur */
   notices: readonly string[];
 }
@@ -61,16 +65,23 @@ export const useGameSession = (
     const given = imported ?? map.custom ?? null;
     let cancelled = false;
     let created: Simulation | null = null;
+    let copilot: Copilot | null = null;
     const download = new AbortController();
     // Créé ici et non en `useMemo` : un ancien moteur continuerait de jouer après chaque mise à jour à chaud.
-    const audio = createCarAudio();
-    const start = (): void => audio.start();
-    window.addEventListener("keydown", start);
-    window.addEventListener("pointerup", start);
+    const audio = createCarAudio(undefined, loadLivery().engine);
+    const unlock = (): void => audio.unlock();
+    // Tenté tout de suite : passe si le joueur a déjà agi sur le site (changement de carte, retour du garage).
+    // Sinon le navigateur l'exige d'un geste, et une manette n'en est pas un : l'écran de départ le demande.
+    audio.start();
+    window.addEventListener("keydown", unlock);
+    window.addEventListener("pointerup", unlock);
     setHudMuted(false);
+    // Chaque carte repasse par l'écran de départ, sauf le pilote automatique.
+    setHudScreen(params.has("bot") ? "race" : "start");
     void Promise.all([
       initRapier(),
       given?.stage ??
+        map.createStage?.() ??
         (map.stageUrl ? loadStage(map.stageUrl, download.signal) : undefined),
     ])
       .then(async ([, stage]) => {
@@ -83,9 +94,14 @@ export const useGameSession = (
           console.info(
             `Colliders et simulation créés en ${Math.round(creationMs)} ms`,
           );
+        copilot = createCopilot(created, audio);
+        applyAudioOptions(copilot, useHudStore.getState().copilotOptions);
+        // Sans bloquer le jeu : un mot manquant s'affiche dans la console et les icônes continuent.
+        void copilot.voice.load();
         setGame({
           sim: created,
           audio,
+          copilot,
           notices: [
             ...(given?.warnings ?? []),
             ...(given && creationMs > LONG_CREATION_MS
@@ -107,8 +123,9 @@ export const useGameSession = (
       cancelled = true;
       download.abort();
       setGame(null);
-      window.removeEventListener("keydown", start);
-      window.removeEventListener("pointerup", start);
+      window.removeEventListener("keydown", unlock);
+      window.removeEventListener("pointerup", unlock);
+      copilot?.reset();
       audio.dispose();
       // Le canvas se démonte après ce nettoyage : une image de plus lirait un monde déjà libéré.
       // `get()` : R3F remplace `internal` juste après `onCreated`, l'objet reçu alors est déjà périmé.

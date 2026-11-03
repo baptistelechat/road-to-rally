@@ -1,11 +1,15 @@
 "use client";
 
+import type { Copilot } from "@/game/copilot";
 import { useHudStore } from "@/game/hudStore";
 import type { ImportedStage } from "@/game/useStageImport";
 import type { RecoveryStatus } from "@/sim/recovery";
+import type { Simulation } from "@/sim/simulation";
 import { Chrono, FinishBanner } from "./components/Chrono";
 import { ControlsHelp } from "./components/ControlsHelp";
-import { MapSelect } from "./components/MapSelect";
+import { GameMenu } from "./components/GameMenu";
+import { MiniMap } from "./components/MiniMap";
+import { PaceNotes } from "./components/PaceNotes";
 import { StageNotices } from "./components/StageNotices";
 import { label, panel } from "./hudStyles";
 
@@ -98,6 +102,8 @@ const RecoveryCountdown = () => {
 };
 
 interface HudProps {
+  sim: Simulation;
+  copilot: Copilot;
   /** Identifiant de la carte en cours */
   map: string;
   mapLabel: string;
@@ -106,28 +112,41 @@ interface HudProps {
   /** Avertissements de la spéciale en cours */
   notices: readonly string[];
   onImported: (stage: ImportedStage) => void;
+  onToggleMute: () => void;
 }
 
 /** HUD en DOM, à placer par-dessus le canvas. Seuls les boutons et le sélecteur captent les clics. */
 export const Hud = ({
+  sim,
+  copilot,
   map,
   mapLabel,
   closed,
   notices,
   onImported,
+  onToggleMute,
 }: HudProps) => (
   <div className="pointer-events-none fixed inset-0 z-10 flex flex-col justify-between p-4 select-none">
     <div className="flex items-start justify-between gap-4">
       <div className="flex flex-col gap-2">
         <Chrono closed={closed} />
-        <MapSelect map={map} mapLabel={mapLabel} onImported={onImported} />
         <StageNotices notices={notices} />
       </div>
       <SoundStatus />
     </div>
     <DiagToast />
+    <PaceNotes />
+    <MiniMap sim={sim} />
     <FinishBanner />
     <RecoveryCountdown />
+    <GameMenu
+      map={map}
+      mapLabel={mapLabel}
+      closed={closed}
+      copilot={copilot}
+      onImported={onImported}
+      onToggleMute={onToggleMute}
+    />
     <div className="flex items-end justify-between gap-4">
       <ControlsHelp closed={closed} />
       <div className="ml-auto">

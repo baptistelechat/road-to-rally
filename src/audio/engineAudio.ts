@@ -2,17 +2,42 @@
 // Après la construction du graphe, tout paramètre passe par `setTargetAtTime`, pour ne pas faire de clics.
 import { carConfig } from "@/sim/carConfig";
 import type { CarState } from "@/sim/types";
+import type { VoiceBus } from "./copilotVoice";
+import {
+  DEFAULT_ENGINE,
+  enginePreset,
+  type EnginePresetId,
+} from "./enginePresets";
+import { createTireVoice, type ParamWriter, type TireVoice } from "./tireVoice";
+import {
+  createEngineVoice,
+  DEFAULT_LAYERS,
+  type EngineVoice,
+  type PopListener,
+} from "./engineVoice";
 
 export interface CarAudio {
-  /** À appeler depuis un geste de fin d'action (`click`, `pointerup`, `keydown`), sinon le navigateur bloque l'audio */
+  /** Tente de lancer le son : sans geste du joueur, le navigateur peut le bloquer */
   start: () => void;
+  /** À appeler depuis un geste de fin d'action (`click`, `pointerup`, `keydown`) : relance le son et lève le blocage */
+  unlock: () => void;
+  /** Le jeu attend un geste du joueur pour jouer le premier son */
+  isBlocked: () => boolean;
+  /** Menu pause : coupe tout le son, sans toucher au réglage du joueur. Appelable à chaque image. */
+  setPaused: (paused: boolean) => void;
   update: (state: CarState, dt: number) => void;
+  /** Prévient à chaque détonation d'échappement, même son coupé : les flammes partent en même temps. */
+  setPopListener: (listener: PopListener | null) => void;
+  /** Point d'entrée de la voix du copilote : le son coupé et la pause s'y appliquent. `null` avant le premier `start()`. */
+  voiceBus: () => VoiceBus | null;
   setMuted: (muted: boolean) => void;
   /** Renvoie le nouvel état */
   toggleMute: () => boolean;
   isMuted: () => boolean;
   /** Volume général, 0 à 1 */
   setVolume: (volume: number) => void;
+  /** Balance, 0 à 1 chacun : le moteur d'un côté, les pneus, l'herbe, le vent et les chocs de l'autre. La voix a son propre volume. */
+  setMix: (engine: number, effects: number) => void;
   dispose: () => void;
   /** État du contexte audio, pour le mode diagnostic */
   debug: () => AudioDebug | null;
@@ -29,11 +54,6 @@ export interface AudioDebug {
   underruns: number;
 }
 
-/** Moteur 4 cylindres 4 temps : deux allumages par tour. */
-const FIRING_PER_REV = 2;
-const ENGINE_RATIOS = [1, 2, 0.5] as const;
-const ENGINE_MIXES = [0.55, 0.22, 0.3] as const;
-const MIN_ENGINE_HZ = 20;
 const MUTE_TC = 0.03;
 /** Chaque ordre passe par le fil audio : à 60 Hz sur 9 paramètres, il en recevait 540 par seconde. */
 const UPDATE_PERIOD = 1 / 30;
@@ -45,7 +65,7 @@ const clamp01 = (value: number): number => Math.min(1, Math.max(0, value));
 const ramp = (low: number, high: number, value: number): number =>
   clamp01((value - low) / (high - low));
 
-const resolveContext = (): AudioContext | null => {
+export const resolveContext = (): AudioContext | null => {
   if (typeof window === "undefined") return null;
   const legacy = window as Window & {
     webkitAudioContext?: typeof AudioContext;
@@ -69,12 +89,12 @@ interface NoiseVoice {
 
 interface Graph {
   master: GainNode;
+  engineBus: GainNode;
+  effectsBus: GainNode;
   compressor: DynamicsCompressorNode;
-  engineOscs: OscillatorNode[];
-  engineFilter: BiquadFilterNode;
-  engineGain: GainNode;
+  engine: EngineVoice;
   shiftGain: GainNode;
-  skid: NoiseVoice;
+  tires: TireVoice;
   grass: NoiseVoice;
   wind: NoiseVoice;
   thumpNoise: NoiseVoice;
@@ -83,7 +103,13 @@ interface Graph {
   nodes: AudioNode[];
 }
 
-const buildGraph = (ctx: AudioContext, destination: AudioNode): Graph => {
+const buildGraph = (
+  ctx: AudioContext,
+  destination: AudioNode,
+  engineId: EnginePresetId,
+  onPop: PopListener,
+  write: ParamWriter,
+): Graph => {
   const nodes: AudioNode[] = [];
   const track = <T extends AudioNode>(node: T): T => {
     nodes.push(node);
@@ -113,21 +139,17 @@ const buildGraph = (ctx: AudioContext, destination: AudioNode): Graph => {
   compressor.connect(destination);
   const master = gainNode(0, compressor);
 
-  const shiftGain = gainNode(1, master);
-  const engineGain = gainNode(0, shiftGain);
-  const engineFilter = filterNode("lowpass", 600, 1.4, engineGain);
-  const engineOscs = ENGINE_RATIOS.map((ratio, index) => {
-    const osc = track(ctx.createOscillator());
-    osc.type = "sawtooth";
-    osc.frequency.value = Math.max(
-      MIN_ENGINE_HZ,
-      (carConfig.engine.idleRpm / 60) * FIRING_PER_REV * ratio,
-    );
-    // Léger désaccord : deux oscillateurs parfaitement en phase sonnent comme un seul.
-    osc.detune.value = index === 1 ? 7 : 0;
-    osc.connect(gainNode(ENGINE_MIXES[index], engineFilter));
-    return osc;
-  });
+  const engineBus = gainNode(1, master);
+  const effectsBus = gainNode(1, master);
+  const shiftGain = gainNode(1, engineBus);
+  const engine = createEngineVoice(
+    ctx,
+    shiftGain,
+    enginePreset(engineId),
+    carConfig.engine,
+    DEFAULT_LAYERS,
+    onPop,
+  );
 
   // Un seul tampon de bruit blanc en boucle alimente toutes les voix de bruit.
   const noise = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
@@ -138,7 +160,7 @@ const buildGraph = (ctx: AudioContext, destination: AudioNode): Graph => {
     frequency: number,
     q: number,
   ): NoiseVoice => {
-    const gain = gainNode(0, master);
+    const gain = gainNode(0, effectsBus);
     const filter = filterNode(type, frequency, q, gain);
     const source = track(ctx.createBufferSource());
     source.buffer = noise;
@@ -147,29 +169,28 @@ const buildGraph = (ctx: AudioContext, destination: AudioNode): Graph => {
     return { source, filter, gain };
   };
 
-  const skid = noiseVoice("bandpass", 1400, 2.2);
+  const tires = createTireVoice(ctx, effectsBus, write);
   const grass = noiseVoice("lowpass", 320, 0.7);
   const wind = noiseVoice("bandpass", 400, 0.6);
   const thumpNoise = noiseVoice("lowpass", 180, 0.7);
 
-  const thumpGain = gainNode(0, master);
+  const thumpGain = gainNode(0, effectsBus);
   const thumpOsc = track(ctx.createOscillator());
   thumpOsc.type = "sine";
   thumpOsc.frequency.value = 45;
   thumpOsc.connect(thumpGain);
 
-  for (const osc of engineOscs) osc.start();
   thumpOsc.start();
-  for (const voice of [skid, grass, wind, thumpNoise]) voice.source.start();
+  for (const voice of [grass, wind, thumpNoise]) voice.source.start();
 
   return {
     master,
+    engineBus,
+    effectsBus,
     compressor,
-    engineOscs,
-    engineFilter,
-    engineGain,
+    engine,
     shiftGain,
-    skid,
+    tires,
     grass,
     wind,
     thumpNoise,
@@ -207,13 +228,19 @@ const analyzeWheels = (state: CarState): void => {
 };
 
 /** @param injected contexte fourni de l'extérieur, utilisé par la vérification sans navigateur */
-export const createCarAudio = (injected?: AudioContext): CarAudio => {
-  const { idleRpm, redlineRpm, shiftTimeS } = carConfig.engine;
+export const createCarAudio = (
+  injected?: AudioContext,
+  engineId: EnginePresetId = DEFAULT_ENGINE,
+): CarAudio => {
+  const { shiftTimeS } = carConfig.engine;
   let ctx: AudioContext | null = null;
   let graph: Graph | null = null;
   let muted = false;
   let volume = 0.8;
+  let mix = { engine: 1, effects: 1 };
   let disposed = false;
+  let unlocked = false;
+  let paused = false;
   let elapsed = UPDATE_PERIOD;
   let lastGear: number | null = null;
   let lastImpact = 0;
@@ -222,6 +249,7 @@ export const createCarAudio = (injected?: AudioContext): CarAudio => {
   let lastShiftAt = Number.NEGATIVE_INFINITY;
   let lastThumpAt = Number.NEGATIVE_INFINITY;
   let writes = 0;
+  let popListener: PopListener | null = null;
   const targets = new Map<AudioParam, number>();
 
   const setParam = (
@@ -251,10 +279,20 @@ export const createCarAudio = (injected?: AudioContext): CarAudio => {
     );
   };
 
+  const applyMix = (): void => {
+    if (!ctx || !graph) return;
+    graph.engineBus.gain.setTargetAtTime(mix.engine, ctx.currentTime, MUTE_TC);
+    graph.effectsBus.gain.setTargetAtTime(
+      mix.effects,
+      ctx.currentTime,
+      MUTE_TC,
+    );
+  };
+
   const onVisibility = (): void => {
     if (!ctx) return;
     // Onglet caché : la boucle de rendu s'arrête, le moteur resterait bloqué sur sa dernière note.
-    const pending = document.hidden ? ctx.suspend() : ctx.resume();
+    const pending = document.hidden || paused ? ctx.suspend() : ctx.resume();
     pending.catch(() => undefined);
   };
 
@@ -281,16 +319,29 @@ export const createCarAudio = (injected?: AudioContext): CarAudio => {
     if (!ctx) ctx = injected ?? resolveContext();
     if (!ctx) return;
     if (!graph) {
-      graph = buildGraph(ctx, ctx.destination);
+      const audio = ctx;
+      graph = buildGraph(
+        ctx,
+        ctx.destination,
+        engineId,
+        (delayS, strength) => popListener?.(delayS, strength),
+        (param, value, timeConstant) =>
+          setParam(param, value, audio.currentTime, timeConstant),
+      );
       applyMaster();
+      applyMix();
       if (typeof document !== "undefined")
         document.addEventListener("visibilitychange", onVisibility);
     }
-    if (ctx.state === "suspended") ctx.resume().catch(() => undefined);
+    if (ctx.state === "suspended" && !paused)
+      ctx.resume().catch(() => undefined);
   };
 
   const update = (state: CarState, dt: number): void => {
     if (!ctx || !graph) return;
+    // Contexte suspendu : son horloge est figée, les chocs planifiés partiraient tous à la reprise.
+    if (ctx.state !== "running") return;
+    unlocked = true;
     elapsed += dt;
     if (elapsed < UPDATE_PERIOD) return;
     const stepS = elapsed;
@@ -300,31 +351,6 @@ export const createCarAudio = (injected?: AudioContext): CarAudio => {
     analyzeWheels(state);
     const { maxAsphaltSlip, grassShare, contacts, compression } = ANALYSIS;
     const { speed, throttle, rpm, gear, impact } = state;
-    const load = clamp01(throttle);
-    const rev = ramp(idleRpm, redlineRpm, rpm);
-
-    // Moteur
-    const baseHz = (Math.max(rpm, idleRpm * 0.6) / 60) * FIRING_PER_REV;
-    graph.engineOscs.forEach((osc, index) => {
-      setParam(
-        osc.frequency,
-        Math.max(MIN_ENGINE_HZ, baseHz * ENGINE_RATIOS[index]),
-        now,
-        0.025,
-      );
-    });
-    setParam(
-      graph.engineFilter.frequency,
-      420 + rev * 1100 + load * 3000,
-      now,
-      0.04,
-    );
-    setParam(
-      graph.engineGain.gain,
-      0.16 + rev * 0.1 + load * 0.2,
-      now,
-      0.04,
-    );
 
     // Coupure au passage de rapport. Le délai minimal évite de couper deux fois si le rapport passe par le point mort.
     if (
@@ -340,15 +366,14 @@ export const createCarAudio = (injected?: AudioContext): CarAudio => {
     }
     lastGear = gear;
 
-    // Crissement sur l'asphalte
-    const skidAmount = ramp(0.25, 0.95, maxAsphaltSlip) * ramp(1.5, 8, speed);
-    setParam(graph.skid.gain.gain, skidAmount * 0.3, now, 0.05);
-    setParam(
-      graph.skid.filter.frequency,
-      1100 + skidAmount * 1200,
-      now,
-      0.08,
+    // Moteur. La charge retombe pendant le passage : il s'entend comme un pied levé, pétarades comprises.
+    graph.engine.update(
+      rpm,
+      now - lastShiftAt < shiftTimeS ? 0 : throttle,
+      stepS,
     );
+
+    graph.tires.update(maxAsphaltSlip, speed);
 
     // Roulement sur l'herbe
     setParam(
@@ -360,12 +385,7 @@ export const createCarAudio = (injected?: AudioContext): CarAudio => {
 
     // Souffle du vent, en puissance de la vitesse
     const windAmount = ramp(5, 70, speed);
-    setParam(
-      graph.wind.gain.gain,
-      windAmount * windAmount * 0.3,
-      now,
-      0.1,
-    );
+    setParam(graph.wind.gain.gain, windAmount * windAmount * 0.3, now, 0.1);
     setParam(graph.wind.filter.frequency, 300 + speed * 14, now, 0.1);
 
     // Chocs : front montant de `impact`, puis réception après un saut ou un écrasement brutal de la suspension.
@@ -387,7 +407,24 @@ export const createCarAudio = (injected?: AudioContext): CarAudio => {
 
   return {
     start,
+    // Lève le blocage même si le navigateur refuse encore (touche Échap) : au pire, la course reste silencieuse.
+    unlock: () => {
+      start();
+      unlocked = true;
+    },
+    isBlocked: () => ctx !== null && !unlocked,
+    setPaused: (next) => {
+      if (next === paused) return;
+      paused = next;
+      if (!ctx) return;
+      (paused ? ctx.suspend() : ctx.resume()).catch(() => undefined);
+    },
     update,
+    setPopListener: (listener) => {
+      popListener = listener;
+    },
+    voiceBus: () =>
+      ctx && graph ? { context: ctx, output: graph.master } : null,
     setMuted,
     toggleMute: () => {
       setMuted(!muted);
@@ -405,7 +442,7 @@ export const createCarAudio = (injected?: AudioContext): CarAudio => {
         time: ctx.currentTime,
         baseLatency: ctx.baseLatency ?? 0,
         outputLatency: ctx.outputLatency ?? 0,
-        writes,
+        writes: writes + (graph?.engine.writes() ?? 0),
         underruns: stats?.underrunEvents ?? 0,
       };
     },
@@ -413,20 +450,20 @@ export const createCarAudio = (injected?: AudioContext): CarAudio => {
       volume = clamp01(next);
       applyMaster();
     },
+    setMix: (engine, effects) => {
+      mix = { engine: clamp01(engine), effects: clamp01(effects) };
+      applyMix();
+    },
     dispose: () => {
       if (disposed) return;
       disposed = true;
       if (typeof document !== "undefined")
         document.removeEventListener("visibilitychange", onVisibility);
       if (graph) {
-        for (const osc of graph.engineOscs) osc.stop();
+        graph.engine.dispose();
         graph.thumpOsc.stop();
-        for (const voice of [
-          graph.skid,
-          graph.grass,
-          graph.wind,
-          graph.thumpNoise,
-        ])
+        graph.tires.dispose();
+        for (const voice of [graph.grass, graph.wind, graph.thumpNoise])
           voice.source.stop();
         for (const node of graph.nodes) node.disconnect();
       }

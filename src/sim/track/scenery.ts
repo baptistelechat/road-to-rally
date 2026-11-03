@@ -103,10 +103,15 @@ export const startArch = (track: Track): Pose & { halfSpan: number } =>
 export const finishArch = (track: Track): Pose & { halfSpan: number } =>
   archAt(track, track.finishS);
 
-/** Courbure signée en chaque point sur une fenêtre de 10 pas : positive quand la route tourne à droite. */
-const signedCurvature = (track: Track): number[] => {
+/**
+ * Courbure signée en chaque point sur une fenêtre de 10 pas : positive quand la route tourne à droite.
+ * Par défaut sur tout le tracé, retour d'un aller-retour compris, car le copilote l'annonce aussi.
+ */
+export const signedCurvature = (
+  track: Track,
+  points: Track["points"] = track.points,
+): number[] => {
   const { closed } = track;
-  const { points } = track.unique;
   const n = points.length;
   const span = 5;
   return points.map((p, i) => {
@@ -245,7 +250,7 @@ export const generateScenery = (track: Track, seed: number): SceneryItem[] => {
   };
 
   // Bottes de paille à l'extérieur des virages, panneau 60 m avant le début de chacun.
-  const curvature = signedCurvature(track);
+  const curvature = signedCurvature(track, points);
   const hayEvery = Math.max(1, Math.round(6 / step));
   const signAhead = Math.round(60 / step);
   // Générateur à part : le choix debout ou couché ne décale pas le tirage du reste du décor.

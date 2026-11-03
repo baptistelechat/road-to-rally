@@ -46,3 +46,8 @@ next-env.d.ts
 
 # Captures du mode diagnostic
 /diag/
+
+# Génération de la voix du copilote
+/.venv-voice/
+/kokoro-v1.0.int8.onnx
+/voices-v1.0.bin

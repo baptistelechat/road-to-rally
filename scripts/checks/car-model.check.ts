@@ -33,6 +33,8 @@ const allGeometries = (car: CarGeometry): BufferGeometry[] => [
   car.body,
   car.brakeLights,
   ...car.wheels.map((wheel) => wheel.geometry),
+  ...car.wheels.map((wheel) => wheel.disc),
+  car.reverseLights,
 ];
 
 const check = async (): Promise<void> => {
@@ -112,6 +114,13 @@ const check = async (): Promise<void> => {
       }),
     ),
     defaultLivery,
+  );
+
+  // Moteur stocké : même règle, et une ancienne sauvegarde sans moteur prend celui d'origine
+  assert.equal(parseLivery(JSON.stringify({ engine: "five" })).engine, "five");
+  assert.equal(
+    parseLivery(JSON.stringify({ engine: "v12" })).engine,
+    defaultLivery.engine,
   );
 
   // Drapeau stocké : un code connu relu tel quel, le reste retombe sur l'origine

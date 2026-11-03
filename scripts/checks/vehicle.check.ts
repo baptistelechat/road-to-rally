@@ -134,6 +134,8 @@ export default async function check(): Promise<void> {
     const p = makeProbe();
     const s = p.run(3, () => ({ brake: 1 }));
     assert.equal(s.gear, -1);
+    assert.equal(s.throttle, 1, "le recul charge le moteur");
+    assert.equal(s.brake, 0, "le recul ne serre pas les freins");
     assert.ok(s.forwardSpeed < -3, `recul : ${s.forwardSpeed}`);
     assert.ok(s.position.z > 2, `recule vers +Z : ${s.position.z}`);
     const back = p.run(3, () => ({ throttle: 1 }));

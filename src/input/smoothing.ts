@@ -90,7 +90,7 @@ export interface GarageInput {
 const MENU_STICK_THRESHOLD = 0.5;
 
 /** A valide, B annule ; la croix ou le stick gauche déplacent. */
-const readMenuAction = (pad: GamepadLike): MenuAction | null => {
+export const readMenuAction = (pad: GamepadLike): MenuAction | null => {
   if (pad.buttons[0]?.pressed) return "confirm";
   if (pad.buttons[1]?.pressed) return "cancel";
   if (pad.buttons[12]?.pressed) return "up";
@@ -135,10 +135,25 @@ export const pollMenuRepeat = (
   return action;
 };
 
+/** Ligne visée dans une liste en boucle ; `index` vaut -1 si aucune n'est sélectionnée. */
+export const stepMenuIndex = (
+  index: number,
+  count: number,
+  action: MenuAction,
+): number => {
+  if (action === "down") return (index + 1) % count;
+  if (action === "up") return (Math.max(index, 0) - 1 + count) % count;
+  return index;
+};
+
+/** Stick droit, axe horizontal, +1 = vers la droite */
+export const readCameraOrbit = (pad: GamepadLike): number =>
+  applyDeadzone(pad.axes[2] ?? 0, STICK_DEADZONE);
+
 export const readGarageInput = (pad: GamepadLike): GarageInput => {
   const { throttle, brake } = readGamepadInput(pad);
   return {
-    orbitX: applyDeadzone(pad.axes[2] ?? 0, STICK_DEADZONE),
+    orbitX: readCameraOrbit(pad),
     orbitY: applyDeadzone(pad.axes[3] ?? 0, STICK_DEADZONE),
     zoom: throttle - brake,
     menu: readMenuAction(pad),

@@ -48,8 +48,27 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Clic sur un point, une chicane ou une alerte du panneau pour centrer la carte dessus
 - Indicateur de chargement pendant la recherche de la route avant le départ et après l'arrivée
 - Barrière incassable au centre des ronds-points roulés, qui suit le relief, pour qu'on ne les coupe pas, avec son cercle rouge sur la carte de l'éditeur
+- Menu de départ avant chaque course, avec le bouton « Prendre le départ »
+- Menu pause avec `Échap` ou `Start` : la course se fige et le son se coupe, avec reprise, relance et choix de la carte
+- Rotation de la caméra autour de la voiture en course avec le stick droit, en vue poursuite : elle revient derrière la voiture au relâchement
+- Menu pause entièrement utilisable à la manette : haut et bas pour se déplacer, A pour valider et B pour fermer
+- Bouton pour couper ou remettre le son dans le menu pause
+- Choix du moteur au garage entre 4 cylindres atmo, 4 cylindres turbo et 5 cylindres, avec une démo sonore à la sélection et une pastille sur le moteur validé, conservé en course
+- Page `/labo-son` pour écouter les moteurs et régler chaque couche du son
+- Animations en course : flammes et étincelles à l'échappement, calées sur les pétarades, à-coup de la caisse et de la caméra aux passages de rapport, mottes d'herbe et de terre projetées hors piste, gerbe d'étincelles sur les chocs
+- Disques de frein visibles derrière les jantes, qui rougissent aux gros freinages
+- Feux de recul blancs dans les blocs arrière, allumés en marche arrière
+- Crissement de pneus sur l'asphalte, en plus du souffle du dérapage, réglable dans une section dédiée de `/labo-son`
+- Copilote en course : tous les virages sont notés de 1 à 6 et annoncés par une voix française, assez tôt pour préparer le virage selon la vitesse, avec crêtes, bosses et enfilades
+- Icônes des prochains virages à l'écran et mini-carte de la spéciale
+- Options du copilote dans le menu : voix, vitesse de diction, volume, icônes et mini-carte, à la souris, au clavier et à la manette, conservées d'une session à l'autre
+- Carte d'essai « Pace notes » avec un virage de chaque note, et écoute de la voix dans `/labo-son`
+- Quatre styles de mini-carte au choix dans les options : globale, zoom nord en haut avec boussole, zoom cap en haut, et zoom avec vue globale en vignette
+- Balance du son dans les options : curseurs à crans de 10 % pour la voix, le moteur et les effets (pneus, herbe, vent, chocs)
 
 ### Changed
+
+- Son du moteur plus réaliste en course : résonance d'échappement, admission, mécanique, saturation, frein moteur et pétarades, plus sifflement et « pschitt » sur les moteurs turbo
 
 - Au garage, le bouton A de la manette valide la ligne sélectionnée : la rotation se met en pause depuis son bouton
 - Caméra du garage limitée à l'intérieur de la tente, avec un champ de vision plus large
@@ -67,6 +86,15 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Le clic droit ne fait plus tourner la carte de l'éditeur
 - Virages et carrefours moins arrondis : rayon minimal de 5 m au lieu de 8 m, la route roulée colle mieux à la vraie route
 - Pointillés selon le nombre de voies d'OpenStreetMap : aucun sur une voie unique, une ligne sur deux voies, deux sur trois
+- Le sélecteur de carte passe du HUD au menu de départ et de pause
+- Le choix de la carte devient une liste qui s'ouvre, à la souris comme à la manette, où A valide et B referme
+- En pause, A à la manette active la ligne sélectionnée au lieu de reprendre directement la course
+- Le menu de départ se parcourt à la manette comme le menu pause, ce qui permet d'y choisir la carte
+- Nouvelles icônes du copilote : pilule colorée selon la note, badge « LONG », pastille bicolore et flèche qui se referme quand le virage se resserre, crêtes et bosses en rouge, et cadre autour des enfilades
+- Un virage qui se resserre s'annonce avec sa note d'entrée, et une enfilade annonce chacun de ses virages
+- Seuls les vrais sommets sont annoncés comme des crêtes : les petites ondulations de la route ne le sont plus
+- La mini-carte montre le parcouru en ambre et la route à venir en gris, avec une flèche orientée selon le cap, un départ vert et un damier à l'arrivée, et suit la voiture à chaque image
+- Le volume de la voix se règle par un curseur, sans phrase de test
 
 ### Removed
 
@@ -87,3 +115,5 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Alertes et drapeaux qui empêchaient d'attraper un point sur la carte
 - Kilomètre d'une chicane différent entre la liste et l'alerte
 - Boutons d'une chicane qui perdaient le focus au clavier après chaque déplacement
+- Son du moteur absent après un changement de carte tant que le joueur n'avait pas de nouveau cliqué
+- Feux stop allumés en marche arrière et moteur qui sonnait comme au frein moteur en reculant

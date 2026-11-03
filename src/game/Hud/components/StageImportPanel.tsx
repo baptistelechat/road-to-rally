@@ -2,11 +2,8 @@
 
 import { useId } from "react";
 import { useStageImport, type ImportedStage } from "@/game/useStageImport";
-import { label, panel } from "../hudStyles";
+import { hudButton, label, panel } from "../hudStyles";
 import { StageProgress } from "./StageProgress";
-
-const button =
-  "rounded border border-white/25 px-3 py-1 text-xs font-semibold transition-colors hover:bg-white/15 focus-visible:outline-2 focus-visible:outline-amber-400";
 
 interface StageImportPanelProps {
   onClose: () => void;
@@ -55,17 +52,17 @@ export const StageImportPanel = ({
 
       <div className="flex justify-end gap-2">
         {running ? (
-          <button type="button" className={button} onClick={cancel}>
+          <button type="button" className={hudButton} onClick={cancel}>
             Annuler
           </button>
         ) : (
           <>
             {status.kind === "failed" && (
-              <button type="button" className={button} onClick={retry}>
+              <button type="button" className={hudButton} onClick={retry}>
                 Réessayer
               </button>
             )}
-            <button type="button" className={button} onClick={onClose}>
+            <button type="button" className={hudButton} onClick={onClose}>
               Fermer
             </button>
           </>

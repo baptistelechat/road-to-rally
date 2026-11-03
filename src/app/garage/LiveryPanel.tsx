@@ -1,5 +1,6 @@
 import { FLAGS } from "@/render/car/flags";
 import { SlotEditor, StylePicker } from "./DecalControls";
+import { EnginePicker } from "./EnginePicker";
 import { FlagPicker, FlagThumb } from "./FlagPicker";
 import {
   type ColorRow,
@@ -9,6 +10,7 @@ import {
   RESET_ROW,
   SWATCH_COLUMNS,
   SWATCHES,
+  validatedEngine,
 } from "./garageMenu";
 
 /** Contour de la ligne sélectionnée, quel que soit le périphérique */
@@ -172,13 +174,24 @@ export const LiveryPanel = ({ menu, dispatch }: LiveryPanelProps) => (
               className={`flex flex-col gap-1.5 rounded ${selected ? MENU_FOCUS : ""}`}
             >
               {row.label}
-              <StylePicker
-                row={row}
-                rowIndex={index}
-                open={selected && menu.picker !== null}
-                livery={menu.livery}
-                dispatch={dispatch}
-              />
+              {row.key === "engine" ? (
+                <EnginePicker
+                  row={row}
+                  rowIndex={index}
+                  selected={menu.livery.engine}
+                  validated={validatedEngine(menu)}
+                  playing={menu.engineDemo?.engine ?? null}
+                  dispatch={dispatch}
+                />
+              ) : (
+                <StylePicker
+                  row={row}
+                  rowIndex={index}
+                  open={selected && menu.picker !== null}
+                  livery={menu.livery}
+                  dispatch={dispatch}
+                />
+              )}
             </div>
           );
         case "reset":

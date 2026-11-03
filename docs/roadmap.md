@@ -67,6 +67,19 @@ Le détail suit la proximité : les epics 1 à 3 ont une fiche par story, les su
 
 L'éditeur s'inspire de [gpx.studio](https://gpx.studio/fr/help/toolbar/routing) pour le tracé entre plusieurs points. Le parcours complet, de la carte au volant, fonctionne dès la story 3.4 : le reste s'y ajoute.
 
+## Epic 4 : copilote
+
+Détaché du reste de l'epic car il ne dépend pas de l'éditeur : à faire dans cet ordre, avant ou après 4.1. La mini-carte est la première à reporter si le temps manque.
+
+| Story                                                  | Sujet               | Statut |
+| ------------------------------------------------------ | ------------------- | ------ |
+| [4.6](stories/epic-4-course/4.6-calcul-notes.md)       | Calcul des notes    | ⬜     |
+| [4.7](stories/epic-4-course/4.7-voix-copilote.md)      | Voix du copilote    | ⬜     |
+| [4.8](stories/epic-4-course/4.8-moment-note.md)        | Moment de la note   | ⬜     |
+| [4.9](stories/epic-4-course/4.9-icones-virages.md)     | Icônes de virage    | ⬜     |
+| [4.10](stories/epic-4-course/4.10-mini-carte.md)       | Mini-carte          | ⬜     |
+| [4.11](stories/epic-4-course/4.11-options-copilote.md) | Options du copilote | ⬜     |
+
 ✅ validé · 🟡 code livré et vérifié par les tests, jugement au volant de Baptiste attendu · ⬜ à faire
 
 ## Décisions de cadrage
@@ -88,9 +101,13 @@ L'éditeur s'inspire de [gpx.studio](https://gpx.studio/fr/help/toolbar/routing)
 | Aller-retour     | Autorisé en sens inverse, avec un retournement au bout (story 3.7)              | Demande de Baptiste : une route qui mène à un rond-point, le tour, puis le retour. Story la plus risquée de l'epic, elle commence par un prototype             |
 | Fond de carte    | mapcn tel quel, avec ses tuiles CARTO                                           | Moins de bricolage. Licence payante en cas d'usage commercial : la prop `styles` permet de passer à OpenFreeMap en une ligne                                   |
 | Chicanes         | Barrière de rubalise fixe, bottes empilées derrière pour cacher la sortie       | Idée de Baptiste : foncer dedans ne paie plus, et la route se lit moins facilement                                                                             |
+| Voix du copilote | Mots enregistrés et enchaînés, à la place de `speechSynthesis`                  | Aucun délai imprévisible, la même voix partout, et une durée de phrase connue d'avance pour annoncer à l'heure                                                 |
+| Annonces         | Tous les virages annoncés, aucun saut, enfilade pour les passages très serrés   | Estimé sur `mountain` : la parole tient même 1,6 fois au-dessus de l'allure de référence. Mesures dans la story 4.8                                            |
 
 ## Hors v0
 
 Monde entier, classements en ligne, rallye multi-spéciales, réglages voiture exposés au joueur, comptes, anti-triche, multijoueur, météo, nuit.
+
+Idées d'animation en attente de décision : transfert de masse accentué à l'image, vibration moteur de la caisse.
 
 Trois choses à préparer quand même dès la v0, sans construire la fonctionnalité : **pas de physique fixe, enregistrement des entrées, paramètres voiture dans un objet de config.**

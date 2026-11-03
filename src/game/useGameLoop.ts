@@ -7,14 +7,22 @@ import type { CarAudio } from "@/audio/engineAudio";
 import { updateRumble } from "@/audio/gamepadRumble";
 import {
   createInputController,
+  findStandardPad,
   type InputController,
 } from "@/input/inputController";
 import { createInputRecorder } from "@/input/recorder";
+import {
+  type MenuRepeat,
+  pollMenuRepeat,
+  readCameraOrbit,
+  readMenuAction,
+} from "@/input/smoothing";
 import type { CarSource } from "@/render/carSource";
 import { botInput } from "@/sim/bot";
 import { createFixedStepper, FIXED_DT } from "@/sim/fixedStep";
 import type { Simulation } from "@/sim/simulation";
 import { NEUTRAL_INPUT, type CarInput, type Pose } from "@/sim/types";
+import type { Copilot } from "./copilot";
 import {
   consumeRestartRequest,
   pushHud,
@@ -22,8 +30,14 @@ import {
   setHudFinished,
   setHudMuted,
   setHudRecovery,
+  nextScreen,
+  setHudScreen,
   setLapTimes,
+  useHudStore,
 } from "./hudStore";
+import { applyMenuAction } from "./Hud/applyMenuAction";
+
+const START_BUTTON = 9;
 
 const readBestLap = (key: string): number | null => {
   try {
@@ -45,6 +59,7 @@ const writeBestLap = (key: string, ms: number): void => {
 interface GameLoopOptions {
   sim: Simulation;
   audio: CarAudio;
+  copilot: Copilot;
   useBot: boolean;
   /** Clé `localStorage` du meilleur temps de la carte */
   bestLapKey: string;
@@ -63,11 +78,16 @@ export interface LoopInfo {
 export const useGameLoop = ({
   sim,
   audio,
+  copilot,
   useBot,
   bestLapKey,
   onToggleCamera,
   onDiagRequest,
-}: GameLoopOptions): { source: CarSource; info: RefObject<LoopInfo> } => {
+}: GameLoopOptions): {
+  source: CarSource;
+  info: RefObject<LoopInfo>;
+  cameraOrbit: RefObject<number>;
+} => {
   const stepper = useMemo(() => createFixedStepper(), []);
   const recorder = useRef(createInputRecorder());
   const controller = useRef<ReturnType<typeof createInputController> | null>(
@@ -78,8 +98,12 @@ export const useGameLoop = ({
     applied: NEUTRAL_INPUT,
     steps: 0,
   });
+  const cameraOrbit = useRef(0);
   const bestLap = useRef<number | null>(null);
   const lastLap = useRef<number | null>(null);
+  // Tenu au départ : le bouton qui a réveillé la manette ne déclenche rien.
+  const startHeld = useRef(true);
+  const menuRepeat = useRef<MenuRepeat>({ held: undefined, wait: 0 });
   const pose = useRef<Pose>({
     position: { x: 0, y: 0, z: 0 },
     rotation: { x: 0, y: 0, z: 0, w: 1 },
@@ -105,6 +129,7 @@ export const useGameLoop = ({
 
   const restart = (): void => {
     sim.restart();
+    copilot.reset();
     recorder.current = createInputRecorder();
     lastLap.current = null;
   };
@@ -112,7 +137,30 @@ export const useGameLoop = ({
   useFrame((_, delta) => {
     const input = controller.current;
     info.current.steps = 0;
-    const alpha = stepper.advance(delta, () => {
+    const pad = findStandardPad(window);
+    const start = pad?.buttons[START_BUTTON]?.pressed ?? false;
+    const soundBlocked = audio.isBlocked();
+    const screen = nextScreen(
+      useHudStore.getState().screen,
+      soundBlocked,
+      start && !startHeld.current,
+    );
+    startHeld.current = start;
+    setHudScreen(screen);
+    audio.setPaused(screen === "pause");
+    // Relevé aussi en course : un A tenu (frein à main) à l'ouverture du menu ne clique sur rien.
+    const menuAction = pad
+      ? pollMenuRepeat(menuRepeat.current, readMenuAction(pad), delta)
+      : null;
+    if (!pad) menuRepeat.current.held = undefined;
+    if (menuAction && screen !== "race" && document.hasFocus())
+      applyMenuAction(menuAction, soundBlocked);
+    cameraOrbit.current =
+      pad && screen === "race" && document.hasFocus()
+        ? readCameraOrbit(pad)
+        : 0;
+    // Dans les menus, ni voiture ni chrono.
+    const alpha = stepper.advance(screen === "race" ? delta : 0, () => {
       const sampled: CarInput = input?.sample(FIXED_DT) ?? NEUTRAL_INPUT;
       const applied = useBot ? botInput(sim.state(), sim.track, sim.routeS()) : sampled;
       recorder.current.record(applied);
@@ -135,6 +183,11 @@ export const useGameLoop = ({
       if (action === "mute") setHudMuted(audio.toggleMute());
       if (action === "restart") restart();
       if (action === "diag") onDiagRequest();
+      if (action === "pause") {
+        // Échap suit B : d'abord la liste et le panneau, puis la course.
+        if (screen === "race") setHudScreen("pause");
+        else applyMenuAction("cancel", soundBlocked);
+      }
     }
     if (consumeRestartRequest()) restart();
 
@@ -156,7 +209,9 @@ export const useGameLoop = ({
     r.w = out.w;
 
     audio.update(to, delta);
-    updateRumble(to);
+    copilot.update(delta, screen);
+    // Hors course, l'état figé vibrerait sans fin.
+    if (screen === "race") updateRumble(to);
     pushHud(to);
     setHudRecovery(sim.recovery());
     if (input) setHudDevice(input.activeDevice());
@@ -176,5 +231,5 @@ export const useGameLoop = ({
     }),
     [sim],
   );
-  return { source, info };
+  return { source, info, cameraOrbit };
 };

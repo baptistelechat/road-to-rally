@@ -10,6 +10,7 @@ import {
   rampAxis,
   readGarageInput,
   STICK_DEADZONE,
+  stepMenuIndex,
   type GamepadLike,
 } from "../../src/input/smoothing";
 import { FIXED_DT } from "../../src/sim/fixedStep";
@@ -169,6 +170,15 @@ export default async function check(): Promise<void> {
     assert.equal(readGarageInput(makePad({ steer: 0.3 })).menu, null);
     const drift = { ...makePad(), axes: [0, 0, STICK_DEADZONE, 0] };
     assert.equal(readGarageInput(drift).orbitX, 0);
+  }
+
+  // Menu de pause : la sélection boucle, et part d'une extrémité si rien n'a le focus.
+  {
+    assert.equal(stepMenuIndex(2, 3, "down"), 0);
+    assert.equal(stepMenuIndex(0, 3, "up"), 2);
+    assert.equal(stepMenuIndex(-1, 3, "down"), 0);
+    assert.equal(stepMenuIndex(-1, 3, "up"), 2);
+    assert.equal(stepMenuIndex(1, 3, "left"), 1);
   }
 
   // Menu : un déclenchement à la pression, puis un défilement si le déplacement est maintenu.
