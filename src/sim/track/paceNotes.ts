@@ -13,8 +13,11 @@ const GRADE_RADII = [20, 35, 55, 85, 130];
 const LONG_LENGTH = 100;
 /** Rayon de l'entrée sur rayon de la fin à partir duquel le virage « se resserre », mesurés sur son premier et son dernier tiers */
 const TIGHTEN_RATIO = 1.5;
-/** Sous ce rayon vertical, le profil forme une crête ou un creux, en mètres */
-const CREST_RADIUS = 150;
+/**
+ * Sous ce rayon vertical, le profil forme une crête ou un creux, en mètres.
+ * La voiture s'allège de v²/R : à 100 m, elle décolle presque vers 110 km/h. À 150 m, la moindre ondulation devenait une crête.
+ */
+const CREST_RADIUS = 100;
 /** Demi-fenêtre de mesure du rayon vertical, en points : à 2 m de pas, une bosse de 14 m ne s'y efface pas */
 const VERTICAL_SPAN = 2;
 /** Plus courte que ça, la portion n'est qu'un ou deux points de bruit du profil, en mètres */
@@ -37,7 +40,10 @@ export type PaceGrade = 1 | 2 | 3 | 4 | 5 | 6;
 export interface PaceTurn {
   kind: "turn";
   direction: "left" | "right";
+  /** Note de la partie la plus serrée */
   grade: PaceGrade;
+  /** Note du premier tiers : moins serrée que `grade` quand le virage se resserre, égale sinon */
+  entryGrade: PaceGrade;
   startS: number;
   endS: number;
   long: boolean;
@@ -176,17 +182,21 @@ const findTurns = (track: Track, sOf: (i: number) => number): PaceTurn[] => {
     }
     if (angle < MIN_ANGLE) continue;
     const shift = from >= n ? track.length : 0;
+    const grade = gradeOf(1 / tightest);
+    // Comparés en courbure : une entrée quasi droite n'a pas de rayon utile.
+    const tightens = exit >= entry * TIGHTEN_RATIO;
     const startS = sOf(from) - shift;
     const endS = sOf(to) - shift;
     turns.push({
       kind: "turn",
       direction: sign > 0 ? "right" : "left",
-      grade: gradeOf(1 / tightest),
+      grade,
+      // Une entrée droite donne un rayon infini, donc un 6.
+      entryGrade: tightens ? gradeOf(1 / entry) : grade,
       startS,
       endS,
       long: endS - startS > LONG_LENGTH,
-      // Comparés en courbure : une entrée quasi droite n'a pas de rayon utile.
-      tightens: exit >= entry * TIGHTEN_RATIO,
+      tightens,
     });
   }
   return turns.sort((a, b) => a.startS - b.startS);

@@ -128,9 +128,10 @@ const checkCircuit = (): void => {
       notes.some((note) => overlaps(note, sectionOf(track, "Chicane"))),
   );
   assert.equal(chicane?.notes.length, 3, "chicane sans enfilade de 3 virages");
+  // Crête douce, 2,5 m sur 80 m : la voiture s'y allège à peine, elle n'est plus annoncée. La piste d'essai garde une vraie crête.
   assert.ok(
-    inSection("Crête").some((note) => note.kind === "crest"),
-    "crête absente",
+    !inSection("Crête").some((note) => note.kind === "crest"),
+    "ondulation annoncée comme une crête",
   );
   assert.ok(
     inSection("Bosse").some((note) => note.kind === "bump"),

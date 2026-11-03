@@ -27,6 +27,12 @@ export interface LapTimes {
 
 export type GameScreen = "start" | "race" | "pause";
 
+export interface HudPaceChain {
+  start: number;
+  end: number;
+  open: boolean;
+}
+
 export interface HudState extends LapTimes {
   speedKmh: number;
   gear: number;
@@ -41,6 +47,8 @@ export interface HudState extends LapTimes {
   finished: boolean;
   /** Prochains virages annoncés, le plus proche d'abord */
   paceNotes: readonly PaceNote[];
+  /** Enfilade parmi ces notes : indices de sa première et de sa dernière, et `open` si elle continue au-delà de la bande */
+  paceChain: HudPaceChain | null;
   /** Dernière annonce, en toutes lettres */
   paceCall: HudPaceCall | null;
   copilotOptions: CopilotOptions;
@@ -56,6 +64,7 @@ export const useHudStore = create<HudState>(() => ({
   diag: null,
   finished: false,
   paceNotes: [],
+  paceChain: null,
   paceCall: null,
   copilotOptions: loadCopilotOptions(),
   lapMs: null,
@@ -146,15 +155,36 @@ export const setHudFinished = (finished: boolean): void => {
     useHudStore.setState({ finished });
 };
 
-/** Appelable à chaque image : seul un changement de la liste affichée met à jour le HUD. */
-export const setHudPaceNotes = (notes: readonly PaceNote[]): void => {
-  const current = useHudStore.getState().paceNotes;
+/**
+ * Appelable à chaque image : seul un changement de la liste affichée met à jour le HUD.
+ * `chain` : notes de l'enfilade annoncée, passées comprises.
+ */
+export const setHudPaceNotes = (
+  notes: readonly PaceNote[],
+  chain: readonly PaceNote[] | null = null,
+): void => {
+  const { paceNotes: current, paceChain: currentChain } =
+    useHudStore.getState();
   const shown = notes.slice(0, PACE_ICONS);
+  // ponytail: un seul cadre. Deux enfilades dans 3 icônes demandent deux annonces de 3 virages collées ; la seconde s'affiche alors sans cadre.
+  const chained = new Set(chain);
+  const inChain = shown.flatMap((note, i) => (chained.has(note) ? [i] : []));
+  const paceChain =
+    inChain.length > 0
+      ? {
+          start: inChain[0],
+          end: inChain[inChain.length - 1],
+          open: notes.slice(PACE_ICONS).some((note) => chained.has(note)),
+        }
+      : null;
   if (
     shown.length !== current.length ||
-    shown.some((note, i) => note !== current[i])
+    shown.some((note, i) => note !== current[i]) ||
+    paceChain?.start !== currentChain?.start ||
+    paceChain?.end !== currentChain?.end ||
+    paceChain?.open !== currentChain?.open
   )
-    useHudStore.setState({ paceNotes: shown });
+    useHudStore.setState({ paceNotes: shown, paceChain });
 };
 
 let paceCallId = 0;

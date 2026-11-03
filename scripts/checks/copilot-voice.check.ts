@@ -21,6 +21,7 @@ const turn = (
   kind: "turn",
   direction,
   grade,
+  entryGrade: grade,
   startS: 0,
   endS: 1,
   long: false,
@@ -48,6 +49,12 @@ const checkWords = (): void => {
   assert.deepEqual(callToWords(detailed, { short: true }), ["gauche", "trois"]);
   assert.deepEqual(
     callToWords(
+      call("single", [turn("right", 2, { entryGrade: 4, tightens: true })]),
+    ),
+    ["droite", "quatre", "se-resserre"],
+  );
+  assert.deepEqual(
+    callToWords(
       call("pair", [turn("right", 2), turn("left", 6, { long: true })]),
     ),
     ["droite", "deux", "puis", "gauche", "six", "longue"],
@@ -60,7 +67,7 @@ const checkWords = (): void => {
         turn("right", 2),
       ]),
     ),
-    ["enfilade", "droite", "un"],
+    ["enfilade", "droite", "trois", "gauche", "un", "droite", "deux"],
   );
   assert.deepEqual(
     callToWords(call("single", [{ kind: "crest", startS: 0, endS: 1 }])),

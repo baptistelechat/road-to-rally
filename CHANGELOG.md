@@ -57,6 +57,9 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Le choix de la carte devient une liste qui s'ouvre, à la souris comme à la manette, où A valide et B referme
 - En pause, A à la manette active la ligne sélectionnée au lieu de reprendre directement la course
 - Le menu de départ se parcourt à la manette comme le menu pause, ce qui permet d'y choisir la carte
+- Nouvelles icônes du copilote : pilule colorée selon la note, badge « LONG », pastille bicolore et flèche qui se referme quand le virage se resserre, crêtes et bosses en rouge, et cadre autour des enfilades
+- Un virage qui se resserre s'annonce avec sa note d'entrée, et une enfilade annonce chacun de ses virages
+- Seuls les vrais sommets sont annoncés comme des crêtes : les petites ondulations de la route ne le sont plus
 
 ### Fixed
 

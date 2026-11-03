@@ -103,7 +103,8 @@ export const createCopilot = (
         setHudPaceCall(cueText(next));
         speak(next);
       }
-      setHudPaceNotes(cue.activeNotes());
+      const chain = cue.activeCalls().find(({ call }) => call.type === "chain");
+      setHudPaceNotes(cue.activeNotes(), chain?.call.notes);
     },
     reset: () => {
       cue.reset();

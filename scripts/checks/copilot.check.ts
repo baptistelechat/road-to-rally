@@ -2,7 +2,8 @@ import assert from "node:assert/strict";
 import type { CopilotVoice, VoiceBus } from "../../src/audio/copilotVoice";
 import { createCopilot, type CopilotSim } from "../../src/game/copilot";
 import { miniMapOutline } from "../../src/game/Hud/miniMapOutline";
-import { useHudStore } from "../../src/game/hudStore";
+import { setHudPaceNotes, useHudStore } from "../../src/game/hudStore";
+import type { PaceNote } from "../../src/sim/track/paceNotes";
 import { createNotesBenchStage } from "../../src/sim/track/notesBenchTrack";
 import { createSandboxTrack } from "../../src/sim/track/sandboxTrack";
 import { createStageTrack } from "../../src/sim/track/stage";
@@ -191,7 +192,26 @@ const checkMiniMap = (): void => {
   );
 };
 
+const checkChainFrame = (): void => {
+  const notes = Array.from({ length: 6 }, (_, i): PaceNote => ({
+    kind: "bump",
+    startS: i * 10,
+    endS: i * 10 + 5,
+  }));
+  const chainOf = () => useHudStore.getState().paceChain;
+  // Enfilade de 5 notes qui commence en deuxième position : ouverte à droite.
+  setHudPaceNotes(notes, notes.slice(1, 6));
+  assert.deepEqual(chainOf(), { start: 1, end: 2, open: true });
+  // Les dernières notes de l'enfilade tiennent dans la bande : le cadre se referme.
+  setHudPaceNotes(notes.slice(3), notes.slice(1, 5));
+  assert.deepEqual(chainOf(), { start: 0, end: 1, open: false });
+  setHudPaceNotes(notes);
+  assert.equal(chainOf(), null);
+  setHudPaceNotes([]);
+};
+
 export default async function check(): Promise<void> {
+  checkChainFrame();
   checkMenus();
   checkMute();
   checkPause();

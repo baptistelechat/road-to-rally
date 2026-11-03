@@ -28,6 +28,7 @@ const turn = (
   kind: "turn",
   direction,
   grade,
+  entryGrade: grade,
   startS: 0,
   endS: 0,
   long: false,
@@ -45,8 +46,8 @@ const call = (type: PaceCall["type"], notes: PaceCall["notes"]): PaceCall => ({
 const SAMPLE_CALLS: PaceCall[] = [
   call("single", [turn("left", 3)]),
   call("single", [turn("right", 5, { long: true })]),
-  call("single", [turn("left", 4, { tightens: true })]),
-  call("single", [turn("right", 2, { long: true, tightens: true })]),
+  call("single", [turn("left", 2, { entryGrade: 4, tightens: true })]),
+  call("single", [turn("right", 2, { entryGrade: 5, long: true, tightens: true })]),
   call("pair", [turn("left", 2), turn("right", 4)]),
   call("pair", [turn("right", 6, { long: true }), turn("left", 1)]),
   call("chain", [turn("left", 3), turn("right", 1), turn("left", 2)]),

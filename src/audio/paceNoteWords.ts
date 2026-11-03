@@ -28,7 +28,7 @@ export const PACE_WORDS = [
 export type PaceWord = (typeof PACE_WORDS)[number];
 
 export interface CallWordsOptions {
-  /** Retire « longue » et « se resserre » : la phrase tient dans moins de temps */
+  /** Retire « longue », « se resserre » et « enfilade » : la phrase tient dans moins de temps */
   short?: boolean;
 }
 
@@ -52,18 +52,24 @@ const noteWords = (note: PaceNote, short: boolean): PaceWord[] => {
   const precisions: PaceWord[] = [];
   if (!short && note.long) precisions.push("longue");
   if (!short && note.tightens) precisions.push("se-resserre");
-  return [...turnStart(note), ...precisions];
+  // « Quatre se resserre » : la note annoncée est celle de l'entrée.
+  return [...turnStart({ ...note, grade: note.entryGrade }), ...precisions];
 };
 
 export const callToWords = (
   { type, notes }: PaceCall,
   { short = false }: CallWordsOptions = {},
 ): PaceWord[] => {
-  if (type === "chain") {
-    const turns = notes.flatMap((note) => (note.kind === "turn" ? [note] : []));
-    const tightest = turns.reduce((a, b) => (b.grade < a.grade ? b : a));
-    return ["enfilade", ...turnStart({ ...turns[0], grade: tightest.grade })];
-  }
+  // Chaque virage est annoncé, sans précisions. En retard, le mot « enfilade » saute : le cadre des icônes le montre.
+  if (type === "chain")
+    return [
+      ...(short ? [] : (["enfilade"] as const)),
+      ...notes.flatMap((note) =>
+        note.kind === "turn"
+          ? turnStart({ ...note, grade: note.entryGrade })
+          : [],
+      ),
+    ];
   return notes.flatMap((note, i): PaceWord[] =>
     i === 0 ? noteWords(note, short) : ["puis", ...noteWords(note, short)],
   );

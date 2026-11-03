@@ -82,9 +82,9 @@ export const NOTES_BENCH_SECTIONS: BenchSection[] = [
   straight(LEAD + 60),
 ];
 
-/** Reliefs ajoutés sur l'axe plat, centrés sur leur section. Les mêmes que le circuit du sandbox. */
+/** Reliefs ajoutés sur l'axe plat, centrés sur leur section. La crête est plus franche que celle du sandbox, qui ne s'annonce plus. */
 const RELIEFS: { section: string; height: number; length: number }[] = [
-  { section: "Crête", height: 2.5, length: 80 },
+  { section: "Crête", height: 3.5, length: 70 },
   { section: "Bosse", height: 0.5, length: 14 },
 ];
 
