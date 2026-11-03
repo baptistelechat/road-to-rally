@@ -9,7 +9,7 @@ import { createSimulation, type Simulation } from "@/sim/simulation";
 import { parseStage } from "@/sim/track/stageCodec";
 import type { StageData } from "@/sim/types";
 import { createCopilot, type Copilot } from "./copilot";
-import { applyVoiceOptions } from "./copilotOptions";
+import { applyAudioOptions } from "./copilotOptions";
 import { setHudMuted, setHudScreen, useHudStore } from "./hudStore";
 import type { GameMap } from "./maps";
 import type { ImportedStage } from "./useStageImport";
@@ -93,7 +93,7 @@ export const useGameSession = (
             `Colliders et simulation créés en ${Math.round(creationMs)} ms`,
           );
         copilot = createCopilot(created, audio);
-        applyVoiceOptions(copilot, useHudStore.getState().copilotOptions);
+        applyAudioOptions(copilot, useHudStore.getState().copilotOptions);
         // Sans bloquer le jeu : un mot manquant s'affiche dans la console et les icônes continuent.
         void copilot.voice.load();
         setGame({

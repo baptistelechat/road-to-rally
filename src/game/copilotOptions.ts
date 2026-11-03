@@ -4,24 +4,44 @@ import type { Copilot } from "./copilot";
 
 export type SpeechRate = keyof typeof SPEECH_RATES;
 
-export const VOICE_VOLUMES = [0, 25, 50, 75, 100] as const;
-export type VoiceVolume = (typeof VOICE_VOLUMES)[number];
+/** Crans des curseurs de volume, en pourcentage */
+export const VOLUME_STEPS = [
+  0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100,
+] as const;
+export type Volume = (typeof VOLUME_STEPS)[number];
+
+/** Globale, zoom nord en haut, zoom cap en haut, zoom avec vignette globale */
+export const MINI_MAP_STYLES = [
+  "global",
+  "north",
+  "heading",
+  "hybrid",
+] as const;
+export type MiniMapStyle = (typeof MINI_MAP_STYLES)[number];
 
 export interface CopilotOptions {
   voiceEnabled: boolean;
   speechRate: SpeechRate;
   /** En pourcentage */
-  voiceVolume: VoiceVolume;
+  voiceVolume: Volume;
+  /** Balance avec la voix, en pourcentage */
+  engineVolume: Volume;
+  /** Pneus, herbe, vent et chocs, en pourcentage */
+  effectsVolume: Volume;
   paceIconsEnabled: boolean;
   miniMapEnabled: boolean;
+  miniMapStyle: MiniMapStyle;
 }
 
 export const defaultCopilotOptions: CopilotOptions = {
   voiceEnabled: true,
   speechRate: "normal",
   voiceVolume: 100,
+  engineVolume: 100,
+  effectsVolume: 100,
   paceIconsEnabled: true,
   miniMapEnabled: true,
+  miniMapStyle: "global",
 };
 
 const OPTIONS_KEY = "rally:copilot-options";
@@ -44,8 +64,16 @@ export const parseCopilotOptions = (raw: string | null): CopilotOptions => {
     }
     const rate = SPEECH_RATE_IDS.find((id) => id === stored?.speechRate);
     if (rate) options.speechRate = rate;
-    const volume = VOICE_VOLUMES.find((step) => step === stored?.voiceVolume);
-    if (volume !== undefined) options.voiceVolume = volume;
+    for (const key of [
+      "voiceVolume",
+      "engineVolume",
+      "effectsVolume",
+    ] as const) {
+      const volume = VOLUME_STEPS.find((step) => step === stored?.[key]);
+      if (volume !== undefined) options[key] = volume;
+    }
+    const style = MINI_MAP_STYLES.find((id) => id === stored?.miniMapStyle);
+    if (style) options.miniMapStyle = style;
   } catch {
     // JSON illisible : on garde les réglages d'origine.
   }
@@ -69,10 +97,17 @@ export const saveCopilotOptions = (options: CopilotOptions): void => {
 };
 
 /** Vitesse de diction comprise : le moment des annonces la lit à travers `durationOf`. */
-export const applyVoiceOptions = (
-  copilot: Pick<Copilot, "voice" | "setVoiceEnabled">,
-  { voiceEnabled, speechRate, voiceVolume }: CopilotOptions,
+export const applyAudioOptions = (
+  copilot: Pick<Copilot, "voice" | "setVoiceEnabled" | "setMix">,
+  {
+    voiceEnabled,
+    speechRate,
+    voiceVolume,
+    engineVolume,
+    effectsVolume,
+  }: CopilotOptions,
 ): void => {
+  copilot.setMix(engineVolume / 100, effectsVolume / 100);
   copilot.setVoiceEnabled(voiceEnabled);
   copilot.voice.setRate(SPEECH_RATES[speechRate]);
   copilot.voice.setVolume(voiceVolume / 100);

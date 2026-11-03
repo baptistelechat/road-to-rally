@@ -45,6 +45,8 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Icônes des prochains virages à l'écran et mini-carte de la spéciale
 - Options du copilote dans le menu : voix, vitesse de diction, volume, icônes et mini-carte, à la souris, au clavier et à la manette, conservées d'une session à l'autre
 - Carte d'essai « Pace notes » avec un virage de chaque note, et écoute de la voix dans `/labo-son`
+- Quatre styles de mini-carte au choix dans les options : globale, zoom nord en haut avec boussole, zoom cap en haut, et zoom avec vue globale en vignette
+- Balance du son dans les options : curseurs à crans de 10 % pour la voix, le moteur et les effets (pneus, herbe, vent, chocs)
 
 ### Changed
 
@@ -60,6 +62,8 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Nouvelles icônes du copilote : pilule colorée selon la note, badge « LONG », pastille bicolore et flèche qui se referme quand le virage se resserre, crêtes et bosses en rouge, et cadre autour des enfilades
 - Un virage qui se resserre s'annonce avec sa note d'entrée, et une enfilade annonce chacun de ses virages
 - Seuls les vrais sommets sont annoncés comme des crêtes : les petites ondulations de la route ne le sont plus
+- La mini-carte montre le parcouru en ambre et la route à venir en gris, avec une flèche orientée selon le cap, un départ vert et un damier à l'arrivée, et suit la voiture à chaque image
+- Le volume de la voix se règle par un curseur, sans phrase de test
 
 ### Fixed
 

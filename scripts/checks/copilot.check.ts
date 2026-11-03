@@ -42,6 +42,7 @@ const setup = () => {
       voiceBus: () =>
         ({ context: { state: world.contextState } }) as unknown as VoiceBus,
       isMuted: () => world.muted,
+      setMix: () => undefined,
     },
     voice,
   );

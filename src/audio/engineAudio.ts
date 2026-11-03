@@ -36,6 +36,8 @@ export interface CarAudio {
   isMuted: () => boolean;
   /** Volume général, 0 à 1 */
   setVolume: (volume: number) => void;
+  /** Balance, 0 à 1 chacun : le moteur d'un côté, les pneus, l'herbe, le vent et les chocs de l'autre. La voix a son propre volume. */
+  setMix: (engine: number, effects: number) => void;
   dispose: () => void;
   /** État du contexte audio, pour le mode diagnostic */
   debug: () => AudioDebug | null;
@@ -87,6 +89,8 @@ interface NoiseVoice {
 
 interface Graph {
   master: GainNode;
+  engineBus: GainNode;
+  effectsBus: GainNode;
   compressor: DynamicsCompressorNode;
   engine: EngineVoice;
   shiftGain: GainNode;
@@ -135,7 +139,9 @@ const buildGraph = (
   compressor.connect(destination);
   const master = gainNode(0, compressor);
 
-  const shiftGain = gainNode(1, master);
+  const engineBus = gainNode(1, master);
+  const effectsBus = gainNode(1, master);
+  const shiftGain = gainNode(1, engineBus);
   const engine = createEngineVoice(
     ctx,
     shiftGain,
@@ -154,7 +160,7 @@ const buildGraph = (
     frequency: number,
     q: number,
   ): NoiseVoice => {
-    const gain = gainNode(0, master);
+    const gain = gainNode(0, effectsBus);
     const filter = filterNode(type, frequency, q, gain);
     const source = track(ctx.createBufferSource());
     source.buffer = noise;
@@ -163,12 +169,12 @@ const buildGraph = (
     return { source, filter, gain };
   };
 
-  const tires = createTireVoice(ctx, master, write);
+  const tires = createTireVoice(ctx, effectsBus, write);
   const grass = noiseVoice("lowpass", 320, 0.7);
   const wind = noiseVoice("bandpass", 400, 0.6);
   const thumpNoise = noiseVoice("lowpass", 180, 0.7);
 
-  const thumpGain = gainNode(0, master);
+  const thumpGain = gainNode(0, effectsBus);
   const thumpOsc = track(ctx.createOscillator());
   thumpOsc.type = "sine";
   thumpOsc.frequency.value = 45;
@@ -179,6 +185,8 @@ const buildGraph = (
 
   return {
     master,
+    engineBus,
+    effectsBus,
     compressor,
     engine,
     shiftGain,
@@ -229,6 +237,7 @@ export const createCarAudio = (
   let graph: Graph | null = null;
   let muted = false;
   let volume = 0.8;
+  let mix = { engine: 1, effects: 1 };
   let disposed = false;
   let unlocked = false;
   let paused = false;
@@ -265,6 +274,16 @@ export const createCarAudio = (
     if (!ctx || !graph) return;
     graph.master.gain.setTargetAtTime(
       muted ? 0 : volume,
+      ctx.currentTime,
+      MUTE_TC,
+    );
+  };
+
+  const applyMix = (): void => {
+    if (!ctx || !graph) return;
+    graph.engineBus.gain.setTargetAtTime(mix.engine, ctx.currentTime, MUTE_TC);
+    graph.effectsBus.gain.setTargetAtTime(
+      mix.effects,
       ctx.currentTime,
       MUTE_TC,
     );
@@ -310,6 +329,7 @@ export const createCarAudio = (
           setParam(param, value, audio.currentTime, timeConstant),
       );
       applyMaster();
+      applyMix();
       if (typeof document !== "undefined")
         document.addEventListener("visibilitychange", onVisibility);
     }
@@ -429,6 +449,10 @@ export const createCarAudio = (
     setVolume: (next) => {
       volume = clamp01(next);
       applyMaster();
+    },
+    setMix: (engine, effects) => {
+      mix = { engine: clamp01(engine), effects: clamp01(effects) };
+      applyMix();
     },
     dispose: () => {
       if (disposed) return;

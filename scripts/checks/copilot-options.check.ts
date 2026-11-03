@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { createCopilotVoice } from "../../src/audio/copilotVoice";
 import {
-  applyVoiceOptions,
+  applyAudioOptions,
   type CopilotOptions,
   defaultCopilotOptions,
   loadCopilotOptions,
@@ -19,9 +19,12 @@ import { createStageTrack } from "../../src/sim/track/stage";
 const CHANGED: CopilotOptions = {
   voiceEnabled: false,
   speechRate: "rapide",
-  voiceVolume: 25,
+  voiceVolume: 30,
+  engineVolume: 70,
+  effectsVolume: 0,
   paceIconsEnabled: false,
   miniMapEnabled: false,
+  miniMapStyle: "hybrid",
 };
 
 /** Remplace `localStorage` le temps de `run`. */
@@ -52,8 +55,11 @@ const checkUnreadable = (): void => {
         voiceEnabled: "non",
         speechRate: "toString",
         voiceVolume: 33,
+        engineVolume: "100",
+        effectsVolume: 101,
         paceIconsEnabled: 0,
         miniMapEnabled: null,
+        miniMapStyle: "rotation",
       }),
     ),
     defaultCopilotOptions,
@@ -123,8 +129,8 @@ const SPEED = 15;
 const driveCues = (speechRate: SpeechRate) => {
   const track = createStageTrack(createNotesBenchStage());
   const voice = createCopilotVoice(() => null);
-  applyVoiceOptions(
-    { voice, setVoiceEnabled: () => undefined },
+  applyAudioOptions(
+    { voice, setVoiceEnabled: () => undefined, setMix: () => undefined },
     { ...defaultCopilotOptions, speechRate },
   );
   const cue = createPaceNoteCue(track, computePaceNotes(track).calls, {
@@ -168,10 +174,24 @@ const checkRateMovesCues = (): void => {
   assert.ok(earlier.length > 0, "plus lent : annonce plus tôt");
 };
 
+const checkMix = (): void => {
+  const mixes: number[][] = [];
+  applyAudioOptions(
+    {
+      voice: createCopilotVoice(() => null),
+      setVoiceEnabled: () => undefined,
+      setMix: (engine, effects) => mixes.push([engine, effects]),
+    },
+    CHANGED,
+  );
+  assert.deepEqual(mixes, [[0.7, 0]], "balance moteur et effets en 0 à 1");
+};
+
 export default async function check(): Promise<void> {
   checkUnreadable();
   checkBlocked();
   checkRoundTrip();
   checkCancel();
   checkRateMovesCues();
+  checkMix();
 }

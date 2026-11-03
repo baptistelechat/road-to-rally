@@ -5,15 +5,16 @@ import { SPEECH_RATES } from "@/audio/copilotVoice";
 import { createVoicePreview, type VoicePreview } from "@/audio/voicePreview";
 import type { Copilot } from "@/game/copilot";
 import {
-  applyVoiceOptions,
+  applyAudioOptions,
   type CopilotOptions,
+  type MiniMapStyle,
   type SpeechRate,
-  VOICE_VOLUMES,
-  type VoiceVolume,
+  type Volume,
 } from "@/game/copilotOptions";
 import { setCopilotOptions, useHudStore } from "@/game/hudStore";
 import { hudButton, menuFocus } from "../hudStyles";
 import { type MenuOption, MenuSelect } from "./MenuSelect";
+import { MenuSlider } from "./MenuSlider";
 
 const enabledOptions = (suffix: string): readonly MenuOption<boolean>[] => [
   { id: true, name: `Activée${suffix}` },
@@ -26,10 +27,12 @@ const RATES: readonly MenuOption<SpeechRate>[] = [
   { id: "normal", name: "Normal" },
   { id: "rapide", name: "Rapide" },
 ];
-const VOLUMES: readonly MenuOption<VoiceVolume>[] = VOICE_VOLUMES.map((id) => ({
-  id,
-  name: `${id} %`,
-}));
+const MAP_STYLES: readonly MenuOption<MiniMapStyle>[] = [
+  { id: "global", name: "Globale" },
+  { id: "north", name: "Zoom, nord en haut" },
+  { id: "heading", name: "Zoom, cap en haut" },
+  { id: "hybrid", name: "Zoom et vue globale" },
+];
 
 interface CopilotOptionsPanelProps {
   copilot: Copilot;
@@ -59,7 +62,7 @@ export const CopilotOptionsPanel = ({
   const update = (patch: Partial<CopilotOptions>): CopilotOptions => {
     const next = { ...options, ...patch };
     setCopilotOptions(next);
-    applyVoiceOptions(copilot, next);
+    applyAudioOptions(copilot, next);
     return next;
   };
 
@@ -91,14 +94,20 @@ export const CopilotOptionsPanel = ({
           close();
         }}
       />
-      <MenuSelect
+      <MenuSlider
         title="Volume de la voix"
         value={options.voiceVolume}
-        options={VOLUMES}
-        onChoose={(voiceVolume, close) => {
-          updateAndListen({ voiceVolume });
-          close();
-        }}
+        onChange={(value) => update({ voiceVolume: value as Volume })}
+      />
+      <MenuSlider
+        title="Volume du moteur"
+        value={options.engineVolume}
+        onChange={(value) => update({ engineVolume: value as Volume })}
+      />
+      <MenuSlider
+        title="Volume des effets"
+        value={options.effectsVolume}
+        onChange={(value) => update({ effectsVolume: value as Volume })}
       />
       <MenuSelect
         title="Icônes de virage"
@@ -115,6 +124,15 @@ export const CopilotOptionsPanel = ({
         options={ENABLED}
         onChoose={(miniMapEnabled, close) => {
           update({ miniMapEnabled });
+          close();
+        }}
+      />
+      <MenuSelect
+        title="Style de mini-carte"
+        value={options.miniMapStyle}
+        options={MAP_STYLES}
+        onChoose={(miniMapStyle, close) => {
+          update({ miniMapStyle });
           close();
         }}
       />

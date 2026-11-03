@@ -15,7 +15,7 @@ export interface CopilotSim {
   respawnCount: () => number;
 }
 
-export type CopilotAudio = Pick<CarAudio, "voiceBus" | "isMuted">;
+export type CopilotAudio = Pick<CarAudio, "voiceBus" | "isMuted" | "setMix">;
 
 export interface Copilot {
   /** Chargement, vitesse de diction et volume : le reste passe par `update` */
@@ -26,6 +26,8 @@ export interface Copilot {
   reset: () => void;
   /** Voix coupée, les notes continuent d'être calculées et les icônes de s'afficher */
   setVoiceEnabled: (enabled: boolean) => void;
+  /** Balance moteur et effets, relayée au son de la voiture */
+  setMix: CarAudio["setMix"];
 }
 
 /** Le nom de fichier d'un mot n'est pas toujours son orthographe. */
@@ -65,6 +67,7 @@ export const createCopilot = (
 
   return {
     voice,
+    setMix: audio.setMix,
     update: (delta, screen) => {
       // Une phrase en cours ne redevient pas audible au second `M`.
       const muted = audio.isMuted();

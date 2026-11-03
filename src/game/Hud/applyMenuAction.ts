@@ -13,7 +13,7 @@ export const menuCancelTarget = (
 };
 
 /**
- * Manette : haut et bas déplacent le focus, A clique sur le bouton qui l'a.
+ * Manette : haut et bas déplacent le focus, A clique sur le bouton qui l'a, gauche et droite règlent un curseur.
  * Son bloqué : A n'active pas les boutons `data-needs-sound`, un clic de manette ne débloquerait rien.
  */
 export const applyMenuAction = (
@@ -36,10 +36,23 @@ export const applyMenuAction = (
   }
   const scope = list ?? document.querySelector("dialog[open]");
   const items = [
-    ...(scope?.querySelectorAll<HTMLButtonElement>("button:not(:disabled)") ??
-      []),
+    ...(scope?.querySelectorAll<HTMLElement>(
+      'button:not(:disabled), input[type="range"]',
+    ) ?? []),
   ];
-  const current = items.indexOf(document.activeElement as HTMLButtonElement);
+  const focused = document.activeElement;
+  const current = items.indexOf(focused as HTMLElement);
+  if (
+    (action === "left" || action === "right") &&
+    focused instanceof HTMLInputElement &&
+    focused.type === "range"
+  ) {
+    if (action === "left") focused.stepDown();
+    else focused.stepUp();
+    // `stepUp` passe sous le suivi de valeur de React : l'événement `input` déclenche bien `onChange`.
+    focused.dispatchEvent(new Event("input", { bubbles: true }));
+    return;
+  }
   if (action === "confirm") {
     const target = items[current] ?? items[0];
     if (!(soundBlocked && target?.dataset.needsSound !== undefined))
