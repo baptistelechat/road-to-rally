@@ -59,6 +59,20 @@ export const stageHash = (stage: StageData): string => {
   addMesh(hasher, ribbon(stage.points, stage.widths, false));
   addMesh(hasher, stage.terrain);
   // Sans chicane, rien n'est ajouté : les empreintes déjà publiées ne bougent pas.
+  if (stage.lanes) hasher.add(new Float64Array(stage.lanes));
+  if (stage.islands)
+    hasher.add(
+      new Float64Array(
+        stage.islands.flatMap((island) => [
+          island.position.x,
+          island.position.y,
+          island.position.z,
+          island.radius,
+          island.height,
+          island.skirt,
+        ]),
+      ),
+    );
   if (stage.obstacles)
     hasher.add(
       new Float64Array(

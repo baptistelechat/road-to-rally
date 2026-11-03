@@ -1,27 +1,12 @@
 // Chicanes automatiques sur l'axe analysé, pures et sans réseau : le pipeline recalcule le placement final avec les vraies largeurs.
-import type { AnalyzedAxis, HighwaySegment } from "@/geo/analyzeTrace";
+import {
+  toOsmWays,
+  type AnalyzedAxis,
+  type HighwaySegment,
+} from "@/geo/analyzeTrace";
 import { placeChicanes } from "@/geo/chicanes";
-import { deduceRoadAttributes, type OsmWay } from "@/geo/osm";
+import { deduceRoadAttributes } from "@/geo/osm";
 import type { AutoChicanes } from "./types";
-
-/**
- * Les portions de BRouter vues comme des voies OSM, comme dans `analyzeTrace`.
- */
-// ponytail: copie de `toOsmWays`, privé dans `analyzeTrace.ts` ; à exporter de là-bas pour n'en garder qu'un.
-const toOsmWays = (segments: HighwaySegment[]): OsmWay[] =>
-  segments.flatMap(({ points, ways }) =>
-    ways.flatMap((way, i) => {
-      const geometry = points.slice(
-        way.fromIndex,
-        (ways[i + 1]?.fromIndex ?? points.length - 1) + 1,
-      );
-      if (geometry.length < 2) return [];
-      const tags: Record<string, string> = way.highway
-        ? { highway: way.highway }
-        : {};
-      return [{ id: i, tags, geometry }];
-    }),
-  );
 
 /**
  * Sur un aller-retour, seul le bras en reçoit : arrêter la recherche à la jonction écarte la boucle, le retour et la fourche,

@@ -381,6 +381,15 @@ export const generateScenery = (track: Track, seed: number): SceneryItem[] => {
       !track.obstacles.some((block) =>
         isNearBlock(block, item.position.x, item.position.z, BLOCK_CLEARANCE),
       ) &&
+      // Rien sur l'îlot ni à cheval sur sa barrière.
+      !track.islands.some(
+        ({ position, radius }) =>
+          Math.hypot(
+            item.position.x - position.x,
+            item.position.z - position.z,
+          ) <=
+          radius + BLOCK_CLEARANCE,
+      ) &&
       (!isHay(item.kind) ||
         standing.every(
           (other) =>

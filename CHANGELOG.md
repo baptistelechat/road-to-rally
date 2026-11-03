@@ -47,6 +47,7 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Zone de 100 m autour de chaque chicane sur la carte, qui passe au rouge si elle en touche une autre, avec l'écart actuel et le décalage à faire
 - Clic sur un point, une chicane ou une alerte du panneau pour centrer la carte dessus
 - Indicateur de chargement pendant la recherche de la route avant le départ et après l'arrivée
+- Barrière incassable au centre des ronds-points roulés, qui suit le relief, pour qu'on ne les coupe pas, avec son cercle rouge sur la carte de l'éditeur
 
 ### Changed
 
@@ -64,6 +65,8 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Le message de virage arrondi indique le rayon appliqué et l'écart avec la route réelle
 - Alertes de chicane retirée plus précises, avec l'écart réel, et conservées après une modification tant que la chicane n'a pas bougé
 - Le clic droit ne fait plus tourner la carte de l'éditeur
+- Virages et carrefours moins arrondis : rayon minimal de 5 m au lieu de 8 m, la route roulée colle mieux à la vraie route
+- Pointillés selon le nombre de voies d'OpenStreetMap : aucun sur une voie unique, une ligne sur deux voies, deux sur trois
 
 ### Removed
 
@@ -78,6 +81,7 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - GPX marqués avec leur propre prolongement : un tracé qui se croise est maintenant refusé dès sa lecture, avec l'endroit indiqué
 - Marqueur de chicane qui restait à côté de la route une fois glissé : il revient sur le tracé
 - Textures de chicane qui clignotaient au loin
+- Erreur de la console à l'ouverture de l'éditeur, avec des alertes d'écart de chicanes fausses (« 0 m ») avant la fin de l'analyse du tracé
 - Chicane acceptée par l'éditeur puis retirée à la génération parce que trop proche d'une ligne ou d'une autre chicane
 - Curseur qui tremblait près du tracé et clic droit qui ne posait pas de chicane
 - Alertes et drapeaux qui empêchaient d'attraper un point sur la carte

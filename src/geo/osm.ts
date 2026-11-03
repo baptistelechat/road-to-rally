@@ -35,7 +35,15 @@ export interface OsmWay {
   geometry: LatLon[];
 }
 
-const USEFUL_TAGS = ["highway", "lanes", "width", "bridge", "tunnel", "oneway"];
+const USEFUL_TAGS = [
+  "highway",
+  "lanes",
+  "width",
+  "bridge",
+  "tunnel",
+  "oneway",
+  "junction",
+];
 /** Voies où une voiture ne passe pas : un sentier le long de la route ne doit pas lui voler sa largeur */
 const NOT_DRIVABLE =
   "footway|path|steps|cycleway|pedestrian|bridleway|corridor|platform|proposed|construction|raceway|bus_guideway";
@@ -146,6 +154,28 @@ export const widthFromTags = (tags: Record<string, string>): number => {
   return Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, value));
 };
 
+/**
+ * Voies de circulation : `lanes` s'il est lisible, sinon une pour un sens unique ou un giratoire, deux ailleurs.
+ * Pas la largeur : une petite route à double sens de 5 m a bien deux voies.
+ */
+export const lanesFromTags = (tags: Record<string, string>): number => {
+  const oneWay =
+    (tags.oneway !== undefined && tags.oneway !== "no") ||
+    tags.junction === "roundabout" ||
+    tags.junction === "circular";
+  const count = /^\s*[1-9]\d*\s*$/.test(tags.lanes ?? "")
+    ? Number(tags.lanes)
+    : null;
+  // Comme pour la largeur : `lanes=1` sur une grande route à double sens compte une voie par sens.
+  if (
+    count === 1 &&
+    !oneWay &&
+    (HIGHWAY_WIDTHS[tags.highway ?? ""] ?? 0) >= MAJOR_ROAD_WIDTH
+  )
+    return 2;
+  return count ?? (oneWay ? 1 : 2);
+};
+
 const isStructure = (value: string | undefined): boolean =>
   value !== undefined && value !== "no";
 
@@ -154,6 +184,8 @@ export interface RoadAttributes {
   widths: number[];
   /** Vrai sur un pont ou un tunnel : l'IGN y donne le terrain, pas la route */
   structures: boolean[];
+  /** Voies de circulation en chaque point de l'axe, pour le marquage */
+  lanes: number[];
 }
 
 interface PlaneWay {
@@ -233,6 +265,7 @@ export const deduceRoadAttributes = (
   const planeWays = (ways ?? []).map((way) => toPlaneWay(way, trace.origin));
   const raw: number[] = [];
   const structures: boolean[] = [];
+  const rawLanes: number[] = [];
   const { points } = trace;
   points.forEach((point, i) => {
     const previous = points[Math.max(0, i - 1)];
@@ -245,6 +278,7 @@ export const deduceRoadAttributes = (
       planeWays,
     );
     raw.push(way ? widthFromTags(way.tags) : DEFAULT_WIDTH);
+    rawLanes.push(way ? lanesFromTags(way.tags) : 2);
     structures.push(
       way !== null &&
         (isStructure(way.tags.bridge) || isStructure(way.tags.tunnel)),
@@ -255,11 +289,14 @@ export const deduceRoadAttributes = (
   for (let i = 0; i < points.length && !trace.realRunoff; i++) {
     if (i >= trace.runoffPoints && i <= last) continue;
     raw[i] = raw[i < trace.runoffPoints ? trace.runoffPoints : last];
+    rawLanes[i] = rawLanes[i < trace.runoffPoints ? trace.runoffPoints : last];
     structures[i] = false;
   }
   const smoothed = boxSmooth(
     boxSmooth(medianFilter(raw, WIDTH_MEDIAN_RADIUS), WIDTH_SMOOTH_RADIUS),
     WIDTH_SMOOTH_RADIUS,
   );
-  return { widths: smoothed.map(roundMm), structures };
+  // Le filtre médian retire une voie associée par erreur sur quelques points, au passage d'un carrefour.
+  const lanes = medianFilter(rawLanes, WIDTH_MEDIAN_RADIUS).map(Math.round);
+  return { widths: smoothed.map(roundMm), structures, lanes };
 };

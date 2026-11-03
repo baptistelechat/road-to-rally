@@ -1,5 +1,6 @@
 // Garde-fous de l'éditeur : les mêmes fonctions que le pipeline, mais tout est signalé au lieu de lever à la première erreur.
 // Pure et sans réseau. Le contrôle hors de France arrive avec les altitudes : il n'est pas ici.
+import { findRoundabouts } from "./roundabouts";
 import {
   findRoadContact,
   isForkPair,
@@ -77,12 +78,14 @@ export interface TraceAnalysis {
   /** Axe qui sera roulé. `null` si le GPX est illisible ou d'une longueur sans espoir, sous 1 km ou au-delà de 30 km au total. */
   axis: AnalyzedAxis | null;
   issues: TraceIssue[];
+  /** Îlots incassables des ronds-points roulés, comme la spéciale les posera. Absent : aucun. */
+  roundabouts?: { position: LatLon; radius: number }[];
 }
 
 /** La forme de `Segment` de l'éditeur : `analyzeTrace(gpx, { widthsByHighway: trace.segments })`. */
 export interface HighwaySegment {
   points: LatLon[];
-  ways: { fromIndex: number; highway?: string }[];
+  ways: { fromIndex: number; highway?: string; junction?: string }[];
 }
 
 export interface AnalyzeOptions {
@@ -93,7 +96,7 @@ export interface AnalyzeOptions {
 }
 
 /** Présente les portions de BRouter comme des voies OSM : les largeurs sortent ainsi de la même fonction que le pipeline. */
-const toOsmWays = (segments: HighwaySegment[]): OsmWay[] =>
+export const toOsmWays = (segments: HighwaySegment[]): OsmWay[] =>
   segments.flatMap(({ points, ways }) =>
     ways.flatMap((way, i) => {
       const geometry = points.slice(
@@ -101,9 +104,10 @@ const toOsmWays = (segments: HighwaySegment[]): OsmWay[] =>
         (ways[i + 1]?.fromIndex ?? points.length - 1) + 1,
       );
       if (geometry.length < 2) return [];
-      const tags: Record<string, string> = way.highway
-        ? { highway: way.highway }
-        : {};
+      const tags: Record<string, string> = {
+        ...(way.highway ? { highway: way.highway } : {}),
+        ...(way.junction ? { junction: way.junction } : {}),
+      };
       return [{ id: i, tags, geometry }];
     }),
   );
@@ -434,5 +438,16 @@ export const analyzeTrace = (
       otherPosition: unproject(gap.road, origin),
     });
 
-  return { axis: { ...trace, latLon }, issues };
+  const osmWays = widthsByHighway ? toOsmWays(widthsByHighway) : null;
+  const roundabouts = findRoundabouts(
+    uniqueAxis(trace),
+    deduceRoadAttributes(trace, osmWays).widths,
+    osmWays,
+    origin,
+  ).map(({ x, z, radius }) => ({
+    position: unproject({ x, z }, origin),
+    radius,
+  }));
+
+  return { axis: { ...trace, latLon }, issues, roundabouts };
 };

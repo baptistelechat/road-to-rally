@@ -7,7 +7,11 @@ import { embankment, lateralStrip, shoulderStrips } from "@/sim/track/ribbon";
 import { FORK_MARGIN, roadForkReach } from "@/sim/track/roadContact";
 import { finishArch, startArch } from "@/sim/track/scenery";
 import type { MeshData, Track, Vec3 } from "@/sim/types";
-import { approachSigns, ChicaneView } from "../scenery/ChicaneView";
+import {
+  approachSigns,
+  ChicaneView,
+  IslandBarriers,
+} from "../scenery/ChicaneView";
 import { groundMesh, withSkirt } from "./groundMesh";
 import { Arch } from "./TrackFurniture";
 
@@ -46,6 +50,18 @@ const lineLifts = ({ unique: { points, widths }, closed }: Track): number[] => {
     (value, i) =>
       LINE_LIFT + Math.max(value, skew[(i + 1) % n], skew[(i - 1 + n) % n]),
   );
+};
+
+/** Ne garde que les segments (un quad par segment de l'axe) que `keep` accepte. */
+const keepSegments = (
+  mesh: MeshData,
+  keep: (segment: number) => boolean,
+): MeshData => {
+  const kept: number[] = [];
+  for (let t = 0; t < mesh.indices.length; t += 6)
+    if (keep(mesh.indices[t] >> 1))
+      kept.push(...mesh.indices.subarray(t, t + 6));
+  return { positions: mesh.positions, indices: Uint32Array.from(kept) };
 };
 
 /** Garde un segment sur quelques-uns d'une bande continue. */
@@ -146,6 +162,35 @@ export const TrackView = ({ track }: { track: Track }) => {
           track,
         ),
       );
+    // Une ligne pointillée entre deux voies voisines : aucune sur une voie unique, une sur deux voies, deux sur trois.
+    // Pas là où le nombre de voies change : la ligne y sauterait de travers.
+    const lanes = track.laneCounts ?? widths.map(() => 2);
+    const n = points.length;
+    const laneLines = (): BufferGeometry | null => {
+      const lines: BufferGeometry[] = [];
+      for (let k = 1; k < Math.max(...lanes); k++) {
+        const at = (w: number, i: number): number =>
+          -w / 2 + (k * w) / lanes[i];
+        const mesh = keepSegments(
+          dashed(
+            lateralStrip(
+              points,
+              closed,
+              widths.map((w, i) => at(w, i) - CENTER_LINE_WIDTH / 2),
+              widths.map((w, i) => at(w, i) + CENTER_LINE_WIDTH / 2),
+              lifts,
+            ),
+          ),
+          (segment) =>
+            lanes[segment] > k && lanes[segment] === lanes[(segment + 1) % n],
+        );
+        lines.push(toGeometry(outsideFork(mesh, track)));
+      }
+      if (lines.length === 0) return null;
+      const merged = mergeGeometries(lines);
+      for (const line of lines) line.dispose();
+      return merged;
+    };
     const [shoulderLeft, shoulderRight] = shoulderStrips(
       points,
       widths,
@@ -165,20 +210,7 @@ export const TrackView = ({ track }: { track: Track }) => {
         (w) => -w / 2 + LINE_INSET + LINE_WIDTH,
         lifts,
       ),
-      lineCenter: toGeometry(
-        outsideFork(
-          dashed(
-            lateralStrip(
-              points,
-              closed,
-              -CENTER_LINE_WIDTH / 2,
-              CENTER_LINE_WIDTH / 2,
-              lifts,
-            ),
-          ),
-          track,
-        ),
-      ),
+      lineCenter: laneLines(),
       lineRight: strip(
         (w) => w / 2 - LINE_INSET - LINE_WIDTH,
         (w) => w / 2 - LINE_INSET,
@@ -259,6 +291,7 @@ export const TrackView = ({ track }: { track: Track }) => {
       <Arch track={track} place={startArch} />
       {!track.closed && <Arch track={track} place={finishArch} />}
       <ChicaneView blocks={track.obstacles} signs={signs} />
+      <IslandBarriers islands={track.islands} groundAt={track.groundAt} />
     </group>
   );
 };

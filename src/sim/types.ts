@@ -135,6 +135,17 @@ export interface ChicaneBlock {
   yaw: number;
 }
 
+/** Îlot d'un rond-point : une barrière en cercle, incassable, pour qu'on ne coupe pas par le centre. */
+export interface RoundaboutIsland {
+  /** Centre au niveau de la route */
+  position: Vec3;
+  radius: number;
+  /** Hauteur au-dessus de `position.y` */
+  height: number;
+  /** Partie enterrée sous `position.y` */
+  skirt: number;
+}
+
 export interface Track {
   /** Points de l'axe à pas constant, sans doublon de fermeture */
   points: Vec3[];
@@ -159,6 +170,10 @@ export interface Track {
   terrain: MeshData | null;
   /** Blocs de chicane, fixes, triés par abscisse. Vide sans chicane. */
   obstacles: ChicaneBlock[];
+  /** Voies en chaque point de `unique.points`, pour le marquage. Absent : deux partout, comme le circuit. */
+  laneCounts?: number[];
+  /** Îlots des ronds-points roulés. Vide sans rond-point. */
+  islands: RoundaboutIsland[];
   /**
    * Point de l'axe le plus proche, sur le plan horizontal. Sans référence, ou hors aller-retour : au bit près le même, et le
    * premier passage en cas de superposition. Avec `nearS`, l'abscisse suivie : le passage de la voiture, pas le premier venu.
@@ -198,6 +213,10 @@ export interface StageData {
   shared?: SharedRange;
   /** Blocs de chicane déjà calculés, triés par abscisse (story 3.8). Absent sans chicane. */
   obstacles?: ChicaneBlock[];
+  /** Voies de circulation en chaque point de `points`, pour le marquage seul. Absent sur une spéciale d'avant : deux partout. */
+  lanes?: number[];
+  /** Îlots des ronds-points, dans l'ordre du passage. Absent sans rond-point. */
+  islands?: RoundaboutIsland[];
   /** Terrain conforme à la route, `null` tant que le pipeline ne le produit pas */
   terrain: MeshData | null;
   /** Version du pipeline : tout changement de seuil l'incrémente */

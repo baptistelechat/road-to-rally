@@ -8,6 +8,7 @@ import { IssueMarkers } from "./IssueMarkers";
 import { MapFocus } from "./MapFocus";
 import { ModeSwitch } from "./ModeSwitch";
 import { ReturnLayer } from "./ReturnLayer";
+import { RoundaboutIslands } from "./RoundaboutIslands";
 import { TraceLayers } from "./TraceLayers";
 import { VariantRoutes } from "./VariantRoutes";
 
@@ -19,6 +20,7 @@ export const MapLayers = () => (
     <TraceLayers />
     <ReturnLayer />
     <VariantRoutes />
+    <RoundaboutIslands />
     <IssueMarkers />
     <ChicaneMarkers />
     <InsertHandle />

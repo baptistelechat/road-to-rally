@@ -1,7 +1,7 @@
 // Tous les seuils du pipeline géo. Changer une valeur qui modifie le résultat impose d'incrémenter PIPELINE_VERSION.
 
 /** Version du pipeline, recopiée dans `StageData.pipelineVersion` */
-export const PIPELINE_VERSION = 6;
+export const PIPELINE_VERSION = 12;
 
 // --- Axe (story 2.1) ---
 
@@ -25,8 +25,8 @@ export const RUNOFF_ROOT = 40;
 export const GPX_MIN_SPACING = 1;
 /** Une entrée de l'abaque de longueur tous les combien de mètres : le pas reste régulier dans les virages */
 export const ARC_LENGTH_RESOLUTION = 0.25;
-/** Rayon de virage minimal en mètres, à confirmer au volant en 2.3 */
-export const MIN_RADIUS = 8;
+/** Rayon de virage minimal en mètres : la voiture braque sous 4 m, les angles vifs des carrefours restent marqués */
+export const MIN_RADIUS = 5;
 /** Marge visée au-dessus du rayon minimal, pour absorber le rééchantillonnage et l'arrondi au millimètre */
 export const RADIUS_MARGIN = 1.03;
 /** Part du manque de rayon rattrapée à chaque itération */
@@ -237,6 +237,22 @@ export const CHICANE_SKIRT = 0.6;
 export const CHICANE_SNAP_TOLERANCE = 15;
 /** Écart minimal entre deux chicanes demandées, en mètres : 1 m sous la limite de l'éditeur, pour qu'une chicane qu'il accepte ne soit jamais retirée au millimètre */
 export const CHICANE_MIN_SEPARATION = 99;
+
+// --- Ronds-points ---
+
+/** Rayon du cercle d'un rond-point retenu, en mètres : en dessous, un mini-giratoire qui se franchit */
+export const ROUNDABOUT_MIN_RADIUS = 3;
+export const ROUNDABOUT_MAX_RADIUS = 80;
+/** Écart moyen toléré au cercle ajusté, en part du rayon : au-delà, ce n'est pas un rond-point */
+export const ROUNDABOUT_MAX_RESIDUAL = 0.15;
+/** Portion de route roulée sur l'anneau pour poser l'îlot, en mètres */
+export const ROUNDABOUT_MIN_ON_RING = 6;
+/** Écart entre le bord de la route roulée et la barrière de l'îlot, en mètres */
+export const ROUNDABOUT_EDGE_MARGIN = 0.5;
+/** L'îlot ne déborde jamais au-delà de ça vers l'anneau OSM, en mètres : une voie de giratoire au moins */
+export const ROUNDABOUT_RING_LANE = 2.5;
+/** En dessous de ce rayon, en mètres, pas d'îlot : la route roulée coupe déjà le centre */
+export const ROUNDABOUT_MIN_ISLAND = 1;
 
 // --- Aller-retour (story 3.7) ---
 

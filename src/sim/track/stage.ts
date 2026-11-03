@@ -10,7 +10,10 @@ export const createStageTrack = (stage: StageData): Track => {
     terrain: stage.terrain,
     shared: stage.shared,
     obstacles: stage.obstacles,
+    islands: stage.islands,
   });
+  if (stage.lanes)
+    track.laneCounts = stage.lanes.slice(0, track.unique.points.length);
   if (!stage.terrain) return track;
   const height = createMeshHeight([
     stage.terrain,

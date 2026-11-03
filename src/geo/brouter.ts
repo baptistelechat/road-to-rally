@@ -117,9 +117,11 @@ const tagsOf = (wayTags: unknown): Omit<SegmentWay, "fromIndex"> => {
   const text = typeof wayTags === "string" ? wayTags : "";
   const highway = /(?:^| )highway=(\S+)/.exec(text)?.[1];
   const surface = /(?:^| )surface=(\S+)/.exec(text)?.[1];
+  const junction = /(?:^| )junction=(\S+)/.exec(text)?.[1];
   return {
     ...(highway ? { highway } : {}),
     ...(surface ? { surface } : {}),
+    ...(junction ? { junction } : {}),
   };
 };
 
@@ -131,7 +133,12 @@ const parseWays = (messages: unknown, points: LatLon[]): SegmentWay[] => {
   const ways: SegmentWay[] = [];
   const push = (way: SegmentWay): void => {
     const last = ways[ways.length - 1];
-    if (!last || last.highway !== way.highway || last.surface !== way.surface)
+    if (
+      !last ||
+      last.highway !== way.highway ||
+      last.surface !== way.surface ||
+      last.junction !== way.junction
+    )
       ways.push(way);
   };
   const [header, ...rows]: unknown[] = Array.isArray(messages) ? messages : [];

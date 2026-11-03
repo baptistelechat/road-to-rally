@@ -132,4 +132,21 @@ export const addTrackColliders = (
         .setRestitution(BLOCK_RESTITUTION)
         .setCollisionGroups(RAY_IGNORED_GROUPS),
     );
+
+  // Après les chicanes : sans rond-point, le monde reste le même au bit près.
+  for (const island of track.islands)
+    world.createCollider(
+      RAPIER.ColliderDesc.cylinder(
+        (island.height + island.skirt) / 2,
+        island.radius,
+      )
+        .setTranslation(
+          island.position.x,
+          island.position.y + (island.height - island.skirt) / 2,
+          island.position.z,
+        )
+        .setFriction(BLOCK_FRICTION)
+        .setRestitution(BLOCK_RESTITUTION)
+        .setCollisionGroups(RAY_IGNORED_GROUPS),
+    );
 };

@@ -12,6 +12,8 @@ export interface SegmentWay {
   fromIndex: number;
   highway?: string;
   surface?: string;
+  /** `roundabout` ou `circular` sur l'anneau d'un rond-point */
+  junction?: string;
 }
 
 /** Route calculée entre deux points d'ancrage voisins. */

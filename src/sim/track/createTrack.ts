@@ -1,5 +1,6 @@
 import type {
   ChicaneBlock,
+  RoundaboutIsland,
   MeshData,
   Pose,
   SharedRange,
@@ -51,6 +52,7 @@ export interface TrackLines {
   terrain: MeshData | null;
   shared?: SharedRange;
   obstacles?: ChicaneBlock[];
+  islands?: RoundaboutIsland[];
 }
 
 export const createTrack = (
@@ -261,6 +263,7 @@ export const createTrack = (
     ribbon: ribbon(uniquePoints, shared ? uniqueWidths : width, closed),
     terrain: lines?.terrain ?? null,
     obstacles,
+    islands: lines?.islands ?? [],
     nearest,
     surfaceAt: (x, z) => {
       const sample = nearest(x, z);

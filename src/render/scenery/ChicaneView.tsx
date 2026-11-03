@@ -10,7 +10,13 @@ import {
 } from "three";
 import { CHICANE_STACK_DEPTH } from "@/geo/config";
 import { SHOULDER_WIDTH } from "@/sim/track/ribbon";
-import type { ChicaneBlock, ChicaneSide, Track, Vec3 } from "@/sim/types";
+import type {
+  ChicaneBlock,
+  ChicaneSide,
+  RoundaboutIsland,
+  Track,
+  Vec3,
+} from "@/sim/types";
 import {
   CHICANE_BARRIER_MODULE,
   CHICANE_CHEVRON_MODULE,
@@ -221,5 +227,53 @@ export const ChicaneView = ({
         matrices={batches.signRight}
       />
     </group>
+  );
+};
+
+/** Barrière en cercle autour de chaque îlot de rond-point, en modules de chicane tangents à l'anneau. */
+export const IslandBarriers = ({
+  islands,
+  groundAt,
+}: {
+  islands: RoundaboutIsland[];
+  groundAt: Track["groundAt"];
+}) => {
+  const matrices = useMemo(() => {
+    const result: Matrix4[] = [];
+    const rotation = new Quaternion();
+    for (const { position, radius } of islands) {
+      const ring = radius - BARRIER_INSET;
+      const count = Math.max(
+        6,
+        Math.round((2 * Math.PI * ring) / CHICANE_BARRIER_MODULE),
+      );
+      // Corde entre deux modules : ils se touchent sans laisser de trou.
+      const scale = new Vector3(
+        (2 * ring * Math.sin(Math.PI / count)) / CHICANE_BARRIER_MODULE,
+        1,
+        1,
+      );
+      for (let i = 0; i < count; i++) {
+        const angle = ((i + 0.5) * 2 * Math.PI) / count;
+        const x =
+          position.x + Math.cos(angle) * ring * Math.cos(Math.PI / count);
+        const z =
+          position.z + Math.sin(angle) * ring * Math.cos(Math.PI / count);
+        // L'axe X du module suit la tangente (-sin, cos) de l'anneau.
+        rotation.setFromAxisAngle(UP, -angle - Math.PI / 2);
+        result.push(
+          new Matrix4().compose(
+            // Chaque module sur le sol : un rond-point en pente ne laisse ni barrière en l'air ni barrière enterrée.
+            new Vector3(x, groundAt(x, z) ?? position.y, z),
+            rotation,
+            scale,
+          ),
+        );
+      }
+    }
+    return result;
+  }, [islands, groundAt]);
+  return (
+    <Batch geometry={CHICANE_GEOMETRY.chicaneBarrier} matrices={matrices} />
   );
 };

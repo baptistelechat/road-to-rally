@@ -206,7 +206,8 @@ export const PointsPanel = () => {
         Le premier point est le départ, le dernier l&apos;arrivée. Trait bleu :
         la route réelle. Trait blanc : la route roulée. Hachures : la route
         ajoutée au-delà des lignes, hors chrono. Trait violet : la portion
-        roulée dans les deux sens. En mode Éditer, un clic pose un point et
+        roulée dans les deux sens. Cercle rouge : la barrière au centre d&apos;un
+        rond-point, impossible à couper. En mode Éditer, un clic pose un point et
         glisser le tracé ajoute un passage. En mode Déplacer, glisse les points.
       </p>
     </div>

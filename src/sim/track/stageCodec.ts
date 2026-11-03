@@ -1,5 +1,6 @@
 import type {
   ChicaneBlock,
+  RoundaboutIsland,
   MeshData,
   SharedRange,
   StageData,
@@ -91,7 +92,10 @@ const parseShared = (
       a.z !== b.z ||
       widths[armEnd - k] !== widths[returnStart + k]
     )
-      fail(`points[${returnStart + k}]`, `ne recopie pas points[${armEnd - k}]`);
+      fail(
+        `points[${returnStart + k}]`,
+        `ne recopie pas points[${armEnd - k}]`,
+      );
   }
   return { armEnd, returnStart };
 };
@@ -137,6 +141,40 @@ const parseObstacles = (value: unknown): ChicaneBlock[] => {
   return blocks;
 };
 
+const parseLanes = (value: unknown, count: number): number[] => {
+  const lanes = numbers(value, "lanes");
+  if (lanes.length !== count)
+    fail("lanes", "doit avoir un nombre de voies par point");
+  if (lanes.some((n) => !Number.isInteger(n) || n < 1))
+    fail("lanes", "doit être un entier positif");
+  return lanes;
+};
+
+const parseIslands = (value: unknown): RoundaboutIsland[] => {
+  if (!Array.isArray(value)) return fail("islands", "doit être un tableau");
+  if (value.length === 0) fail("islands", "doit être absent sans rond-point");
+  return value.map((island: unknown, i) => {
+    const field = `islands[${i}]`;
+    if (!isObject(island) || !isObject(island.position))
+      return fail(field, "doit être un îlot de rond-point");
+    const positive = (key: string): number => {
+      const size = finite(island[key], `${field}.${key}`);
+      if (size <= 0) fail(`${field}.${key}`, "doit rester positif");
+      return size;
+    };
+    return {
+      position: {
+        x: finite(island.position.x, `${field}.position.x`),
+        y: finite(island.position.y, `${field}.position.y`),
+        z: finite(island.position.z, `${field}.position.z`),
+      },
+      radius: positive("radius"),
+      height: positive("height"),
+      skirt: positive("skirt"),
+    };
+  });
+};
+
 /** Valide une spéciale lue en JSON. Toute donnée inattendue, vieille version comprise, lève une erreur claire. */
 export const parseStage = (json: unknown): StageData => {
   if (!isObject(json)) return fail("le fichier", "doit contenir un objet");
@@ -174,6 +212,12 @@ export const parseStage = (json: unknown): StageData => {
     }),
     ...(json.obstacles !== undefined && {
       obstacles: parseObstacles(json.obstacles),
+    }),
+    ...(json.lanes !== undefined && {
+      lanes: parseLanes(json.lanes, points.length),
+    }),
+    ...(json.islands !== undefined && {
+      islands: parseIslands(json.islands),
     }),
     terrain: parseTerrain(json.terrain),
     pipelineVersion: finite(json.pipelineVersion, "pipelineVersion"),

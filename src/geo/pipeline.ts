@@ -6,7 +6,13 @@ import {
   isForkPair,
   roadForkReach,
 } from "../sim/track/roadContact";
-import type { MeshData, SharedRange, StageData, Vec3 } from "../sim/types";
+import type {
+  MeshData,
+  RoundaboutIsland,
+  SharedRange,
+  StageData,
+  Vec3,
+} from "../sim/types";
 import {
   chicaneExclusions,
   resolveChicanes,
@@ -14,6 +20,8 @@ import {
   type ChicaneRequest,
 } from "./chicanes";
 import {
+  CHICANE_BARRIER_HEIGHT,
+  CHICANE_SKIRT,
   PIPELINE_VERSION,
   ROUND_TRIP_MAX_FORK_GAP,
   RUNOFF_MAX_SLOPE,
@@ -31,6 +39,7 @@ import { throwIfAborted, type HttpOptions } from "./http";
 import { assertCovered, fetchAltitudes } from "./ign";
 import { deduceRoadAttributes, fetchOsmWays, type OsmWay } from "./osm";
 import { buildProfile, closeRoundTripProfile, symmetrizeFork } from "./profile";
+import { findRoundabouts } from "./roundabouts";
 import { buildTerrain, corridorNodes } from "./terrain";
 
 export { PIPELINE_VERSION };
@@ -217,6 +226,7 @@ export const buildStageWithWarnings = (
   const attributes = deduceRoadAttributes(trace, inputs.ways);
   const structures = attributes.structures.slice(0, uniqueCount);
   let widths = attributes.widths.slice(0, uniqueCount);
+  const lanes = attributes.lanes.slice(0, uniqueCount);
   let profile = buildProfile(
     trace.realRunoff
       ? inputs.altitudes
@@ -271,6 +281,9 @@ export const buildStageWithWarnings = (
   const points = shared
     ? [...unique, ...unique.slice(0, shared.armEnd).reverse()]
     : unique;
+  const allLanes = shared
+    ? [...lanes, ...lanes.slice(0, shared.armEnd).reverse()]
+    : lanes;
   const allWidths = shared
     ? [...widths, ...widths.slice(0, shared.armEnd).reverse()]
     : widths;
@@ -303,6 +316,28 @@ export const buildStageWithWarnings = (
     },
   );
 
+  // Posé au niveau moyen de l'anneau, enterré jusqu'à son point le plus bas : rien ne flotte sur un rond-point en pente.
+  const islands = findRoundabouts(
+    unique,
+    widths,
+    inputs.ways,
+    trace.origin,
+  ).map(({ x, z, radius }): RoundaboutIsland => {
+    const ring = unique.filter(
+      (p) => Math.hypot(p.x - x, p.z - z) <= radius + Math.max(...widths) + 5,
+    );
+    const y = ring.reduce((sum, p) => sum + p.y, 0) / ring.length;
+    const low = Math.min(...ring.map((p) => p.y));
+    const high = Math.max(...ring.map((p) => p.y));
+    // Le collider est un cylindre droit : il couvre toute la pente, du point le plus bas au plus haut de l'anneau.
+    return {
+      position: { x, y: roundMm(y), z },
+      radius,
+      height: roundMm(CHICANE_BARRIER_HEIGHT + high - y),
+      skirt: roundMm(CHICANE_SKIRT + y - low),
+    };
+  });
+
   return {
     stage: {
       name,
@@ -310,10 +345,12 @@ export const buildStageWithWarnings = (
       baseAltitude,
       points,
       widths: allWidths,
+      lanes: allLanes,
       startS: roundMm(startS),
       finishS: roundMm(finishS),
       ...(shared && { shared }),
       ...(blocks.length > 0 && { obstacles: blocks }),
+      ...(islands.length > 0 && { islands }),
       terrain:
         inputs.terrain && nodes
           ? buildTerrain(

@@ -142,11 +142,13 @@ export const ChicanePanel = () => {
 
       {trace.chicanesEnabled && (
         <>
-          {chicaneSpacingWarnings(chicanes, runoffPoints).map((warning) => (
-            <p key={warning} className="text-xs text-amber-400">
-              {warning}
-            </p>
-          ))}
+          {/* Sans axe, toutes les chicanes sont au point 0 : des alertes « 0 m » fausses (et en double). */}
+          {axisReady &&
+            chicaneSpacingWarnings(chicanes, runoffPoints).map((warning) => (
+              <p key={warning} className="text-xs text-amber-400">
+                {warning}
+              </p>
+            ))}
           {chicanes.length > 0 && (
             <ul className="max-h-40 space-y-1 overflow-y-auto">
               {/* Par rang, pas par identifiant : déplacer une automatique la fait changer d'identifiant, et le clavier perdrait son bouton. */}
