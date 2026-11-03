@@ -148,8 +148,31 @@ Le reste : calque routes IGN sur le satellite, modes Éditer et Déplacer, marqu
 
 - [BDR-20261102212945-1](decisions/BDR-20261102212945-1.md) — Premier point au départ, dernier à l'arrivée, 200 m au-delà
 - [BDR-20261102212945-2](decisions/BDR-20261102212945-2.md) — Chicanes : zones de 100 m, ponts et tunnels ignorés
-- [BLK-20261102212945-5](blockers/BLK-20261102212945-5.md) — Vérifications navigateur de l'epic 3 encore à faire
+- [ZBLK-20261102212945-5](archive/blockers/ZBLK-20261102212945-5.md) — Vérifications navigateur de l'epic 3 encore à faire
 
 ---
 
 Règle durcie par Baptiste après des checks lancés sans lui demander à la fermeture : plus aucun `pnpm check:determinism` sans son accord, même partiel ou avant un push. Commit `8db0b4b`.
+
+## 2026-11-03
+
+Session de retours de jeu sur l'éditeur et les spéciales. Correction d'abord d'une erreur React de clé en double dans le panneau des chicanes : avant la fin de l'analyse, toutes les chicanes tombaient au point 0 et produisaient des alertes « 0 m » identiques. Puis le rayon minimal de virage est passé de 8 à 5 m, pour que les carrefours en épingle restent proches de la vraie route.
+
+Gros morceau : les ronds-points. Détection par le tag OSM `junction` (Overpass pour la spéciale, arcs BRouter pour l'éditeur), cercle ajusté, îlot incassable en barrière de rubalise, cercle rouge sur la carte de l'éditeur. Il a fallu plusieurs allers-retours : brouillon de l'éditeur sans le nouveau tag, cache IndexedDB qui resservait l'ancienne spéciale faute d'incrément de version, barrière calée sur l'axe qui mordait sur l'asphalte des routes larges, et enfin cercle posé à plat qui flottait et s'enterrait sur un rond-point en pente (Gétigné, avenue Xavier Rineau). La règle finale : barrière à 0,5 m du bord roulé, modules posés sur le sol.
+
+Marquage : une ligne pointillée entre chaque paire de voies, le nombre de voies venant des tags OSM et non plus de la largeur, après correction de Baptiste. Commit `2ff34f8` (PIPELINE_VERSION 12). Reste à faire : `pnpm bake:stages`, puis les checks `fingerprint` et `geo`, avec l'accord de Baptiste.
+
+**Entrées clés :**
+
+- [BDR-20261103205616-1](decisions/BDR-20261103205616-1.md) — Îlot de rond-point : tag junction, hors de la route roulée
+- [BDR-20261103205616-2](decisions/BDR-20261103205616-2.md) — Pointillés selon les voies OSM, jamais selon la largeur
+- [ZBLK-20261103205616-7](archive/blockers/ZBLK-20261103205616-7.md) — Barrière d'îlot « dans la route » : c'était le relief
+
+---
+
+Point d'avancement de l'epic 3, puis nettoyage des warnings du terminal de dev. La clé React dupliquée venait des alertes d'écart de chicanes calculées sur l'axe du tracé d'avant pendant la ré-analyse (alertes masquées tant que `analyzing`, clé par rang). Le warning PCFSoftShadowMap est réglé par `shadows="percentage"` sur les quatre `<Canvas>`, et `THREE.Clock` vient de R3F lui-même. Passe navigateur en dev sur le Col de Turini : aucun appel Google, attribution lisible, garde-fou de distance, panne BRouter simulée avec Réessayer, vraie panne Overpass avec « Rouler quand même », parcours jusqu'au volant et retour avec chicanes conservées. Elle a trouvé un bug de focus clavier dans la liste des chicanes (clé construite sur le libellé), corrigé, et laissé quelques défauts ouverts. Baptiste a ensuite marqué tout l'epic 3 comme validé pour passer à l'epic 4. react-doctor sans remarque, commit c2d802c sans push.
+
+**Entrées clés :**
+
+- [BDR-20261103211811-1](decisions/BDR-20261103211811-1.md) — Epic 3 validé sans son critère de passage
+- [BLK-20261103211811-5](blockers/BLK-20261103211811-5.md) — Défauts relevés à la passe navigateur de l'epic 3

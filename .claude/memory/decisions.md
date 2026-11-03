@@ -34,3 +34,7 @@ register: decisions
 | [BDR-20261102162710-2](decisions/BDR-20261102162710-2.md) | 2026-11-02 | Panneau d'annonce : le dessin suit le premier écart du pilote | #chicane #panneau #rendu #three #gameplay #epic-3 | actif |
 | [BDR-20261102212945-1](decisions/BDR-20261102212945-1.md) | 2026-11-02 | Premier point au départ, dernier à l'arrivée, 200 m au-delà | #editeur #runoff #brouter #lignes #playtest #epic-3 | actif |
 | [BDR-20261102212945-2](decisions/BDR-20261102212945-2.md) | 2026-11-02 | Chicanes : zones de 100 m, ponts et tunnels ignorés | #chicanes #zones #editeur #pipeline #pipeline-version #epic-3 | actif |
+| [BDR-20261103205616-1](decisions/BDR-20261103205616-1.md) | 2026-11-03 | Îlot de rond-point : tag junction, hors de la route roulée | #roundabout #osm #rapier #barriere #pipeline #terrain | actif |
+| [BDR-20261103205616-2](decisions/BDR-20261103205616-2.md) | 2026-11-03 | Pointillés selon les voies OSM, jamais selon la largeur | #marquage #lanes #osm #render #pipeline | actif |
+| [BDR-20261103205616-3](decisions/BDR-20261103205616-3.md) | 2026-11-03 | Rayon minimal de virage abaissé à 5 m | #min-radius #widen #carrefour #pipeline #gpx | actif |
+| [BDR-20261103211811-1](decisions/BDR-20261103211811-1.md) | 2026-11-03 | Epic 3 validé sans son critère de passage | #epic-3 #epic-4 #roadmap #playtest #validation #determinisme | actif |

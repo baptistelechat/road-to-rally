@@ -30,3 +30,7 @@ register: learnings
 | [LRN-20261102122033-6](learnings/LRN-20261102122033-6.md) | 2026-11-02 | BRouter : quatre limites à connaître pour un éditeur | #brouter #routing #osm #editeur #accrochage #epic-3 |
 | [LRN-20261102162710-3](learnings/LRN-20261102162710-3.md) | 2026-11-02 | Changer PIPELINE_VERSION impose pnpm bake:stages | #pipeline #fingerprint #bake-stages #checks #push |
 | [LRN-20261102212945-3](learnings/LRN-20261102212945-3.md) | 2026-11-02 | Prolongement valide au calcul, faux quand le tracé grandit | #editeur #runoff #validation #cache #croisement #epic-3 |
+| [LRN-20261103205616-4](learnings/LRN-20261103205616-4.md) | 2026-11-03 | Brouillon éditeur : nouveau tag BRouter après recalcul seulement | #editor #brouter #draft #localstorage #segments |
+| [LRN-20261103205616-5](learnings/LRN-20261103205616-5.md) | 2026-11-03 | Objet posé à plat en pente : chaque module sur groundAt | #terrain #relief #render #groundAt #collider |
+| [LRN-20261103205616-6](learnings/LRN-20261103205616-6.md) | 2026-11-03 | Retour « dans la route » : horizontal ou vertical d'abord | #feedback #3d #diagnostic #playtest #relief |
+| [LRN-20261103211811-4](learnings/LRN-20261103211811-4.md) | 2026-11-03 | Pendant la ré-analyse, l'axe est celui de l'ancien tracé | #editor #analysis #stale-state #chicanes #zustand #race |
