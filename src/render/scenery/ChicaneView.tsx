@@ -9,6 +9,7 @@ import {
   Vector3,
 } from "three";
 import { CHICANE_STACK_DEPTH } from "@/geo/config";
+import { isRock } from "@/geo/roundabouts";
 import { SHOULDER_WIDTH } from "@/sim/track/ribbon";
 import type {
   ChicaneBlock,
@@ -22,6 +23,7 @@ import {
   CHICANE_CHEVRON_MODULE,
   CHICANE_GEOMETRY,
   CHICANE_STACK_MODULE,
+  SCENERY_GEOMETRY,
   SCENERY_MATERIAL,
 } from "./models";
 
@@ -242,6 +244,7 @@ export const IslandBarriers = ({
     const result: Matrix4[] = [];
     const rotation = new Quaternion();
     for (const { position, radius } of islands) {
+      if (isRock(radius)) continue;
       const ring = radius - BARRIER_INSET;
       const count = Math.max(
         6,
@@ -273,7 +276,28 @@ export const IslandBarriers = ({
     }
     return result;
   }, [islands, groundAt]);
+  // Un giratoire trop petit pour une barrière : un rocher à la taille de son collider.
+  const rocks = useMemo(
+    () =>
+      islands
+        .filter(({ radius }) => isRock(radius))
+        .map(({ position, radius }) =>
+          new Matrix4().compose(
+            new Vector3(
+              position.x,
+              groundAt(position.x, position.z) ?? position.y,
+              position.z,
+            ),
+            new Quaternion(),
+            new Vector3(radius, radius, radius),
+          ),
+        ),
+    [islands, groundAt],
+  );
   return (
-    <Batch geometry={CHICANE_GEOMETRY.chicaneBarrier} matrices={matrices} />
+    <>
+      <Batch geometry={CHICANE_GEOMETRY.chicaneBarrier} matrices={matrices} />
+      <Batch geometry={SCENERY_GEOMETRY.rock} matrices={rocks} />
+    </>
   );
 };

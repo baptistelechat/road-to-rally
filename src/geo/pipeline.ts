@@ -70,6 +70,8 @@ export interface StageInputs {
 
 export interface FetchStageOptions extends HttpOptions {
   onProgress?: (step: StageStep) => void;
+  /** Voies tirées de BRouter par l'éditeur, `toOsmWays(segments)` : seulement si Overpass ne répond pas */
+  fallbackWays?: OsmWay[];
 }
 
 export interface FetchStageResult {
@@ -116,13 +118,20 @@ export const fetchStageInputs = async (
   assertCovered(altitudes, trace.runoffPoints);
 
   onProgress?.("routes");
-  const ways = await fetchOsmWays(trace, options);
+  const osmWays = await fetchOsmWays(trace, options);
+  // Moins riche qu'Overpass (ni `lanes`, ni `width`, ni ponts), mais bien mieux que rien : largeurs par type de route et ronds-points.
+  const fallback = options.fallbackWays?.length ? options.fallbackWays : null;
+  const ways = osmWays ?? fallback;
   const warnings =
-    ways === null
-      ? [
-          "Les données de routes sont indisponibles : la route garde une largeur de 5 m partout, et les ponts suivent le relief.",
-        ]
-      : [];
+    osmWays !== null
+      ? []
+      : fallback
+        ? [
+            "Les données OSM sont indisponibles : largeurs et ronds-points viennent de BRouter, mais les ponts et les tunnels manquent, ils suivent le relief.",
+          ]
+        : [
+            "Les données de routes sont indisponibles : la route garde une largeur de 5 m partout, et les ponts suivent le relief.",
+          ];
 
   onProgress?.("terrain");
   const terrain = await fetchCorridorAltitudes(trace, options);

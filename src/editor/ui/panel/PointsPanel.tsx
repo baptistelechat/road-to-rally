@@ -16,7 +16,7 @@ import { editorStore, useEditor } from "../../store";
 import { anchorDistances, stageLength } from "../../trace";
 import { ReturnAction } from "./ReturnAction";
 
-const Toolbar = () => {
+export const Toolbar = () => {
   const history = useEditor((state) => state.history);
   const pending = useEditor((state) => state.status.pending);
   const undo = useEditor((state) => state.undo);
@@ -82,13 +82,16 @@ const Toolbar = () => {
   );
 };
 
-const RouteMessages = () => {
+export const RouteMessages = () => {
   const status = useEditor((state) => state.status);
   const notice = useEditor((state) => state.notice);
   const draftSaved = useEditor((state) => state.draftSaved);
   const retry = useEditor((state) => state.retry);
   return (
-    <div aria-live="polite" className="space-y-1 text-xs empty:hidden">
+    <div
+      aria-live="polite"
+      className="space-y-1 rounded-lg border bg-background px-3 py-2 text-xs shadow-md empty:hidden"
+    >
       {status.pending && (
         <p className="flex items-center gap-1 text-muted-foreground">
           <Loader2 aria-hidden="true" className="size-3 animate-spin" />
@@ -138,14 +141,12 @@ export const PointsPanel = () => {
 
   return (
     <div className="space-y-2 text-sm">
-      <Toolbar />
       <p>
         Spéciale :{" "}
         <strong className="font-semibold tabular-nums">
           {(length / 1000).toFixed(2).replace(".", ",")} km
         </strong>
       </p>
-      <RouteMessages />
       {trace.anchors.length === 0 ? (
         <p className="text-muted-foreground">
           Clique sur une route de la carte pour poser le premier point.
@@ -202,14 +203,6 @@ export const PointsPanel = () => {
         </ol>
       )}
       <ReturnAction />
-      <p className="text-xs text-muted-foreground">
-        Le premier point est le départ, le dernier l&apos;arrivée. Trait bleu :
-        la route réelle. Trait blanc : la route roulée. Hachures : la route
-        ajoutée au-delà des lignes, hors chrono. Trait violet : la portion
-        roulée dans les deux sens. Cercle rouge : la barrière au centre d&apos;un
-        rond-point, impossible à couper. En mode Éditer, un clic pose un point et
-        glisser le tracé ajoute un passage. En mode Déplacer, glisse les points.
-      </p>
     </div>
   );
 };

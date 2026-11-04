@@ -201,14 +201,6 @@ export const ChicanePanel = () => {
               </Button>
             )}
           </div>
-          <p className="text-xs text-muted-foreground">
-            En mode Déplacer, glisse une chicane le long du tracé. En mode
-            Éditer, un clic droit près du tracé en ajoute une. Le panneau est
-            celui du jeu : il montre le premier virage dans le sens du pilote.
-            Un point orange marque les chicanes que tu as placées. La bande
-            autour de chacune est la place qu&apos;elle prend : elle passe au
-            rouge si elle en touche une autre.
-          </p>
         </>
       )}
     </div>

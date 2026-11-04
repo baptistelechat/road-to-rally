@@ -310,7 +310,7 @@ export const runoffMark = (gpxText: string): number | null => {
 const tooShort = (length: number): StageError =>
   new StageError(
     "tooShort",
-    `Ce tracé fait ${(length / 1000).toFixed(2).replace(".", ",")} km : il en faut au moins ${MIN_STAGE_LENGTH / 1000}.`,
+    `Ce tracé fait ${(length / 1000).toFixed(2).replace(".", ",")} km : il en faut au moins ${String(MIN_STAGE_LENGTH / 1000).replace(".", ",")}.`,
   );
 
 const tooLong = (length: number): StageError =>

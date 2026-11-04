@@ -13,6 +13,7 @@ import { toCoordinates } from "../../hover";
 import { editorStore, useEditor } from "../../store";
 import type { Anchor } from "../../types";
 import { ReturnAction } from "../panel/ReturnAction";
+import { PointSymbol } from "../symbols";
 
 interface AnchorMarkerProps {
   anchor: Anchor;
@@ -32,7 +33,6 @@ const AnchorMarker = ({
   onDragEnd,
 }: AnchorMarkerProps) => {
   const removePoint = useEditor((state) => state.removePoint);
-  const moving = useEditor((state) => state.mapMode === "move");
   const toLatLon = ({ lat, lng }: { lat: number; lng: number }): LatLon => ({
     lat,
     lon: lng,
@@ -41,34 +41,30 @@ const AnchorMarker = ({
     <MapMarker
       longitude={anchor.position.lon}
       latitude={anchor.position.lat}
-      draggable={draggable && moving}
+      draggable={draggable}
       onDragStart={() => editorStore.setState({ dragging: true })}
       onDrag={(lngLat) => onDrag(toLatLon(lngLat))}
       onDragEnd={(lngLat) => onDragEnd(toLatLon(lngLat))}
     >
-      <MarkerContent className={moving ? "cursor-grab" : undefined}>
-        {/* Une marge autour de la pastille : plus facile à attraper en mode déplacement. */}
-        <span className={moving ? "block p-2" : "block"}>
-          <span className="grid size-6 place-items-center rounded-full border-2 border-white bg-sky-600 text-xs font-bold text-white shadow-md">
-            {rank}
-          </span>
+      <MarkerContent className="cursor-grab">
+        {/* Une marge autour de la pastille : un point raté ne doit pas en créer un autre. */}
+        <span className="block p-2">
+          <PointSymbol rank={rank} />
         </span>
       </MarkerContent>
-      {!moving && (
-        <MarkerPopup>
-          <p className="mb-2 text-xs">Point {rank}</p>
-          <div className="flex flex-col gap-1">
-            {isLast && <ReturnAction />}
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={() => void removePoint(anchor.id)}
-            >
-              Supprimer ce point
-            </Button>
-          </div>
-        </MarkerPopup>
-      )}
+      <MarkerPopup>
+        <p className="mb-2 text-xs">Point {rank}</p>
+        <div className="flex flex-col gap-1">
+          {isLast && <ReturnAction />}
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => void removePoint(anchor.id)}
+          >
+            Supprimer ce point
+          </Button>
+        </div>
+      </MarkerPopup>
     </MapMarker>
   );
 };

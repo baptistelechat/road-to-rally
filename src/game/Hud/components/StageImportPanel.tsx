@@ -30,7 +30,7 @@ export const StageImportPanel = ({
       </h2>
       <div className="flex flex-col gap-1">
         <label htmlFor={`${id}-file`} className={label}>
-          Fichier GPX (spéciale en France, de 2 à 15 km)
+          Fichier GPX (spéciale en France, de 0,5 à 15 km)
         </label>
         <input
           id={`${id}-file`}

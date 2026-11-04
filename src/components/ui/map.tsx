@@ -2721,6 +2721,7 @@ function MapClusterLayer<
 export {
   Map,
   useMap,
+  useMarkerContext,
   MapMarker,
   MarkerContent,
   MarkerPopup,

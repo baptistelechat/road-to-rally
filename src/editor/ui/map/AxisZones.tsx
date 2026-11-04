@@ -9,14 +9,19 @@ import { overlappingZones, zoneSpan, type AxisZone } from "../../zones";
 const FREE_COLOR = "#fbbf24";
 const OVERLAP_COLOR = "#ef4444";
 
+/** Préfixe des calques de zone : un clic dessus vise l'élément, il ne pose pas de point. */
+export const ZONE_LAYER_PREFIX = "route-layer-zone-";
+
 const ZoneBand = ({
   zone,
   axis,
   overlapping,
+  onClick,
 }: {
   zone: AxisZone;
   axis: LatLon[];
   overlapping: boolean;
+  onClick?: (id: string) => void;
 }) => {
   const coordinates = useMemo(() => {
     const [from, to] = zoneSpan(zone, axis.length);
@@ -29,7 +34,8 @@ const ZoneBand = ({
       color={overlapping ? OVERLAP_COLOR : FREE_COLOR}
       width={16}
       opacity={0.45}
-      interactive={false}
+      interactive={onClick !== undefined}
+      onClick={onClick && (() => onClick(zone.id))}
     />
   );
 };
@@ -38,9 +44,12 @@ const ZoneBand = ({
 export const AxisZones = ({
   zones,
   axis,
+  onZoneClick,
 }: {
   zones: AxisZone[];
   axis: LatLon[];
+  /** Absent : les bandes ne prennent pas le clic */
+  onZoneClick?: (id: string) => void;
 }) => {
   const overlapping = useMemo(() => overlappingZones(zones), [zones]);
   return zones.map((zone) => (
@@ -49,6 +58,7 @@ export const AxisZones = ({
       zone={zone}
       axis={axis}
       overlapping={overlapping.has(zone.id)}
+      onClick={onZoneClick}
     />
   ));
 };

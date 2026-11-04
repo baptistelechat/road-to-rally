@@ -1,7 +1,10 @@
 "use client";
 
 import { useId, useMemo, type PointerEvent } from "react";
+import type { LatLon } from "@/geo/gpx";
 import { elevationStats } from "@/geo/previewProfile";
+import type { ProfileBand, ProfileMarker } from "../profileMarkers";
+import { ElevationMarks } from "./ElevationMarks";
 
 export interface ElevationChartProps {
   /** Abscisse de chaque point, croissante, prolongement compris, en mètres */
@@ -14,6 +17,12 @@ export interface ElevationChartProps {
   cursorS: number | null;
   /** Abscisse survolée, `null` quand le pointeur quitte le graphique */
   onHover: (s: number | null) => void;
+  /** Points et chicanes, posés en pied de courbe */
+  markers?: ProfileMarker[];
+  /** Ronds-points, une bande par passage */
+  bands?: ProfileBand[];
+  /** Clic sur un repère : la carte va le montrer */
+  onFocus?: (position: LatLon) => void;
   /** Mise en page uniquement */
   className?: string;
 }
@@ -24,6 +33,9 @@ const HEIGHT = 200;
 const PADDING = 16;
 /** Écart d'altitude minimal à l'échelle, en mètres : une route plate ne doit pas ressembler à un col */
 const MIN_RANGE = 20;
+const NO_MARKERS: ProfileMarker[] = [];
+const NO_BANDS: ProfileBand[] = [];
+const ignore = (): void => {};
 
 const decimal = (value: number, digits: number): string =>
   value.toFixed(digits).replace(".", ",");
@@ -51,16 +63,22 @@ export const ElevationChart = ({
   finishS,
   cursorS,
   onHover,
+  markers = NO_MARKERS,
+  bands = NO_BANDS,
+  onFocus = ignore,
   className,
 }: ElevationChartProps) => {
   const summaryId = useId();
   const first = abscissas[0];
   const span = abscissas[abscissas.length - 1] - first;
 
-  const { xOf, yOf } = useMemo(() => {
+  const { xOf, yOf, min, max } = useMemo(() => {
     const min = Math.min(...altitudes);
-    const range = Math.max(Math.max(...altitudes) - min, MIN_RANGE);
+    const max = Math.max(...altitudes);
+    const range = Math.max(max - min, MIN_RANGE);
     return {
+      min,
+      max,
       xOf: (s: number): number => ((s - first) / span) * WIDTH,
       yOf: (altitude: number): number =>
         HEIGHT - PADDING - ((altitude - min) / range) * (HEIGHT - 2 * PADDING),
@@ -140,7 +158,7 @@ export const ElevationChart = ({
   return (
     <figure className={className}>
       <div
-        className="relative h-32 w-full"
+        className="relative mb-4 h-32 w-full"
         onPointerMove={handleMove}
         onPointerLeave={() => onHover(null)}
       >
@@ -154,6 +172,17 @@ export const ElevationChart = ({
         >
           {drawing}
         </svg>
+        <ElevationMarks
+          startS={startS}
+          finishS={finishS}
+          minAltitude={min}
+          maxAltitude={max}
+          xPercent={(s) => (xOf(s) / WIDTH) * 100}
+          yPercent={(altitude) => (yOf(altitude) / HEIGHT) * 100}
+          markers={markers}
+          bands={bands}
+          onFocus={onFocus}
+        />
         <span
           aria-hidden="true"
           className="pointer-events-none absolute top-0 pl-1 text-xs text-neutral-100"
@@ -184,8 +213,9 @@ export const ElevationChart = ({
           </div>
         )}
       </div>
-      <figcaption id={summaryId} className="mt-1 text-xs text-neutral-300">
-        {summary} Les zones de dégagement sont grisées.
+      <figcaption id={summaryId} className="sr-only">
+        {summary} Les zones de dégagement sont grisées, les ronds-points en rouge, les rochers en gris
+        et les chicanes en triangles ambrés. Distances depuis le départ.
       </figcaption>
     </figure>
   );

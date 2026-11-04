@@ -42,7 +42,6 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Modification d'une spéciale après l'avoir testée : la rouler à nouveau remplace la version précédente, et une confirmation protège les changements non roulés
 - Fonds de carte satellite, clair et sombre dans l'éditeur, avec relief, boussole et localisation
 - Panneau de virages à l'approche de chaque chicane, en miroir selon le côté, et chevrons sur les bottes
-- Modes Éditer et Déplacer sur la carte de l'éditeur, pour créer des éléments ou les glisser sans risque d'erreur
 - Calque des routes de l'IGN sur le fond satellite de l'éditeur
 - Zone de 100 m autour de chaque chicane sur la carte, qui passe au rouge si elle en touche une autre, avec l'écart actuel et le décalage à faire
 - Clic sur un point, une chicane ou une alerte du panneau pour centrer la carte dessus
@@ -65,6 +64,11 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Carte d'essai « Pace notes » avec un virage de chaque note, et écoute de la voix dans `/labo-son`
 - Quatre styles de mini-carte au choix dans les options : globale, zoom nord en haut avec boussole, zoom cap en haut, et zoom avec vue globale en vignette
 - Balance du son dans les options : curseurs à crans de 10 % pour la voix, le moteur et les effets (pneus, herbe, vent, chocs)
+- Profil d'altitude de l'éditeur gradué en distance et en altitude, avec les points, les chicanes et leur zone, les ronds-points, les rochers et la plus longue ligne droite, cliquables pour centrer la carte
+- Barre du haut dans l'éditeur : nom de la spéciale, annuler et rétablir, liste des problèmes du tracé et bouton « Rouler »
+- Légende de l'éditeur, au survol : traits, symboles et gestes, avec les mêmes symboles sur la carte et sur le profil
+- Rocher au centre des petits giratoires trop étroits pour une barrière, en course et sur la carte de l'éditeur
+- Plus longue ligne droite toujours affichée en vert sur la carte de l'éditeur
 
 ### Changed
 
@@ -95,6 +99,12 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Seuls les vrais sommets sont annoncés comme des crêtes : les petites ondulations de la route ne le sont plus
 - La mini-carte montre le parcouru en ambre et la route à venir en gris, avec une flèche orientée selon le cap, un départ vert et un damier à l'arrivée, et suit la voiture à chaque image
 - Le volume de la voix se règle par un curseur, sans phrase de test
+- Un seul mode sur la carte de l'éditeur : un clic pose un point, les points et les chicanes se glissent toujours, et un clic près d'un élément ou pour fermer un menu ne crée rien. Déplacer la carte ne pose plus de point par erreur
+- Le panneau latéral de l'éditeur laisse la place à la carte : points et chicanes s'ouvrent dans des fenêtres, le score se lit au-dessus du profil et en détail dans une fenêtre
+- Une spéciale peut faire 500 m au lieu de 2 km minimum
+- Cliquer sur un point, une chicane ou un repère du profil zoome assez pour voir la route
+- La route roulée passe en bleu nuit sur le fond clair de l'éditeur
+- Sans les données d'OpenStreetMap, une spéciale tracée dans l'éditeur garde ses largeurs de route et ses ronds-points, tirés de BRouter
 
 ### Removed
 
@@ -117,3 +127,4 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Boutons d'une chicane qui perdaient le focus au clavier après chaque déplacement
 - Son du moteur absent après un changement de carte tant que le joueur n'avait pas de nouveau cliqué
 - Feux stop allumés en marche arrière et moteur qui sonnait comme au frein moteur en reculant
+- Erreur à l'ajout d'un point quand un nouveau rond-point s'insérait avant les autres sur le tracé

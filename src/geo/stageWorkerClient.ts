@@ -2,10 +2,18 @@
 import type { StageData } from "../sim/types";
 import type { ChicaneRemoval, ChicaneRequest } from "./chicanes";
 import { StageError, type StageErrorCode } from "./errors";
+import type { OsmWay } from "./osm";
 import type { StageInputs, StageStep } from "./pipeline";
 
 export type StageWorkerRequest =
-  | { kind: "generate"; gpx: string; name: string; chicanes?: ChicaneRequest[] }
+  | {
+      kind: "generate";
+      gpx: string;
+      name: string;
+      chicanes?: ChicaneRequest[];
+      /** Secours si Overpass ne répond pas : voir `FetchStageOptions.fallbackWays` */
+      fallbackWays?: OsmWay[];
+    }
   /** Sans réseau, depuis des entrées déjà relevées : compare le Worker à Node (`/probe`). */
   | { kind: "rebuild"; inputs: StageInputs; name: string };
 

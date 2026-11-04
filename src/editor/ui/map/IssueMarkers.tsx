@@ -37,7 +37,6 @@ const IssueLink = ({ id, issue }: { id: string; issue: EditorIssue }) => {
 /** À l'endroit fautif, avec un trait vers la portion rejointe ou la route réelle. Le texte complet est dans le panneau. */
 export const IssueMarkers = () => {
   const issues = useEditor((state) => state.issues);
-  const moving = useEditor((state) => state.mapMode === "move");
   const trace = useEditor((state) => state.history.present);
   const missing = useMemo((): EditorIssue | null => {
     const found = missingRunoff(trace);
@@ -49,13 +48,12 @@ export const IssueMarkers = () => {
     if (!position) return null;
     const id = `issue-${i}-${issue.code}`;
     return (
-      // Une alerte tombe souvent sur un point : en mode déplacement, le pointeur la traverse. `className` ne vaut qu'à la création, d'où la clé.
+      // Une alerte tombe souvent sur un point : décalée, elle ne le cache pas et il reste à glisser.
       <MapMarker
-        key={`${id}-${moving}`}
+        key={id}
         longitude={position.lon}
         latitude={position.lat}
-        offset={issue === missing ? [22, 0] : undefined}
-        className={moving ? "pointer-events-none" : undefined}
+        offset={[22, -22]}
       >
         <MarkerContent className="cursor-help">
           <span

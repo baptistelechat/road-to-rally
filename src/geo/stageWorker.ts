@@ -31,6 +31,7 @@ const generate = async (request: StageWorkerRequest): Promise<void> => {
     request.kind === "generate"
       ? await fetchStageInputs(request.gpx, {
           onProgress: (step) => scope.postMessage({ kind: "progress", step }),
+          fallbackWays: request.fallbackWays,
         })
       : { inputs: request.inputs, warnings: [] };
   const {

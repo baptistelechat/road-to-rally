@@ -1,6 +1,7 @@
 // Garde-fous de l'éditeur : les mêmes fonctions que le pipeline, mais tout est signalé au lieu de lever à la première erreur.
 // Pure et sans réseau. Le contrôle hors de France arrive avec les altitudes : il n'est pas ici.
 import { findRoundabouts } from "./roundabouts";
+import { toOsmWays, type HighwaySegment } from "./osm";
 import {
   findRoadContact,
   isForkPair,
@@ -37,7 +38,7 @@ import {
   type PlanePoint,
   type TracePoints,
 } from "./gpx";
-import { deduceRoadAttributes, type OsmWay } from "./osm";
+import { deduceRoadAttributes } from "./osm";
 
 export type TraceIssueCode =
   | "tooShort"
@@ -75,18 +76,14 @@ export interface AnalyzedAxis extends TracePoints {
 }
 
 export interface TraceAnalysis {
-  /** Axe qui sera roulé. `null` si le GPX est illisible ou d'une longueur sans espoir, sous 1 km ou au-delà de 30 km au total. */
+  /** Axe qui sera roulé. `null` si le GPX est illisible ou d'une longueur sans espoir, sous 250 m ou au-delà de 30 km au total. */
   axis: AnalyzedAxis | null;
   issues: TraceIssue[];
   /** Îlots incassables des ronds-points roulés, comme la spéciale les posera. Absent : aucun. */
   roundabouts?: { position: LatLon; radius: number }[];
 }
 
-/** La forme de `Segment` de l'éditeur : `analyzeTrace(gpx, { widthsByHighway: trace.segments })`. */
-export interface HighwaySegment {
-  points: LatLon[];
-  ways: { fromIndex: number; highway?: string; junction?: string }[];
-}
+export type { HighwaySegment } from "./osm";
 
 export interface AnalyzeOptions {
   /** Tags `highway` de BRouter, d'où la largeur estimée. Sans eux, la largeur par défaut partout. */
@@ -94,23 +91,6 @@ export interface AnalyzeOptions {
   /** Vraie route de retour d'un aller-retour, `splitRoundTrip().realReturn` : l'écart avec la recopie est signalé, jamais corrigé. */
   realReturn?: LatLon[];
 }
-
-/** Présente les portions de BRouter comme des voies OSM : les largeurs sortent ainsi de la même fonction que le pipeline. */
-export const toOsmWays = (segments: HighwaySegment[]): OsmWay[] =>
-  segments.flatMap(({ points, ways }) =>
-    ways.flatMap((way, i) => {
-      const geometry = points.slice(
-        way.fromIndex,
-        (ways[i + 1]?.fromIndex ?? points.length - 1) + 1,
-      );
-      if (geometry.length < 2) return [];
-      const tags: Record<string, string> = {
-        ...(way.highway ? { highway: way.highway } : {}),
-        ...(way.junction ? { junction: way.junction } : {}),
-      };
-      return [{ id: i, tags, geometry }];
-    }),
-  );
 
 const planeDistance = (a: PlanePoint, b: PlanePoint): number =>
   Math.hypot(a.x - b.x, a.z - b.z);

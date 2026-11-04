@@ -13,13 +13,18 @@ import type { LatLon } from "@/geo/gpx";
 import { toCoordinates } from "../../hover";
 import { axisIndex, useEditor } from "../../store";
 import { assembleTrace, inventedEnds } from "../../trace";
+import { StraightSymbol } from "../symbols";
+import { useBasemap } from "./basemaps";
 
 const NO_POINTS: LatLon[] = [];
+/** La plus longue ligne droite, toujours visible : là où la voiture prend sa vitesse de pointe */
+export const STRAIGHT_COLOR = "#22c55e";
 
 /** Hachures : des tirets très courts sur un trait large, à bouts droits, soit des rayures en travers de la route. */
 const HatchedRoute = ({ id, points }: { id: string; points: LatLon[] }) => {
   const { map, isLoaded } = useMap();
   const coordinates = useMemo(() => toCoordinates(points), [points]);
+  const basemap = useBasemap();
 
   // Après l'effet de `MapRoute`, qui crée la couche : les effets d'un parent passent après ceux de ses enfants.
   useEffect(() => {
@@ -32,7 +37,7 @@ const HatchedRoute = ({ id, points }: { id: string; points: LatLon[] }) => {
     <MapRoute
       id={id}
       coordinates={coordinates}
-      color="#e5e5e5"
+      color={basemap === "light" ? "#334155" : "#e5e5e5"}
       width={10}
       opacity={0.9}
       dashArray={[0.25, 0.35]}
@@ -40,6 +45,25 @@ const HatchedRoute = ({ id, points }: { id: string; points: LatLon[] }) => {
     />
   );
 };
+
+/** Au milieu de la plus longue ligne droite, comme sur la courbe. Sans prise, il ne gêne aucun geste. */
+const StraightIcon = ({
+  coordinates: [longitude, latitude],
+}: {
+  coordinates: [number, number];
+}) => (
+  <MapMarker
+    longitude={longitude}
+    latitude={latitude}
+    className="pointer-events-none"
+  >
+    <MarkerContent className="cursor-default">
+      <span title="Plus longue ligne droite" className="block">
+        <StraightSymbol />
+      </span>
+    </MarkerContent>
+  </MapMarker>
+);
 
 const LineFlag = ({ position, label }: { position: LatLon; label: string }) => (
   // Au-dessus de la ligne et sans prise : le drapeau tombe pile sur le premier ou le dernier point, qu'il ne doit ni cacher ni bloquer.
@@ -62,11 +86,11 @@ const LineFlag = ({ position, label }: { position: LatLon; label: string }) => (
 
 /** Le tracé et l'axe analysé : la route réelle en large, l'axe qui sera roulé en fin par-dessus. */
 export const TraceLayers = () => {
+  const basemap = useBasemap();
   const trace = useEditor((state) => state.history.present);
   const axis = useEditor((state) => state.analysis?.axis ?? null);
-  const straight = useEditor((state) =>
-    state.highlightStraight ? state.stats?.longestStraight : undefined,
-  );
+  const straight = useEditor((state) => state.stats?.longestStraight);
+  const highlight = useEditor((state) => state.highlightStraight);
 
   // Une ligne droite provisoire n'est jamais montrée : la carte ne dessine pas une route qui n'existe pas.
   const ends = useMemo(() => inventedEnds(trace), [trace]);
@@ -121,7 +145,8 @@ export const TraceLayers = () => {
       <MapRoute
         id="axis"
         coordinates={rolled}
-        color="#f8fafc"
+        // Blanc sur le fond clair, il disparaissait dans les rues : bleu nuit là, blanc ailleurs.
+        color={basemap === "light" ? "#0f172a" : "#f8fafc"}
         width={2}
         opacity={1}
         interactive={false}
@@ -131,11 +156,16 @@ export const TraceLayers = () => {
       <MapRoute
         id="straight"
         coordinates={straightLine}
-        color="#fbbf24"
-        width={6}
+        color={STRAIGHT_COLOR}
+        width={highlight ? 9 : 5}
         opacity={1}
         interactive={false}
       />
+      {straightLine.length > 0 && (
+        <StraightIcon
+          coordinates={straightLine[Math.floor(straightLine.length / 2)]}
+        />
+      )}
       {axis &&
         (axis.roundTrip ? (
           // L'arrivée recopie le départ : deux drapeaux au même endroit seraient illisibles.

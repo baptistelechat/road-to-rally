@@ -73,6 +73,29 @@ const overpassQuery = (trace: TracePoints): string => {
 };
 
 /** Réponse d'un service tiers : tout ce qui n'a pas la forme attendue est écarté. `null` si elle est inutilisable. */
+/** La forme de `Segment` de l'éditeur : `analyzeTrace(gpx, { widthsByHighway: trace.segments })`. */
+export interface HighwaySegment {
+  points: LatLon[];
+  ways: { fromIndex: number; highway?: string; junction?: string }[];
+}
+
+/** Présente les portions de BRouter comme des voies OSM : les largeurs sortent ainsi de la même fonction que le pipeline. */
+export const toOsmWays = (segments: HighwaySegment[]): OsmWay[] =>
+  segments.flatMap(({ points, ways }) =>
+    ways.flatMap((way, i) => {
+      const geometry = points.slice(
+        way.fromIndex,
+        (ways[i + 1]?.fromIndex ?? points.length - 1) + 1,
+      );
+      if (geometry.length < 2) return [];
+      const tags: Record<string, string> = {
+        ...(way.highway ? { highway: way.highway } : {}),
+        ...(way.junction ? { junction: way.junction } : {}),
+      };
+      return [{ id: i, tags, geometry }];
+    }),
+  );
+
 export const parseOverpass = (body: string): OsmWay[] | null => {
   let parsed: { elements?: unknown; remark?: unknown };
   try {

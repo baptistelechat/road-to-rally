@@ -11,6 +11,7 @@ import {
   type ImportStatus,
   type LoadedStage,
 } from "@/game/useStageImport";
+import { toOsmWays } from "@/geo/osm";
 import { fetchPlaceName } from "@/geo/placeName";
 import { chicaneRequests } from "../../chicanes";
 import { readDraftStage, writeDraftStage } from "../../draft";
@@ -125,62 +126,88 @@ export const RollPanel = () => {
       stageGpx(trace),
       name.trim() || placeDefault,
       chicaneRequests(chicanes),
+      toOsmWays(trace.segments),
     );
   };
 
+  // Ce qui suit un clic sur « Rouler » s'affiche sous la barre : la génération, un avertissement, un refus d'enregistrer.
+  const shownStatus = settled ? IDLE_STATUS : status;
+  const hasDetails =
+    shownStatus.kind !== "idle" ||
+    degraded !== undefined ||
+    remaining.length > 0 ||
+    current?.storageFailed === true;
+
   return (
-    <div className="space-y-2">
-      <div className="flex flex-col gap-1">
-        <label htmlFor={`${id}-name`} className="text-xs font-medium">
-          Nom de la spéciale
-        </label>
-        <input
-          id={`${id}-name`}
-          type="text"
-          value={name}
-          placeholder={placeDefault}
-          maxLength={80}
-          className="w-full rounded-md border border-input bg-transparent px-2 py-1 text-sm placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-          onChange={(event) => setName(event.currentTarget.value)}
-        />
-      </div>
+    <div className="relative flex min-w-0 items-center gap-2">
+      <label htmlFor={`${id}-name`} className="sr-only">
+        Nom de la spéciale
+      </label>
+      <input
+        id={`${id}-name`}
+        type="text"
+        value={name}
+        placeholder={placeDefault}
+        maxLength={80}
+        className="w-56 min-w-0 rounded-md border border-input bg-transparent px-2 py-1 text-sm placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+        onChange={(event) => setName(event.currentTarget.value)}
+      />
 
       {!running && !degraded && blocker && (
-        <p id={`${id}-reason`} className="text-xs text-muted-foreground">
+        <p
+          id={`${id}-reason`}
+          title={blocker}
+          className="max-w-72 truncate text-xs text-muted-foreground"
+        >
           {blocker}
         </p>
       )}
 
-      <StageProgress status={settled ? IDLE_STATUS : status} />
-
-      {degraded ? (
-        <div role="alert" className="space-y-2 text-xs">
-          {degraded.warnings
-            .filter(
-              (warning) => !removals.some(({ message }) => message === warning),
-            )
-            .map((warning) => (
-              <p key={warning} className="text-amber-400">
-                {warning}
-              </p>
-            ))}
-          <RemovedChicanes removals={removals} />
-          <div className="flex gap-2">
-            <Button size="sm" onClick={() => open(degraded)}>
-              Rouler quand même
-            </Button>
-            <Button variant="outline" size="sm" onClick={roll}>
-              Réessayer
-            </Button>
-          </div>
-        </div>
-      ) : running ? (
+      {running ? (
         <Button variant="outline" size="sm" onClick={cancel}>
           Annuler
         </Button>
       ) : (
-        <>
-          {remaining.length > 0 && (
+        !degraded && (
+          <Button
+            size="sm"
+            disabled={blocker !== null}
+            aria-describedby={blocker ? `${id}-reason` : undefined}
+            onClick={roll}
+          >
+            <Play aria-hidden="true" />
+            Rouler
+          </Button>
+        )
+      )}
+
+      {hasDetails && (
+        <div className="absolute top-full right-0 z-20 mt-2 w-80 space-y-2 rounded-lg border bg-background p-3 shadow-md">
+          <StageProgress status={shownStatus} />
+          {degraded && (
+            <div role="alert" className="space-y-2 text-xs">
+              {degraded.warnings
+                .filter(
+                  (warning) =>
+                    !removals.some(({ message }) => message === warning),
+                )
+                .map((warning) => (
+                  <p key={warning} className="text-amber-400">
+                    {warning}
+                  </p>
+                ))}
+              <RemovedChicanes removals={removals} />
+              <div className="flex gap-2">
+                <Button size="sm" onClick={() => open(degraded)}>
+                  Rouler quand même
+                </Button>
+                <Button variant="outline" size="sm" onClick={roll}>
+                  Réessayer
+                </Button>
+              </div>
+            </div>
+          )}
+          {!degraded && !running && remaining.length > 0 && (
             <div className="space-y-2 text-xs">
               <p className="text-muted-foreground">
                 À la dernière génération :
@@ -193,22 +220,12 @@ export const RollPanel = () => {
               Réessayer
             </Button>
           )}
-          <Button
-            className="w-full"
-            disabled={blocker !== null}
-            aria-describedby={blocker ? `${id}-reason` : undefined}
-            onClick={roll}
-          >
-            <Play aria-hidden="true" />
-            Rouler
-          </Button>
-        </>
-      )}
-
-      {current?.storageFailed && (
-        <p role="alert" className="text-xs text-destructive">
-          {STORAGE_ERROR}
-        </p>
+          {current?.storageFailed && (
+            <p role="alert" className="text-xs text-destructive">
+              {STORAGE_ERROR}
+            </p>
+          )}
+        </div>
       )}
     </div>
   );

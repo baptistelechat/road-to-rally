@@ -9,6 +9,7 @@ import {
   BASEMAP_STYLES,
   readBasemap,
   writeBasemap,
+  BasemapContext,
   type BasemapId,
 } from "./map/basemaps";
 import { MapClickHandler } from "./MapClickHandler";
@@ -37,6 +38,8 @@ export const EditorMap = ({ onMapClick, children }: EditorMapProps) => {
       attributionControl={{ compact: false }}
       // Le clic droit pose une chicane : il ne doit pas aussi faire tourner la carte.
       dragRotate={false}
+      // Au-delà de 3 px, MapLibre y voit un clic : une main qui déplace la carte posait un point.
+      clickTolerance={8}
     >
       <BasemapTuning basemap={basemap} />
       <PlaceSearch />
@@ -49,7 +52,9 @@ export const EditorMap = ({ onMapClick, children }: EditorMapProps) => {
       />
       <MapControls showCompass showLocate />
       {onMapClick && <MapClickHandler onMapClick={onMapClick} />}
-      {children}
+      <BasemapContext.Provider value={basemap}>
+        {children}
+      </BasemapContext.Provider>
     </MapView>
   );
 };

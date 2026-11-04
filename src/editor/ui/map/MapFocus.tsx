@@ -5,7 +5,10 @@ import { useMap } from "@/components/ui/map";
 import { editorStore, useEditor } from "../../store";
 import { assembleTrace } from "../../trace";
 
-const FOCUS_ZOOM = 14;
+/** Cadrage du brouillon à l'ouverture */
+const FRAME_ZOOM = 14;
+/** Un point demandé depuis le panneau ou la courbe : assez près pour voir la route et la saisir */
+const FOCUS_ZOOM = 17;
 
 /** Montre le brouillon relu à l'ouverture, puis tout endroit demandé depuis le panneau. Ne dessine rien. */
 export const MapFocus = () => {
@@ -28,7 +31,7 @@ export const MapFocus = () => {
         [Math.min(...lons), Math.min(...lats)],
         [Math.max(...lons), Math.max(...lats)],
       ],
-      { padding: 80, maxZoom: FOCUS_ZOOM, duration: 0 },
+      { padding: 80, maxZoom: FRAME_ZOOM, duration: 0 },
     );
   }, [map, isLoaded]);
 
@@ -37,7 +40,7 @@ export const MapFocus = () => {
     const { lat, lon } = focus.position;
     map.flyTo({
       center: [lon, lat],
-      zoom: Math.max(map.getZoom(), FOCUS_ZOOM),
+      zoom: FOCUS_ZOOM,
     });
   }, [map, focus]);
 

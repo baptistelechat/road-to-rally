@@ -1,14 +1,17 @@
 // Tous les seuils du pipeline géo. Changer une valeur qui modifie le résultat impose d'incrémenter PIPELINE_VERSION.
 
 /** Version du pipeline, recopiée dans `StageData.pipelineVersion` */
-export const PIPELINE_VERSION = 12;
+export const PIPELINE_VERSION = 13;
 
 // --- Axe (story 2.1) ---
 
 /** Pas de l'axe en mètres, le même que le sandbox */
 export const STEP = 2;
-/** Longueur autorisée, prolongement exclu, en mètres */
-export const MIN_STAGE_LENGTH = 2000;
+/**
+ * Longueur autorisée, prolongement exclu, en mètres.
+ * Le plancher n'a pas de raison technique : sous 500 m, la course dure moins que la génération.
+ */
+export const MIN_STAGE_LENGTH = 500;
 export const MAX_STAGE_LENGTH = 15000;
 /**
  * GPX sans route au-delà de ses lignes : ligne droite ajoutée avant le départ et après l'arrivée, pour s'arrêter à fond.
@@ -251,8 +254,12 @@ export const ROUNDABOUT_MIN_ON_RING = 6;
 export const ROUNDABOUT_EDGE_MARGIN = 0.5;
 /** L'îlot ne déborde jamais au-delà de ça vers l'anneau OSM, en mètres : une voie de giratoire au moins */
 export const ROUNDABOUT_RING_LANE = 2.5;
-/** En dessous de ce rayon, en mètres, pas d'îlot : la route roulée coupe déjà le centre */
+/** En dessous de ce rayon, en mètres, pas de barrière : un rocher au centre à la place */
 export const ROUNDABOUT_MIN_ISLAND = 1;
+/** Rayon du rocher d'un giratoire trop petit pour une barrière, en mètres. Toujours sous `ROUNDABOUT_MIN_ISLAND` : c'est ce qui le distingue. */
+export const ROUNDABOUT_ROCK_RADIUS = 0.7;
+/** Distance minimale entre l'axe roulé et le bord du rocher, en mètres : la voiture passe sans le toucher */
+export const ROUNDABOUT_ROCK_CLEARANCE = 1.5;
 
 // --- Aller-retour (story 3.7) ---
 

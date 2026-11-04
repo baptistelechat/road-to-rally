@@ -7,6 +7,7 @@ import {
   type ChicaneRequest,
 } from "@/geo/chicanes";
 import { StageError, type StageErrorCode } from "@/geo/errors";
+import type { OsmWay } from "@/geo/osm";
 import type { StageStep } from "@/geo/pipeline";
 import { runStageWorker } from "@/geo/stageWorkerClient";
 import type { StageData } from "@/sim/types";
@@ -37,6 +38,8 @@ export interface StageSource {
   name: string;
   read: () => Promise<string>;
   chicanes?: ChicaneRequest[];
+  /** Les voies BRouter de l'éditeur, en secours d'Overpass. Absent pour un GPX importé : rien ne garantit qu'elles suivent ses points. */
+  fallbackWays?: OsmWay[];
 }
 
 export const loadStage = async (
@@ -63,7 +66,13 @@ export const loadStage = async (
     };
   }
   const generated = await runStageWorker(
-    { kind: "generate", gpx, name: source.name, ...requested },
+    {
+      kind: "generate",
+      gpx,
+      name: source.name,
+      ...requested,
+      fallbackWays: source.fallbackWays,
+    },
     { signal, onProgress },
   );
   console.info(
@@ -129,7 +138,9 @@ export const useStageImport = (onReady: (stage: LoadedStage) => void) => {
       gpx: string,
       name: string,
       chicanes?: ChicaneRequest[],
-    ): void => start({ name, read: () => Promise.resolve(gpx), chicanes }),
+      fallbackWays?: OsmWay[],
+    ): void =>
+      start({ name, read: () => Promise.resolve(gpx), chicanes, fallbackWays }),
     retry: (): void => {
       if (request) start(request.source);
     },

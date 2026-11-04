@@ -17,6 +17,7 @@ import {
   type TraceHit,
 } from "../../hover";
 import { editorStore, useEditor } from "../../store";
+import { ZONE_LAYER_PREFIX } from "./AxisZones";
 
 /** Portée du survol du tracé, en pixels */
 const HOVER_PIXELS = 10;
@@ -28,7 +29,6 @@ export const InsertHandle = () => {
   const { map } = useMap();
   const trace = useEditor((state) => state.history.present);
   const pending = useEditor((state) => state.status.pending);
-  const editing = useEditor((state) => state.mapMode === "edit");
   const insertPoint = useEditor((state) => state.insertPoint);
   const [hit, setHit] = useState<TraceHit | null>(null);
   const [dragged, setDragged] = useState<LatLon | null>(null);
@@ -44,9 +44,14 @@ export const InsertHandle = () => {
       if (holding.current || state.dragging) return;
       wasDragged.current = false;
       const toScreen = ({ lat, lon }: LatLon) => map.project([lon, lat]);
-      const found = state.status.pending
-        ? null
-        : nearestOnTrace(trace.segments, point, toScreen, HOVER_PIXELS);
+      // Sur la bande d'une chicane, le clic ouvre son menu : la poignée y insérerait un point en même temps.
+      const overZone = map
+        .queryRenderedFeatures(point)
+        .some(({ layer }) => layer.id.startsWith(ZONE_LAYER_PREFIX));
+      const found =
+        state.status.pending || overZone
+          ? null
+          : nearestOnTrace(trace.segments, point, toScreen, HOVER_PIXELS);
       const nearAnchor =
         found !== null &&
         trace.anchors.some(({ position }) => {
@@ -107,7 +112,7 @@ export const InsertHandle = () => {
         dashArray={[2, 2]}
         interactive={false}
       />
-      {hit && !pending && editing && (
+      {hit && !pending && (
         <MapMarker
           longitude={hit.position.lon}
           latitude={hit.position.lat}

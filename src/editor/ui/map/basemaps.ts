@@ -1,8 +1,13 @@
 // Fonds de carte de l'éditeur. Satellite : orthophotos IGN (licence ouverte, sans clé), le jeu se trace en France.
 import type { StyleSpecification } from "maplibre-gl";
+import { createContext, useContext } from "react";
 
 export const BASEMAP_IDS = ["satellite", "light", "dark"] as const;
 export type BasemapId = (typeof BASEMAP_IDS)[number];
+
+/** Le fond affiché, pour les calques dont la couleur doit trancher dessus. */
+export const BasemapContext = createContext<BasemapId>("dark");
+export const useBasemap = (): BasemapId => useContext(BasemapContext);
 
 const ignTiles = (layer: string, format: string): string[] => [
   `https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=${layer}&STYLE=normal&TILEMATRIXSET=PM&FORMAT=${format}&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}`,

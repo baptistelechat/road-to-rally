@@ -6,7 +6,7 @@ import { HoverMarker } from "./HoverMarker";
 import { InsertHandle } from "./InsertHandle";
 import { IssueMarkers } from "./IssueMarkers";
 import { MapFocus } from "./MapFocus";
-import { ModeSwitch } from "./ModeSwitch";
+import { ElementPanels, FirstHint, Legend, RouteStatus } from "./MapPanels";
 import { ReturnLayer } from "./ReturnLayer";
 import { RoundaboutIslands } from "./RoundaboutIslands";
 import { TraceLayers } from "./TraceLayers";
@@ -16,7 +16,10 @@ import { VariantRoutes } from "./VariantRoutes";
 export const MapLayers = () => (
   <>
     <MapFocus />
-    <ModeSwitch />
+    <ElementPanels />
+    <Legend />
+    <FirstHint />
+    <RouteStatus />
     <TraceLayers />
     <ReturnLayer />
     <VariantRoutes />
