@@ -7,14 +7,20 @@ import type { Copilot } from "@/game/copilot";
 import {
   applyAudioOptions,
   type CopilotOptions,
+  MINI_MAP_STYLES,
   type MiniMapStyle,
+  SPEEDOMETER_STYLES,
+  type SpeedometerStyle,
   type SpeechRate,
   type Volume,
 } from "@/game/copilotOptions";
 import { setCopilotOptions, useHudStore } from "@/game/hudStore";
 import { hudButton, menuFocus } from "../hudStyles";
+import { type MenuCard, MenuCards } from "./MenuCards";
+import { MiniMapPreview } from "./MiniMap/components/MiniMapPreview";
 import { type MenuOption, MenuSelect } from "./MenuSelect";
 import { MenuSlider } from "./MenuSlider";
+import { SpeedometerPreview } from "./Speedometer";
 
 const enabledOptions = (suffix: string): readonly MenuOption<boolean>[] => [
   { id: true, name: `Activée${suffix}` },
@@ -27,12 +33,34 @@ const RATES: readonly MenuOption<SpeechRate>[] = [
   { id: "normal", name: "Normal" },
   { id: "rapide", name: "Rapide" },
 ];
-const MAP_STYLES: readonly MenuOption<MiniMapStyle>[] = [
-  { id: "global", name: "Globale" },
-  { id: "north", name: "Zoom, nord en haut" },
-  { id: "heading", name: "Zoom, cap en haut" },
-  { id: "hybrid", name: "Zoom et vue globale" },
+const MAP_STYLE_NAMES: Record<MiniMapStyle, string> = {
+  global: "Globale",
+  north: "Zoom, nord en haut",
+  heading: "Zoom, cap en haut",
+  hybrid: "Zoom et vue globale",
+};
+/** `off` : mini-carte désactivée, le style choisi est gardé pour la suivante */
+type MiniMapChoice = MiniMapStyle | "off";
+const MAP_STYLES: readonly MenuCard<MiniMapChoice>[] = [
+  { id: "off", name: "Aucune", preview: <MiniMapPreview style="off" /> },
+  ...MINI_MAP_STYLES.map((id) => ({
+    id,
+    name: MAP_STYLE_NAMES[id],
+    preview: <MiniMapPreview style={id} />,
+  })),
 ];
+const SPEEDOMETER_NAMES: Record<SpeedometerStyle, string> = {
+  digital: "Chiffres et LED",
+  dial: "Cadran à aiguille",
+  arc: "Arc de régime",
+  telemetry: "Télémétrie",
+};
+const SPEEDOMETERS: readonly MenuCard<SpeedometerStyle>[] =
+  SPEEDOMETER_STYLES.map((id) => ({
+    id,
+    name: SPEEDOMETER_NAMES[id],
+    preview: <SpeedometerPreview style={id} />,
+  }));
 
 interface CopilotOptionsPanelProps {
   copilot: Copilot;
@@ -118,23 +146,23 @@ export const CopilotOptionsPanel = ({
           close();
         }}
       />
-      <MenuSelect
+      <MenuCards
         title="Mini-carte"
-        value={options.miniMapEnabled}
-        options={ENABLED}
-        onChoose={(miniMapEnabled, close) => {
-          update({ miniMapEnabled });
-          close();
-        }}
+        value={options.miniMapEnabled ? options.miniMapStyle : "off"}
+        cards={MAP_STYLES}
+        onChoose={(choice) =>
+          update(
+            choice === "off"
+              ? { miniMapEnabled: false }
+              : { miniMapEnabled: true, miniMapStyle: choice },
+          )
+        }
       />
-      <MenuSelect
-        title="Style de mini-carte"
-        value={options.miniMapStyle}
-        options={MAP_STYLES}
-        onChoose={(miniMapStyle, close) => {
-          update({ miniMapStyle });
-          close();
-        }}
+      <MenuCards
+        title="Compteur"
+        value={options.speedometerStyle}
+        cards={SPEEDOMETERS}
+        onChoose={(speedometerStyle) => update({ speedometerStyle })}
       />
       <button
         type="button"

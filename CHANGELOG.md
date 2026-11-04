@@ -65,6 +65,7 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Carte d'essai « Pace notes » avec un virage de chaque note, et écoute de la voix dans `/labo-son`
 - Quatre styles de mini-carte au choix dans les options : globale, zoom nord en haut avec boussole, zoom cap en haut, et zoom avec vue globale en vignette
 - Balance du son dans les options : curseurs à crans de 10 % pour la voix, le moteur et les effets (pneus, herbe, vent, chocs)
+- Quatre compteurs au choix dans les options : chiffres avec LED de régime, cadran rond à aiguille avec anneau de régime, arc de régime gradué, et télémétrie avec accélérateur et frein
 
 ### Changed
 
@@ -88,6 +89,9 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Pointillés selon le nombre de voies d'OpenStreetMap : aucun sur une voie unique, une ligne sur deux voies, deux sur trois
 - Le sélecteur de carte passe du HUD au menu de départ et de pause
 - Le choix de la carte devient une liste qui s'ouvre, à la souris comme à la manette, où A valide et B referme
+- Les styles de mini-carte et de compteur se choisissent sur des cartes avec aperçu, et la mini-carte se désactive depuis la carte « Aucune »
+- Le compteur garde la même largeur quelle que soit la vitesse
+- Les compteurs de performance passent sous la mini-carte, empilés
 - En pause, A à la manette active la ligne sélectionnée au lieu de reprendre directement la course
 - Le menu de départ se parcourt à la manette comme le menu pause, ce qui permet d'y choisir la carte
 - Nouvelles icônes du copilote : pilule colorée selon la note, badge « LONG », pastille bicolore et flèche qui se referme quand le virage se resserre, crêtes et bosses en rouge, et cadre autour des enfilades

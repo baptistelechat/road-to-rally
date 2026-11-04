@@ -40,7 +40,9 @@ const MenuDialog = ({
       aria-labelledby="menu-title"
       className="pointer-events-auto absolute inset-0 z-20 m-0 grid size-full max-h-none max-w-none place-items-center border-0 bg-black/45 p-0 text-inherit opacity-100 transition-opacity duration-200 starting:opacity-0"
     >
-      <div className={`${panel} w-80 space-y-4 p-6 text-center`}>
+      <div
+        className={`${panel} ${inOptions ? "max-h-[95vh] w-[34rem] overflow-y-auto" : "w-80"} space-y-4 p-6 text-center`}
+      >
         <h1 id="menu-title" className="text-2xl font-bold">
           {title}
         </h1>

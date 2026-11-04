@@ -25,6 +25,7 @@ const CHANGED: CopilotOptions = {
   paceIconsEnabled: false,
   miniMapEnabled: false,
   miniMapStyle: "hybrid",
+  speedometerStyle: "arc",
 };
 
 /** Remplace `localStorage` le temps de `run`. */
@@ -60,6 +61,7 @@ const checkUnreadable = (): void => {
         paceIconsEnabled: 0,
         miniMapEnabled: null,
         miniMapStyle: "rotation",
+        speedometerStyle: "toString",
       }),
     ),
     defaultCopilotOptions,

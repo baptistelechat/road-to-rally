@@ -36,6 +36,10 @@ export interface HudPaceChain {
 export interface HudState extends LapTimes {
   speedKmh: number;
   gear: number;
+  rpm: number;
+  /** 0 à 1, comme `CarState` */
+  throttle: number;
+  brake: number;
   muted: boolean;
   /** Hors de la course, le menu est affiché et la simulation reste gelée */
   screen: GameScreen;
@@ -57,6 +61,9 @@ export interface HudState extends LapTimes {
 export const useHudStore = create<HudState>(() => ({
   speedKmh: 0,
   gear: 0,
+  rpm: 0,
+  throttle: 0,
+  brake: 0,
   muted: false,
   screen: "start",
   device: "keyboard",
@@ -81,10 +88,22 @@ export const pushHud = (
 ): void => {
   if (now - lastPushAt < HUD_PERIOD_MS) return;
   lastPushAt = now;
-  const speedKmh = Math.round(state.speed * 3.6);
+  // Arrondis : sans eux, le moindre frémissement du régime referait le rendu du compteur.
+  const next = {
+    speedKmh: Math.round(state.speed * 3.6),
+    gear: state.gear,
+    rpm: Math.round(state.rpm / 50) * 50,
+    throttle: Math.round(state.throttle * 20) / 20,
+    brake: Math.round(state.brake * 20) / 20,
+  };
   const current = useHudStore.getState();
-  if (current.speedKmh === speedKmh && current.gear === state.gear) return;
-  useHudStore.setState({ speedKmh, gear: state.gear });
+  if (
+    (Object.keys(next) as (keyof typeof next)[]).every(
+      (key) => current[key] === next[key],
+    )
+  )
+    return;
+  useHudStore.setState(next);
 };
 
 /** Appelable à chaque image : le chrono en cours n'est republié que tous les 100 ms. */

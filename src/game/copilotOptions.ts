@@ -19,6 +19,15 @@ export const MINI_MAP_STYLES = [
 ] as const;
 export type MiniMapStyle = (typeof MINI_MAP_STYLES)[number];
 
+/** Chiffres et LED de régime, cadran à aiguille, arc de régime, télémétrie */
+export const SPEEDOMETER_STYLES = [
+  "digital",
+  "dial",
+  "arc",
+  "telemetry",
+] as const;
+export type SpeedometerStyle = (typeof SPEEDOMETER_STYLES)[number];
+
 export interface CopilotOptions {
   voiceEnabled: boolean;
   speechRate: SpeechRate;
@@ -31,6 +40,7 @@ export interface CopilotOptions {
   paceIconsEnabled: boolean;
   miniMapEnabled: boolean;
   miniMapStyle: MiniMapStyle;
+  speedometerStyle: SpeedometerStyle;
 }
 
 export const defaultCopilotOptions: CopilotOptions = {
@@ -42,6 +52,7 @@ export const defaultCopilotOptions: CopilotOptions = {
   paceIconsEnabled: true,
   miniMapEnabled: true,
   miniMapStyle: "global",
+  speedometerStyle: "digital",
 };
 
 const OPTIONS_KEY = "rally:copilot-options";
@@ -74,6 +85,10 @@ export const parseCopilotOptions = (raw: string | null): CopilotOptions => {
     }
     const style = MINI_MAP_STYLES.find((id) => id === stored?.miniMapStyle);
     if (style) options.miniMapStyle = style;
+    const speedometer = SPEEDOMETER_STYLES.find(
+      (id) => id === stored?.speedometerStyle,
+    );
+    if (speedometer) options.speedometerStyle = speedometer;
   } catch {
     // JSON illisible : on garde les réglages d'origine.
   }

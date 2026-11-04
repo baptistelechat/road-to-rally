@@ -77,8 +77,8 @@ const Scene = ({ sim, audio, copilot, useBot, bestLapKey }: SceneProps) => {
       <TrackView track={sim.track} />
       <SceneryView items={staticScenery} />
       <LightPropsView props={sim.props} />
-      {/* Les trois panneaux à la fois : FPS, ms et mémoire. */}
-      <Stats className="!top-auto !bottom-4 !left-1/2 !flex -translate-x-1/2 gap-px [&>canvas]:!block" />
+      {/* Les trois panneaux à la fois : FPS, ms et mémoire. Sous la mini-carte (`top-16`, `size-40`), aligné sur son bord droit. */}
+      <Stats className="!top-58 !right-4 !left-auto !flex flex-col gap-px [&>canvas]:!block" />
       <CarModel source={source} livery={livery} />
       <DustParticles source={source} pool={dust} />
       <ExhaustFlame source={source} audio={audio} dust={dust} />
