@@ -17,6 +17,11 @@ register: decisions
 | [BDR-261104_1456-1](decisions/BDR-261104_1456-1.md) | 2026-11-04 | Routes du satellite en vecteur OSM, pas en raster IGN | #editor #maplibre #satellite #openfreemap #osm #basemap | actif |
 | [BDR-261104_1546-1](decisions/BDR-261104_1546-1.md) | 2026-11-04 | Aller-retour en milieu de spéciale : deux chaussées, glissière | #aller-retour #dual-carriageway #terre-plein #glissiere #gpx #rapier #editor | actif |
 | [BDR-261104_1546-2](decisions/BDR-261104_1546-2.md) | 2026-11-04 | Score de l'éditeur en entier dans le bandeau, sans verdict | #editor #score #ui #profil #stats | actif |
+| [BDR-261104_2153-1](decisions/BDR-261104_2153-1.md) | 2026-11-04 | Fantôme sur le chrono officiel, poses et entrées stockées | #ghost #chrono #penalites #replay #localstorage #determinisme | actif |
+| [BDR-261104_2153-2](decisions/BDR-261104_2153-2.md) | 2026-11-04 | Trois secteurs égaux, arches gonflables avec collider | #splits #secteurs #arches #colliders #hud #editor | actif |
+| [BDR-261104_2153-3](decisions/BDR-261104_2153-3.md) | 2026-11-04 | Décompte de 3 s partout, pénalité de 5 s par remise | #countdown #depart #penalites #recovery #circuit #sim | actif |
+| [BDR-261104_2153-4](decisions/BDR-261104_2153-4.md) | 2026-11-04 | Record par spéciale, identifié par l'empreinte du tracé | #records #stagehash #localstorage #fallback #migration #splits | actif |
+| [BDR-261104_2153-5](decisions/BDR-261104_2153-5.md) | 2026-11-04 | Panneaux d'annonce de chicane en objets renversables | #chicanes #light-props #rapier #scenery #render #determinisme | actif |
 | [BDR-20261101115222-1](decisions/BDR-20261101115222-1.md) | 2026-11-01 | L'IGN est la seule source d'altitude en jeu | #ign #brouter #srtm #relief #altitude #epic-2 | actif |
 | [BDR-20261101115222-2](decisions/BDR-20261101115222-2.md) | 2026-11-01 | Circuit conservé et trois cartes de test | #sandbox #cartes #url #selecteur #localstorage #epic-2 | actif |
 | [BDR-20261101115222-3](decisions/BDR-20261101115222-3.md) | 2026-11-01 | Les tracés qui se croisent sont refusés en v0 | #ribbon #nearest #croisement #maillage #scope #epic-2 | actif |

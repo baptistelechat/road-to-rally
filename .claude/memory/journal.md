@@ -311,7 +311,7 @@ Gros morceau ensuite : l'alerte récurrente « deux portions de route se touchen
 **Entrées clés :**
 
 - [BDR-261104_1546-1](decisions/BDR-261104_1546-1.md) — aller-retour en milieu de spéciale : deux chaussées, glissière
-- [BLK-261104_1546-5](blockers/BLK-261104_1546-5.md) — alerte persistante sur le tracé du Mans
+- [ZBLK-261104_1546-5](archive/blockers/ZBLK-261104_1546-5.md) — alerte persistante sur le tracé du Mans
 - [LRN-261104_1546-4](learnings/LRN-261104_1546-4.md) — reproduire un tracé éditeur via `/api/diag`
 ---
 
@@ -320,3 +320,20 @@ La glissière des terre-pleins devient visible dans l'éditeur : trait rose sur 
 **Entrées clés :**
 
 - [LRN-261104_1546-6](learnings/LRN-261104_1546-6.md) — vérifier l'éditeur dans Chrome modifie le vrai brouillon
+
+---
+
+Epic 4, stories 4.1 à 4.5 (chrono, intermédiaires, remise en piste, record par spéciale, fantôme), le copilote 4.6 à 4.11 étant déjà livré. Trois agents en parallèle ont écrit modules et fiches, chacun renvoyant son code d'intégration ; l'orchestrateur a gardé la boucle de jeu, le store et le HUD. Lint et build une seule fois à la fin, aucun check lancé.
+
+Le playtest de Baptiste a enchaîné les retours : écart du résultat au format chrono et en couleur, fantôme invisible parce que le record venait de l'ancienne clé (d'où un fantôme de secours à allure constante), décompte avec bips et feux, décompte et intermédiaires aussi sur le circuit, intermédiaires ramenés à 3 secteurs égaux, frise WRC verticale, repères sur la mini-carte et dans l'éditeur, message de pénalité avec sa raison, fantôme sur la mini-carte. Le fantôme a ensuite été calé sur le chrono officiel (format v2 avec pénalités) et l'écran de résultat détaille chaque secteur jusqu'au total.
+
+Arches de secteur : plusieurs croquis comparés, choix d'une arche gonflable « SECTEUR n » (gros boudins ramenés à 65 cm, bandes, haubans), avec collision des pieds. Les panneaux d'annonce de chicane sont devenus des objets renversables. Les 403 de BRouter n'ont pas pu être reproduits : message dédié et cache des itinéraires en attendant.
+
+Le React Compiler a refusé l'écriture dans une ref passée au hook de boucle ; react-doctor a ensuite signalé l'effet qui faisait remonter le fantôme : remplacé par un objet outlet. Score react-doctor de 76 à 81 sur les fichiers modifiés. Commit 4f02a27 poussé sur main.
+
+**Entrées clés :**
+
+- [BDR-261104_2153-1](decisions/BDR-261104_2153-1.md) — fantôme sur le chrono officiel
+- [BDR-261104_2153-2](decisions/BDR-261104_2153-2.md) — trois secteurs et arches avec collider
+- [BLK-261104_2153-6](blockers/BLK-261104_2153-6.md) — 403 de BRouter non reproduit
+- [LRN-261104_2153-7](learnings/LRN-261104_2153-7.md) — fichiers chauds gardés par l'orchestrateur

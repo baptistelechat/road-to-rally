@@ -20,6 +20,7 @@ register: learnings
 | [LRN-261104_1546-3](learnings/LRN-261104_1546-3.md) | 2026-11-04 | En ville, un demi-tour BRouter passe sur deux chaussées OSM | #osm #brouter #aller-retour #dual-carriageway #giratoire #detection |
 | [LRN-261104_1546-4](learnings/LRN-261104_1546-4.md) | 2026-11-04 | Reproduire un tracé éditeur : /api/diag puis stageGpx | #editor #debug #diag #localstorage #analyzetrace #reproduction |
 | [LRN-261104_1546-6](learnings/LRN-261104_1546-6.md) | 2026-11-04 | Vérifier l'éditeur dans Chrome modifie le vrai brouillon | #editor #chrome #verification #localstorage #draft #maplibre |
+| [LRN-261104_2153-7](learnings/LRN-261104_2153-7.md) | 2026-11-04 | Agents parallèles : fichiers chauds gardés par l'orchestrateur | #subagents #parallel-edit #orchestration #integration #game-loop #briefs |
 | [LRN-20261101115222-4](learnings/LRN-20261101115222-4.md) | 2026-11-01 | Pièges de l'API altimétrie de l'IGN | #ign #geoplateforme #altimetrie #api #cors #rge-alti |
 | [LRN-20261101115222-5](learnings/LRN-20261101115222-5.md) | 2026-11-01 | Plusieurs itinéraires : BRouter et OSRM diffèrent | #brouter #osrm #routing #itineraires #mapcn #maplibre |
 | [LRN-20261101115222-6](learnings/LRN-20261101115222-6.md) | 2026-11-01 | Le filtre rtk peut faire croire à un diff vide | #rtk #git #diff #hooks #claude-code #commit |
