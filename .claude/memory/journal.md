@@ -293,3 +293,30 @@ Les petits giratoires de l'avenue Bollée au Mans étaient bien tagués mais éc
 - [BDR-261104_1032-2](decisions/BDR-261104_1032-2.md) — Éditeur sans panneau latéral
 - [BDR-261104_1032-3](decisions/BDR-261104_1032-3.md) — Secours BRouter quand Overpass ne répond pas
 - [LRN-261104_1032-5](learnings/LRN-261104_1032-5.md) — Overpass saturé : spéciale sans ronds-points ni largeurs
+
+---
+
+Rendu satellite de l'éditeur retravaillé : les noms de rue du raster IGN `TRANSPORTNETWORKS.ROADS`, incrustés dans l'image, prenaient trop de place. Après une série de propositions (opacité, routes vectorielles, bouton, autre fond satellite), Baptiste a retenu les routes OSM vectorielles d'OpenFreeMap sur l'orthophoto, une opacité qui diminue avec le zoom et un bouton « Routes ». Les noms n'apparaissent plus qu'à partir du zoom 16. Ses retours ensuite : fonds réordonnés en Clair, Sombre, Satellite, bouton Routes déplacé à gauche de « Légende », et une erreur « Cannot style non-existing layer » au changement de fond, corrigée par un garde `getLayer`. React-doctor a relevé une valeur de contexte non mémorisée (corrigée, score 100). Commit `eda08f7`, non poussé. Rendu non vérifié à l'écran par Claude, car le serveur de dev de Baptiste occupait le port 3000.
+
+**Entrées clés :**
+
+- [BDR-261104_1456-1](decisions/BDR-261104_1456-1.md) — Routes du satellite en vecteur OSM, pas en raster IGN
+- [LRN-261104_1456-2](learnings/LRN-261104_1456-2.md) — mapcn : l'effet voit encore l'ancien style au changement de fond
+---
+
+Le score de l'éditeur tient désormais tout entier dans le bandeau au-dessus du profil : la fenêtre « Score détaillé » est retirée, épingles et ligne droite max (surlignage au survol) remontent, et le verdict « route sinueuse », simple traduction des virages par km, n'est plus affiché.
+
+Gros morceau ensuite : l'alerte récurrente « deux portions de route se touchent » sur les crochets BRouter en ville (carrefour en T, demi-tour au rond-point, retour devant le carrefour). L'aller-retour existant n'acceptait qu'un retour vers le départ. Baptiste a choisi l'option terre-plein : tout tronçon roulé dans les deux sens devient deux chaussées de 5 m séparées par 2 m de terre-plein et une glissière solide, en « roulant à droite » depuis le milieu des deux passages. La sim n'y voit qu'une spéciale ouverte ordinaire plus des glissières (`medians`). Première version validée sur un T synthétique, mais l'alerte restait sur la spéciale du Mans : en récupérant le brouillon via `/api/diag`, il est apparu que l'avenue Bollée a deux chaussées OSM à 8 m (tram) et un mini-giratoire à 256° de virage. Tolérance portée à 10 m, écart complété seulement de ce qui manque, boucle à 225° minimum. Baptiste a validé au volant, les checks n'ont pas été lancés à sa demande (le nouveau `dual-carriageway.check.ts` n'a jamais tourné). react-doctor à 91, commit `95fee94` sur `main`, sans push.
+
+**Entrées clés :**
+
+- [BDR-261104_1546-1](decisions/BDR-261104_1546-1.md) — aller-retour en milieu de spéciale : deux chaussées, glissière
+- [BLK-261104_1546-5](blockers/BLK-261104_1546-5.md) — alerte persistante sur le tracé du Mans
+- [LRN-261104_1546-4](learnings/LRN-261104_1546-4.md) — reproduire un tracé éditeur via `/api/diag`
+---
+
+La glissière des terre-pleins devient visible dans l'éditeur : trait rose sur la carte, bande et icône sur le profil (aller, demi-tour, retour), ligne dans la légende. Vérifié sur la spéciale du Mans dans Chrome, où un clic raté a posé un point sur le vrai brouillon, aussitôt annulé. react-doctor à 91, commit `4d80e37` sur `main`, sans push.
+
+**Entrées clés :**
+
+- [LRN-261104_1546-6](learnings/LRN-261104_1546-6.md) — vérifier l'éditeur dans Chrome modifie le vrai brouillon

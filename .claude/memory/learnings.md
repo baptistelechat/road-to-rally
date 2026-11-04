@@ -16,6 +16,10 @@ register: learnings
 | [LRN-261104_1032-7](learnings/LRN-261104_1032-7.md) | 2026-11-04 | Poignée sous le pointeur : elle reçoit le clic de dessous | #maplibre #marqueur #clic #insertion #chicane #hover |
 | [LRN-261104_1032-8](learnings/LRN-261104_1032-8.md) | 2026-11-04 | MapLibre : l'id d'une source doit suivre la clé React | #maplibre #react #key #source #mapcn #liste |
 | [LRN-261104_1032-9](learnings/LRN-261104_1032-9.md) | 2026-11-04 | Popover en portail : la classe `dark` du parent est perdue | #shadcn #base-ui #portal #dark-mode #popover #theme |
+| [LRN-261104_1456-2](learnings/LRN-261104_1456-2.md) | 2026-11-04 | mapcn : l'effet voit encore l'ancien style au changement de fond | #maplibre #mapcn #react #useeffect #setstyle #race-condition |
+| [LRN-261104_1546-3](learnings/LRN-261104_1546-3.md) | 2026-11-04 | En ville, un demi-tour BRouter passe sur deux chaussées OSM | #osm #brouter #aller-retour #dual-carriageway #giratoire #detection |
+| [LRN-261104_1546-4](learnings/LRN-261104_1546-4.md) | 2026-11-04 | Reproduire un tracé éditeur : /api/diag puis stageGpx | #editor #debug #diag #localstorage #analyzetrace #reproduction |
+| [LRN-261104_1546-6](learnings/LRN-261104_1546-6.md) | 2026-11-04 | Vérifier l'éditeur dans Chrome modifie le vrai brouillon | #editor #chrome #verification #localstorage #draft #maplibre |
 | [LRN-20261101115222-4](learnings/LRN-20261101115222-4.md) | 2026-11-01 | Pièges de l'API altimétrie de l'IGN | #ign #geoplateforme #altimetrie #api #cors #rge-alti |
 | [LRN-20261101115222-5](learnings/LRN-20261101115222-5.md) | 2026-11-01 | Plusieurs itinéraires : BRouter et OSRM diffèrent | #brouter #osrm #routing #itineraires #mapcn #maplibre |
 | [LRN-20261101115222-6](learnings/LRN-20261101115222-6.md) | 2026-11-01 | Le filtre rtk peut faire croire à un diff vide | #rtk #git #diff #hooks #claude-code #commit |

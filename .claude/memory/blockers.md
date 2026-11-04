@@ -7,6 +7,7 @@ register: blockers
 | ID | Date | Friction | Tags | Statut |
 | --- | --- | --- | --- | --- |
 | [BLK-002](blockers/BLK-002.md) | 2026-11-01 | Lag à 5 min en mode dev avec manette Bluetooth | #lag #bluetooth #gamepad #nextjs #dev-mode #web-audio #performance | ouvert |
+| [BLK-261104_1546-5](blockers/BLK-261104_1546-5.md) | 2026-11-04 | Deux chaussées : alerte persistante sur le tracé du Mans | #aller-retour #osm #validation #editor #dual-carriageway | résolu |
 | [BLK-20261101150421-7](blockers/BLK-20261101150421-7.md) | 2026-11-01 | Vitesse de mesure variable selon le drapeau de départ | #mesure #performance #drapeaux #navigateur #claude-browser #garage | ouvert |
 | [BLK-20261101191443-5](blockers/BLK-20261101191443-5.md) | 2026-11-01 | next dev bloqué avant l'hydratation dans le panneau navigateur | #nextjs #hmr #browser-pane #hydration #dev-mode #test | ouvert |
 | [BLK-20261102122033-11](blockers/BLK-20261102122033-11.md) | 2026-11-02 | Worker MapLibre chargé depuis unpkg par mapcn | #mapcn #maplibre #unpkg #securite #worker #supply-chain | ouvert |
