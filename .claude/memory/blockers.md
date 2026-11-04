@@ -11,5 +11,5 @@ register: blockers
 | [BLK-20261101191443-5](blockers/BLK-20261101191443-5.md) | 2026-11-01 | next dev bloqué avant l'hydratation dans le panneau navigateur | #nextjs #hmr #browser-pane #hydration #dev-mode #test | ouvert |
 | [BLK-20261102122033-11](blockers/BLK-20261102122033-11.md) | 2026-11-02 | Worker MapLibre chargé depuis unpkg par mapcn | #mapcn #maplibre #unpkg #securite #worker #supply-chain | ouvert |
 | [BLK-20261102224247-4](blockers/BLK-20261102224247-4.md) | 2026-11-02 | pnpm check:determinism paraît figé derrière un pipe | #check-determinism #performance #pipe #tests #pace-note-cue #bash | ouvert |
-| [BLK-20261103202354-5](blockers/BLK-20261103202354-5.md) | 2026-11-03 | Modèles Kokoro absents : « long » non régénéré | #voix #kokoro #copilote #audio #wav #installation | ouvert |
+| [BLK-20261103202354-5](blockers/BLK-20261103202354-5.md) | 2026-11-03 | Modèles Kokoro absents : « long » non régénéré | #voix #kokoro #copilote #audio #wav #installation | résolu |
 | [BLK-20261103211811-5](blockers/BLK-20261103211811-5.md) | 2026-11-03 | Défauts relevés à la passe navigateur de l'epic 3 | #epic-3 #editor #verification #performance #layout #chicanes | ouvert |

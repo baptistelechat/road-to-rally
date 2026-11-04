@@ -297,3 +297,12 @@ Session voix du copilote, sans une ligne de code du jeu : tout a été décidé 
 - [BDR-261104_2034-2](decisions/BDR-261104_2034-2.md) — Un fichier par note entière, plus « puis note »
 - [BDR-261104_2034-3](decisions/BDR-261104_2034-3.md) — Chicane annoncée, sens du panneau de bord de route
 - [BDR-261104_2034-4](decisions/BDR-261104_2034-4.md) — Arrivée annoncée : « Arrivée », icône A3b
+
+---
+
+Intégration des voix du copilote. La voix ne recolle plus des mots : chaque note est un fichier entier (« gauche trois long se resserre »), avec une variante « puis … » pour le second élément d'une paire et « enfilade » à part. Kokoro a régénéré 107 fichiers pour chacune des deux voix (siwis seule, et le mélange siwis/nicola pour la voix masculine). Le réglage de vitesse de diction est remplacé par un choix Féminine / Masculine dans les options. La simulation annonce maintenant les chicanes (aussi au retour d'un aller-retour) et l'arrivée des spéciales, avec les icônes T3 et A3b dans le HUD. Les checks copilote ont été réécrits pour compiler, sans être lancés. Retours de Baptiste en jeu : la voix était trop faible, d'où un gain fixe de +6 dB à la lecture ; et bas à la manette faisait défiler les cartes mini-carte et compteur au lieu de descendre, corrigé en traitant une rangée de cartes comme une seule ligne. React-doctor ne signale rien sur le changement. Commit d32c60d poussé sur development.
+
+**Entrées clés :**
+
+- [BDR-261104_2127-1](decisions/BDR-261104_2127-1.md) — Fichiers voix : un dossier par voix, nom tiré du texte
+- [BLK-20261103202354-5](blockers/BLK-20261103202354-5.md) — Modèles Kokoro absents : « long » régénéré, résolu
