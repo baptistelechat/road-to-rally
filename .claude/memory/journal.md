@@ -278,3 +278,18 @@ Ajout d'une balance audio : bus moteur et effets devant le master, voix à part,
 
 - [BDR-20261103211134-2](decisions/BDR-20261103211134-2.md) — Mini-carte : quatre styles, parcouru sur la longueur à plat
 - [BDR-20261103211134-3](decisions/BDR-20261103211134-3.md) — Balance audio : bus moteur et effets, voix à part
+
+## 2026-11-04
+
+Session éditeur, partie en mode Rodin. Baptiste trouvait l'éditeur peu intuitif. Le profil d'altitude a reçu des graduations en distance et en altitude, puis les points, les chicanes et leur zone jaune, les ronds-points, les rochers et la plus longue ligne droite (désormais toujours en vert sur la carte), tous cliquables pour centrer la carte, zoom porté à 17. La limite de 2 km, sans raison technique, est passée à 500 m.
+
+L'éditeur a ensuite été refondu : un seul mode au lieu d'Éditer/Déplacer, avec une tolérance de clic à 8 px, une marge autour des marqueurs et aucun point créé en fermant un menu ou en cliquant sur une zone de chicane. Le panneau droit a disparu au profit d'une barre du haut, de popovers Points, Chicanes et Légende (au survol) et d'un bandeau de stats avec le score en fenêtre. Un seul jeu de symboles relie maintenant légende, carte et courbe. Sur fond clair, la route roulée passe en bleu nuit.
+
+Les petits giratoires de l'avenue Bollée au Mans étaient bien tagués mais écartés, trop petits pour un îlot : ils reçoivent un rocher. Les ronds-points disparus en jeu venaient d'Overpass saturé, d'où un secours BRouter pour les spéciales de l'éditeur. Le vrai sujet, un même lien donnant deux routes selon le jour, est noté dans l'epic 6 avec les options d'un lien figé (Vercel Blob recommandé, backend à trancher). Commit `3fa14f7` sur `development`, sans push ni check de déterminisme.
+
+**Entrées clés :**
+
+- [BDR-261104_1032-1](decisions/BDR-261104_1032-1.md) — Éditeur en un seul mode
+- [BDR-261104_1032-2](decisions/BDR-261104_1032-2.md) — Éditeur sans panneau latéral
+- [BDR-261104_1032-3](decisions/BDR-261104_1032-3.md) — Secours BRouter quand Overpass ne répond pas
+- [LRN-261104_1032-5](learnings/LRN-261104_1032-5.md) — Overpass saturé : spéciale sans ronds-points ni largeurs
