@@ -11,6 +11,7 @@ export const createStageTrack = (stage: StageData): Track => {
     shared: stage.shared,
     obstacles: stage.obstacles,
     islands: stage.islands,
+    medians: stage.medians,
   });
   if (stage.lanes)
     track.laneCounts = stage.lanes.slice(0, track.unique.points.length);

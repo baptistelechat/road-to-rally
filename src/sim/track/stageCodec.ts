@@ -1,5 +1,6 @@
 import type {
   ChicaneBlock,
+  MedianBarrier,
   RoundaboutIsland,
   MeshData,
   SharedRange,
@@ -175,6 +176,29 @@ const parseIslands = (value: unknown): RoundaboutIsland[] => {
   });
 };
 
+const parseMedians = (value: unknown): MedianBarrier[] => {
+  if (!Array.isArray(value)) return fail("medians", "doit être un tableau");
+  if (value.length === 0)
+    fail("medians", "doit être absent sans terre-plein");
+  return value.map((median: unknown, i) => {
+    const field = `medians[${i}]`;
+    if (!isObject(median) || !Array.isArray(median.points))
+      return fail(field, "doit être une glissière");
+    if (median.points.length < 2)
+      fail(`${field}.points`, "doit contenir au moins 2 points");
+    const positive = (key: string): number => {
+      const size = finite(median[key], `${field}.${key}`);
+      if (size <= 0) fail(`${field}.${key}`, "doit rester positif");
+      return size;
+    };
+    return {
+      points: median.points.map(parsePoint),
+      height: positive("height"),
+      skirt: positive("skirt"),
+    };
+  });
+};
+
 /** Valide une spéciale lue en JSON. Toute donnée inattendue, vieille version comprise, lève une erreur claire. */
 export const parseStage = (json: unknown): StageData => {
   if (!isObject(json)) return fail("le fichier", "doit contenir un objet");
@@ -218,6 +242,9 @@ export const parseStage = (json: unknown): StageData => {
     }),
     ...(json.islands !== undefined && {
       islands: parseIslands(json.islands),
+    }),
+    ...(json.medians !== undefined && {
+      medians: parseMedians(json.medians),
     }),
     terrain: parseTerrain(json.terrain),
     pipelineVersion: finite(json.pipelineVersion, "pipelineVersion"),

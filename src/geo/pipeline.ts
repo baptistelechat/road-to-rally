@@ -7,6 +7,7 @@ import {
   roadForkReach,
 } from "../sim/track/roadContact";
 import type {
+  MedianBarrier,
   MeshData,
   RoundaboutIsland,
   SharedRange,
@@ -22,6 +23,7 @@ import {
 import {
   CHICANE_BARRIER_HEIGHT,
   CHICANE_SKIRT,
+  DUAL_OFFSET,
   PIPELINE_VERSION,
   ROUND_TRIP_MAX_FORK_GAP,
   RUNOFF_MAX_SLOPE,
@@ -37,7 +39,12 @@ import {
 } from "./gpx";
 import { throwIfAborted, type HttpOptions } from "./http";
 import { assertCovered, fetchAltitudes } from "./ign";
-import { deduceRoadAttributes, fetchOsmWays, type OsmWay } from "./osm";
+import {
+  deduceRoadAttributes,
+  dualMask,
+  fetchOsmWays,
+  type OsmWay,
+} from "./osm";
 import { buildProfile, closeRoundTripProfile, symmetrizeFork } from "./profile";
 import { findRoundabouts } from "./roundabouts";
 import { buildTerrain, corridorNodes } from "./terrain";
@@ -321,7 +328,13 @@ export const buildStageWithWarnings = (
       startS,
       finishS,
       // ponytail: ponts et tunnels ignorés, le jeu n'en dessine aucun pour l'instant ; passer `structures` ici le jour où il y en aura.
-      excluded: chicaneExclusions(unique, widths, shared || undefined),
+      // Pas de chicane sur une chaussée de terre-plein : la glissière occupe déjà l'autre côté.
+      excluded: chicaneExclusions(
+        unique,
+        widths,
+        shared || undefined,
+        dualMask(unique, trace.dual),
+      ),
     },
   );
 
@@ -347,6 +360,27 @@ export const buildStageWithWarnings = (
     };
   });
 
+  // Au niveau moyen des deux chaussées qui l'encadrent, enterrée sous la plus basse : ni en l'air ni noyée.
+  const medians = (trace.dual ?? [])
+    .filter(({ barrier }) => barrier.length > 1)
+    .map(({ barrier }): MedianBarrier => {
+      let skirt = CHICANE_SKIRT;
+      const footing = barrier.map((p) => {
+        const near = unique.filter(
+          (q) => Math.hypot(q.x - p.x, q.z - p.z) <= DUAL_OFFSET + 1,
+        );
+        const ys = near.length > 0 ? near.map((q) => q.y) : [0];
+        const y = ys.reduce((sum, value) => sum + value, 0) / ys.length;
+        skirt = Math.max(skirt, CHICANE_SKIRT + y - Math.min(...ys));
+        return { x: p.x, y: roundMm(y), z: p.z };
+      });
+      return {
+        points: footing,
+        height: CHICANE_BARRIER_HEIGHT,
+        skirt: roundMm(skirt),
+      };
+    });
+
   return {
     stage: {
       name,
@@ -360,6 +394,7 @@ export const buildStageWithWarnings = (
       ...(shared && { shared }),
       ...(blocks.length > 0 && { obstacles: blocks }),
       ...(islands.length > 0 && { islands }),
+      ...(medians.length > 0 && { medians }),
       terrain:
         inputs.terrain && nodes
           ? buildTerrain(

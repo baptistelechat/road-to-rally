@@ -11,6 +11,7 @@ import {
   approachSigns,
   ChicaneView,
   IslandBarriers,
+  MedianBarriers,
 } from "../scenery/ChicaneView";
 import { groundMesh, withSkirt } from "./groundMesh";
 import { Arch } from "./TrackFurniture";
@@ -292,6 +293,7 @@ export const TrackView = ({ track }: { track: Track }) => {
       {!track.closed && <Arch track={track} place={finishArch} />}
       <ChicaneView blocks={track.obstacles} signs={signs} />
       <IslandBarriers islands={track.islands} groundAt={track.groundAt} />
+      <MedianBarriers medians={track.medians} groundAt={track.groundAt} />
     </group>
   );
 };

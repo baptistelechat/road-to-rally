@@ -1,5 +1,8 @@
 import {
   DEFAULT_WIDTH,
+  DUAL_MATCH_TOLERANCE,
+  DUAL_OFFSET,
+  DUAL_WIDTH,
   HIGHWAY_WIDTHS,
   LANE_WIDTH,
   MAJOR_ROAD_WIDTH,
@@ -18,6 +21,7 @@ import {
 } from "./config";
 import { StageError } from "./errors";
 import {
+  closestOnPolyline,
   project,
   roundMm,
   unproject,
@@ -280,6 +284,19 @@ const matchWay = (
   return best;
 };
 
+/** Points de l'axe posés sur une chaussée d'un tronçon roulé dans les deux sens. */
+export const dualMask = (
+  points: PlanePoint[],
+  dual: TracePoints["dual"],
+): boolean[] =>
+  points.map((point) =>
+    (dual ?? []).some(
+      ({ centre }) =>
+        closestOnPolyline(point, centre).distance <=
+          Math.max(DUAL_OFFSET, DUAL_MATCH_TOLERANCE / 2) + 0.5,
+    ),
+  );
+
 /** Sans voie (`ways` nul ou trop loin), la largeur par défaut. */
 export const deduceRoadAttributes = (
   trace: TracePoints,
@@ -321,5 +338,16 @@ export const deduceRoadAttributes = (
   );
   // Le filtre médian retire une voie associée par erreur sur quelques points, au passage d'un carrefour.
   const lanes = medianFilter(rawLanes, WIDTH_MEDIAN_RADIUS).map(Math.round);
-  return { widths: smoothed.map(roundMm), structures, lanes };
+  if (!trace.dual) return { widths: smoothed.map(roundMm), structures, lanes };
+
+  // Deux chaussées : une voie de `DUAL_WIDTH` chacune, avec un fondu vers la largeur d'OSM autour.
+  const inside = dualMask(points, trace.dual).map(Number);
+  const weight = boxSmooth(inside, WIDTH_SMOOTH_RADIUS);
+  return {
+    widths: smoothed.map((width, i) =>
+      roundMm(inside[i] ? DUAL_WIDTH : width + (DUAL_WIDTH - width) * weight[i]),
+    ),
+    structures,
+    lanes: lanes.map((count, i) => (inside[i] ? 1 : count)),
+  };
 };

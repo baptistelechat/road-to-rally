@@ -14,6 +14,7 @@ import { SHOULDER_WIDTH } from "@/sim/track/ribbon";
 import type {
   ChicaneBlock,
   ChicaneSide,
+  MedianBarrier,
   RoundaboutIsland,
   Track,
   Vec3,
@@ -299,5 +300,51 @@ export const IslandBarriers = ({
       <Batch geometry={CHICANE_GEOMETRY.chicaneBarrier} matrices={matrices} />
       <Batch geometry={SCENERY_GEOMETRY.rock} matrices={rocks} />
     </>
+  );
+};
+
+/** Glissière des terre-pleins : des modules de chicane bout à bout le long de la médiane, chacun posé sur le sol. */
+export const MedianBarriers = ({
+  medians,
+  groundAt,
+}: {
+  medians: MedianBarrier[];
+  groundAt: Track["groundAt"];
+}) => {
+  const matrices = useMemo(() => {
+    const result: Matrix4[] = [];
+    const rotation = new Quaternion();
+    for (const { points } of medians)
+      for (let i = 1; i < points.length; i++) {
+        const a = points[i - 1];
+        const b = points[i];
+        const dx = b.x - a.x;
+        const dz = b.z - a.z;
+        const length = Math.hypot(dx, dz);
+        const count = Math.max(1, Math.round(length / CHICANE_BARRIER_MODULE));
+        // L'axe X du module suit le segment, légèrement étiré pour tomber juste.
+        rotation.setFromAxisAngle(UP, Math.atan2(-dz, dx));
+        const scale = new Vector3(
+          length / count / CHICANE_BARRIER_MODULE,
+          1,
+          1,
+        );
+        for (let k = 0; k < count; k++) {
+          const t = (k + 0.5) / count;
+          const x = a.x + dx * t;
+          const z = a.z + dz * t;
+          result.push(
+            new Matrix4().compose(
+              new Vector3(x, groundAt(x, z) ?? a.y + (b.y - a.y) * t, z),
+              rotation,
+              scale,
+            ),
+          );
+        }
+      }
+    return result;
+  }, [medians, groundAt]);
+  return (
+    <Batch geometry={CHICANE_GEOMETRY.chicaneBarrier} matrices={matrices} />
   );
 };

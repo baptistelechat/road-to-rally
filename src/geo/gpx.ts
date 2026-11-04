@@ -1,6 +1,14 @@
 import { CatmullRomCurve3, Vector3 } from "three";
 import {
   ARC_LENGTH_RESOLUTION,
+  DUAL_MATCH_TOLERANCE,
+  DUAL_MIN_LOOP_TURN,
+  DUAL_OFFSET,
+  DUAL_OPPOSITE_DOT,
+  DUAL_TAPER,
+  DUAL_WIDTH,
+  MEDIAN_CLEARANCE,
+  MEDIAN_MIN_LENGTH,
   GPX_MIN_SPACING,
   MAX_STAGE_LENGTH,
   MIN_RADIUS,
@@ -27,6 +35,7 @@ import {
   forkReach,
   isForkPair,
 } from "../sim/track/roadContact";
+import { createSpatialGrid } from "../sim/track/spatialGrid";
 import { StageError, formatKm } from "./errors";
 import { boxSmooth } from "./smooth";
 
@@ -62,6 +71,16 @@ export interface TracePoints {
   length: number;
   /** Présent si le retour du GPX recopie l'aller */
   roundTrip?: RoundTripAxis;
+  /** Tronçons roulés dans les deux sens en milieu de spéciale : deux chaussées séparées par une glissière */
+  dual?: DualCarriageway[];
+}
+
+/** Tronçon roulé à l'aller puis au retour : chaque passage a sa chaussée, à `DUAL_OFFSET` de part et d'autre du centre. */
+export interface DualCarriageway {
+  /** Axe d'origine du tronçon, sur toute sa longueur : les largeurs s'en servent */
+  centre: PlanePoint[];
+  /** Tracé de la glissière : le centre, raccourci là où il toucherait une chaussée. Vide s'il ne reste rien. */
+  barrier: PlanePoint[];
 }
 
 /** Points qui n'existent qu'une fois : tout l'axe, ou le bras et la boucle d'un aller-retour. */
@@ -354,6 +373,225 @@ export const detectRoundTrip = (raw: LatLon[]): RawRoundTrip | null => {
     : { kind: "loop", armEnd };
 };
 
+/** Aller `from..to`, boucle `to..back`, retour `back..end` : index d'une polyligne à pas de `STEP`. */
+interface SharedStretch {
+  from: number;
+  to: number;
+  back: number;
+  end: number;
+}
+
+/** Direction lissée sur quelques points, unitaire. */
+const tangentAt = (points: PlanePoint[], i: number): PlanePoint => {
+  const a = points[Math.max(0, i - 4)];
+  const b = points[Math.min(points.length - 1, i + 4)];
+  const norm = Math.hypot(b.x - a.x, b.z - a.z) || 1;
+  return { x: (b.x - a.x) / norm, z: (b.z - a.z) / norm };
+};
+
+/** Somme des changements de cap, en degrés, quel que soit le côté. */
+const totalTurn = (points: PlanePoint[]): number => {
+  let turn = 0;
+  for (let i = 1; i + 1 < points.length; i++) {
+    const a = Math.atan2(
+      points[i].z - points[i - 1].z,
+      points[i].x - points[i - 1].x,
+    );
+    const b = Math.atan2(
+      points[i + 1].z - points[i].z,
+      points[i + 1].x - points[i].x,
+    );
+    turn += Math.abs(Math.atan2(Math.sin(b - a), Math.cos(b - a)));
+  }
+  return (turn * 180) / Math.PI;
+};
+
+/** Pour chaque point, le point plus loin le plus proche qui va en sens inverse, et leur écart. -1 sans partenaire. */
+const oppositePartners = (
+  dense: PlanePoint[],
+): { partner: number[]; gap: number[] } => {
+  const tolerance = DUAL_MATCH_TOLERANCE;
+  const grid = createSpatialGrid(tolerance);
+  dense.forEach((p, i) => grid.insert(i, p.x, p.z, p.x, p.z));
+  const tangents = dense.map((_, i) => tangentAt(dense, i));
+  const partner = new Array<number>(dense.length).fill(-1);
+  const gap = new Array<number>(dense.length).fill(Infinity);
+  dense.forEach((p, i) => {
+    const cx = Math.floor(p.x / tolerance);
+    const cz = Math.floor(p.z / tolerance);
+    for (let dx = -1; dx <= 1; dx++)
+      for (let dz = -1; dz <= 1; dz++)
+        for (const j of grid.at(cx + dx, cz + dz) ?? []) {
+          if (j <= i) continue;
+          const distance = Math.hypot(dense[j].x - p.x, dense[j].z - p.z);
+          const dot =
+            tangents[i].x * tangents[j].x + tangents[i].z * tangents[j].z;
+          if (
+            distance < Math.min(tolerance, gap[i]) &&
+            dot < DUAL_OPPOSITE_DOT
+          ) {
+            gap[i] = distance;
+            partner[i] = j;
+          }
+        }
+  });
+  return { partner, gap };
+};
+
+/**
+ * Portions reprises plus loin en sens inverse, avec une boucle de demi-tour entre les deux : un aller-retour en milieu de
+ * spéciale, sur la même route ou sur les deux chaussées d'une avenue. Une épingle ne tourne que d'un demi-tour : elle reste
+ * telle quelle. Un cul-de-sac, sans boucle assez longue, reste refusé.
+ */
+const detectSharedStretches = (
+  dense: PlanePoint[],
+  partner: number[],
+): SharedStretch[] => {
+  const stretches: SharedStretch[] = [];
+  const minArm = Math.round(ROUND_TRIP_MIN_ARM / STEP);
+  const minLoop = Math.round(ROUND_TRIP_MIN_LOOP / STEP);
+  let i = 0;
+  while (i < dense.length) {
+    if (partner[i] < 0) {
+      i++;
+      continue;
+    }
+    // Un trou de quelques points ne coupe pas la série : un nœud OSM décalé au passage d'un carrefour.
+    let to = i;
+    let back = partner[i];
+    let end = partner[i];
+    for (let j = i + 1; j < dense.length && j - to <= 3; j++)
+      if (partner[j] >= 0 && partner[j] <= back + 3) {
+        to = j;
+        back = Math.min(back, partner[j]);
+        end = Math.max(end, partner[j]);
+      }
+    if (
+      to - i >= minArm &&
+      back - to >= minLoop &&
+      totalTurn(dense.slice(to, back + 1)) >= DUAL_MIN_LOOP_TURN
+    )
+      stretches.push({ from: i, to, back, end });
+    i = to + 1;
+  }
+  return stretches;
+};
+
+/**
+ * On roule à droite : chaque passage d'un tronçon partagé, boucle comprise, s'écarte vers sa droite jusqu'à `DUAL_OFFSET`
+ * du centre. Sur la même route, il en est décalé d'autant ; sur deux chaussées déjà séparées, seulement de ce qui manque.
+ */
+const driveOnRight = (
+  dense: PlanePoint[],
+  stretches: SharedStretch[],
+  partner: number[],
+  gap: number[],
+): PlanePoint[] => {
+  const taper = Math.round(DUAL_TAPER / STEP);
+  const missing = (g: number): number => Math.max(0, DUAL_OFFSET - g / 2);
+  const amount = new Array<number>(dense.length).fill(0);
+  const ease = (t: number): number => t * t * (3 - 2 * t);
+  for (const { from, to, back, end } of stretches) {
+    // L'écart vu des deux passages : l'aller le mesure, le retour le reprend.
+    const need = new Array<number>(dense.length).fill(NaN);
+    for (let i = from; i <= to; i++)
+      if (partner[i] >= 0) {
+        need[i] = missing(gap[i]);
+        const j = partner[i];
+        need[j] = Number.isNaN(need[j]) ? need[i] : Math.max(need[j], need[i]);
+      }
+    // Les trous, et la boucle entière, prennent la valeur du dernier point connu vers le début du tronçon.
+    for (let i = from + 1; i <= end; i++)
+      if (Number.isNaN(need[i]) && i !== to + 1) need[i] = need[i - 1];
+    for (let i = to + 1; i < back; i++)
+      need[i] = need[to] + ((need[back] - need[to]) * (i - to)) / (back - to);
+    for (
+      let i = Math.max(0, from - taper);
+      i <= Math.min(dense.length - 1, end + taper);
+      i++
+    ) {
+      const value =
+        i < from
+          ? ease((i - (from - taper)) / taper) * need[from]
+          : i > end
+            ? ease((end + taper - i) / taper) * need[end]
+            : need[i];
+      amount[i] = Math.max(amount[i], value);
+    }
+  }
+  // Droite de la marche : (-tz, tx), x vers l'est et z vers le sud.
+  return dense.map((p, i) => {
+    const t = tangentAt(dense, i);
+    return { x: p.x - amount[i] * t.z, z: p.z + amount[i] * t.x };
+  });
+};
+
+/** Glissière : la plus longue portion du centre qui reste à l'écart de toutes les chaussées. */
+const barrierAlong = (
+  centre: PlanePoint[],
+  axis: PlanePoint[],
+): PlanePoint[] => {
+  const clearance = DUAL_WIDTH / 2 + MEDIAN_CLEARANCE;
+  const grid = createSpatialGrid(clearance);
+  axis.forEach((p, i) => grid.insert(i, p.x, p.z, p.x, p.z));
+  const clear = centre.map((p) => {
+    const cx = Math.floor(p.x / clearance);
+    const cz = Math.floor(p.z / clearance);
+    for (let dx = -1; dx <= 1; dx++)
+      for (let dz = -1; dz <= 1; dz++)
+        for (const i of grid.at(cx + dx, cz + dz) ?? [])
+          if (Math.hypot(axis[i].x - p.x, axis[i].z - p.z) < clearance)
+            return false;
+    return true;
+  });
+  let best: [number, number] = [0, -1];
+  let start = -1;
+  clear.forEach((ok, i) => {
+    if (!ok) {
+      start = -1;
+      return;
+    }
+    if (start < 0) start = i;
+    if (i - start > best[1] - best[0]) best = [start, i];
+  });
+  const barrier = centre.slice(best[0], best[1] + 1);
+  return barrier.length > 1 && polylineLength(barrier) >= MEDIAN_MIN_LENGTH
+    ? barrier.map((p) => ({ x: roundMm(p.x), z: roundMm(p.z) }))
+    : [];
+};
+
+/**
+ * Le tracé tel qu'il sera roulé : à pas de `STEP` si un tronçon est partagé, les deux passages écartés sur leur chaussée.
+ * `centres` : le milieu des deux passages. Sans tronçon partagé, `cleaned` tel quel : rien ne change pour les autres spéciales.
+ */
+export const drivenPath = (
+  cleaned: PlanePoint[],
+): { path: PlanePoint[]; centres: PlanePoint[][] } => {
+  const length = polylineLength(cleaned);
+  if (cleaned.length < 2 || length < 2 * STEP)
+    return { path: cleaned, centres: [] };
+  const dense = resample(cleaned, Math.round(length / STEP));
+  const { partner, gap } = oppositePartners(dense);
+  const stretches = detectSharedStretches(dense, partner);
+  if (stretches.length === 0) return { path: cleaned, centres: [] };
+  return {
+    path: driveOnRight(dense, stretches, partner, gap),
+    centres: stretches.map(({ from, to }) => {
+      const centre: PlanePoint[] = [];
+      for (let i = from; i <= to; i++)
+        if (partner[i] >= 0)
+          centre.push({
+            x: (dense[i].x + dense[partner[i]].x) / 2,
+            z: (dense[i].z + dense[partner[i]].z) / 2,
+          });
+      return centre;
+    }),
+  };
+};
+
+/** GPX projeté et nettoyé : la polyligne que suivent l'axe et la comparaison avec la route d'origine. */
+export const cleanedPlane = (raw: LatLon[], origin: LatLon): PlanePoint[] =>
+  thinned(raw.map((point) => project(point, origin)));
 /** Point d'une polyligne le plus proche de `p`. */
 export const closestOnPolyline = (
   p: PlanePoint,
@@ -654,7 +892,17 @@ export const axisFromGpx = (
   if (trip?.kind === "loop")
     return roundTripAxis(plane, origin, trip.armEnd, mark, minRadius);
 
-  const smooth = widenTightTurns(smoothedAxis(cleaned), minRadius);
+  const { path, centres } = drivenPath(cleaned);
+  const smooth = widenTightTurns(smoothedAxis(path), minRadius);
+  const dual =
+    centres.length > 0
+      ? {
+          dual: centres.map((centre) => ({
+            centre: centre.map((p) => ({ x: roundMm(p.x), z: roundMm(p.z) })),
+            barrier: barrierAlong(centre, smooth),
+          })),
+        }
+      : {};
 
   const markedPoints = Math.round((mark ?? 0) / STEP);
   const length = polylineLength(
@@ -667,6 +915,7 @@ export const axisFromGpx = (
       runoffPoints: markedPoints,
       realRunoff: true,
       length,
+      ...dual,
     };
 
   const extensions = (runoff: number): [PlanePoint[], PlanePoint[]] => [
@@ -698,7 +947,7 @@ export const axisFromGpx = (
     z: roundMm(p.z),
   }));
 
-  return { origin, points, runoffPoints, realRunoff: false, length };
+  return { origin, points, runoffPoints, realRunoff: false, length, ...dual };
 };
 
 export const traceFromGpx = (

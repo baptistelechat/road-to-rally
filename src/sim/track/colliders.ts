@@ -12,6 +12,8 @@ const GROUND_MARGIN = 2000;
 /** Glissant, à peine élastique : la voiture s'arrête contre la barrière sans y accrocher ni rebondir. */
 const BLOCK_FRICTION = 0.2;
 const BLOCK_RESTITUTION = 0.1;
+/** Épaisseur du collider de la glissière d'un terre-plein, en mètres */
+const MEDIAN_THICKNESS = 0.3;
 
 const addTrimesh = (world: RAPIER_TYPES.World, mesh: MeshData): void => {
   // FIX_INTERNAL_EDGES : la caisse ne doit pas accrocher les arêtes entre triangles coplanaires.
@@ -149,4 +151,34 @@ export const addTrackColliders = (
         .setRestitution(BLOCK_RESTITUTION)
         .setCollisionGroups(RAY_IGNORED_GROUPS),
     );
+
+  // Après les îlots : sans terre-plein, le monde reste le même au bit près. Un bloc par segment, bout à bout.
+  for (const { points, height, skirt } of track.medians)
+    for (let i = 1; i < points.length; i++) {
+      const a = points[i - 1];
+      const b = points[i];
+      const dx = b.x - a.x;
+      const dz = b.z - a.z;
+      // L'axe X local suit le segment : (cos, -sin) après rotation de `yaw` autour de Y.
+      const yaw = Math.atan2(-dz, dx);
+      const low = Math.min(a.y, b.y) - skirt;
+      const high = Math.max(a.y, b.y) + height;
+      world.createCollider(
+        RAPIER.ColliderDesc.cuboid(
+          Math.hypot(dx, dz) / 2,
+          (high - low) / 2,
+          MEDIAN_THICKNESS / 2,
+        )
+          .setTranslation((a.x + b.x) / 2, (low + high) / 2, (a.z + b.z) / 2)
+          .setRotation({
+            x: 0,
+            y: Math.sin(yaw / 2),
+            z: 0,
+            w: Math.cos(yaw / 2),
+          })
+          .setFriction(BLOCK_FRICTION)
+          .setRestitution(BLOCK_RESTITUTION)
+          .setCollisionGroups(RAY_IGNORED_GROUPS),
+      );
+    }
 };

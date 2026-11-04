@@ -21,9 +21,11 @@ import {
 import { StageError, formatKm } from "./errors";
 import {
   axisFromGpx,
+  cleanedPlane,
   closestOnPolyline,
   deadEndRefusal,
   detectRoundTrip,
+  drivenPath,
   findTraceContact,
   lengthRefusal,
   parseGpx,
@@ -214,10 +216,12 @@ const findWidened = (
 ): { index: number; deviation: number; road: PlanePoint }[] => {
   const raw = parseGpx(gpxText);
   const trip = detectRoundTrip(raw);
-  // Le retour d'un aller-retour n'a rien à apprendre : il recopie l'aller.
-  const road = (
-    trip?.kind === "loop" ? raw.slice(0, raw.length - trip.armEnd) : raw
-  ).map((p) => project(p, trace.origin));
+  // Le retour d'un aller-retour n'a rien à apprendre : il recopie l'aller. Deux chaussées : chacune sur sa droite.
+  const road = trace.dual
+    ? drivenPath(cleanedPlane(raw, trace.origin)).path
+    : (trip?.kind === "loop" ? raw.slice(0, raw.length - trip.armEnd) : raw).map(
+        (p) => project(p, trace.origin),
+      );
   // Le prolongement inventé d'un GPX sans marquage n'a pas de route d'origine.
   const first = trace.realRunoff ? 0 : trace.runoffPoints;
   const axis = trace.roundTrip

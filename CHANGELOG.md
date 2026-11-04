@@ -69,6 +69,7 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Légende de l'éditeur, au survol : traits, symboles et gestes, avec les mêmes symboles sur la carte et sur le profil
 - Rocher au centre des petits giratoires trop étroits pour une barrière, en course et sur la carte de l'éditeur
 - Plus longue ligne droite toujours affichée en vert sur la carte de l'éditeur
+- Aller-retour en milieu de spéciale, par exemple un demi-tour au rond-point avant de repasser devant le carrefour : deux chaussées séparées par un terre-plein et une glissière solide, y compris sur une avenue déjà à deux chaussées
 
 ### Changed
 
@@ -100,7 +101,7 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - La mini-carte montre le parcouru en ambre et la route à venir en gris, avec une flèche orientée selon le cap, un départ vert et un damier à l'arrivée, et suit la voiture à chaque image
 - Le volume de la voix se règle par un curseur, sans phrase de test
 - Un seul mode sur la carte de l'éditeur : un clic pose un point, les points et les chicanes se glissent toujours, et un clic près d'un élément ou pour fermer un menu ne crée rien. Déplacer la carte ne pose plus de point par erreur
-- Le panneau latéral de l'éditeur laisse la place à la carte : points et chicanes s'ouvrent dans des fenêtres, le score se lit au-dessus du profil et en détail dans une fenêtre
+- Le panneau latéral de l'éditeur laisse la place à la carte : points et chicanes s'ouvrent dans des fenêtres, tout le score se lit au-dessus du profil, épingles et plus longue ligne droite compris
 - Une spéciale peut faire 500 m au lieu de 2 km minimum
 - Cliquer sur un point, une chicane ou un repère du profil zoome assez pour voir la route
 - La route roulée passe en bleu nuit sur le fond clair de l'éditeur
@@ -109,6 +110,7 @@ project adheres to [Semantic Versioning](https://semver.org/).
 ### Removed
 
 - Noms de lieux sur le fond satellite de l'éditeur
+- Fenêtre « Score détaillé » et verdict « route roulante / sinueuse » de l'éditeur, redondants avec le bandeau du profil
 
 ### Fixed
 
