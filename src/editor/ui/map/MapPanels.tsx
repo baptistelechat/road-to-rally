@@ -13,6 +13,7 @@ import { useEditor } from "../../store";
 import { ChicanePanel } from "../panel/ChicanePanel";
 import { PointsPanel, RouteMessages } from "../panel/PointsPanel";
 import { VariantPanel } from "../panel/VariantPanel";
+import { RoadsToggle } from "./BasemapSwitch";
 import {
   ChicaneSymbol,
   PointSymbol,
@@ -108,7 +109,8 @@ const Entry = ({
 
 /** Ce que veut dire chaque trait, et ce que fait chaque geste : à la demande, plus en permanence dans le panneau. */
 export const Legend = () => (
-  <div className="absolute top-14 right-2 z-10 rounded-lg border bg-background p-1 shadow-md">
+  <div className="absolute top-14 right-2 z-10 flex gap-1 rounded-lg border bg-background p-1 shadow-md">
+    <RoadsToggle />
     <MapPopover
       label="Légende"
       icon={<Info aria-hidden="true" />}

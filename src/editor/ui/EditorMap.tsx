@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { Map as MapView, MapControls } from "@/components/ui/map";
 import type { LatLon } from "@/geo/gpx";
 import { BasemapSwitch } from "./map/BasemapSwitch";
@@ -10,6 +10,7 @@ import {
   readBasemap,
   writeBasemap,
   BasemapContext,
+  RoadsContext,
   type BasemapId,
 } from "./map/basemaps";
 import { MapClickHandler } from "./MapClickHandler";
@@ -26,6 +27,9 @@ interface EditorMapProps {
 
 export const EditorMap = ({ onMapClick, children }: EditorMapProps) => {
   const [basemap, setBasemap] = useState<BasemapId>(readBasemap);
+  // ponytail: non mémorisé, les routes reviennent à chaque ouverture ; localStorage si Baptiste le demande.
+  const [showRoads, setShowRoads] = useState(true);
+  const roads = useMemo(() => ({ showRoads, setShowRoads }), [showRoads]);
 
   return (
     <MapView
@@ -41,7 +45,7 @@ export const EditorMap = ({ onMapClick, children }: EditorMapProps) => {
       // Au-delà de 3 px, MapLibre y voit un clic : une main qui déplace la carte posait un point.
       clickTolerance={8}
     >
-      <BasemapTuning basemap={basemap} />
+      <BasemapTuning basemap={basemap} showRoads={showRoads} />
       <PlaceSearch />
       <BasemapSwitch
         value={basemap}
@@ -53,7 +57,9 @@ export const EditorMap = ({ onMapClick, children }: EditorMapProps) => {
       <MapControls showCompass showLocate />
       {onMapClick && <MapClickHandler onMapClick={onMapClick} />}
       <BasemapContext.Provider value={basemap}>
-        {children}
+        <RoadsContext.Provider value={roads}>
+          {children}
+        </RoadsContext.Provider>
       </BasemapContext.Provider>
     </MapView>
   );

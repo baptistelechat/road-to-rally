@@ -42,7 +42,7 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Modification d'une spéciale après l'avoir testée : la rouler à nouveau remplace la version précédente, et une confirmation protège les changements non roulés
 - Fonds de carte satellite, clair et sombre dans l'éditeur, avec relief, boussole et localisation
 - Panneau de virages à l'approche de chaque chicane, en miroir selon le côté, et chevrons sur les bottes
-- Calque des routes de l'IGN sur le fond satellite de l'éditeur
+- Routes OpenStreetMap sur le fond satellite de l'éditeur, plus discrètes à mesure qu'on zoome, avec les noms de rue seulement de près et un bouton « Routes » pour les masquer
 - Zone de 100 m autour de chaque chicane sur la carte, qui passe au rouge si elle en touche une autre, avec l'écart actuel et le décalage à faire
 - Clic sur un point, une chicane ou une alerte du panneau pour centrer la carte dessus
 - Indicateur de chargement pendant la recherche de la route avant le départ et après l'arrivée
