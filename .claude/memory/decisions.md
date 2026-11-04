@@ -12,6 +12,10 @@ register: decisions
 | [BDR-004](decisions/BDR-004.md) | 2026-11-01 | Suspension par raycast Rapier, forces de pneus maison | #rapier #physique #pneus #suspension #vehicule #gameplay | actif |
 | [BDR-261104_1151-1](decisions/BDR-261104_1151-1.md) | 2026-11-04 | Quatre compteurs au choix, régime sans chiffres | #hud #compteur #speedometer #rpm #svg #options | actif |
 | [BDR-261104_1151-2](decisions/BDR-261104_1151-2.md) | 2026-11-04 | Choix visuels des options en cartes avec aperçu | #options #menu #cartes #apercu #minimap #hud #manette | actif |
+| [BDR-261104_2034-1](decisions/BDR-261104_2034-1.md) | 2026-11-04 | Voix : Kokoro, deux voix au choix, vitesse x1 | #copilote #voix #kokoro #options #playbackrate #tts | actif |
+| [BDR-261104_2034-2](decisions/BDR-261104_2034-2.md) | 2026-11-04 | Un fichier par note entière, plus « puis note » | #copilote #voix #kokoro #pace-notes #web-audio #decoupage | actif |
+| [BDR-261104_2034-3](decisions/BDR-261104_2034-3.md) | 2026-11-04 | Chicane annoncée, sens du panneau de bord de route | #copilote #chicane #pace-notes #hud #icones #voix | actif |
+| [BDR-261104_2034-4](decisions/BDR-261104_2034-4.md) | 2026-11-04 | Arrivée annoncée : « Arrivée », icône A3b | #copilote #arrivee #pace-notes #hud #icones #voix | actif |
 | [BDR-20261101115222-1](decisions/BDR-20261101115222-1.md) | 2026-11-01 | L'IGN est la seule source d'altitude en jeu | #ign #brouter #srtm #relief #altitude #epic-2 | actif |
 | [BDR-20261101115222-2](decisions/BDR-20261101115222-2.md) | 2026-11-01 | Circuit conservé et trois cartes de test | #sandbox #cartes #url #selecteur #localstorage #epic-2 | actif |
 | [BDR-20261101115222-3](decisions/BDR-20261101115222-3.md) | 2026-11-01 | Les tracés qui se croisent sont refusés en v0 | #ribbon #nearest #croisement #maillage #scope #epic-2 | actif |
@@ -44,7 +48,7 @@ register: decisions
 | [BDR-20261102162710-1](decisions/BDR-20261102162710-1.md) | 2026-11-02 | La spéciale garde son tracé, la rouler à nouveau la remplace | #editeur #indexeddb #brouillon #navigation #chicane-test #epic-3 | actif |
 | [BDR-20261102162710-2](decisions/BDR-20261102162710-2.md) | 2026-11-02 | Panneau d'annonce : le dessin suit le premier écart du pilote | #chicane #panneau #rendu #three #gameplay #epic-3 | actif |
 | [BDR-20261102200843-1](decisions/BDR-20261102200843-1.md) | 2026-11-02 | Copilote développé en parallèle de l'epic 3 | #roadmap #epics #copilote #parallele #epic-3 #epic-4 | actif |
-| [BDR-20261102200843-2](decisions/BDR-20261102200843-2.md) | 2026-11-02 | Voix du copilote en mots enregistrés | #copilote #voix #web-audio #speechsynthesis #playbackrate #prd | actif |
+| [BDR-20261102200843-2](decisions/BDR-20261102200843-2.md) | 2026-11-02 | Voix du copilote en mots enregistrés | #copilote #voix #web-audio #speechsynthesis #playbackrate #prd | inactif |
 | [BDR-20261102200843-3](decisions/BDR-20261102200843-3.md) | 2026-11-02 | Tous les virages annoncés, aucun saut de note | #copilote #notes #enfilade #pace-notes #annonces #gameplay | actif |
 | [BDR-20261102212945-1](decisions/BDR-20261102212945-1.md) | 2026-11-02 | Premier point au départ, dernier à l'arrivée, 200 m au-delà | #editeur #runoff #brouter #lignes #playtest #epic-3 | actif |
 | [BDR-20261102212945-2](decisions/BDR-20261102212945-2.md) | 2026-11-02 | Chicanes : zones de 100 m, ponts et tunnels ignorés | #chicanes #zones #editeur #pipeline #pipeline-version #epic-3 | actif |

@@ -287,3 +287,13 @@ Refonte des compteurs de vitesse. Quatre maquettes proposées (chiffres et LED d
 
 - [BDR-261104_1151-1](decisions/BDR-261104_1151-1.md) — Quatre compteurs au choix, régime sans chiffres
 - [BDR-261104_1151-2](decisions/BDR-261104_1151-2.md) — Choix visuels des options en cartes avec aperçu
+---
+
+Session voix du copilote, sans une ligne de code du jeu : tout a été décidé sur maquettes et à l'écoute. Baptiste trouvait la voix Kokoro robotique et saccadée, entendait « dans » au lieu de « un », et un effet chipmunk en vitesse rapide. Diagnostic : mots générés seuls (Kokoro rate les énoncés courts) et `playbackRate` qui change la hauteur. Avec son accord, Kokoro a été réinstallé dans `.venv-voice/`, puis une page d'audition servie en local a comparé 13 voix (voix d'homme d'autres langues, mélanges de vecteurs de style). Choix : `ff_siwis` et un mélange 50/50 siwis + nicola, au choix dans les options, vitesse x1 seulement. Kokoro ignorant la ponctuation, le découpage retenu est un fichier par note entière plus sa variante « puis … », validé en version recollée. Pocket TTS de Kyutai a été évalué puis écarté pour rester sur Kokoro. Les chicanes et l'arrivée, jusqu'ici muettes, auront leur annonce et leur icône (triangle du panneau de bord de route dans une pilule rouge, arche d'arrivée panoramique). L'intégration est prévue pour une prochaine session ; les maquettes et extraits restent dans `public/_tmp/voix-audition/`, non suivi par git.
+
+**Entrées clés :**
+
+- [BDR-261104_2034-1](decisions/BDR-261104_2034-1.md) — Voix : Kokoro, deux voix au choix, vitesse x1
+- [BDR-261104_2034-2](decisions/BDR-261104_2034-2.md) — Un fichier par note entière, plus « puis note »
+- [BDR-261104_2034-3](decisions/BDR-261104_2034-3.md) — Chicane annoncée, sens du panneau de bord de route
+- [BDR-261104_2034-4](decisions/BDR-261104_2034-4.md) — Arrivée annoncée : « Arrivée », icône A3b
