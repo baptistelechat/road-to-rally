@@ -51,3 +51,6 @@ next-env.d.ts
 /.venv-voice/
 /kokoro-v1.0.int8.onnx
 /voices-v1.0.bin
+
+# Pages et fichiers temporaires (auditions, essais)
+/public/_tmp/
