@@ -278,3 +278,12 @@ Ajout d'une balance audio : bus moteur et effets devant le master, voix à part,
 
 - [BDR-20261103211134-2](decisions/BDR-20261103211134-2.md) — Mini-carte : quatre styles, parcouru sur la longueur à plat
 - [BDR-20261103211134-3](decisions/BDR-20261103211134-3.md) — Balance audio : bus moteur et effets, voix à part
+
+## 2026-11-04
+
+Refonte des compteurs de vitesse. Quatre maquettes proposées (chiffres et LED de régime, cadran à aiguille, arc de régime, télémétrie) ; Baptiste a gardé les quatre, au choix dans les options comme la mini-carte. Le HUD reçoit désormais régime, accélérateur et frein. Corrections demandées : largeur fixe du compteur chiffré, suppression des valeurs de tr/min, et cadran refait en mélangeant un cadran rond Jaeger et un anneau de régime parce que l'aiguille passait sur les chiffres. Les choix de style passent ensuite de vignettes dans un menu déroulant à de grandes cartes avec aperçu, avec une carte « Aucune » pour la mini-carte ; les compteurs de performance passent sous la mini-carte, empilés. react-doctor sans problème sur les fichiers modifiés, commit poussé sur `development`.
+
+**Entrées clés :**
+
+- [BDR-261104_1151-1](decisions/BDR-261104_1151-1.md) — Quatre compteurs au choix, régime sans chiffres
+- [BDR-261104_1151-2](decisions/BDR-261104_1151-2.md) — Choix visuels des options en cartes avec aperçu
