@@ -22,7 +22,12 @@ export interface ProfileMarker {
 /** Au-delà du bord de l'îlot, en mètres : une demi-chaussée large, la marge, et un peu des bras */
 const RING_REACH = 6;
 
-export type ProfileBandKind = "roundabout" | "rock" | "chicane" | "straight";
+export type ProfileBandKind =
+  | "roundabout"
+  | "rock"
+  | "chicane"
+  | "straight"
+  | "median";
 
 export interface ProfileBand {
   fromS: number;
@@ -74,5 +79,39 @@ export const roundaboutBands = (
       kind: isRock(radius) ? "rock" : "roundabout",
       label: `${isRock(radius) ? "Rocher" : "Rond-point"} ${i + 1}`,
       position,
+    }));
+  });
+
+/** Au-delà de la glissière, en mètres : la chaussée qui la longe, de chaque côté */
+const MEDIAN_REACH = 5;
+
+/** Une bande par passage le long de chaque glissière : l'aller puis le retour, chacun sur sa chaussée. */
+export const medianBands = (
+  axis: LatLon[],
+  medians: LatLon[][],
+): ProfileBand[] =>
+  medians.flatMap((barrier, i) => {
+    const cosLat = Math.cos((barrier[0].lat * Math.PI) / 180);
+    const reach = (MEDIAN_REACH / 111_320) ** 2;
+    const inside = axis.flatMap(({ lat, lon }, j) =>
+      barrier.some(
+        (b) => (lat - b.lat) ** 2 + ((lon - b.lon) * cosLat) ** 2 <= reach,
+      )
+        ? [j]
+        : [],
+    );
+    const runs: [number, number][] = [];
+    inside.forEach((j) => {
+      const last = runs[runs.length - 1];
+      if (last && j - last[1] <= 2) last[1] = j;
+      else runs.push([j, j]);
+    });
+    const middle = barrier[Math.floor(barrier.length / 2)];
+    return runs.map(([from, to]) => ({
+      fromS: from * STEP,
+      toS: to * STEP,
+      kind: "median" as const,
+      label: `Glissière ${i + 1}`,
+      position: middle,
     }));
   });

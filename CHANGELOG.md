@@ -70,6 +70,7 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Rocher au centre des petits giratoires trop étroits pour une barrière, en course et sur la carte de l'éditeur
 - Plus longue ligne droite toujours affichée en vert sur la carte de l'éditeur
 - Aller-retour en milieu de spéciale, par exemple un demi-tour au rond-point avant de repasser devant le carrefour : deux chaussées séparées par un terre-plein et une glissière solide, y compris sur une avenue déjà à deux chaussées
+- Glissière des terre-pleins tracée en rose sur la carte de l'éditeur, repérée sur le profil et expliquée dans la légende
 
 ### Changed
 

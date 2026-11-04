@@ -5,12 +5,14 @@ import type { LatLon } from "@/geo/gpx";
 import { EDITOR_CHICANE_MIN_GAP, STEP } from "@/geo/config";
 import {
   anchorMarkers,
+  medianBands,
   roundaboutBands,
   type ProfileBand,
 } from "../../profileMarkers";
 import { axisIndex, editorStore, useEditor } from "../../store";
 import { ElevationChart } from "../ElevationChart";
 import { useChicanes } from "../useChicanes";
+import { useMedians } from "../useMedians";
 import { StatsStrip } from "./StatsStrip";
 
 /** La hauteur est réservée : le graphique arrive sans faire sauter la carte. */
@@ -29,6 +31,7 @@ export const ProfilePanel = () => {
   const roundabouts = useEditor((state) => state.analysis?.roundabouts ?? NONE);
   const anchors = useEditor((state) => state.history.present.anchors);
   const chicanes = useChicanes();
+  const medians = useMedians();
   const handleHover = useCallback(
     (hoverS: number | null) => editorStore.setState({ hoverS }),
     [],
@@ -86,8 +89,9 @@ export const ProfilePanel = () => {
         position: chicane.position,
       })),
       ...roundaboutBands(axis, roundabouts),
+      ...medianBands(axis, medians),
     ];
-  }, [axis, roundabouts, chicanes, straight]);
+  }, [axis, roundabouts, chicanes, straight, medians]);
 
   if (profile)
     return (

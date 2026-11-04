@@ -17,6 +17,7 @@ import { RoadsToggle } from "./BasemapSwitch";
 import {
   ChicaneSymbol,
   PointSymbol,
+  MEDIAN_COLOR,
   RoundaboutSymbol,
   StraightSymbol,
 } from "../symbols";
@@ -131,6 +132,9 @@ export const Legend = () => (
         </Entry>
         <Entry swatch={<Line color="#c084fc" />}>
           Roulée dans les deux sens
+        </Entry>
+        <Entry swatch={<Line color={MEDIAN_COLOR} />}>
+          Glissière du terre-plein : aller et retour sur deux chaussées
         </Entry>
         <Entry swatch={<StraightSymbol size="sm" />}>
           Plus longue ligne droite, tracée en vert

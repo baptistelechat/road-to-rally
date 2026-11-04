@@ -73,6 +73,17 @@ export const RoundaboutSymbol = ({ rock = false }: { rock?: boolean }) => (
   />
 );
 
+/** Couleur de la glissière d'un terre-plein, sur la carte, la courbe et dans la légende */
+export const MEDIAN_COLOR = "#f472b6";
+
+/** Un tronçon de glissière entre deux chaussées. */
+export const MedianSymbol = () => (
+  <span
+    className="block h-1.5 w-4 rounded-full border border-white shadow-md"
+    style={{ backgroundColor: MEDIAN_COLOR }}
+  />
+);
+
 /** La plus longue ligne droite, au milieu de sa portion. */
 export const StraightSymbol = ({ size = "md" }: { size?: SymbolSize }) => (
   <span

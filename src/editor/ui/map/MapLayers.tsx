@@ -4,6 +4,7 @@ import { AnchorMarkers } from "./AnchorMarkers";
 import { ChicaneMarkers } from "./ChicaneMarkers";
 import { HoverMarker } from "./HoverMarker";
 import { InsertHandle } from "./InsertHandle";
+import { MedianLines } from "./MedianLines";
 import { IssueMarkers } from "./IssueMarkers";
 import { MapFocus } from "./MapFocus";
 import { ElementPanels, FirstHint, Legend, RouteStatus } from "./MapPanels";
@@ -24,6 +25,7 @@ export const MapLayers = () => (
     <ReturnLayer />
     <VariantRoutes />
     <RoundaboutIslands />
+    <MedianLines />
     <IssueMarkers />
     <ChicaneMarkers />
     <InsertHandle />
