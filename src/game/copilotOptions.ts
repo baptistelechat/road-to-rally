@@ -1,8 +1,6 @@
 // Réglages du copilote, lus par le HUD et la voix. La simulation n'en dépend jamais.
-import { SPEECH_RATES } from "@/audio/copilotVoice";
+import { COPILOT_VOICES, type CopilotVoiceId } from "@/audio/copilotVoice";
 import type { Copilot } from "./copilot";
-
-export type SpeechRate = keyof typeof SPEECH_RATES;
 
 /** Crans des curseurs de volume, en pourcentage */
 export const VOLUME_STEPS = [
@@ -30,7 +28,7 @@ export type SpeedometerStyle = (typeof SPEEDOMETER_STYLES)[number];
 
 export interface CopilotOptions {
   voiceEnabled: boolean;
-  speechRate: SpeechRate;
+  voice: CopilotVoiceId;
   /** En pourcentage */
   voiceVolume: Volume;
   /** Balance avec la voix, en pourcentage */
@@ -45,7 +43,7 @@ export interface CopilotOptions {
 
 export const defaultCopilotOptions: CopilotOptions = {
   voiceEnabled: true,
-  speechRate: "normal",
+  voice: "siwis",
   voiceVolume: 100,
   engineVolume: 100,
   effectsVolume: 100,
@@ -56,7 +54,6 @@ export const defaultCopilotOptions: CopilotOptions = {
 };
 
 const OPTIONS_KEY = "rally:copilot-options";
-const SPEECH_RATE_IDS = Object.keys(SPEECH_RATES) as SpeechRate[];
 
 /** Une valeur absente ou invalide reprend celle d'origine. */
 export const parseCopilotOptions = (raw: string | null): CopilotOptions => {
@@ -73,8 +70,8 @@ export const parseCopilotOptions = (raw: string | null): CopilotOptions => {
       const value = stored?.[key];
       if (typeof value === "boolean") options[key] = value;
     }
-    const rate = SPEECH_RATE_IDS.find((id) => id === stored?.speechRate);
-    if (rate) options.speechRate = rate;
+    const voice = COPILOT_VOICES.find((id) => id === stored?.voice);
+    if (voice) options.voice = voice;
     for (const key of [
       "voiceVolume",
       "engineVolume",
@@ -111,12 +108,12 @@ export const saveCopilotOptions = (options: CopilotOptions): void => {
   }
 };
 
-/** Vitesse de diction comprise : le moment des annonces la lit à travers `durationOf`. */
+/** Voix comprise : le moment des annonces lit la durée de ses fichiers à travers `durationOf`. */
 export const applyAudioOptions = (
   copilot: Pick<Copilot, "voice" | "setVoiceEnabled" | "setMix">,
   {
     voiceEnabled,
-    speechRate,
+    voice,
     voiceVolume,
     engineVolume,
     effectsVolume,
@@ -124,6 +121,6 @@ export const applyAudioOptions = (
 ): void => {
   copilot.setMix(engineVolume / 100, effectsVolume / 100);
   copilot.setVoiceEnabled(voiceEnabled);
-  copilot.voice.setRate(SPEECH_RATES[speechRate]);
+  copilot.voice.setVoice(voice);
   copilot.voice.setVolume(voiceVolume / 100);
 };

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { SPEECH_RATES } from "@/audio/copilotVoice";
+import type { CopilotVoiceId } from "@/audio/copilotVoice";
 import { createVoicePreview, type VoicePreview } from "@/audio/voicePreview";
 import type { Copilot } from "@/game/copilot";
 import {
@@ -11,7 +11,6 @@ import {
   type MiniMapStyle,
   SPEEDOMETER_STYLES,
   type SpeedometerStyle,
-  type SpeechRate,
   type Volume,
 } from "@/game/copilotOptions";
 import { setCopilotOptions, useHudStore } from "@/game/hudStore";
@@ -28,10 +27,9 @@ const enabledOptions = (suffix: string): readonly MenuOption<boolean>[] => [
 ];
 const ENABLED = enabledOptions("");
 const ENABLED_PLURAL = enabledOptions("s");
-const RATES: readonly MenuOption<SpeechRate>[] = [
-  { id: "lent", name: "Lent" },
-  { id: "normal", name: "Normal" },
-  { id: "rapide", name: "Rapide" },
+const VOICES: readonly MenuOption<CopilotVoiceId>[] = [
+  { id: "siwis", name: "Féminine" },
+  { id: "siwis-nicola", name: "Masculine" },
 ];
 const MAP_STYLE_NAMES: Record<MiniMapStyle, string> = {
   global: "Globale",
@@ -95,10 +93,10 @@ export const CopilotOptionsPanel = ({
   };
 
   const updateAndListen = (patch: Partial<CopilotOptions>): void => {
-    const { speechRate, voiceVolume } = update(patch);
+    const { voice, voiceVolume } = update(patch);
     if (muted) return;
     preview.current ??= createVoicePreview();
-    preview.current.say(SPEECH_RATES[speechRate], voiceVolume / 100);
+    preview.current.say(voice, voiceVolume / 100);
   };
 
   return (
@@ -114,11 +112,11 @@ export const CopilotOptionsPanel = ({
         }}
       />
       <MenuSelect
-        title="Vitesse de diction"
-        value={options.speechRate}
-        options={RATES}
-        onChoose={(speechRate, close) => {
-          updateAndListen({ speechRate });
+        title="Voix"
+        value={options.voice}
+        options={VOICES}
+        onChoose={(voice, close) => {
+          updateAndListen({ voice });
           close();
         }}
       />

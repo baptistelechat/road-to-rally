@@ -61,14 +61,16 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Crissement de pneus sur l'asphalte, en plus du souffle du dérapage, réglable dans une section dédiée de `/labo-son`
 - Copilote en course : tous les virages sont notés de 1 à 6 et annoncés par une voix française, assez tôt pour préparer le virage selon la vitesse, avec crêtes, bosses et enfilades
 - Icônes des prochains virages à l'écran et mini-carte de la spéciale
-- Options du copilote dans le menu : voix, vitesse de diction, volume, icônes et mini-carte, à la souris, au clavier et à la manette, conservées d'une session à l'autre
+- Options du copilote dans le menu : voix féminine ou masculine, volume, icônes et mini-carte, à la souris, au clavier et à la manette, conservées d'une session à l'autre
 - Carte d'essai « Pace notes » avec un virage de chaque note, et écoute de la voix dans `/labo-son`
 - Quatre styles de mini-carte au choix dans les options : globale, zoom nord en haut avec boussole, zoom cap en haut, et zoom avec vue globale en vignette
 - Balance du son dans les options : curseurs à crans de 10 % pour la voix, le moteur et les effets (pneus, herbe, vent, chocs)
 - Quatre compteurs au choix dans les options : chiffres avec LED de régime, cadran rond à aiguille avec anneau de régime, arc de régime gradué, et télémétrie avec accélérateur et frein
+- Le copilote annonce les chicanes (« Chicane droite », dans le sens du panneau) et l'arrivée des spéciales, avec leur icône
 
 ### Changed
 
+- Voix du copilote plus fluide et plus forte : chaque note est dite d'un seul tenant au lieu de mots recollés
 - Son du moteur plus réaliste en course : résonance d'échappement, admission, mécanique, saturation, frein moteur et pétarades, plus sifflement et « pschitt » sur les moteurs turbo
 
 - Au garage, le bouton A de la manette valide la ligne sélectionnée : la rotation se met en pause depuis son bouton
@@ -106,6 +108,7 @@ project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- Dans les options, bas à la manette passe de la mini-carte au compteur au lieu de faire défiler leurs cartes
 - Bavettes qui traversaient la route : elles sont plus courtes et restent au-dessus du sol à l'assiette de repos
 - Caméra du garage qui s'inversait à la manette en passant au-dessus de la voiture : elle se bloque au sommet, comme à la souris
 - Décompte hors piste qui continuait une fois revenu sur la route après une sortie à grande vitesse
