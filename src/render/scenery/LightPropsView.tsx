@@ -5,9 +5,16 @@ import { useMemo, useRef } from "react";
 import { type InstancedMesh, Matrix4, Quaternion, Vector3 } from "three";
 import { lightPropCenter, type LightProps } from "@/sim/lightProps";
 import type { SceneryKind } from "@/sim/types";
-import { SCENERY_GEOMETRY, SCENERY_MATERIAL } from "./models";
+import { lightPropGeometry, SCENERY_MATERIAL } from "./models";
 
-const KINDS: SceneryKind[] = ["hay", "hayUpright", "post", "sign"];
+const KINDS: SceneryKind[] = [
+  "hay",
+  "hayUpright",
+  "post",
+  "sign",
+  "chicaneSignLeft",
+  "chicaneSignRight",
+];
 
 /** Bottes, plots et panneaux mobiles : les matrices ne changent que si un objet a bougé. */
 export const LightPropsView = ({ props }: { props: LightProps }) => {
@@ -69,7 +76,7 @@ export const LightPropsView = ({ props }: { props: LightProps }) => {
           ref={(mesh) => {
             meshes.current[kind] = mesh;
           }}
-          args={[SCENERY_GEOMETRY[kind], SCENERY_MATERIAL, indices.length]}
+          args={[lightPropGeometry(kind), SCENERY_MATERIAL, indices.length]}
           castShadow
           frustumCulled={false}
         />

@@ -84,6 +84,16 @@ export const MedianSymbol = () => (
   />
 );
 
+/** Un intermédiaire du chrono, numéroté : la frise et la mini-carte de la course le montrent au même endroit. */
+export const SplitSymbol = ({ rank }: { rank: number | string }) => (
+  <span className="inline-flex items-center gap-0.5">
+    <span className="block h-1.5 w-5 rounded-full border border-black/70 bg-white shadow" />
+    <span className="text-[10px] leading-none font-bold text-white [text-shadow:0_0_3px_black]">
+      {rank}
+    </span>
+  </span>
+);
+
 /** La plus longue ligne droite, au milieu de sa portion. */
 export const StraightSymbol = ({ size = "md" }: { size?: SymbolSize }) => (
   <span

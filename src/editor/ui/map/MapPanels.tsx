@@ -19,6 +19,7 @@ import {
   PointSymbol,
   MEDIAN_COLOR,
   RoundaboutSymbol,
+  SplitSymbol,
   StraightSymbol,
 } from "../symbols";
 import { useChicanes } from "../useChicanes";
@@ -135,6 +136,9 @@ export const Legend = () => (
         </Entry>
         <Entry swatch={<Line color={MEDIAN_COLOR} />}>
           Glissière du terre-plein : aller et retour sur deux chaussées
+        </Entry>
+        <Entry swatch={<SplitSymbol rank={1} />}>
+          Intermédiaire : le chrono y compare ton passage à ton record
         </Entry>
         <Entry swatch={<StraightSymbol size="sm" />}>
           Plus longue ligne droite, tracée en vert

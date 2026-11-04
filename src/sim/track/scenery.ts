@@ -1,4 +1,6 @@
-import { isHay, isLightProp } from "../lightProps";
+import { isChicaneSign, isHay, isLightProp } from "../lightProps";
+import { chicaneSignItems } from "./chicaneSigns";
+import { raceCourse, splitGates } from "../splits";
 import { isNearBlock } from "./obstacles";
 import { SHOULDER_WIDTH } from "./ribbon";
 import type { Pose, SceneryItem, SceneryKind, Track, Vec3 } from "../types";
@@ -102,6 +104,23 @@ export const startArch = (track: Track): Pose & { halfSpan: number } =>
 /** Arche d'arrivée, sur la ligne : partagée entre le rendu et les collisions. */
 export const finishArch = (track: Track): Pose & { halfSpan: number } =>
   archAt(track, track.finishS);
+
+/**
+ * Arches des intermédiaires, aux mêmes abscisses que le chrono (`splitGates`) : partagées entre le rendu et les
+ * collisions, leurs pieds se percutent comme les poteaux du départ.
+ */
+/** Rayon des boudins d'une arche de secteur : rendu et collider ont la même épaisseur, en mètres */
+export const SPLIT_ARCH_TUBE = 0.65;
+
+export const splitArches = (
+  track: Track,
+): (Pose & { halfSpan: number; postRadius: number })[] => {
+  const course = raceCourse(track);
+  return splitGates(course.startS, course.finishS - course.startS).map((s) => ({
+    ...archAt(track, track.closed ? s % track.length : s),
+    postRadius: SPLIT_ARCH_TUBE,
+  }));
+};
 
 /**
  * Courbure signée en chaque point sur une fenêtre de 10 pas : positive quand la route tourne à droite.
@@ -377,10 +396,13 @@ export const generateScenery = (track: Track, seed: number): SceneryItem[] => {
   }
 
   // Une botte posée sur un panneau ou un plot les ferait exploser au premier choc : la botte cède la place.
-  const standing = items.filter(
-    (item) => item.kind === "post" || item.kind === "sign",
+  // Les annonces de chicane passent en dernier : sans chicane, le décor et le monde restent les mêmes au bit près.
+  const signs = chicaneSignItems(track);
+  const standing = [...items, ...signs].filter(
+    (item) =>
+      item.kind === "post" || item.kind === "sign" || isChicaneSign(item.kind),
   );
-  return items.filter(
+  const kept = items.filter(
     (item) =>
       // Retiré après coup : les tirages ne se décalent pas, le reste du décor ne bouge pas.
       !track.obstacles.some((block) =>
@@ -404,4 +426,5 @@ export const generateScenery = (track: Track, seed: number): SceneryItem[] => {
             ) > HAY_CLEARANCE,
         )),
   );
+  return [...kept, ...signs];
 };

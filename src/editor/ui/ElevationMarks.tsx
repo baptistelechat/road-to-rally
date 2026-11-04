@@ -152,6 +152,25 @@ export const ElevationMarks = ({
       ))}
       {markers.map((marker) => {
         const at = km(Math.max(0, Math.round(marker.s - startS)));
+        // L'intermédiaire coupe la courbe sur toute sa hauteur, comme les lignes : son repère en haut, sous « Départ ».
+        if (marker.kind === "split")
+          return (
+            <button
+              key={`${marker.kind}-${marker.label}`}
+              type="button"
+              title={`${marker.label}, ${at}`}
+              aria-label={`${marker.label} à ${at}, voir sur la carte`}
+              onClick={() => onFocus(marker.position)}
+              className={`${markerButton} inset-y-0 w-4`}
+              style={{ left: `${xPercent(marker.s)}%` }}
+            >
+              {/* Le trait traverse déjà le profil comme la route sur la carte : seul le numéro s'y ajoute. */}
+              <span className="absolute inset-y-0 left-1/2 border-l-2 border-dashed border-white/80" />
+              <span className="absolute top-4 left-1/2 ml-1 text-xs font-bold text-white [text-shadow:0_0_3px_black]">
+                {marker.label.replace("Intermédiaire ", "")}
+              </span>
+            </button>
+          );
         return (
           <button
             key={`${marker.kind}-${marker.label}`}

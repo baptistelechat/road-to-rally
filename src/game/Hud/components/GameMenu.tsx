@@ -103,6 +103,6 @@ const MenuDialog = ({
  */
 export const GameMenu = (props: GameMenuProps) => {
   const screen = useHudStore((s) => s.screen);
-  if (screen === "race") return null;
+  if (screen === "race" || screen === "result") return null;
   return <MenuDialog {...props} paused={screen === "pause"} />;
 };

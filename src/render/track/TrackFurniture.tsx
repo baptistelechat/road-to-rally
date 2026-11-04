@@ -7,7 +7,7 @@ import type { Pose, Track } from "@/sim/types";
 
 const BANNER_COLUMNS = 10;
 const BANNER_ROWS = 2;
-const BANNER_Y = 4.6;
+export const BANNER_Y = 4.6;
 
 interface ArchProps {
   track: Track;

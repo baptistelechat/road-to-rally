@@ -10,7 +10,10 @@ export interface GameMap {
   stageUrl: string | null;
   /** Spéciale calculée sur place */
   createStage?: () => StageData;
+  /** Ancienne clé du meilleur temps seul, relue tant qu'aucun record n'existe */
   bestLapKey: string;
+  /** Identité du record (`stageRecords.ts`) : l'identifiant d'une carte livrée, l'empreinte d'une spéciale créée */
+  recordId: string;
   /** Spéciale de l'éditeur, déjà relue depuis le cache */
   custom?: GeneratedStage;
 }
@@ -21,6 +24,7 @@ const CIRCUIT: GameMap = {
   stageUrl: null,
   // Clé d'avant le choix de carte : le record du circuit survit à la mise à jour.
   bestLapKey: "rally:best-lap-ms",
+  recordId: "track",
 };
 
 export const MAPS: readonly GameMap[] = [
@@ -30,12 +34,14 @@ export const MAPS: readonly GameMap[] = [
     label: "Road",
     stageUrl: "/stages/road.json",
     bestLapKey: "rally:best-lap-ms:road",
+    recordId: "road",
   },
   {
     id: "mountain",
     label: "Mountain",
     stageUrl: "/stages/mountain.json",
     bestLapKey: "rally:best-lap-ms:mountain",
+    recordId: "mountain",
   },
   // Piste d'essai du copilote, à réévaluer avant la mise en ligne de l'epic 6.
   {
@@ -44,6 +50,7 @@ export const MAPS: readonly GameMap[] = [
     stageUrl: null,
     createStage: createNotesBenchStage,
     bestLapKey: "rally:best-lap-ms:notes",
+    recordId: "notes",
   },
 ];
 
@@ -59,6 +66,7 @@ export const importedMap = ({ name, hash }: StageData): GameMap => ({
   label: name,
   stageUrl: null,
   bestLapKey: `rally:best-lap-ms:${hash}`,
+  recordId: hash,
 });
 
 /** Une spéciale créée dans l'éditeur : `?map=custom&stage=<clé du cache>`. */

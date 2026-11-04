@@ -250,7 +250,10 @@ export type SceneryKind =
   | "hay"
   | "hayUpright"
   | "sign"
-  | "post";
+  | "post"
+  /** Annonce de chicane, dessin d'un premier virage à gauche ou à droite (voir `chicaneSignKind`) */
+  | "chicaneSignLeft"
+  | "chicaneSignRight";
 
 export interface SceneryItem {
   kind: SceneryKind;

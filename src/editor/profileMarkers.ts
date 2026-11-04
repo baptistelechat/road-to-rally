@@ -2,10 +2,11 @@
 import type { LatLon } from "@/geo/gpx";
 import { STEP } from "@/geo/config";
 import { isRock } from "@/geo/roundabouts";
+import { splitGates } from "@/sim/splits";
 import { nearestIndex } from "./hover";
 import type { ChicaneSide } from "./types";
 
-export type ProfileMarkerKind = "point" | "chicane";
+export type ProfileMarkerKind = "point" | "chicane" | "split";
 
 export interface ProfileMarker {
   kind: ProfileMarkerKind;
@@ -17,7 +18,15 @@ export interface ProfileMarker {
   side?: ChicaneSide;
   /** Chicane placée par le joueur */
   player?: boolean;
+  /** Intermédiaire : cap de la route en degrés, depuis le nord dans le sens horaire */
+  bearing?: number;
 }
+
+/** Cap en degrés, depuis le nord dans le sens horaire. */
+export const bearing = (a: LatLon, b: LatLon): number => {
+  const east = (b.lon - a.lon) * Math.cos((a.lat * Math.PI) / 180);
+  return (Math.atan2(east, b.lat - a.lat) * 180) / Math.PI;
+};
 
 /** Au-delà du bord de l'îlot, en mètres : une demi-chaussée large, la marge, et un peu des bras */
 const RING_REACH = 6;
@@ -115,3 +124,39 @@ export const medianBands = (
       position: middle,
     }));
   });
+
+/**
+ * Intermédiaires de la course, ramenés à l'axe de l'éditeur. Le jeu mesure la spéciale en 3D (`createTrack`) : avec les
+ * altitudes du profil, la même longueur, donc le même nombre d'intermédiaires au même endroit. Sans elles, à plat.
+ * ponytail: profil IGN à 20 m contre altitudes du pipeline : quelques centimètres d'écart, assez pour basculer le
+ * nombre seulement si la spéciale tombe à quelques mètres d'un multiple de 1 500 m.
+ */
+export const splitMarkers = (
+  axis: LatLon[],
+  runoffPoints: number,
+  altitudes: number[] | null,
+): ProfileMarker[] => {
+  const first = runoffPoints;
+  const last = axis.length - 1 - runoffPoints;
+  if (last <= first) return [];
+  const z = altitudes?.length === axis.length ? altitudes : null;
+  const walked = [0];
+  for (let i = first + 1; i <= last; i++)
+    walked.push(
+      walked[walked.length - 1] +
+        (z ? Math.hypot(STEP, z[i] - z[i - 1]) : STEP),
+    );
+  let k = 0;
+  return splitGates(0, walked[walked.length - 1]).map((gate, n) => {
+    while (walked[k + 1] < gate) k++;
+    const t = (gate - walked[k]) / (walked[k + 1] - walked[k]);
+    const at = first + k + Math.round(t);
+    return {
+      kind: "split" as const,
+      s: (first + k + t) * STEP,
+      label: `Intermédiaire ${n + 1}`,
+      position: axis[at],
+      bearing: bearing(axis[Math.max(0, at - 1)], axis[Math.min(axis.length - 1, at + 1)]),
+    };
+  });
+};

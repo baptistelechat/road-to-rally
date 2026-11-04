@@ -25,6 +25,7 @@ const CHANGED: CopilotOptions = {
   paceIconsEnabled: false,
   miniMapEnabled: false,
   miniMapStyle: "hybrid",
+  ghostEnabled: false,
 };
 
 /** Remplace `localStorage` le temps de `run`. */

@@ -67,12 +67,17 @@ Le détail suit la proximité : les epics 1 à 3 ont une fiche par story, les su
 
 L'éditeur s'inspire de [gpx.studio](https://gpx.studio/fr/help/toolbar/routing) pour le tracé entre plusieurs points. Le parcours complet, de la carte au volant, fonctionne dès la story 3.4 : le reste s'y ajoute.
 
-## Epic 4 : copilote
+## Epic 4 : course
 
-Détaché du reste de l'epic car il ne dépend pas de l'éditeur : à faire dans cet ordre, avant ou après 4.1. La mini-carte est la première à reporter si le temps manque.
+Le copilote (4.6 à 4.11) a été développé avant 4.1 car il ne dépend pas de l'éditeur. La mini-carte est la première à reporter si le temps manque.
 
 | Story                                                  | Sujet               | Statut |
 | ------------------------------------------------------ | ------------------- | ------ |
+| [4.1](stories/epic-4-course/4.1-depart-arrivee.md)        | Départ et arrivée    | 🟡     |
+| [4.2](stories/epic-4-course/4.2-temps-intermediaires.md)  | Temps intermédiaires | 🟡     |
+| [4.3](stories/epic-4-course/4.3-remise-route.md)          | Remise sur la route  | 🟡     |
+| [4.4](stories/epic-4-course/4.4-meilleur-temps.md)        | Meilleur temps local | 🟡     |
+| [4.5](stories/epic-4-course/4.5-fantome.md)               | Fantôme              | 🟡     |
 | [4.6](stories/epic-4-course/4.6-calcul-notes.md)       | Calcul des notes    | ⬜     |
 | [4.7](stories/epic-4-course/4.7-voix-copilote.md)      | Voix du copilote    | ⬜     |
 | [4.8](stories/epic-4-course/4.8-moment-note.md)        | Moment de la note   | ⬜     |

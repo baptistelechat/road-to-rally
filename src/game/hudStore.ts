@@ -1,6 +1,7 @@
 // État du HUD. Poussé à environ 10 Hz, pour ne pas refaire le rendu React à chaque pas de simulation.
 import { create } from "zustand";
 import type { RecoveryStatus } from "@/sim/recovery";
+import type { SplitCrossing } from "@/sim/splits";
 import type { PaceNote } from "@/sim/track/paceNotes";
 import type { CarState } from "@/sim/types";
 import {
@@ -25,7 +26,47 @@ export interface LapTimes {
   bestLapMs: number | null;
 }
 
-export type GameScreen = "start" | "race" | "pause";
+/** `result` : écran de fin d'une spéciale, la voiture finit de freiner derrière */
+export type GameScreen = "start" | "race" | "pause" | "result";
+
+export interface ResultSector {
+  /** Temps du secteur seul, pénalités comprises */
+  ms: number;
+  /** Écart au même secteur du record, `null` sans record */
+  deltaMs: number | null;
+}
+
+export interface StageResultData {
+  /** Du départ à l'arrivée, dans l'ordre : leur somme fait `totalMs` */
+  sectors: readonly ResultSector[];
+  totalMs: number;
+  penaltyMs: number;
+  deltaMs: number | null;
+  isBest: boolean;
+}
+
+/** Frise de la spéciale, voir `StageStrip` */
+export interface HudStrip {
+  /** Intermédiaires en fraction de la spéciale */
+  gates: readonly number[];
+  /** Un par secteur : `undefined` en cours, `null` sans référence, sinon écart au record en ms */
+  sectorDeltas: readonly (number | null | undefined)[];
+  carFraction: number;
+  ghostFraction: number | null;
+}
+
+export interface HudPenalty {
+  /** « Hors piste », « Contresens »… */
+  reason: string;
+  ms: number;
+  /** Deux pénalités de même raison à la suite restent deux annonces */
+  id: number;
+}
+
+export interface HudSplit extends SplitCrossing {
+  /** Écart au record, négatif = plus rapide */
+  deltaMs: number | null;
+}
 
 export interface HudPaceChain {
   start: number;
@@ -43,8 +84,6 @@ export interface HudState extends LapTimes {
   recovery: RecoveryStatus | null;
   /** Message du mode diagnostic */
   diag: string | null;
-  /** Arrivée franchie sur une spéciale */
-  finished: boolean;
   /** Prochains virages annoncés, le plus proche d'abord */
   paceNotes: readonly PaceNote[];
   /** Enfilade parmi ces notes : indices de sa première et de sa dernière, et `open` si elle continue au-delà de la bande */
@@ -52,6 +91,15 @@ export interface HudState extends LapTimes {
   /** Dernière annonce, en toutes lettres */
   paceCall: HudPaceCall | null;
   copilotOptions: CopilotOptions;
+  /** Secondes entières restantes avant le GO, `null` une fois parti */
+  countdown: number | null;
+  result: StageResultData | null;
+  /** Dernier intermédiaire franchi, affiché quelques secondes */
+  split: HudSplit | null;
+  /** `null` sur le circuit */
+  strip: HudStrip | null;
+  /** Dernière pénalité, affichée quelques secondes */
+  penalty: HudPenalty | null;
 }
 
 export const useHudStore = create<HudState>(() => ({
@@ -62,11 +110,15 @@ export const useHudStore = create<HudState>(() => ({
   device: "keyboard",
   recovery: null,
   diag: null,
-  finished: false,
   paceNotes: [],
   paceChain: null,
   paceCall: null,
   copilotOptions: loadCopilotOptions(),
+  countdown: null,
+  result: null,
+  split: null,
+  strip: null,
+  penalty: null,
   lapMs: null,
   lastLapMs: null,
   bestLapMs: null,
@@ -123,7 +175,8 @@ export const nextScreen = (
   soundBlocked: boolean,
   startPressed: boolean,
 ): GameScreen => {
-  if (!startPressed) return screen;
+  // Résultat : on choisit à la souris ou avec A, Start ne fait rien.
+  if (!startPressed || screen === "result") return screen;
   if (screen === "race") return "pause";
   return screen === "start" && soundBlocked ? "start" : "race";
 };
@@ -147,12 +200,6 @@ export const setHudRecovery = (status: RecoveryStatus | null): void => {
 
 export const setHudDiag = (diag: string | null): void => {
   useHudStore.setState({ diag });
-};
-
-/** Appelable à chaque image. */
-export const setHudFinished = (finished: boolean): void => {
-  if (useHudStore.getState().finished !== finished)
-    useHudStore.setState({ finished });
 };
 
 /**
@@ -199,6 +246,38 @@ export const setHudPaceCall = (text: string | null): void => {
 export const setCopilotOptions = (copilotOptions: CopilotOptions): void => {
   saveCopilotOptions(copilotOptions);
   useHudStore.setState({ copilotOptions });
+};
+
+/** Appelable à chaque image : seule la seconde affichée est publiée. */
+export const setHudCountdown = (seconds: number | null): void => {
+  const countdown = seconds === null ? null : Math.ceil(seconds);
+  if (useHudStore.getState().countdown !== countdown)
+    useHudStore.setState({ countdown });
+};
+
+export const setHudResult = (result: StageResultData | null): void => {
+  useHudStore.setState({ result });
+};
+
+export const setHudSplit = (split: HudSplit | null): void => {
+  useHudStore.setState({ split });
+};
+
+export const setHudPenalty = (penalty: HudPenalty | null): void => {
+  useHudStore.setState({ penalty });
+};
+
+let lastStripAt = Number.NEGATIVE_INFINITY;
+
+/** Appelable à chaque image : republiée à 10 Hz, ou tout de suite avec `force` (secteur terminé, redémarrage). */
+export const setHudStrip = (
+  strip: HudStrip | null,
+  force = false,
+  now: number = performance.now(),
+): void => {
+  if (!force && now - lastStripAt < HUD_PERIOD_MS) return;
+  lastStripAt = now;
+  useHudStore.setState({ strip });
 };
 
 let restartRequested = false;

@@ -10,6 +10,7 @@ import { MapFocus } from "./MapFocus";
 import { ElementPanels, FirstHint, Legend, RouteStatus } from "./MapPanels";
 import { ReturnLayer } from "./ReturnLayer";
 import { RoundaboutIslands } from "./RoundaboutIslands";
+import { SplitMarkers } from "./SplitMarkers";
 import { TraceLayers } from "./TraceLayers";
 import { VariantRoutes } from "./VariantRoutes";
 
@@ -26,6 +27,7 @@ export const MapLayers = () => (
     <VariantRoutes />
     <RoundaboutIslands />
     <MedianLines />
+    <SplitMarkers />
     <IssueMarkers />
     <ChicaneMarkers />
     <InsertHandle />

@@ -9,6 +9,7 @@ import type { GeneratedStage } from "@/geo/stageWorkerClient";
 import { Atmosphere } from "@/render/Atmosphere";
 import { GameCamera } from "@/render/camera/GameCamera";
 import { CarModel } from "@/render/car/CarModel";
+import { GhostCar } from "@/render/car/GhostCar";
 import { loadLivery } from "@/render/car/livery";
 import { DustParticles } from "@/render/fx/DustParticles";
 import { createDustPool } from "@/render/fx/dustPool";
@@ -17,14 +18,22 @@ import { ImpactSparks } from "@/render/fx/ImpactSparks";
 import { SkidMarks } from "@/render/fx/SkidMarks";
 import { LightPropsView } from "@/render/scenery/LightPropsView";
 import { SceneryView } from "@/render/scenery/SceneryView";
+import { StartLights } from "@/render/track/StartLights";
 import { TrackView } from "@/render/track/TrackView";
+import {
+  createGhostPlayer,
+  createLinearGhost,
+  parseGhost,
+} from "@/sim/ghostTrack";
 import { isLightProp } from "@/sim/lightProps";
 import type { Simulation } from "@/sim/simulation";
 import type { Copilot } from "./copilot";
 import { Diagnostics } from "./diag/Diagnostics";
 import { Hud } from "./Hud";
-import { setHudMuted } from "./hudStore";
+import { setHudMuted, useHudStore } from "./hudStore";
+import { createGhostOutlet, type GhostOutlet } from "./ghostOutlet";
 import { customMap, importedMap, mapFromParam, mapSearch } from "./maps";
+import { type RecordIdentity, readStageRecord } from "./stageRecords";
 import { useGameLoop } from "./useGameLoop";
 import { useGameSession } from "./useGameSession";
 import type { ImportedStage } from "./useStageImport";
@@ -42,10 +51,20 @@ interface SceneProps {
   audio: CarAudio;
   copilot: Copilot;
   useBot: boolean;
-  bestLapKey: string;
+  /** Une scène par spéciale : en changer remonte la scène et relit le record */
+  identity: RecordIdentity;
+  /** La boucle y écrit la pose du fantôme, que la mini-carte relit hors du canvas */
+  ghostOutlet: GhostOutlet;
 }
 
-const Scene = ({ sim, audio, copilot, useBot, bestLapKey }: SceneProps) => {
+const Scene = ({
+  sim,
+  audio,
+  copilot,
+  useBot,
+  identity,
+  ghostOutlet,
+}: SceneProps) => {
   const [cameraMode, setCameraMode] = useState<"chase" | "hood">("chase");
   const [livery] = useState(loadLivery);
   const [dust] = useState(createDustPool);
@@ -54,12 +73,27 @@ const Scene = ({ sim, audio, copilot, useBot, bestLapKey }: SceneProps) => {
     [sim],
   );
   const capture = useRef<(() => void) | null>(null);
-  const { source, info, cameraOrbit } = useGameLoop({
+  const [record, setRecord] = useState(() => readStageRecord(identity));
+  const showGhost = useHudStore((s) => s.copilotOptions.ghostEnabled);
+  // Relu seulement après un nouveau record : le fantôme ne change pas en pleine course.
+  // Record sans poses (repris de l'ancienne clé) : un fantôme à allure constante qui passe la ligne au temps du record.
+  const ghost = useMemo(() => {
+    if (!showGhost || !record) return null;
+    const data = parseGhost(record.ghost);
+    return data
+      ? createGhostPlayer(data)
+      : createLinearGhost(sim.track, record.totalMs);
+  }, [record, showGhost, sim]);
+  const { source, ghostSource, info, cameraOrbit } = useGameLoop({
     sim,
     audio,
     copilot,
     useBot,
-    bestLapKey,
+    identity,
+    record,
+    ghost,
+    onRecord: setRecord,
+    ghostOutlet,
     onToggleCamera: () =>
       setCameraMode((mode) => (mode === "chase" ? "hood" : "chase")),
     onDiagRequest: () => capture.current?.(),
@@ -75,11 +109,13 @@ const Scene = ({ sim, audio, copilot, useBot, bestLapKey }: SceneProps) => {
       />
       <Atmosphere follow={source} />
       <TrackView track={sim.track} />
+      <StartLights track={sim.track} getCountdown={sim.countdown} />
       <SceneryView items={staticScenery} />
       <LightPropsView props={sim.props} />
       {/* Les trois panneaux à la fois : FPS, ms et mémoire. */}
       <Stats className="!top-auto !bottom-4 !left-1/2 !flex -translate-x-1/2 gap-px [&>canvas]:!block" />
       <CarModel source={source} livery={livery} />
+      <GhostCar source={ghostSource} />
       <DustParticles source={source} pool={dust} />
       <ExhaustFlame source={source} audio={audio} dust={dust} />
       <ImpactSparks source={source} dust={dust} />
@@ -110,6 +146,7 @@ export const Game = ({ initialStage }: GameProps) => {
     [params, imported, initialStage],
   );
   const { game, failed, canvasRootRef } = useGameSession(params, map, imported);
+  const [ghostOutlet] = useState(createGhostOutlet);
 
   if (failed)
     return (
@@ -146,15 +183,18 @@ export const Game = ({ initialStage }: GameProps) => {
         }}
       >
         <Scene
+          key={map.recordId}
           sim={game.sim}
           audio={game.audio}
           copilot={game.copilot}
           useBot={params.has("bot")}
-          bestLapKey={map.bestLapKey}
+          identity={map}
+          ghostOutlet={ghostOutlet}
         />
       </Canvas>
       <Hud
         sim={game.sim}
+        ghost={ghostOutlet}
         copilot={game.copilot}
         map={map.id}
         mapLabel={map.label}

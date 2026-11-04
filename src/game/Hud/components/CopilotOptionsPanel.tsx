@@ -136,6 +136,15 @@ export const CopilotOptionsPanel = ({
           close();
         }}
       />
+      <MenuSelect
+        title="Fantôme"
+        value={options.ghostEnabled}
+        options={ENABLED}
+        onChoose={(ghostEnabled, close) => {
+          update({ ghostEnabled });
+          close();
+        }}
+      />
       <button
         type="button"
         data-menu-back=""

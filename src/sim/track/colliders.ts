@@ -3,7 +3,7 @@ import { isLightProp, RAY_IGNORED_GROUPS } from "../lightProps";
 import { RAPIER } from "../rapier";
 import type { MeshData, SceneryItem, Track } from "../types";
 import { embankment, GROUND_Y, shoulderStrips } from "./ribbon";
-import { finishArch, startArch } from "./scenery";
+import { finishArch, splitArches, startArch } from "./scenery";
 
 /** Hauteur des colliders de décor : assez haut pour qu'une voiture ne monte jamais dessus */
 const OBSTACLE_HEIGHT = 4;
@@ -95,9 +95,13 @@ export const addTrackColliders = (
         item.colliderRadius,
       );
 
-  const arches = track.closed
-    ? [startArch(track)]
-    : [startArch(track), finishArch(track)];
+  // Les arches gonflables des intermédiaires se percutent comme celles du départ et de l'arrivée.
+  const arches: (ReturnType<typeof startArch> & { postRadius?: number })[] = [
+    ...(track.closed
+      ? [startArch(track)]
+      : [startArch(track), finishArch(track)]),
+    ...splitArches(track),
+  ];
   for (const arch of arches) {
     const yaw = 2 * Math.atan2(arch.rotation.y, arch.rotation.w);
     for (const side of [-1, 1])
@@ -106,7 +110,7 @@ export const addTrackColliders = (
         arch.position.x + Math.cos(yaw) * side * arch.halfSpan,
         arch.position.y + GROUND_Y,
         arch.position.z - Math.sin(yaw) * side * arch.halfSpan,
-        0.3,
+        arch.postRadius ?? 0.3,
       );
   }
 

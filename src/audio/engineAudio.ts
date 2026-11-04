@@ -30,6 +30,8 @@ export interface CarAudio {
   setPopListener: (listener: PopListener | null) => void;
   /** Point d'entrée de la voix du copilote : le son coupé et la pause s'y appliquent. `null` avant le premier `start()`. */
   voiceBus: () => VoiceBus | null;
+  /** Bus des effets (pneus, chocs, bips) : suit le volume des effets, le son coupé et la pause. `null` avant le premier `start()`. */
+  effectsBus: () => VoiceBus | null;
   setMuted: (muted: boolean) => void;
   /** Renvoie le nouvel état */
   toggleMute: () => boolean;
@@ -425,6 +427,8 @@ export const createCarAudio = (
     },
     voiceBus: () =>
       ctx && graph ? { context: ctx, output: graph.master } : null,
+    effectsBus: () =>
+      ctx && graph ? { context: ctx, output: graph.effectsBus } : null,
     setMuted,
     toggleMute: () => {
       setMuted(!muted);

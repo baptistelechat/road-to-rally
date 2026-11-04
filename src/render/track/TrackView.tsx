@@ -8,12 +8,12 @@ import { FORK_MARGIN, roadForkReach } from "@/sim/track/roadContact";
 import { finishArch, startArch } from "@/sim/track/scenery";
 import type { MeshData, Track, Vec3 } from "@/sim/types";
 import {
-  approachSigns,
   ChicaneView,
   IslandBarriers,
   MedianBarriers,
 } from "../scenery/ChicaneView";
 import { groundMesh, withSkirt } from "./groundMesh";
+import { SplitArches } from "./SplitArches";
 import { Arch } from "./TrackFurniture";
 
 const LINE_INSET = 0.2;
@@ -135,10 +135,6 @@ const crossLine = (
 /** Sol ou terrain, talus, bas-côté, route, marquage, repères et arches d'un tracé quelconque. */
 export const TrackView = ({ track }: { track: Track }) => {
   const hasTerrain = track.terrain !== null;
-  const signs = useMemo(
-    () => approachSigns(track.obstacles, track, track.shared !== null),
-    [track],
-  );
 
   const geometries = useMemo(() => {
     const { closed, terrain } = track;
@@ -291,7 +287,8 @@ export const TrackView = ({ track }: { track: Track }) => {
       )}
       <Arch track={track} place={startArch} />
       {!track.closed && <Arch track={track} place={finishArch} />}
-      <ChicaneView blocks={track.obstacles} signs={signs} />
+      <SplitArches track={track} />
+      <ChicaneView blocks={track.obstacles} />
       <IslandBarriers islands={track.islands} groundAt={track.groundAt} />
       <MedianBarriers medians={track.medians} groundAt={track.groundAt} />
     </group>

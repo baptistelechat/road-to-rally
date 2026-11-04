@@ -1,16 +1,8 @@
 "use client";
 
 import { requestRestart, useHudStore } from "@/game/hudStore";
+import { formatLap } from "../formatTime";
 import { hudButton, label, panel } from "../hudStyles";
-
-const formatLap = (ms: number | null): string => {
-  if (ms === null) return "--:--.---";
-  const total = Math.max(0, Math.round(ms));
-  const minutes = Math.floor(total / 60000);
-  const seconds = Math.floor(total / 1000) % 60;
-  const millis = total % 1000;
-  return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}.${String(millis).padStart(3, "0")}`;
-};
 
 const LapRow = ({ name, value }: { name: string; value: string }) => (
   <div className="flex items-baseline justify-between gap-6">
@@ -53,23 +45,3 @@ export const Chrono = ({ closed }: { closed: boolean }) => {
   );
 };
 
-/** Bandeau d'arrivée d'une spéciale, annoncé une fois : la zone reste montée, seul son contenu change. */
-export const FinishBanner = () => {
-  const finished = useHudStore((s) => s.finished);
-  const lastLapMs = useHudStore((s) => s.lastLapMs);
-  return (
-    <div
-      aria-live="polite"
-      className="absolute top-16 left-1/2 -translate-x-1/2"
-    >
-      {finished && (
-        <div className={`${panel} px-6 py-3 text-center`}>
-          <div className={label}>Arrivée</div>
-          <div className="font-mono text-4xl font-bold text-amber-400 tabular-nums">
-            {formatLap(lastLapMs)}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};

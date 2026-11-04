@@ -88,6 +88,13 @@ const inspectingFetch =
       throw error;
     }
     if (response.status === 400) throw refusalFromText(await response.text());
+    // Le serveur public, gratuit et sans limite publiée, refuse une adresse qui l'a trop sollicité : le relancer
+    // tout de suite prolongerait le blocage.
+    if (response.status === 403)
+      throw new StageError(
+        "service",
+        "Le service d'itinéraire BRouter refuse tes demandes pour l'instant, sans doute après trop d'appels en peu de temps. Attends quelques minutes puis réessaie.",
+      );
     return response;
   };
 
@@ -202,13 +209,41 @@ export const parseBRouterRoute = (text: string): BRouterRoute => {
 const lonLat = (point: LatLon): string =>
   `${point.lon.toFixed(6)},${point.lat.toFixed(6)}`;
 
+/** Itinéraires déjà reçus, par URL : annuler, rétablir, relancer ou recalculer un retour ne repart pas au serveur public. */
+const ROUTE_CACHE_SIZE = 300;
+const routeCache = new Map<string, BRouterRoute>();
+
+/** Copie : un appelant qui modifierait ses tableaux n'abîme pas le cache. */
+const copyRoute = (route: BRouterRoute): BRouterRoute => ({
+  ...route,
+  points: [...route.points],
+  ways: [...route.ways],
+});
+
 export const fetchRoute: FetchRoute = async (from, to, options = {}) => {
   const url =
     `${BROUTER_URL}?lonlats=${lonLat(from)}|${lonLat(to)}&profile=${options.profile ?? BROUTER_PROFILE}` +
     `&alternativeidx=${options.alternativeIdx ?? 0}&format=geojson`;
+  // Un `fetch` remplacé (vérifications sans réseau) ne passe jamais par le cache : chaque scénario garde ses réponses.
+  const cacheable = options.fetch === undefined;
+  const cached = cacheable ? routeCache.get(url) : undefined;
+  if (cached) {
+    // Le plus récent en dernier : la plus ancienne entrée part la première.
+    routeCache.delete(url);
+    routeCache.set(url, cached);
+    return copyRoute(cached);
+  }
   const text = await requestText(url, {}, POLICY, {
     ...options,
     fetch: inspectingFetch(options.fetch ?? fetch),
   });
-  return parseBRouterRoute(text);
+  const route = parseBRouterRoute(text);
+  if (cacheable) {
+    routeCache.set(url, copyRoute(route));
+    if (routeCache.size > ROUTE_CACHE_SIZE) {
+      const oldest = routeCache.keys().next().value;
+      if (oldest !== undefined) routeCache.delete(oldest);
+    }
+  }
+  return route;
 };

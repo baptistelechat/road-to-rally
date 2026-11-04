@@ -1,7 +1,7 @@
 import { FIXED_DT } from "./fixedStep";
 import type { Pose, Track } from "./types";
 
-const CHECKPOINT_COUNT = 16;
+export const CHECKPOINT_COUNT = 16;
 /** Marge autour de la route pour valider un point de passage : une sortie large compte, un raccourci non. */
 const CHECKPOINT_MARGIN = 6;
 const CHECKPOINT_WINDOW = 60;
@@ -14,8 +14,14 @@ export interface LapTimer {
    */
   update: (x: number, z: number, routeS?: number) => number | null;
   reset: () => void;
-  /** Temps du tour en cours en ms, calculé en pas et non à l'horloge. `null` avant le premier pas. */
+  /** Temps du tour en cours en ms, pénalités comprises, calculé en pas et non à l'horloge. `null` avant le premier pas. */
   currentMs: () => number | null;
+  /** Ajoute une pénalité en ms entières au tour en cours, comptée dans `currentMs` et le temps final. */
+  addPenalty: (ms: number) => void;
+  /** Total des pénalités du tour en cours, en ms */
+  penaltyMs: () => number;
+  /** Nombre de pénalités du tour en cours */
+  penaltyCount: () => number;
   /** Nombre de points de passage validés dans le tour en cours */
   checkpoints: () => number;
   /** Arrivée franchie sur un tracé ouvert : le chrono reste figé jusqu'à `reset`. */
@@ -33,6 +39,8 @@ export const createLapTimer = (track: Track, start: Pose): LapTimer => {
   const course = track.closed ? track.length : track.finishS - track.startS;
   const spacing = course / CHECKPOINT_COUNT;
   let steps = 0;
+  let penalty = 0;
+  let penalties = 0;
   let next = 1;
   let started = false;
   let finished = false;
@@ -65,13 +73,15 @@ export const createLapTimer = (track: Track, start: Pose): LapTimer => {
       if (!track.closed) {
         if (!onRoad || progress < course) return null;
         finished = true;
-        return stepsToMs(steps);
+        return stepsToMs(steps) + penalty;
       }
 
       // Tous les points validés : le tour se boucle en repassant la ligne.
       if (onRoad && progress < CHECKPOINT_WINDOW) {
-        const lapMs = stepsToMs(steps);
+        const lapMs = stepsToMs(steps) + penalty;
         steps = 0;
+        penalty = 0;
+        penalties = 0;
         next = 1;
         return lapMs;
       }
@@ -79,11 +89,20 @@ export const createLapTimer = (track: Track, start: Pose): LapTimer => {
     },
     reset: () => {
       steps = 0;
+      penalty = 0;
+      penalties = 0;
       next = 1;
       started = false;
       finished = false;
     },
-    currentMs: () => (started ? stepsToMs(steps) : null),
+    currentMs: () => (started ? stepsToMs(steps) + penalty : null),
+    addPenalty: (ms) => {
+      if (finished) return;
+      penalty += Math.round(ms);
+      penalties++;
+    },
+    penaltyMs: () => penalty,
+    penaltyCount: () => penalties,
     checkpoints: () => next - 1,
     finished: () => finished,
   };

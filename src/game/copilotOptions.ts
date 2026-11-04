@@ -31,6 +31,8 @@ export interface CopilotOptions {
   paceIconsEnabled: boolean;
   miniMapEnabled: boolean;
   miniMapStyle: MiniMapStyle;
+  /** Voiture translucide du meilleur temps local */
+  ghostEnabled: boolean;
 }
 
 export const defaultCopilotOptions: CopilotOptions = {
@@ -42,6 +44,7 @@ export const defaultCopilotOptions: CopilotOptions = {
   paceIconsEnabled: true,
   miniMapEnabled: true,
   miniMapStyle: "global",
+  ghostEnabled: true,
 };
 
 const OPTIONS_KEY = "rally:copilot-options";
@@ -58,6 +61,7 @@ export const parseCopilotOptions = (raw: string | null): CopilotOptions => {
       "voiceEnabled",
       "paceIconsEnabled",
       "miniMapEnabled",
+      "ghostEnabled",
     ] as const) {
       const value = stored?.[key];
       if (typeof value === "boolean") options[key] = value;

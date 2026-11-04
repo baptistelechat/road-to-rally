@@ -13,6 +13,7 @@ import { axisIndex, editorStore, useEditor } from "../../store";
 import { ElevationChart } from "../ElevationChart";
 import { useChicanes } from "../useChicanes";
 import { useMedians } from "../useMedians";
+import { useSplits } from "../useSplits";
 import { StatsStrip } from "./StatsStrip";
 
 /** La hauteur est réservée : le graphique arrive sans faire sauter la carte. */
@@ -32,6 +33,7 @@ export const ProfilePanel = () => {
   const anchors = useEditor((state) => state.history.present.anchors);
   const chicanes = useChicanes();
   const medians = useMedians();
+  const splits = useSplits();
   const handleHover = useCallback(
     (hoverS: number | null) => editorStore.setState({ hoverS }),
     [],
@@ -57,9 +59,10 @@ export const ProfilePanel = () => {
               side: chicane.side,
               player: chicane.origin === "player",
             })),
+            ...splits,
           ]
         : NONE,
-    [axis, anchors, chicanes],
+    [axis, anchors, chicanes, splits],
   );
   const straight = useEditor((state) => state.stats?.longestStraight);
   // Les bandes larges d'abord : une chicane ou un rond-point reste cliquable par-dessus la ligne droite.

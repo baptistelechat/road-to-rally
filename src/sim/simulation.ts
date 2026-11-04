@@ -24,6 +24,21 @@ export const SANDBOX_SEED = 27;
 const START_BACK_LIMIT = 6;
 /** Sous cette vitesse, la voiture arrivée est immobilisée : le frein enclencherait sinon la marche arrière, en m/s */
 const FINISH_STOP_SPEED = 0.5;
+/** Spéciale : décompte du départ arrêté, 3-2-1 puis GO, en secondes */
+export const COUNTDOWN_S = 3;
+/**
+ * Spéciale : temps ajouté par remise en piste, demandée ou automatique, en ms.
+ * La remise coûte déjà son attente (3 s maintenues ou 3 s hors piste) et ramène là où la route a été quittée :
+ * aucune coupe n'y gagne, la pénalité punit l'erreur elle-même.
+ */
+export const RESPAWN_PENALTY_MS = 5000;
+
+/** Dernière pénalité de temps : `id` change à chaque nouvelle, même raison répétée */
+export interface PenaltyEvent {
+  reason: RecoveryStatus["kind"];
+  ms: number;
+  id: number;
+}
 
 export interface Simulation {
   track: Track;
@@ -39,10 +54,14 @@ export interface Simulation {
   recovery: () => RecoveryStatus | null;
   /** Pose au pas précédent, pour interpoler le rendu */
   previousPose: () => Pose;
-  /** Remise en piste au plus proche (spéciale : là où la route a été quittée), sans toucher au chrono */
+  /** Remise en piste au plus proche (spéciale : là où la route a été quittée), avec pénalité sur une spéciale lancée */
   respawn: () => void;
-  /** Retour à la ligne de départ et chrono à zéro */
+  /** Retour à la ligne de départ, chrono à zéro et décompte relancé */
   restart: () => void;
+  /** Secondes restantes avant le GO, `null` une fois parti */
+  countdown: () => number | null;
+  /** Dernière pénalité depuis le départ, `null` sans pénalité */
+  lastPenalty: () => PenaltyEvent | null;
   applyConfig: (config: CarConfig) => void;
   respawnCount: () => number;
   free: () => void;
@@ -97,17 +116,20 @@ export const createSimulation = (
   let previous = copyPose(current);
   let respawns = 0;
   let propsToRest = false;
-  // Spéciale : immobile sur la ligne et chrono à l'arrêt jusqu'au premier coup de gaz.
+  // Spéciale comme circuit : tenue sur la ligne pendant le décompte, le chrono part au GO.
+  // Faux départ impossible : le gaz est ignoré jusqu'au GO.
   const open = !track.closed;
+  const countdownSteps = Math.round(COUNTDOWN_S / FIXED_DT);
   let held = false;
-  let timing = !open;
+  let timing = false;
+  let countdown = countdownSteps;
   const route = createRouteTracker(track, track.startS);
 
   const setHeld = (value: boolean): void => {
     if (value !== held) vehicle.setHeld(value);
     held = value;
   };
-  if (open) setHeld(true);
+  setHeld(true);
 
   const teleport = (pose: Pose): void => {
     setHeld(false);
@@ -125,6 +147,24 @@ export const createSimulation = (
       ? track.poseAt(Math.max(track.startS, route.s()))
       : track.respawnPose(x, z);
 
+  // Le circuit garde ses temps au bit près : pas de pénalité hors spéciale.
+  let lastPenalty: PenaltyEvent | null = null;
+  const recover = (
+    x: number,
+    z: number,
+    reason: RecoveryStatus["kind"],
+  ): void => {
+    if (open && timing && !lap.finished()) {
+      lap.addPenalty(RESPAWN_PENALTY_MS);
+      lastPenalty = {
+        reason,
+        ms: RESPAWN_PENALTY_MS,
+        id: (lastPenalty?.id ?? 0) + 1,
+      };
+    }
+    teleport(respawnPose(x, z));
+  };
+
   return {
     track,
     scenery,
@@ -133,22 +173,24 @@ export const createSimulation = (
     step: (input) => {
       previous = copyPose(current);
       let applied = input;
-      if (open) {
-        if (lap.finished()) {
-          if (current.forwardSpeed < FINISH_STOP_SPEED) setHeld(true);
-          applied = {
-            ...input,
-            throttle: 0,
-            brake: held ? 0 : 1,
-            handbrake: false,
-          };
-        } else if (
-          held &&
-          (input.throttle > 0 || (timing && input.brake > 0))
-        ) {
+      if (open && lap.finished()) {
+        if (current.forwardSpeed < FINISH_STOP_SPEED) setHeld(true);
+        applied = {
+          ...input,
+          throttle: 0,
+          brake: held ? 0 : 1,
+          handbrake: false,
+        };
+      } else if (countdown > 0) {
+        countdown--;
+        applied = { ...input, throttle: 0, brake: 0, handbrake: false };
+        if (countdown === 0) {
           setHeld(false);
           timing = true;
         }
+      } else if (open && held && (input.throttle > 0 || input.brake > 0)) {
+        // Après une remise en piste : immobile jusqu'au premier gaz ou frein.
+        setHeld(false);
       }
       vehicle.step(applied, FIXED_DT);
       world.step();
@@ -173,6 +215,13 @@ export const createSimulation = (
         teleport(track.startPose);
         return lapMs;
       }
+      // Ni pendant le décompte, ni après l'arrivée : la voiture est tenue sur la ligne ou s'arrête, sans décompte affiché.
+      if (countdown > 0 || (open && lap.finished())) {
+        recovery.reset();
+        return lapMs;
+      }
+      // Lue avant : la remise efface le décompte qui l'a déclenchée. Chute sous le sol sans décompte : « hors piste ».
+      const reason = recovery.status()?.kind ?? "offroad";
       const shouldRespawn = recovery.update({
         held: input.respawn ?? false,
         position: current.position,
@@ -181,7 +230,7 @@ export const createSimulation = (
         offRoute,
         routeS: open ? route.s() : undefined,
       });
-      if (shouldRespawn) teleport(respawnPose(x, z));
+      if (shouldRespawn) recover(x, z, reason);
       return lapMs;
     },
     state: () => current,
@@ -189,16 +238,21 @@ export const createSimulation = (
     recovery: () => recovery.status(),
     previousPose: () => previous,
     respawn: () => {
-      teleport(respawnPose(current.position.x, current.position.z));
+      recover(current.position.x, current.position.z, "hold");
     },
     restart: () => {
       route.reset(track.startS);
-      timing = !open;
+      timing = false;
+      countdown = countdownSteps;
       teleport(track.startPose);
+      setHeld(true);
       props.reset();
       propsToRest = true;
       lap.reset();
+      lastPenalty = null;
     },
+    countdown: () => (countdown > 0 ? countdown * FIXED_DT : null),
+    lastPenalty: () => lastPenalty,
     applyConfig: (next) => vehicle.applyConfig(next),
     respawnCount: () => respawns,
     free: () => {

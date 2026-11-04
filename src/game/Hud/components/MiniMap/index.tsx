@@ -2,12 +2,18 @@
 
 import { useHudStore } from "@/game/hudStore";
 import type { Simulation } from "@/sim/simulation";
+import type { CarSource } from "@/render/carSource";
 import { panel } from "../../hudStyles";
 import { GlobalMap } from "./components/GlobalMap";
 import { ZoomMap } from "./components/ZoomMap";
 
 /** En haut à droite, sous l'état du son : loin de la route et du chrono. */
-export const MiniMap = ({ sim }: { sim: Simulation }) => {
+interface MiniMapProps {
+  sim: Simulation;
+  ghost: Pick<CarSource, "getPose"> | null;
+}
+
+export const MiniMap = ({ sim, ghost }: MiniMapProps) => {
   const { miniMapEnabled, miniMapStyle } = useHudStore((s) => s.copilotOptions);
   if (!miniMapEnabled) return null;
   return (
@@ -19,6 +25,7 @@ export const MiniMap = ({ sim }: { sim: Simulation }) => {
       {miniMapStyle === "global" ? (
         <GlobalMap
           sim={sim}
+          ghost={ghost}
           roadWidth={4}
           pixels={144}
           className="size-full p-2"
@@ -26,6 +33,7 @@ export const MiniMap = ({ sim }: { sim: Simulation }) => {
       ) : (
         <ZoomMap
           sim={sim}
+          ghost={ghost}
           headingUp={miniMapStyle !== "north"}
           className="size-full"
         />
@@ -33,6 +41,7 @@ export const MiniMap = ({ sim }: { sim: Simulation }) => {
       {miniMapStyle === "hybrid" && (
         <GlobalMap
           sim={sim}
+          ghost={ghost}
           roadWidth={2}
           pixels={48}
           className="absolute top-1 right-1 size-14 rounded-sm border border-white/15 bg-black/70 p-1"

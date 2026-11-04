@@ -6,18 +6,13 @@ import { MapMarker, MapRoute, MarkerContent } from "@/components/ui/map";
 import { STEP } from "@/geo/config";
 import type { LatLon } from "@/geo/gpx";
 import { toCoordinates } from "../../hover";
+import { bearing } from "../../profileMarkers";
 import { useEditor } from "../../store";
 
 /** Une flèche double tous les tant de mètres le long de la portion roulée deux fois */
 const ARROW_SPACING = 300;
 
 const NO_POINTS: LatLon[] = [];
-
-/** Cap en degrés, depuis le nord dans le sens horaire. */
-const bearing = (a: LatLon, b: LatLon): number => {
-  const east = (b.lon - a.lon) * Math.cos((a.lat * Math.PI) / 180);
-  return (Math.atan2(east, b.lat - a.lat) * 180) / Math.PI;
-};
 
 /** La portion roulée dans les deux sens : sa propre couleur, et des flèches qui le disent. */
 export const ReturnLayer = () => {

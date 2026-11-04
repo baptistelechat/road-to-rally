@@ -71,6 +71,15 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Plus longue ligne droite toujours affichée en vert sur la carte de l'éditeur
 - Aller-retour en milieu de spéciale, par exemple un demi-tour au rond-point avant de repasser devant le carrefour : deux chaussées séparées par un terre-plein et une glissière solide, y compris sur une avenue déjà à deux chaussées
 - Glissière des terre-pleins tracée en rose sur la carte de l'éditeur, repérée sur le profil et expliquée dans la légende
+- Décompte 3-2-1 avec bips et feux sous le portique de départ, sur les spéciales comme sur le circuit : le chrono part au GO
+- Temps intermédiaires : chaque spéciale, et chaque tour du circuit, se coupe en trois secteurs, avec l'écart au meilleur temps à chaque passage, en vert ou en rouge
+- Arches gonflables « SECTEUR 2 » et « SECTEUR 3 » aux intermédiaires, avec bandes, haubans et pieds qu'on percute
+- Frise de la spéciale à gauche de l'écran : secteurs terminés en vert ou en rouge, position de la voiture et du fantôme
+- Repères des intermédiaires sur la mini-carte et dans l'éditeur, sur la carte, le profil et la légende
+- Écran d'arrivée : temps de chaque secteur, total et écart au meilleur temps en vert ou en rouge, pénalités, et boutons pour recommencer ou revenir au menu, à la souris comme à la manette
+- Meilleur temps propre à chaque spéciale, avec ses temps de passage
+- Fantôme du meilleur temps : voiture translucide en course et point sur la mini-carte, calé sur le chrono officiel, avec une option pour le masquer. Sans trajectoire enregistrée, il roule à allure constante
+- Pénalité de 5 s par remise en piste, affichée avec sa raison : remise en piste, hors piste ou contresens
 
 ### Changed
 
@@ -107,6 +116,9 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Cliquer sur un point, une chicane ou un repère du profil zoome assez pour voir la route
 - La route roulée passe en bleu nuit sur le fond clair de l'éditeur
 - Sans les données d'OpenStreetMap, une spéciale tracée dans l'éditeur garde ses largeurs de route et ses ronds-points, tirés de BRouter
+- Sur une spéciale, la voiture reste sur la ligne jusqu'au GO au lieu de partir au premier coup de gaz
+- Les panneaux d'annonce de chicane se renversent comme les autres panneaux
+- Message clair quand le service d'itinéraire refuse les demandes, et itinéraires déjà calculés réutilisés pour moins le solliciter
 
 ### Removed
 

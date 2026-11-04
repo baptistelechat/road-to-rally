@@ -92,6 +92,37 @@ export const Markers = ({ start, finish, closed, unit }: MarkersProps) => {
   );
 };
 
+interface GatesProps {
+  gates: { x: number; z: number; angle: number }[];
+  unit: number;
+}
+
+/** Un trait blanc en travers de la route à chaque intermédiaire, liseré noir. Statique : aucun coût pendant la course. */
+export const Gates = ({ gates, unit }: GatesProps) => (
+  <>
+    {gates.map(({ x, z, angle }) => (
+    <g key={`${x},${z}`} transform={`translate(${x} ${z}) rotate(${angle})`}>
+      <line
+        y1={-unit * 4}
+        y2={unit * 4}
+        stroke="black"
+        strokeWidth={4}
+        strokeLinecap="round"
+        vectorEffect="non-scaling-stroke"
+      />
+      <line
+        y1={-unit * 4}
+        y2={unit * 4}
+        stroke="white"
+        strokeWidth={2}
+        strokeLinecap="round"
+        vectorEffect="non-scaling-stroke"
+      />
+    </g>
+    ))}
+  </>
+);
+
 /** Flèche pointée vers le haut, à tourner par `transform`. */
 export const CarArrow = ({
   unit,
@@ -110,6 +141,27 @@ export const CarArrow = ({
     stroke="black"
     strokeWidth={1.5}
     strokeLinejoin="round"
+    vectorEffect="non-scaling-stroke"
+  />
+);
+
+/** Fantôme : un rond translucide, caché tant qu'il n'y a pas de fantôme. Placé par `ghostRef` à chaque image. */
+export const GhostDot = ({
+  unit,
+  ghostRef,
+}: {
+  unit: number;
+  ghostRef: Ref<SVGCircleElement>;
+}) => (
+  <circle
+    ref={ghostRef}
+    r={4 * unit}
+    visibility="hidden"
+    fill="white"
+    fillOpacity={0.55}
+    stroke="black"
+    strokeOpacity={0.6}
+    strokeWidth={1}
     vectorEffect="non-scaling-stroke"
   />
 );

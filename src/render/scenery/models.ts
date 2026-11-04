@@ -61,7 +61,13 @@ const merged = (...parts: BufferGeometry[]): BufferGeometry => {
 const TRUNK: Rgb = [0.34, 0.24, 0.16];
 
 // Origine au pied de l'élément, dimensions pour `scale` = 1.
-export const SCENERY_GEOMETRY: Record<SceneryKind, BufferGeometry> = {
+/** Objets du décor dessinés depuis `SCENERY_GEOMETRY` ; les annonces de chicane viennent de `CHICANE_GEOMETRY`. */
+export type StaticSceneryKind = Exclude<
+  SceneryKind,
+  "chicaneSignLeft" | "chicaneSignRight"
+>;
+
+export const SCENERY_GEOMETRY: Record<StaticSceneryKind, BufferGeometry> = {
   tree: merged(
     part(new CylinderGeometry(0.22, 0.32, 2.4, 5), TRUNK, 0, 1.2),
     part(new IcosahedronGeometry(2, 0), [0.32, 0.47, 0.17], 0, 3.6),
@@ -307,7 +313,11 @@ const edgeStrip = (
 };
 
 /** Panneau d'annonce en triangle : une tôle épaisse, face au pilote en +Z, sur un poteau rond avec sa traverse. `mirrored` : le premier virage part à gauche. */
-const warningSign = (mirrored: boolean): BufferGeometry => {
+/** `buried` : mât enfoui sous le sol. Renversable, le panneau n'en a pas : il se verrait une fois couché. */
+const warningSign = (
+  mirrored: boolean,
+  buried: number = CHICANE_SKIRT,
+): BufferGeometry => {
   const bends: Outline = mirrored
     ? SIGN_BENDS.map(([x, y]) => [-x, y])
     : SIGN_BENDS;
@@ -316,10 +326,10 @@ const warningSign = (mirrored: boolean): BufferGeometry => {
   const poleTop = WARNING_SIGN_Y + 0.35;
   return merged(
     part(
-      new CylinderGeometry(0.045, 0.045, poleTop + CHICANE_SKIRT, 8),
+      new CylinderGeometry(0.045, 0.045, poleTop + buried, 8),
       SIGN_POLE,
       0,
-      (poleTop - CHICANE_SKIRT) / 2,
+      (poleTop - buried) / 2,
       WARNING_POLE_Z,
     ),
     part(
@@ -355,6 +365,9 @@ export const CHICANE_GEOMETRY = {
   chevronRight: chevronPanel(Math.PI),
   signLeft: warningSign(true),
   signRight: warningSign(false),
+  /** Annonces renversables en course : origine au pied, rien sous le sol */
+  looseSignLeft: warningSign(true, 0),
+  looseSignRight: warningSign(false, 0),
 };
 
 export const SCENERY_MATERIAL = new MeshStandardMaterial({
@@ -362,3 +375,10 @@ export const SCENERY_MATERIAL = new MeshStandardMaterial({
   flatShading: true,
   roughness: 0.95,
 });
+
+/** Géométrie d'un objet léger, annonces de chicane comprises. */
+export const lightPropGeometry = (kind: SceneryKind): BufferGeometry => {
+  if (kind === "chicaneSignLeft") return CHICANE_GEOMETRY.looseSignLeft;
+  if (kind === "chicaneSignRight") return CHICANE_GEOMETRY.looseSignRight;
+  return SCENERY_GEOMETRY[kind];
+};

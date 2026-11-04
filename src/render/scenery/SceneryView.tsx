@@ -2,10 +2,14 @@
 
 import { useLayoutEffect, useMemo, useRef } from "react";
 import { Color, type InstancedMesh, Matrix4, Quaternion, Vector3 } from "three";
-import type { SceneryItem, SceneryKind } from "@/sim/types";
-import { SCENERY_GEOMETRY, SCENERY_MATERIAL } from "./models";
+import type { SceneryItem } from "@/sim/types";
+import {
+  SCENERY_GEOMETRY,
+  SCENERY_MATERIAL,
+  type StaticSceneryKind,
+} from "./models";
 
-const KINDS: SceneryKind[] = [
+const KINDS: StaticSceneryKind[] = [
   "tree",
   "pine",
   "rock",
@@ -17,7 +21,7 @@ const KINDS: SceneryKind[] = [
 const UP = new Vector3(0, 1, 0);
 
 interface BatchProps {
-  kind: SceneryKind;
+  kind: StaticSceneryKind;
   items: SceneryItem[];
   castShadow: boolean;
 }
