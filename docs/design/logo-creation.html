@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Logo Creator — Rally</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: #07070e;
+        color: #e8e4d8;
+        font-family: "IBM Plex Sans", sans-serif;
+        padding: 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+      h1 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+      }
+      .subtitle {
+        font-size: 0.85rem;
+        color: #6b7280;
+        margin-bottom: 1.25rem;
+      }
+      .palette {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 2.5rem;
+        flex-wrap: wrap;
+      }
+      .swatch {
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .swatch-label {
+        font-size: 0.65rem;
+        color: #6b7280;
+        text-align: center;
+        margin-top: 2px;
+        font-family: "IBM Plex Mono", monospace;
+      }
+      .group {
+        margin-bottom: 2.5rem;
+      }
+      .group-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #6b7280;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin-bottom: 1rem;
+        border-left: 3px solid #3d6acc;
+        padding-left: 0.75rem;
+      }
+      .group-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 1rem;
+      }
+      .card {
+        background: #111827;
+        border-radius: 12px;
+        padding: 1.25rem;
+        border: 1px solid #1f2937;
+      }
+      .card-label {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.7rem;
+        color: #6b7280;
+        margin-bottom: 0.5rem;
+        letter-spacing: 0.08em;
+      }
+      .card-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 0.2rem;
+      }
+      .card-desc {
+        font-size: 0.75rem;
+        color: #9ca3af;
+        margin-bottom: 0.875rem;
+        line-height: 1.4;
+      }
+      .preview-main {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 0.75rem;
+      }
+      .preview-strip {
+        display: flex;
+        align-items: flex-end;
+        gap: 0.5rem;
+      }
+      .footer-note {
+        margin-top: 2rem;
+        padding: 1rem 1.25rem;
+        background: #111827;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        color: #9ca3af;
+        border-left: 3px solid #3d6acc;
+        line-height: 1.6;
+      }
+      @media (max-width: 1100px) {
+        .group-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+      @media (max-width: 700px) {
+        .group-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Rally — Logo Creator</h1>
+      <p class="subtitle">
+        18 propositions · A→E strict · F→J dégradé · K→O créatif & alternatives · P→R sur-mesure
+        · direction "Nuit facettée"
+      </p>
+      <div class="palette"><div><div class="swatch" style="background:#1c2a45"></div><p class="swatch-label">--primary logo<br>#1c2a45</p></div><div><div class="swatch" style="background:#0b1018"></div><p class="swatch-label">--background<br>#0b1018</p></div><div><div class="swatch" style="background:#ffd23f"></div><p class="swatch-label">--brand<br>#ffd23f</p></div><div><div class="swatch" style="background:#b07e00"></div><p class="swatch-label">--brand jour<br>#b07e00</p></div><div><div class="swatch" style="background:#2b3c5e"></div><p class="swatch-label">--mount<br>#2b3c5e</p></div><div><div class="swatch" style="background:#eef1f5"></div><p class="swatch-label">--background jour<br>#eef1f5</p></div></div>
+    </header>
+
+    <section class="group">
+      <h2 class="group-label">Strict — Fonds pleins</h2>
+      <div class="group-grid">
+        
+        <article class="card">
+          <p class="card-label">A</p>
+          <h3 class="card-title">Primaire</h3>
+          <p class="card-desc">Bleu nuit des montagnes, drapeau blanc.</p>
+          <div class="preview-main"><svg width="160" height="160" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="108" fill="#1c2a45"/><g transform="translate(106,106) scale(12.5)" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg></div>
+          <div class="preview-strip"><svg width="64" height="64" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="108" fill="#1c2a45"/><g transform="translate(106,106) scale(12.5)" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg><svg width="32" height="32" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="108" fill="#1c2a45"/><g transform="translate(106,106) scale(12.5)" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg><svg width="16" height="16" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="108" fill="#1c2a45"/><g transform="translate(106,106) scale(12.5)" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg></div>
+        </article>
+        <article class="card">
+          <p class="card-label">B</p>
+          <h3 class="card-title">Nuit</h3>
+          <p class="card-desc">Fond du jeu, drapeau couleur phares.</p>
+          <div class="preview-main"><svg width="160" height="160" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="108" fill="#0b1018"/><g transform="translate(106,106) scale(12.5)" stroke="#ffd23f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg></div>
+          <div class="preview-strip"><svg width="64" height="64" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="108" fill="#0b1018"/><g transform="translate(106,106) scale(12.5)" stroke="#ffd23f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg><svg width="32" height="32" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="108" fill="#0b1018"/><g transform="translate(106,106) scale(12.5)" stroke="#ffd23f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg><svg width="16" height="16" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="108" fill="#0b1018"/><g transform="translate(106,106) scale(12.5)" stroke="#ffd23f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg></div>
+        </article>
+        <article class="card">
+          <p class="card-label">C</p>
+          <h3 class="card-title">Jour</h3>
+          <p class="card-desc">Version de jour, encre sur fond clair.</p>
+          <div class="preview-main"><svg width="160" height="160" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="108" fill="#eef1f5"/><g transform="translate(106,106) scale(12.5)" stroke="#10161f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg></div>
+          <div class="preview-strip"><svg width="64" height="64" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="108" fill="#eef1f5"/><g transform="translate(106,106) scale(12.5)" stroke="#10161f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg><svg width="32" height="32" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="108" fill="#eef1f5"/><g transform="translate(106,106) scale(12.5)" stroke="#10161f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg><svg width="16" height="16" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="108" fill="#eef1f5"/><g transform="translate(106,106) scale(12.5)" stroke="#10161f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg></div>
+        </article>
+        <article class="card">
+          <p class="card-label">D</p>
+          <h3 class="card-title">Secondaire</h3>
+          <p class="card-desc">Bleu nuit éclairci de 20 % (#49556a).</p>
+          <div class="preview-main"><svg width="160" height="160" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="108" fill="#49556a"/><g transform="translate(106,106) scale(12.5)" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg></div>
+          <div class="preview-strip"><svg width="64" height="64" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="108" fill="#49556a"/><g transform="translate(106,106) scale(12.5)" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg><svg width="32" height="32" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="108" fill="#49556a"/><g transform="translate(106,106) scale(12.5)" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg><svg width="16" height="16" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="108" fill="#49556a"/><g transform="translate(106,106) scale(12.5)" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg></div>
+        </article>
+        <article class="card">
+          <p class="card-label">E</p>
+          <h3 class="card-title">Signature</h3>
+          <p class="card-desc">Jaune phares plein, drapeau encre (le blanc serait illisible).</p>
+          <div class="preview-main"><svg width="160" height="160" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="108" fill="#ffd23f"/><g transform="translate(106,106) scale(12.5)" stroke="#0b1018" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg></div>
+          <div class="preview-strip"><svg width="64" height="64" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="108" fill="#ffd23f"/><g transform="translate(106,106) scale(12.5)" stroke="#0b1018" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg><svg width="32" height="32" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="108" fill="#ffd23f"/><g transform="translate(106,106) scale(12.5)" stroke="#0b1018" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg><svg width="16" height="16" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="108" fill="#ffd23f"/><g transform="translate(106,106) scale(12.5)" stroke="#0b1018" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="group">
+      <h2 class="group-label">Dégradé</h2>
+      <div class="group-grid">
+        
+        <article class="card">
+          <p class="card-label">F</p>
+          <h3 class="card-title">Diagonal</h3>
+          <p class="card-desc">Bleu nuit vers ocre phares (#b07e00).</p>
+          <div class="preview-main"><svg width="160" height="160" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><linearGradient id="gF-F160" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1c2a45"/><stop offset="100%" stop-color="#b07e00"/></linearGradient></defs><rect width="512" height="512" rx="108" fill="url(#gF-F160)"/><g transform="translate(106,106) scale(12.5)" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg></div>
+          <div class="preview-strip"><svg width="64" height="64" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><linearGradient id="gF-F64" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1c2a45"/><stop offset="100%" stop-color="#b07e00"/></linearGradient></defs><rect width="512" height="512" rx="108" fill="url(#gF-F64)"/><g transform="translate(106,106) scale(12.5)" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg><svg width="32" height="32" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><linearGradient id="gF-F32" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1c2a45"/><stop offset="100%" stop-color="#b07e00"/></linearGradient></defs><rect width="512" height="512" rx="108" fill="url(#gF-F32)"/><g transform="translate(106,106) scale(12.5)" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg><svg width="16" height="16" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><linearGradient id="gF-F16" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1c2a45"/><stop offset="100%" stop-color="#b07e00"/></linearGradient></defs><rect width="512" height="512" rx="108" fill="url(#gF-F16)"/><g transform="translate(106,106) scale(12.5)" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg></div>
+        </article>
+        <article class="card">
+          <p class="card-label">G</p>
+          <h3 class="card-title">Radial centre</h3>
+          <p class="card-desc">Halo bleu, comme un ciel éclairé par la route.</p>
+          <div class="preview-main"><svg width="160" height="160" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><radialGradient id="gG-G160" cx="35%" cy="35%"><stop offset="0%" stop-color="#606a7d"/><stop offset="100%" stop-color="#111929"/></radialGradient></defs><rect width="512" height="512" rx="108" fill="url(#gG-G160)"/><g transform="translate(106,106) scale(12.5)" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg></div>
+          <div class="preview-strip"><svg width="64" height="64" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><radialGradient id="gG-G64" cx="35%" cy="35%"><stop offset="0%" stop-color="#606a7d"/><stop offset="100%" stop-color="#111929"/></radialGradient></defs><rect width="512" height="512" rx="108" fill="url(#gG-G64)"/><g transform="translate(106,106) scale(12.5)" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg><svg width="32" height="32" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><radialGradient id="gG-G32" cx="35%" cy="35%"><stop offset="0%" stop-color="#606a7d"/><stop offset="100%" stop-color="#111929"/></radialGradient></defs><rect width="512" height="512" rx="108" fill="url(#gG-G32)"/><g transform="translate(106,106) scale(12.5)" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg><svg width="16" height="16" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><radialGradient id="gG-G16" cx="35%" cy="35%"><stop offset="0%" stop-color="#606a7d"/><stop offset="100%" stop-color="#111929"/></radialGradient></defs><rect width="512" height="512" rx="108" fill="url(#gG-G16)"/><g transform="translate(106,106) scale(12.5)" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg></div>
+        </article>
+        <article class="card">
+          <p class="card-label">H</p>
+          <h3 class="card-title">Vertical</h3>
+          <p class="card-desc">Du ciel vers la vallée.</p>
+          <div class="preview-main"><svg width="160" height="160" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><linearGradient id="gH-H160" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#555f74"/><stop offset="100%" stop-color="#1c2a45"/></linearGradient></defs><rect width="512" height="512" rx="108" fill="url(#gH-H160)"/><g transform="translate(106,106) scale(12.5)" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg></div>
+          <div class="preview-strip"><svg width="64" height="64" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><linearGradient id="gH-H64" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#555f74"/><stop offset="100%" stop-color="#1c2a45"/></linearGradient></defs><rect width="512" height="512" rx="108" fill="url(#gH-H64)"/><g transform="translate(106,106) scale(12.5)" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg><svg width="32" height="32" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><linearGradient id="gH-H32" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#555f74"/><stop offset="100%" stop-color="#1c2a45"/></linearGradient></defs><rect width="512" height="512" rx="108" fill="url(#gH-H32)"/><g transform="translate(106,106) scale(12.5)" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg><svg width="16" height="16" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><linearGradient id="gH-H16" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#555f74"/><stop offset="100%" stop-color="#1c2a45"/></linearGradient></defs><rect width="512" height="512" rx="108" fill="url(#gH-H16)"/><g transform="translate(106,106) scale(12.5)" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg></div>
+        </article>
+        <article class="card">
+          <p class="card-label">I</p>
+          <h3 class="card-title">Tricolore</h3>
+          <p class="card-desc">Bleu nuit, mélange, ocre.</p>
+          <div class="preview-main"><svg width="160" height="160" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><linearGradient id="gI-I160" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1c2a45"/><stop offset="50%" stop-color="#665423"/><stop offset="100%" stop-color="#b07e00"/></linearGradient></defs><rect width="512" height="512" rx="108" fill="url(#gI-I160)"/><g transform="translate(106,106) scale(12.5)" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg></div>
+          <div class="preview-strip"><svg width="64" height="64" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><linearGradient id="gI-I64" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1c2a45"/><stop offset="50%" stop-color="#665423"/><stop offset="100%" stop-color="#b07e00"/></linearGradient></defs><rect width="512" height="512" rx="108" fill="url(#gI-I64)"/><g transform="translate(106,106) scale(12.5)" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg><svg width="32" height="32" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><linearGradient id="gI-I32" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1c2a45"/><stop offset="50%" stop-color="#665423"/><stop offset="100%" stop-color="#b07e00"/></linearGradient></defs><rect width="512" height="512" rx="108" fill="url(#gI-I32)"/><g transform="translate(106,106) scale(12.5)" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg><svg width="16" height="16" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><linearGradient id="gI-I16" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1c2a45"/><stop offset="50%" stop-color="#665423"/><stop offset="100%" stop-color="#b07e00"/></linearGradient></defs><rect width="512" height="512" rx="108" fill="url(#gI-I16)"/><g transform="translate(106,106) scale(12.5)" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg></div>
+        </article>
+        <article class="card">
+          <p class="card-label">J</p>
+          <h3 class="card-title">Aurora</h3>
+          <p class="card-desc">Angle inversé et halo lumineux au centre.</p>
+          <div class="preview-main"><svg width="160" height="160" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><linearGradient id="gJ-J160" x1="100%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#b07e00"/><stop offset="100%" stop-color="#1c2a45"/></linearGradient><radialGradient id="gJr-J160"><stop offset="0%" stop-color="#ffffff" stop-opacity=".08"/><stop offset="100%" stop-color="#ffffff" stop-opacity="0"/></radialGradient></defs><rect width="512" height="512" rx="108" fill="url(#gJ-J160)"/><rect width="512" height="512" rx="108" fill="url(#gJr-J160)"/><g transform="translate(106,106) scale(12.5)" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg></div>
+          <div class="preview-strip"><svg width="64" height="64" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><linearGradient id="gJ-J64" x1="100%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#b07e00"/><stop offset="100%" stop-color="#1c2a45"/></linearGradient><radialGradient id="gJr-J64"><stop offset="0%" stop-color="#ffffff" stop-opacity=".08"/><stop offset="100%" stop-color="#ffffff" stop-opacity="0"/></radialGradient></defs><rect width="512" height="512" rx="108" fill="url(#gJ-J64)"/><rect width="512" height="512" rx="108" fill="url(#gJr-J64)"/><g transform="translate(106,106) scale(12.5)" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg><svg width="32" height="32" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><linearGradient id="gJ-J32" x1="100%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#b07e00"/><stop offset="100%" stop-color="#1c2a45"/></linearGradient><radialGradient id="gJr-J32"><stop offset="0%" stop-color="#ffffff" stop-opacity=".08"/><stop offset="100%" stop-color="#ffffff" stop-opacity="0"/></radialGradient></defs><rect width="512" height="512" rx="108" fill="url(#gJ-J32)"/><rect width="512" height="512" rx="108" fill="url(#gJr-J32)"/><g transform="translate(106,106) scale(12.5)" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg><svg width="16" height="16" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><linearGradient id="gJ-J16" x1="100%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#b07e00"/><stop offset="100%" stop-color="#1c2a45"/></linearGradient><radialGradient id="gJr-J16"><stop offset="0%" stop-color="#ffffff" stop-opacity=".08"/><stop offset="100%" stop-color="#ffffff" stop-opacity="0"/></radialGradient></defs><rect width="512" height="512" rx="108" fill="url(#gJ-J16)"/><rect width="512" height="512" rx="108" fill="url(#gJr-J16)"/><g transform="translate(106,106) scale(12.5)" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="group">
+      <h2 class="group-label">Créatif & Icônes alternatives</h2>
+      <div class="group-grid">
+        
+        <article class="card">
+          <p class="card-label">K</p>
+          <h3 class="card-title">Thème app</h3>
+          <p class="card-desc">Les montagnes facettées de la scène et le faisceau des phares derrière le drapeau.</p>
+          <div class="preview-main"><svg width="160" height="160" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><clipPath id="k-clip-K160"><rect width="512" height="512" rx="108"/></clipPath></defs><rect width="512" height="512" rx="108" fill="#1c2a45"/><g clip-path="url(#k-clip-K160)"><polygon points="0,380 130,190 250,330 512,380" fill="#22304d"/><polygon points="130,190 250,330 330,240 512,380 512,512 0,512 0,380" fill="#2b3c5e" opacity=".55"/><polygon points="250,512 330,240 420,512" fill="#22304d" opacity=".7"/><polygon points="200,512 256,300 312,512" fill="#ffd23f" opacity=".12"/></g><g transform="translate(106,106) scale(12.5)" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg></div>
+          <div class="preview-strip"><svg width="64" height="64" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><clipPath id="k-clip-K64"><rect width="512" height="512" rx="108"/></clipPath></defs><rect width="512" height="512" rx="108" fill="#1c2a45"/><g clip-path="url(#k-clip-K64)"><polygon points="0,380 130,190 250,330 512,380" fill="#22304d"/><polygon points="130,190 250,330 330,240 512,380 512,512 0,512 0,380" fill="#2b3c5e" opacity=".55"/><polygon points="250,512 330,240 420,512" fill="#22304d" opacity=".7"/><polygon points="200,512 256,300 312,512" fill="#ffd23f" opacity=".12"/></g><g transform="translate(106,106) scale(12.5)" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg><svg width="32" height="32" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><clipPath id="k-clip-K32"><rect width="512" height="512" rx="108"/></clipPath></defs><rect width="512" height="512" rx="108" fill="#1c2a45"/><g clip-path="url(#k-clip-K32)"><polygon points="0,380 130,190 250,330 512,380" fill="#22304d"/><polygon points="130,190 250,330 330,240 512,380 512,512 0,512 0,380" fill="#2b3c5e" opacity=".55"/><polygon points="250,512 330,240 420,512" fill="#22304d" opacity=".7"/><polygon points="200,512 256,300 312,512" fill="#ffd23f" opacity=".12"/></g><g transform="translate(106,106) scale(12.5)" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg><svg width="16" height="16" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><clipPath id="k-clip-K16"><rect width="512" height="512" rx="108"/></clipPath></defs><rect width="512" height="512" rx="108" fill="#1c2a45"/><g clip-path="url(#k-clip-K16)"><polygon points="0,380 130,190 250,330 512,380" fill="#22304d"/><polygon points="130,190 250,330 330,240 512,380 512,512 0,512 0,380" fill="#2b3c5e" opacity=".55"/><polygon points="250,512 330,240 420,512" fill="#22304d" opacity=".7"/><polygon points="200,512 256,300 312,512" fill="#ffd23f" opacity=".12"/></g><g transform="translate(106,106) scale(12.5)" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg></div>
+        </article>
+        <article class="card">
+          <p class="card-label">L</p>
+          <h3 class="card-title">Duotone</h3>
+          <p class="card-desc">Mât blanc, drapeau jaune phares.</p>
+          <div class="preview-main"><svg width="160" height="160" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="108" fill="#1c2a45"/><g transform="translate(106,106) scale(12.5)" stroke="#ffd23f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g><g transform="translate(106,106) scale(12.5)" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4"/></g></svg></div>
+          <div class="preview-strip"><svg width="64" height="64" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="108" fill="#1c2a45"/><g transform="translate(106,106) scale(12.5)" stroke="#ffd23f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g><g transform="translate(106,106) scale(12.5)" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4"/></g></svg><svg width="32" height="32" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="108" fill="#1c2a45"/><g transform="translate(106,106) scale(12.5)" stroke="#ffd23f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g><g transform="translate(106,106) scale(12.5)" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4"/></g></svg><svg width="16" height="16" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="108" fill="#1c2a45"/><g transform="translate(106,106) scale(12.5)" stroke="#ffd23f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g><g transform="translate(106,106) scale(12.5)" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 22V4"/></g></svg></div>
+        </article>
+        <article class="card">
+          <p class="card-label">M</p>
+          <h3 class="card-title">Gauge</h3>
+          <p class="card-desc">Icône alternative 1 : le compte-tours, aiguille en jaune phares.</p>
+          <div class="preview-main"><svg width="160" height="160" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="108" fill="#1c2a45"/><g transform="translate(106,106) scale(12.5)" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M3.34 19a10 10 0 1 1 17.32 0"/><path d="m12 14 4-4" stroke="#ffd23f"/></g></svg></div>
+          <div class="preview-strip"><svg width="64" height="64" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="108" fill="#1c2a45"/><g transform="translate(106,106) scale(12.5)" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M3.34 19a10 10 0 1 1 17.32 0"/><path d="m12 14 4-4" stroke="#ffd23f"/></g></svg><svg width="32" height="32" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="108" fill="#1c2a45"/><g transform="translate(106,106) scale(12.5)" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M3.34 19a10 10 0 1 1 17.32 0"/><path d="m12 14 4-4" stroke="#ffd23f"/></g></svg><svg width="16" height="16" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="108" fill="#1c2a45"/><g transform="translate(106,106) scale(12.5)" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M3.34 19a10 10 0 1 1 17.32 0"/><path d="m12 14 4-4" stroke="#ffd23f"/></g></svg></div>
+        </article>
+        <article class="card">
+          <p class="card-label">N</p>
+          <h3 class="card-title">Route</h3>
+          <p class="card-desc">Icône alternative 2 : le tracé de la spéciale, sur le dégradé F.</p>
+          <div class="preview-main"><svg width="160" height="160" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><linearGradient id="gN-N160" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1c2a45"/><stop offset="100%" stop-color="#b07e00"/></linearGradient></defs><rect width="512" height="512" rx="108" fill="url(#gN-N160)"/><g transform="translate(106,106) scale(12.5)" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/><circle cx="18" cy="5" r="3"/></g></svg></div>
+          <div class="preview-strip"><svg width="64" height="64" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><linearGradient id="gN-N64" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1c2a45"/><stop offset="100%" stop-color="#b07e00"/></linearGradient></defs><rect width="512" height="512" rx="108" fill="url(#gN-N64)"/><g transform="translate(106,106) scale(12.5)" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/><circle cx="18" cy="5" r="3"/></g></svg><svg width="32" height="32" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><linearGradient id="gN-N32" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1c2a45"/><stop offset="100%" stop-color="#b07e00"/></linearGradient></defs><rect width="512" height="512" rx="108" fill="url(#gN-N32)"/><g transform="translate(106,106) scale(12.5)" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/><circle cx="18" cy="5" r="3"/></g></svg><svg width="16" height="16" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><linearGradient id="gN-N16" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1c2a45"/><stop offset="100%" stop-color="#b07e00"/></linearGradient></defs><rect width="512" height="512" rx="108" fill="url(#gN-N16)"/><g transform="translate(106,106) scale(12.5)" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/><circle cx="18" cy="5" r="3"/></g></svg></div>
+        </article>
+        <article class="card">
+          <p class="card-label">O</p>
+          <h3 class="card-title">Phares dans la nuit</h3>
+          <p class="card-desc">Fond noir, drapeau lumineux comme pris dans les phares.</p>
+          <div class="preview-main"><svg width="160" height="160" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><filter id="glow-O160" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="0.6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><rect width="512" height="512" rx="108" fill="#05080f"/><g transform="translate(106,106) scale(12.5)" stroke="#ffd23f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none" filter="url(#glow-O160)"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg></div>
+          <div class="preview-strip"><svg width="64" height="64" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><filter id="glow-O64" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="0.6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><rect width="512" height="512" rx="108" fill="#05080f"/><g transform="translate(106,106) scale(12.5)" stroke="#ffd23f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none" filter="url(#glow-O64)"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg><svg width="32" height="32" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><filter id="glow-O32" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="0.6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><rect width="512" height="512" rx="108" fill="#05080f"/><g transform="translate(106,106) scale(12.5)" stroke="#ffd23f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none" filter="url(#glow-O32)"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg><svg width="16" height="16" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><filter id="glow-O16" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="0.6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><rect width="512" height="512" rx="108" fill="#05080f"/><g transform="translate(106,106) scale(12.5)" stroke="#ffd23f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none" filter="url(#glow-O16)"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></g></svg></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="group">
+      <h2 class="group-label">Sur-mesure — logo-design</h2>
+      <div class="group-grid">
+        
+        <article class="card">
+          <p class="card-label">P</p>
+          <h3 class="card-title">R facetté</h3>
+          <p class="card-desc">Monogramme : un R taillé en plans, comme un modèle 3D low-poly du jeu.</p>
+          <div class="preview-main"><svg width="160" height="160" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="108" fill="#1c2a45"/><g transform="translate(102.4,102.4) scale(1.2)"><g transform="translate(-6,0)"><path fill="#ffffff" fill-rule="evenodd" d="M56 32H164L200 68V108L170 138L212 224H166L128 146H100V224H56Z M100 72H148L160 84V96L148 108H100Z"/><g stroke="#1c2a45" stroke-width="6" stroke-linecap="butt"><path d="M56 32L100 72"/><path d="M200 68L160 84"/><path d="M56 202L100 150"/></g></g></g></svg></div>
+          <div class="preview-strip"><svg width="64" height="64" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="108" fill="#1c2a45"/><g transform="translate(102.4,102.4) scale(1.2)"><g transform="translate(-6,0)"><path fill="#ffffff" fill-rule="evenodd" d="M56 32H164L200 68V108L170 138L212 224H166L128 146H100V224H56Z M100 72H148L160 84V96L148 108H100Z"/><g stroke="#1c2a45" stroke-width="6" stroke-linecap="butt"><path d="M56 32L100 72"/><path d="M200 68L160 84"/><path d="M56 202L100 150"/></g></g></g></svg><svg width="32" height="32" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="108" fill="#1c2a45"/><g transform="translate(102.4,102.4) scale(1.2)"><g transform="translate(-6,0)"><path fill="#ffffff" fill-rule="evenodd" d="M56 32H164L200 68V108L170 138L212 224H166L128 146H100V224H56Z M100 72H148L160 84V96L148 108H100Z"/><g stroke="#1c2a45" stroke-width="6" stroke-linecap="butt"><path d="M56 32L100 72"/><path d="M200 68L160 84"/><path d="M56 202L100 150"/></g></g></g></svg><svg width="16" height="16" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="108" fill="#1c2a45"/><g transform="translate(102.4,102.4) scale(1.2)"><g transform="translate(-6,0)"><path fill="#ffffff" fill-rule="evenodd" d="M56 32H164L200 68V108L170 138L212 224H166L128 146H100V224H56Z M100 72H148L160 84V96L148 108H100Z"/><g stroke="#1c2a45" stroke-width="6" stroke-linecap="butt"><path d="M56 32L100 72"/><path d="M200 68L160 84"/><path d="M56 202L100 150"/></g></g></g></svg></div>
+        </article>
+        <article class="card">
+          <p class="card-label">Q</p>
+          <h3 class="card-title">Horizon</h3>
+          <p class="card-desc">Abstrait : la route en perspective qui file vers l’horizon, découpée en plans.</p>
+          <div class="preview-main"><svg width="160" height="160" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="108" fill="#1c2a45"/><g transform="translate(102.4,102.4) scale(1.2)"><path fill="#ffffff" fill-rule="evenodd" d="M128 34L226 218H30Z M126 98H130L131.5 122H124.5Z M124 140H132L134 170H122Z M121.5 188H134.5L136 210H120Z"/><g stroke="#1c2a45" stroke-width="5"><path d="M128 34L74 218"/><path d="M128 34L182 218"/></g></g></svg></div>
+          <div class="preview-strip"><svg width="64" height="64" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="108" fill="#1c2a45"/><g transform="translate(102.4,102.4) scale(1.2)"><path fill="#ffffff" fill-rule="evenodd" d="M128 34L226 218H30Z M126 98H130L131.5 122H124.5Z M124 140H132L134 170H122Z M121.5 188H134.5L136 210H120Z"/><g stroke="#1c2a45" stroke-width="5"><path d="M128 34L74 218"/><path d="M128 34L182 218"/></g></g></svg><svg width="32" height="32" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="108" fill="#1c2a45"/><g transform="translate(102.4,102.4) scale(1.2)"><path fill="#ffffff" fill-rule="evenodd" d="M128 34L226 218H30Z M126 98H130L131.5 122H124.5Z M124 140H132L134 170H122Z M121.5 188H134.5L136 210H120Z"/><g stroke="#1c2a45" stroke-width="5"><path d="M128 34L74 218"/><path d="M128 34L182 218"/></g></g></svg><svg width="16" height="16" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="108" fill="#1c2a45"/><g transform="translate(102.4,102.4) scale(1.2)"><path fill="#ffffff" fill-rule="evenodd" d="M128 34L226 218H30Z M126 98H130L131.5 122H124.5Z M124 140H132L134 170H122Z M121.5 188H134.5L136 210H120Z"/><g stroke="#1c2a45" stroke-width="5"><path d="M128 34L74 218"/><path d="M128 34L182 218"/></g></g></svg></div>
+        </article>
+        <article class="card">
+          <p class="card-label">R</p>
+          <h3 class="card-title">Épingle</h3>
+          <p class="card-desc">Emblème : un col facetté dont les lacets sont taillés dans la montagne.</p>
+          <div class="preview-main"><svg width="160" height="160" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="108" fill="#1c2a45"/><g transform="translate(102.4,102.4) scale(1.2)"><path fill="#ffffff" d="M18 214L100 56L140 116L172 80L238 214Z"/><path d="M172 80L198 214" stroke="#1c2a45" stroke-width="5" fill="none"/><path d="M60 214L152 178L92 152L152 126L120 106" stroke="#1c2a45" stroke-width="14" stroke-linejoin="round" stroke-linecap="butt" fill="none"/></g></svg></div>
+          <div class="preview-strip"><svg width="64" height="64" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="108" fill="#1c2a45"/><g transform="translate(102.4,102.4) scale(1.2)"><path fill="#ffffff" d="M18 214L100 56L140 116L172 80L238 214Z"/><path d="M172 80L198 214" stroke="#1c2a45" stroke-width="5" fill="none"/><path d="M60 214L152 178L92 152L152 126L120 106" stroke="#1c2a45" stroke-width="14" stroke-linejoin="round" stroke-linecap="butt" fill="none"/></g></svg><svg width="32" height="32" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="108" fill="#1c2a45"/><g transform="translate(102.4,102.4) scale(1.2)"><path fill="#ffffff" d="M18 214L100 56L140 116L172 80L238 214Z"/><path d="M172 80L198 214" stroke="#1c2a45" stroke-width="5" fill="none"/><path d="M60 214L152 178L92 152L152 126L120 106" stroke="#1c2a45" stroke-width="14" stroke-linejoin="round" stroke-linecap="butt" fill="none"/></g></svg><svg width="16" height="16" role="img" aria-label="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="108" fill="#1c2a45"/><g transform="translate(102.4,102.4) scale(1.2)"><path fill="#ffffff" d="M18 214L100 56L140 116L172 80L238 214Z"/><path d="M172 80L198 214" stroke="#1c2a45" stroke-width="5" fill="none"/><path d="M60 214L152 178L92 152L152 126L120 106" stroke="#1c2a45" stroke-width="14" stroke-linejoin="round" stroke-linecap="butt" fill="none"/></g></svg></div>
+        </article>
+      </div>
+    </section>
+
+    <div class="footer-note">
+      Réponds avec la lettre du logo (ex : "F") ou une combinaison (ex : "fond
+      de F + icône de M"). Tu peux aussi décrire un ajustement.
+    <br>Icône principale : Flag (drapeau d’arrivée). Alternatives : Gauge (M), Route (N). Les concepts P à R ont été construits sans les scripts de rendu et d’audit de logo-design (pas de Python sur ce poste), vérifiés à l’œil dans le navigateur.</div>
+  </body>
+</html>

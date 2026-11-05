@@ -1,0 +1,1138 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rally — directions low-poly</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Michroma&family=Manrope:wght@400;500;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#2a2a2a;color:#f2f2f2;font:15px/1.5 system-ui,sans-serif}
+.page-head{max-width:1180px;margin:0 auto;padding:2rem 1rem 1rem}
+.page-head h1{margin:0 0 .25rem;font-size:1.6rem}
+.page-head p{margin:0;max-width:72ch;color:#cfcfcf}
+main{max-width:1180px;margin:0 auto;padding:0 1rem 3rem;display:grid;gap:2rem}
+
+.direction-nuit{
+  --font-display: "Michroma", sans-serif;
+  --font-body: "Manrope", sans-serif;
+  --font-mono: "Share Tech Mono", monospace;
+  --radius: 0.25rem;
+  --background: #eef1f5;
+  --foreground: #10161f;
+  --card: #ffffff;
+  --card-foreground: #10161f;
+  --popover: #ffffff;
+  --popover-foreground: #10161f;
+  --primary: #10161f;
+  --primary-foreground: #f5f7fa;
+  --secondary: #e1e6ee;
+  --secondary-foreground: #10161f;
+  --muted: #e5e9ef;
+  --muted-foreground: #4f5a6a;
+  --accent: #dde3ec;
+  --accent-foreground: #10161f;
+  --destructive: #c62828;
+  --border: #cfd6e0;
+  --input: #7c8592;
+  --ring: #10161f;
+  --chart-1: #b07e00;
+  --chart-2: #2f6fd1;
+  --chart-3: #d4572a;
+  --chart-4: #2e8a55;
+  --chart-5: #8a4fd1;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #10161f;
+  --sidebar-primary: #10161f;
+  --sidebar-primary-foreground: #f5f7fa;
+  --sidebar-accent: #dde3ec;
+  --sidebar-accent-foreground: #10161f;
+  --sidebar-border: #cfd6e0;
+  --sidebar-ring: #10161f;
+  --brand: #b07e00;
+  --brand-foreground: #10161f;
+  --sky-1: #8fa6c6;
+  --sky-2: #e3eaf3;
+  --mount-1: #6b7f9c;
+  --mount-2: #8296b2;
+  --mount-3: #3f5470;
+  --ground: #56684a;
+  --road: #5b6270;
+}
+.direction-nuit.dark{
+  --background: #0b1018;
+  --foreground: #e9edf3;
+  --card: #121a26;
+  --card-foreground: #e9edf3;
+  --popover: #121a26;
+  --popover-foreground: #e9edf3;
+  --primary: #ffd23f;
+  --primary-foreground: #0b1018;
+  --secondary: #1a2433;
+  --secondary-foreground: #e9edf3;
+  --muted: #172030;
+  --muted-foreground: #93a0b4;
+  --accent: #1e2a3c;
+  --accent-foreground: #e9edf3;
+  --destructive: #ff6b5e;
+  --border: #202c3f;
+  --input: #56657d;
+  --ring: #ffd23f;
+  --chart-1: #ffd23f;
+  --chart-2: #5fb3ff;
+  --chart-3: #ff8f5a;
+  --chart-4: #7ee0a1;
+  --chart-5: #c792ff;
+  --sidebar: #121a26;
+  --sidebar-foreground: #e9edf3;
+  --sidebar-primary: #ffd23f;
+  --sidebar-primary-foreground: #0b1018;
+  --sidebar-accent: #1e2a3c;
+  --sidebar-accent-foreground: #e9edf3;
+  --sidebar-border: #202c3f;
+  --sidebar-ring: #ffd23f;
+  --brand: #ffd23f;
+  --brand-foreground: #0b1018;
+  --sky-1: #05080f;
+  --sky-2: #1c2a45;
+  --mount-1: #22304d;
+  --mount-2: #2b3c5e;
+  --mount-3: #111b2c;
+  --ground: #0d1420;
+  --road: #2a3346;
+}
+
+.direction-crepuscule{
+  --font-display: "Michroma", sans-serif;
+  --font-body: "Manrope", sans-serif;
+  --font-mono: "Share Tech Mono", monospace;
+  --radius: 0.5rem;
+  --background: #f3eff7;
+  --foreground: #2a1d3d;
+  --card: #fbf9fd;
+  --card-foreground: #2a1d3d;
+  --popover: #fbf9fd;
+  --popover-foreground: #2a1d3d;
+  --primary: #3b2667;
+  --primary-foreground: #fbf9fd;
+  --secondary: #e6dff0;
+  --secondary-foreground: #2a1d3d;
+  --muted: #ebe5f3;
+  --muted-foreground: #5f5272;
+  --accent: #e3daf0;
+  --accent-foreground: #2a1d3d;
+  --destructive: #c4223b;
+  --border: #d9cfe6;
+  --input: #89839e;
+  --ring: #6b4bb3;
+  --chart-1: #dc5f28;
+  --chart-2: #6b4bb3;
+  --chart-3: #1f8a83;
+  --chart-4: #b8860b;
+  --chart-5: #c23d7c;
+  --sidebar: #fbf9fd;
+  --sidebar-foreground: #2a1d3d;
+  --sidebar-primary: #3b2667;
+  --sidebar-primary-foreground: #fbf9fd;
+  --sidebar-accent: #e3daf0;
+  --sidebar-accent-foreground: #2a1d3d;
+  --sidebar-border: #d9cfe6;
+  --sidebar-ring: #6b4bb3;
+  --brand: #dc5f28;
+  --brand-foreground: #1d1d1d;
+  --sky-1: #ffb38a;
+  --sky-2: #ffe3c7;
+  --mount-1: #b07aa8;
+  --mount-2: #c993b4;
+  --mount-3: #7a4f86;
+  --ground: #8d6b8f;
+  --road: #6e5a78;
+}
+.direction-crepuscule.dark{
+  --background: #1a1230;
+  --foreground: #f1ebfa;
+  --card: #241a40;
+  --card-foreground: #f1ebfa;
+  --popover: #241a40;
+  --popover-foreground: #f1ebfa;
+  --primary: #ff8a52;
+  --primary-foreground: #1a1230;
+  --secondary: #2f2450;
+  --secondary-foreground: #f1ebfa;
+  --muted: #2b2149;
+  --muted-foreground: #b3a6cc;
+  --accent: #33285a;
+  --accent-foreground: #f1ebfa;
+  --destructive: #ff6b81;
+  --border: #3a2e5e;
+  --input: #71639a;
+  --ring: #ff8a52;
+  --chart-1: #ff8a52;
+  --chart-2: #b59cff;
+  --chart-3: #4fd1c5;
+  --chart-4: #f2c94c;
+  --chart-5: #ff7ab6;
+  --sidebar: #241a40;
+  --sidebar-foreground: #f1ebfa;
+  --sidebar-primary: #ff8a52;
+  --sidebar-primary-foreground: #1a1230;
+  --sidebar-accent: #33285a;
+  --sidebar-accent-foreground: #f1ebfa;
+  --sidebar-border: #3a2e5e;
+  --sidebar-ring: #ff8a52;
+  --brand: #ff8a52;
+  --brand-foreground: #1a1230;
+  --sky-1: #2b1a4f;
+  --sky-2: #ff9a6b;
+  --mount-1: #4a2d6e;
+  --mount-2: #6b3f7f;
+  --mount-3: #2a1a45;
+  --ground: #2f2347;
+  --road: #3d3158;
+}
+
+.direction-brouillard{
+  --font-display: "Michroma", sans-serif;
+  --font-body: "Manrope", sans-serif;
+  --font-mono: "Share Tech Mono", monospace;
+  --radius: 0.375rem;
+  --background: #e9edf0;
+  --foreground: #1c2329;
+  --card: #f6f8f9;
+  --card-foreground: #1c2329;
+  --popover: #f6f8f9;
+  --popover-foreground: #1c2329;
+  --primary: #1c2329;
+  --primary-foreground: #f6f8f9;
+  --secondary: #dde3e7;
+  --secondary-foreground: #1c2329;
+  --muted: #e1e6ea;
+  --muted-foreground: #4f5b64;
+  --accent: #d9e0e5;
+  --accent-foreground: #1c2329;
+  --destructive: #b42318;
+  --border: #cbd3d9;
+  --input: #7d8992;
+  --ring: #b86e00;
+  --chart-1: #b86e00;
+  --chart-2: #2f7d96;
+  --chart-3: #4f5b64;
+  --chart-4: #c0492b;
+  --chart-5: #4d7d3a;
+  --sidebar: #f6f8f9;
+  --sidebar-foreground: #1c2329;
+  --sidebar-primary: #1c2329;
+  --sidebar-primary-foreground: #f6f8f9;
+  --sidebar-accent: #d9e0e5;
+  --sidebar-accent-foreground: #1c2329;
+  --sidebar-border: #cbd3d9;
+  --sidebar-ring: #b86e00;
+  --brand: #b86e00;
+  --brand-foreground: #161616;
+  --sky-1: #c9d3da;
+  --sky-2: #eef2f4;
+  --mount-1: #a7b4bd;
+  --mount-2: #b9c4cb;
+  --mount-3: #8796a1;
+  --ground: #9aa79c;
+  --road: #8e979e;
+}
+.direction-brouillard.dark{
+  --background: #151a1f;
+  --foreground: #e6ebee;
+  --card: #1d242b;
+  --card-foreground: #e6ebee;
+  --popover: #1d242b;
+  --popover-foreground: #e6ebee;
+  --primary: #ffb347;
+  --primary-foreground: #151a1f;
+  --secondary: #252e36;
+  --secondary-foreground: #e6ebee;
+  --muted: #222a31;
+  --muted-foreground: #9eabb5;
+  --accent: #2a343d;
+  --accent-foreground: #e6ebee;
+  --destructive: #ff6f61;
+  --border: #2d3740;
+  --input: #5f6d78;
+  --ring: #ffb347;
+  --chart-1: #ffb347;
+  --chart-2: #8ec5d6;
+  --chart-3: #c7d3dc;
+  --chart-4: #e78a6e;
+  --chart-5: #a3c98f;
+  --sidebar: #1d242b;
+  --sidebar-foreground: #e6ebee;
+  --sidebar-primary: #ffb347;
+  --sidebar-primary-foreground: #151a1f;
+  --sidebar-accent: #2a343d;
+  --sidebar-accent-foreground: #e6ebee;
+  --sidebar-border: #2d3740;
+  --sidebar-ring: #ffb347;
+  --brand: #ffb347;
+  --brand-foreground: #151a1f;
+  --sky-1: #2f3a44;
+  --sky-2: #7d8b96;
+  --mount-1: #56636e;
+  --mount-2: #6a7782;
+  --mount-3: #46525c;
+  --ground: #3b464f;
+  --road: #59636c;
+}
+
+.direction-neige{
+  --font-display: "Michroma", sans-serif;
+  --font-body: "Manrope", sans-serif;
+  --font-mono: "Share Tech Mono", monospace;
+  --radius: 0.25rem;
+  --background: #f2f6fb;
+  --foreground: #0f1a30;
+  --card: #ffffff;
+  --card-foreground: #0f1a30;
+  --popover: #ffffff;
+  --popover-foreground: #0f1a30;
+  --primary: #0f1a30;
+  --primary-foreground: #ffffff;
+  --secondary: #e1e9f4;
+  --secondary-foreground: #0f1a30;
+  --muted: #e7edf6;
+  --muted-foreground: #4b5b76;
+  --accent: #dce6f3;
+  --accent-foreground: #0f1a30;
+  --destructive: #c8102e;
+  --border: #d0dbea;
+  --input: #7c8aa2;
+  --ring: #076a98;
+  --chart-1: #076a98;
+  --chart-2: #d62839;
+  --chart-3: #0f1a30;
+  --chart-4: #b88600;
+  --chart-5: #6d4bd1;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0f1a30;
+  --sidebar-primary: #0f1a30;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #dce6f3;
+  --sidebar-accent-foreground: #0f1a30;
+  --sidebar-border: #d0dbea;
+  --sidebar-ring: #076a98;
+  --brand: #076a98;
+  --brand-foreground: #ffffff;
+  --sky-1: #9cc4e8;
+  --sky-2: #e9f3fb;
+  --mount-1: #c4d3e6;
+  --mount-2: #e6eef8;
+  --mount-3: #9fb3cf;
+  --ground: #eef3f9;
+  --road: #5d6a80;
+}
+.direction-neige.dark{
+  --background: #0d1424;
+  --foreground: #eef4fb;
+  --card: #15203a;
+  --card-foreground: #eef4fb;
+  --popover: #15203a;
+  --popover-foreground: #eef4fb;
+  --primary: #e8f1ff;
+  --primary-foreground: #0d1424;
+  --secondary: #1c2a48;
+  --secondary-foreground: #eef4fb;
+  --muted: #192642;
+  --muted-foreground: #a3b4cc;
+  --accent: #213152;
+  --accent-foreground: #eef4fb;
+  --destructive: #ff6b6b;
+  --border: #22335a;
+  --input: #5a6c92;
+  --ring: #6fd3ff;
+  --chart-1: #6fd3ff;
+  --chart-2: #ff5a6a;
+  --chart-3: #e8f1ff;
+  --chart-4: #ffc857;
+  --chart-5: #a78bfa;
+  --sidebar: #15203a;
+  --sidebar-foreground: #eef4fb;
+  --sidebar-primary: #e8f1ff;
+  --sidebar-primary-foreground: #0d1424;
+  --sidebar-accent: #213152;
+  --sidebar-accent-foreground: #eef4fb;
+  --sidebar-border: #22335a;
+  --sidebar-ring: #6fd3ff;
+  --brand: #6fd3ff;
+  --brand-foreground: #0d1424;
+  --sky-1: #070c18;
+  --sky-2: #1c2b4d;
+  --mount-1: #8fa3c2;
+  --mount-2: #c9d6ea;
+  --mount-3: #5d7294;
+  --ground: #dbe5f2;
+  --road: #3a4660;
+}
+
+.direction-foret{
+  --font-display: "Michroma", sans-serif;
+  --font-body: "Manrope", sans-serif;
+  --font-mono: "Share Tech Mono", monospace;
+  --radius: 0.375rem;
+  --background: #edf1ec;
+  --foreground: #18241d;
+  --card: #f8faf7;
+  --card-foreground: #18241d;
+  --popover: #f8faf7;
+  --popover-foreground: #18241d;
+  --primary: #1f4a33;
+  --primary-foreground: #f8faf7;
+  --secondary: #dfe7df;
+  --secondary-foreground: #18241d;
+  --muted: #e3eae2;
+  --muted-foreground: #4d5e53;
+  --accent: #dbe4da;
+  --accent-foreground: #18241d;
+  --destructive: #b3261e;
+  --border: #ccd7cc;
+  --input: #7f8e83;
+  --ring: #1f4a33;
+  --chart-1: #c25e00;
+  --chart-2: #1f4a33;
+  --chart-3: #a37b00;
+  --chart-4: #2f6f99;
+  --chart-5: #9a3f6f;
+  --sidebar: #f8faf7;
+  --sidebar-foreground: #18241d;
+  --sidebar-primary: #1f4a33;
+  --sidebar-primary-foreground: #f8faf7;
+  --sidebar-accent: #dbe4da;
+  --sidebar-accent-foreground: #18241d;
+  --sidebar-border: #ccd7cc;
+  --sidebar-ring: #1f4a33;
+  --brand: #c25e00;
+  --brand-foreground: #0d0d0d;
+  --sky-1: #a8c9b5;
+  --sky-2: #e6f0e8;
+  --mount-1: #4f7a5c;
+  --mount-2: #6a9475;
+  --mount-3: #2f5a3e;
+  --ground: #6d8a5a;
+  --road: #6a6f68;
+}
+.direction-foret.dark{
+  --background: #0e1612;
+  --foreground: #e7efe9;
+  --card: #15211b;
+  --card-foreground: #e7efe9;
+  --popover: #15211b;
+  --popover-foreground: #e7efe9;
+  --primary: #ff9a3c;
+  --primary-foreground: #0e1612;
+  --secondary: #1d2b24;
+  --secondary-foreground: #e7efe9;
+  --muted: #1a2720;
+  --muted-foreground: #9fb2a6;
+  --accent: #213229;
+  --accent-foreground: #e7efe9;
+  --destructive: #ff6b5e;
+  --border: #243529;
+  --input: #5a6e62;
+  --ring: #ff9a3c;
+  --chart-1: #ff9a3c;
+  --chart-2: #7fd1a1;
+  --chart-3: #ffd166;
+  --chart-4: #6fb7ff;
+  --chart-5: #e58fbf;
+  --sidebar: #15211b;
+  --sidebar-foreground: #e7efe9;
+  --sidebar-primary: #ff9a3c;
+  --sidebar-primary-foreground: #0e1612;
+  --sidebar-accent: #213229;
+  --sidebar-accent-foreground: #e7efe9;
+  --sidebar-border: #243529;
+  --sidebar-ring: #ff9a3c;
+  --brand: #ff9a3c;
+  --brand-foreground: #0e1612;
+  --sky-1: #060b09;
+  --sky-2: #1a2c22;
+  --mount-1: #1f3a2b;
+  --mount-2: #2a4a37;
+  --mount-3: #12261a;
+  --ground: #0f1c15;
+  --road: #2b3530;
+}
+
+.direction-pluie{
+  --font-display: "Michroma", sans-serif;
+  --font-body: "Manrope", sans-serif;
+  --font-mono: "Share Tech Mono", monospace;
+  --radius: 0.25rem;
+  --background: #ecf2f3;
+  --foreground: #12202a;
+  --card: #f8fbfb;
+  --card-foreground: #12202a;
+  --popover: #f8fbfb;
+  --popover-foreground: #12202a;
+  --primary: #12202a;
+  --primary-foreground: #f8fbfb;
+  --secondary: #dde7e9;
+  --secondary-foreground: #12202a;
+  --muted: #e2eaec;
+  --muted-foreground: #4a5c65;
+  --accent: #d8e3e6;
+  --accent-foreground: #12202a;
+  --destructive: #c62828;
+  --border: #c9d7db;
+  --input: #7b8d95;
+  --ring: #0b8a80;
+  --chart-1: #0b8a80;
+  --chart-2: #b87800;
+  --chart-3: #c2366b;
+  --chart-4: #4a63c9;
+  --chart-5: #5f8f1f;
+  --sidebar: #f8fbfb;
+  --sidebar-foreground: #12202a;
+  --sidebar-primary: #12202a;
+  --sidebar-primary-foreground: #f8fbfb;
+  --sidebar-accent: #d8e3e6;
+  --sidebar-accent-foreground: #12202a;
+  --sidebar-border: #c9d7db;
+  --sidebar-ring: #0b8a80;
+  --brand: #0b8a80;
+  --brand-foreground: #0f0f0f;
+  --sky-1: #a9bcc4;
+  --sky-2: #e3ecef;
+  --mount-1: #7f949e;
+  --mount-2: #93a7b0;
+  --mount-3: #5f747e;
+  --ground: #6f7f86;
+  --road: #4c5a61;
+}
+.direction-pluie.dark{
+  --background: #0c1216;
+  --foreground: #e6f0f2;
+  --card: #131c22;
+  --card-foreground: #e6f0f2;
+  --popover: #131c22;
+  --popover-foreground: #e6f0f2;
+  --primary: #36d6c8;
+  --primary-foreground: #0c1216;
+  --secondary: #1a252c;
+  --secondary-foreground: #e6f0f2;
+  --muted: #17222a;
+  --muted-foreground: #93a7b0;
+  --accent: #1d2a32;
+  --accent-foreground: #e6f0f2;
+  --destructive: #ff6b6b;
+  --border: #1f2d35;
+  --input: #52656f;
+  --ring: #36d6c8;
+  --chart-1: #36d6c8;
+  --chart-2: #ffb02e;
+  --chart-3: #ff6b9a;
+  --chart-4: #8fa8ff;
+  --chart-5: #b8e986;
+  --sidebar: #131c22;
+  --sidebar-foreground: #e6f0f2;
+  --sidebar-primary: #36d6c8;
+  --sidebar-primary-foreground: #0c1216;
+  --sidebar-accent: #1d2a32;
+  --sidebar-accent-foreground: #e6f0f2;
+  --sidebar-border: #1f2d35;
+  --sidebar-ring: #36d6c8;
+  --brand: #36d6c8;
+  --brand-foreground: #0c1216;
+  --sky-1: #080d11;
+  --sky-2: #1c2a33;
+  --mount-1: #22323b;
+  --mount-2: #2c3f49;
+  --mount-3: #16242b;
+  --ground: #111a1f;
+  --road: #1e2b33;
+}
+
+.direction{background:var(--background);color:var(--foreground);font-family:var(--font-body);border-radius:calc(var(--radius) * 2);overflow:hidden;border:1px solid var(--border)}
+.dir-head{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;padding:1.25rem 1.5rem;border-bottom:1px solid var(--border)}
+.dir-head h2{margin:0;font-family:var(--font-display);font-size:1.25rem;letter-spacing:.04em;line-height:1.2}
+.dir-head p{margin:.35rem 0 0;color:var(--muted-foreground);max-width:65ch}
+.theme-toggle{font:inherit;font-size:.85rem;padding:.4rem .8rem;border-radius:var(--radius);border:1px solid var(--input);background:var(--card);color:var(--card-foreground);cursor:pointer;white-space:nowrap}
+.mock{padding:1.25rem 1.5rem;display:grid;gap:1rem}
+
+/* écran de jeu */
+.screen{position:relative;aspect-ratio:16/9;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border)}
+.scene{position:absolute;inset:0;width:100%;height:100%}
+.hud{position:absolute;background:color-mix(in srgb,var(--card) 88%,transparent);color:var(--card-foreground);border:1px solid var(--border);border-radius:var(--radius);padding:.5rem .75rem}
+.hud p{margin:0}
+.hud-chrono{top:4%;left:3%}
+.hud-time{font-family:var(--font-mono);font-size:clamp(1.3rem,3.4vw,2.4rem);line-height:1}
+.hud-split{font-size:.85rem;color:var(--muted-foreground)}
+.split-bad{font-family:var(--font-mono);color:var(--destructive)}
+.hud-note{top:4%;left:50%;transform:translateX(-50%);display:grid;grid-template-columns:auto 1fr;gap:.1rem .6rem;align-items:center;min-width:34%}
+.note-now{font-family:var(--font-display);font-size:clamp(.8rem,1.7vw,1.1rem);letter-spacing:.03em}
+.note-next{grid-column:2;font-size:.8rem;color:var(--muted-foreground)}
+.hud-map{top:4%;right:3%;padding:.35rem}
+.hud-map svg{display:block;width:clamp(60px,10vw,110px);height:auto}
+.map-route{fill:none;stroke:var(--muted-foreground);stroke-width:2.5;stroke-linecap:round}
+.map-me{fill:var(--brand)}.map-end{fill:var(--foreground)}
+.hud-progress{bottom:5%;left:3%;display:grid;gap:.3rem;font-size:.8rem;min-width:22%}
+.bar{display:block;height:6px;background:var(--muted);border-radius:3px;overflow:hidden}
+.bar span{display:block;height:100%;background:var(--brand)}
+.hud-speed{bottom:5%;right:3%;display:grid;grid-template-columns:auto auto;gap:.2rem .7rem;align-items:center}
+.gear{grid-row:1/3;font-family:var(--font-display);font-size:clamp(1.4rem,3vw,2.2rem);border:1px solid var(--input);border-radius:var(--radius);padding:.1rem .55rem}
+.speed{font-family:var(--font-mono);font-size:clamp(1.2rem,2.8vw,2rem);line-height:1}
+.speed small{font-family:var(--font-body);font-size:.75rem;color:var(--muted-foreground);margin-left:.3rem}
+.revs{display:flex;gap:3px}
+.revs i{width:9px;height:8px;border-radius:1px}
+.r1{background:var(--chart-4)}.r2{background:var(--chart-1)}.r3{background:var(--destructive)}.off{background:var(--muted)}
+
+.panels{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem}
+.card{background:var(--card);color:var(--card-foreground);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.1rem;display:grid;gap:.6rem;align-content:start}
+.card h3{margin:0;font-family:var(--font-display);font-size:1rem;letter-spacing:.06em}
+.desc{margin:0;color:var(--muted-foreground);font-size:.9rem}
+.menu{list-style:none;margin:0;padding:0;display:grid;gap:.15rem}
+.menu button{width:100%;text-align:left;font:inherit;font-weight:600;padding:.55rem .75rem;border:0;border-radius:var(--radius);background:transparent;color:var(--card-foreground);cursor:pointer}
+.menu button.is-hover,.menu button:hover{background:var(--accent);color:var(--accent-foreground);box-shadow:inset 3px 0 0 var(--brand)}
+.menu button.danger{color:var(--destructive)}
+.badge{display:inline-block;font-size:.75rem;font-weight:700;padding:.1rem .45rem;border-radius:var(--radius);margin:0;font-family:var(--font-mono)}
+.badge-brand{background:var(--brand);color:var(--brand-foreground)}
+.badge-destructive{color:var(--destructive);border:1px solid var(--destructive);justify-self:start;font-family:var(--font-body)}
+.big-time{margin:0;font-family:var(--font-mono);font-size:2.6rem;line-height:1}
+.targets{list-style:none;margin:0;padding:0;display:grid;gap:.2rem;font-size:.9rem}
+.targets li{display:flex;align-items:center;gap:.5rem}
+.targets b{margin-left:auto;font-family:var(--font-mono);font-weight:400}
+.dot{width:.7rem;height:.7rem;border-radius:50%}
+.d1{background:var(--chart-4)}.d2{background:var(--chart-5)}.d3{background:var(--chart-3)}
+.field{display:grid;gap:.3rem}
+.field label{font-size:.85rem;font-weight:600}
+.field input{font:inherit;padding:.5rem .7rem;border-radius:var(--radius);border:1px solid var(--input);background:var(--background);color:var(--foreground)}
+.field input.is-focus,.field input:focus{outline:none;border-color:var(--ring);box-shadow:0 0 0 3px color-mix(in srgb,var(--ring) 35%,transparent)}
+.actions{display:flex;gap:.5rem}
+.btn{flex:1;font:inherit;font-weight:700;padding:.6rem 1rem;border-radius:var(--radius);border:1px solid transparent;cursor:pointer}
+.btn-primary{background:var(--primary);color:var(--primary-foreground)}
+.btn-secondary{background:var(--secondary);color:var(--secondary-foreground);border-color:var(--border)}
+.btn:focus-visible,.theme-toggle:focus-visible,.menu button:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+.tokens{padding:1rem 1.5rem 1.4rem;border-top:1px solid var(--border);background:var(--muted);color:var(--foreground)}
+.tokens code{font-family:var(--font-mono);font-size:.75rem}
+.fonts{list-style:none;margin:0 0 .8rem;padding:0;display:flex;flex-wrap:wrap;gap:.4rem 1.5rem}
+.fonts span{font-size:1rem;margin-left:.3rem}
+.swatches{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:.25rem .9rem}
+.swatches li{display:flex;align-items:center;gap:.45rem}
+.sw{width:1.1rem;height:1.1rem;border-radius:3px;border:1px solid var(--border);flex:none}
+.hx{color:var(--muted-foreground);margin-left:auto}
+.hx-l{display:none}
+.direction:not(.dark) .hx-l{display:inline}
+.direction:not(.dark) .hx-d{display:none}
+@media (max-width:700px){.hud-note,.hud-map{display:none}.dir-head{flex-direction:column}}
+</style>
+</head>
+<body>
+<header class="page-head">
+  <h1>Rally : six variations low-poly</h1>
+  <p>Typographie de la Spéciale de nuit partout (Michroma, Manrope, Share Tech Mono). Chaque direction montre un écran en course, le menu pause et l’écran d’arrivée. Elles s’affichent de nuit par défaut ; le bouton passe à la version de jour. Contrastes WCAG AA calculés dans les deux versions.</p>
+</header>
+<main>
+
+<section class="direction direction-nuit dark" aria-labelledby="t-nuit">
+  <header class="dir-head">
+    <div>
+      <h2 id="t-nuit">Nuit facettée</h2>
+      <p>La spéciale de nuit dans le monde low-poly : montagnes taillées bleu nuit, faisceau des phares jaune.</p>
+    </div>
+    <button type="button" class="theme-toggle" aria-pressed="true" onclick="const s=this.closest('section');s.classList.toggle('dark');const n=s.classList.contains('dark');this.setAttribute('aria-pressed',n);this.textContent=n?'Voir de jour':'Voir de nuit'">Voir de jour</button>
+  </header>
+  <div class="mock">
+    <div class="screen" role="img" aria-label="Écran de jeu en course, direction Nuit facettée">
+      <svg class="scene" viewBox="0 0 640 360" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+<defs><linearGradient id="sky-nuit" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--sky-1)"/><stop offset="1" style="stop-color:var(--sky-2)"/></linearGradient></defs>
+<rect width="640" height="360" fill="url(#sky-nuit)"/>
+<polygon points="0,149 71,88 56,250" style="fill:var(--mount-2)"/><polygon points="0,149 56,250 0,250" style="fill:var(--mount-1)"/><polygon points="71,88 71,250 56,250" style="fill:var(--mount-1)"/><polygon points="71,88 142,115 108,250" style="fill:var(--mount-1)"/><polygon points="71,88 108,250 71,250" style="fill:var(--mount-2)"/><polygon points="142,115 142,250 108,250" style="fill:var(--mount-2)"/><polygon points="142,115 213,87 175,250" style="fill:var(--mount-2)"/><polygon points="142,115 175,250 142,250" style="fill:var(--mount-1)"/><polygon points="213,87 213,250 175,250" style="fill:var(--mount-1)"/><polygon points="213,87 284,166 251,250" style="fill:var(--mount-1)"/><polygon points="213,87 251,250 213,250" style="fill:var(--mount-2)"/><polygon points="284,166 284,250 251,250" style="fill:var(--mount-2)"/><polygon points="284,166 356,93 324,250" style="fill:var(--mount-2)"/><polygon points="284,166 324,250 284,250" style="fill:var(--mount-1)"/><polygon points="356,93 356,250 324,250" style="fill:var(--mount-1)"/><polygon points="356,93 427,138 403,250" style="fill:var(--mount-1)"/><polygon points="356,93 403,250 356,250" style="fill:var(--mount-2)"/><polygon points="427,138 427,250 403,250" style="fill:var(--mount-2)"/><polygon points="427,138 498,165 474,250" style="fill:var(--mount-2)"/><polygon points="427,138 474,250 427,250" style="fill:var(--mount-1)"/><polygon points="498,165 498,250 474,250" style="fill:var(--mount-1)"/><polygon points="498,165 569,164 530,250" style="fill:var(--mount-1)"/><polygon points="498,165 530,250 498,250" style="fill:var(--mount-2)"/><polygon points="569,164 569,250 530,250" style="fill:var(--mount-2)"/><polygon points="569,164 640,81 603,250" style="fill:var(--mount-2)"/><polygon points="569,164 603,250 569,250" style="fill:var(--mount-1)"/><polygon points="640,81 640,250 603,250" style="fill:var(--mount-1)"/>
+<polygon points="0,197 91,219 72,262" style="fill:var(--mount-2)"/><polygon points="0,197 72,262 0,262" style="fill:var(--mount-3)"/><polygon points="91,219 91,262 72,262" style="fill:var(--mount-3)"/><polygon points="91,219 183,213 116,262" style="fill:var(--mount-3)"/><polygon points="91,219 116,262 91,262" style="fill:var(--mount-2)"/><polygon points="183,213 183,262 116,262" style="fill:var(--mount-2)"/><polygon points="183,213 274,231 226,262" style="fill:var(--mount-2)"/><polygon points="183,213 226,262 183,262" style="fill:var(--mount-3)"/><polygon points="274,231 274,262 226,262" style="fill:var(--mount-3)"/><polygon points="274,231 366,201 318,262" style="fill:var(--mount-3)"/><polygon points="274,231 318,262 274,262" style="fill:var(--mount-2)"/><polygon points="366,201 366,262 318,262" style="fill:var(--mount-2)"/><polygon points="366,201 457,197 390,262" style="fill:var(--mount-2)"/><polygon points="366,201 390,262 366,262" style="fill:var(--mount-3)"/><polygon points="457,197 457,262 390,262" style="fill:var(--mount-3)"/><polygon points="457,197 549,219 482,262" style="fill:var(--mount-3)"/><polygon points="457,197 482,262 457,262" style="fill:var(--mount-2)"/><polygon points="549,219 549,262 482,262" style="fill:var(--mount-2)"/><polygon points="549,219 640,227 601,262" style="fill:var(--mount-2)"/><polygon points="549,219 601,262 549,262" style="fill:var(--mount-3)"/><polygon points="640,227 640,262 601,262" style="fill:var(--mount-3)"/>
+<rect y="258" width="640" height="102" style="fill:var(--ground)"/>
+<polygon points="304,258 336,258 470,360 170,360" style="fill:var(--road)"/>
+<polygon points="318,268 322,268 325,288 315,288" style="fill:var(--foreground);opacity:.5"/><polygon points="314,305 326,305 331,340 309,340" style="fill:var(--foreground);opacity:.5"/>
+<polygon points="300,250 340,250 600,360 40,360" style="fill:var(--brand);opacity:.16"/>
+</svg>
+      <div class="hud hud-chrono">
+        <p class="hud-time">2:31.05</p>
+        <p class="hud-split">Inter 2 <span class="split-bad">+1,08</span></p>
+      </div>
+      <div class="hud hud-note">
+        <span class="badge badge-brand">100</span>
+        <span class="note-now">Gauche 4 longue</span>
+        <span class="note-next">puis Droite 2 se resserre</span>
+      </div>
+      <div class="hud hud-map">
+        <svg viewBox="0 0 80 60" aria-hidden="true"><path class="map-route" d="M6 52 C20 10 34 50 46 26 S70 8 74 18"/><circle class="map-me" cx="40" cy="34" r="3.5"/><circle class="map-end" cx="74" cy="18" r="3"/></svg>
+      </div>
+      <div class="hud hud-progress">
+        <span>km 3,1 sur 7,4</span>
+        <span class="bar"><span style="width:42%"></span></span>
+      </div>
+      <div class="hud hud-speed">
+        <span class="gear">3</span>
+        <span class="speed">117<small>km/h</small></span>
+        <span class="revs" aria-hidden="true"><i class="r1"></i><i class="r1"></i><i class="r1"></i><i class="r1"></i><i class="r1"></i><i class="r1"></i><i class="r2"></i><i class="r2"></i><i class="r3"></i><i class="off"></i></span>
+      </div>
+    </div>
+    <div class="panels">
+      <article class="card">
+        <h3>Pause</h3>
+        <ul class="menu">
+          <li><button type="button" class="is-hover">Reprendre</button></li>
+          <li><button type="button">Recommencer la spéciale</button></li>
+          <li><button type="button">Réglages de la voiture</button></li>
+          <li><button type="button" class="danger">Abandonner</button></li>
+        </ul>
+        <p class="desc">Col de la Croix-Fry, 7,4 km, notes du copilote activées</p>
+      </article>
+      <article class="card">
+        <h3>Arrivée</h3>
+        <p class="big-time">4:51.37</p>
+        <ul class="targets">
+          <li><span class="dot d1"></span>Or<b>4:38.00</b></li>
+          <li><span class="dot d2"></span>Argent<b>4:52.00</b> <span class="badge badge-brand">Battu</span></li>
+          <li><span class="dot d3"></span>Bronze<b>5:10.00</b></li>
+        </ul>
+        <p class="badge badge-destructive">Sortie de route au km 3,1 : +5 s</p>
+        <div class="field">
+          <label for="f-nuit">Nom du pilote</label>
+          <input id="f-nuit" class="is-focus" value="Baptiste">
+        </div>
+        <div class="actions">
+          <button type="button" class="btn btn-primary">Lancer le défi</button>
+          <button type="button" class="btn btn-secondary">Rejouer</button>
+        </div>
+      </article>
+    </div>
+  </div>
+  <footer class="tokens">
+    <ul class="fonts">
+      <li><code>--font-display</code> <span style="font-family:var(--font-display)">Michroma</span></li>
+      <li><code>--font-body</code> <span style="font-family:var(--font-body)">Manrope</span></li>
+      <li><code>--font-mono</code> <span style="font-family:var(--font-mono)">Share Tech Mono</span></li>
+      <li><code>--radius</code> <span>0.25rem</span></li>
+    </ul>
+    <ul class="swatches"><li><span class="sw" style="background:var(--background)"></span><code>--background</code><code class="hx hx-l">#eef1f5</code><code class="hx hx-d">#0b1018</code></li><li><span class="sw" style="background:var(--foreground)"></span><code>--foreground</code><code class="hx hx-l">#10161f</code><code class="hx hx-d">#e9edf3</code></li><li><span class="sw" style="background:var(--card)"></span><code>--card</code><code class="hx hx-l">#ffffff</code><code class="hx hx-d">#121a26</code></li><li><span class="sw" style="background:var(--card-foreground)"></span><code>--card-foreground</code><code class="hx hx-l">#10161f</code><code class="hx hx-d">#e9edf3</code></li><li><span class="sw" style="background:var(--popover)"></span><code>--popover</code><code class="hx hx-l">#ffffff</code><code class="hx hx-d">#121a26</code></li><li><span class="sw" style="background:var(--popover-foreground)"></span><code>--popover-foreground</code><code class="hx hx-l">#10161f</code><code class="hx hx-d">#e9edf3</code></li><li><span class="sw" style="background:var(--primary)"></span><code>--primary</code><code class="hx hx-l">#10161f</code><code class="hx hx-d">#ffd23f</code></li><li><span class="sw" style="background:var(--primary-foreground)"></span><code>--primary-foreground</code><code class="hx hx-l">#f5f7fa</code><code class="hx hx-d">#0b1018</code></li><li><span class="sw" style="background:var(--secondary)"></span><code>--secondary</code><code class="hx hx-l">#e1e6ee</code><code class="hx hx-d">#1a2433</code></li><li><span class="sw" style="background:var(--secondary-foreground)"></span><code>--secondary-foreground</code><code class="hx hx-l">#10161f</code><code class="hx hx-d">#e9edf3</code></li><li><span class="sw" style="background:var(--muted)"></span><code>--muted</code><code class="hx hx-l">#e5e9ef</code><code class="hx hx-d">#172030</code></li><li><span class="sw" style="background:var(--muted-foreground)"></span><code>--muted-foreground</code><code class="hx hx-l">#4f5a6a</code><code class="hx hx-d">#93a0b4</code></li><li><span class="sw" style="background:var(--accent)"></span><code>--accent</code><code class="hx hx-l">#dde3ec</code><code class="hx hx-d">#1e2a3c</code></li><li><span class="sw" style="background:var(--accent-foreground)"></span><code>--accent-foreground</code><code class="hx hx-l">#10161f</code><code class="hx hx-d">#e9edf3</code></li><li><span class="sw" style="background:var(--destructive)"></span><code>--destructive</code><code class="hx hx-l">#c62828</code><code class="hx hx-d">#ff6b5e</code></li><li><span class="sw" style="background:var(--border)"></span><code>--border</code><code class="hx hx-l">#cfd6e0</code><code class="hx hx-d">#202c3f</code></li><li><span class="sw" style="background:var(--input)"></span><code>--input</code><code class="hx hx-l">#7c8592</code><code class="hx hx-d">#56657d</code></li><li><span class="sw" style="background:var(--ring)"></span><code>--ring</code><code class="hx hx-l">#10161f</code><code class="hx hx-d">#ffd23f</code></li><li><span class="sw" style="background:var(--chart-1)"></span><code>--chart-1</code><code class="hx hx-l">#b07e00</code><code class="hx hx-d">#ffd23f</code></li><li><span class="sw" style="background:var(--chart-2)"></span><code>--chart-2</code><code class="hx hx-l">#2f6fd1</code><code class="hx hx-d">#5fb3ff</code></li><li><span class="sw" style="background:var(--chart-3)"></span><code>--chart-3</code><code class="hx hx-l">#d4572a</code><code class="hx hx-d">#ff8f5a</code></li><li><span class="sw" style="background:var(--chart-4)"></span><code>--chart-4</code><code class="hx hx-l">#2e8a55</code><code class="hx hx-d">#7ee0a1</code></li><li><span class="sw" style="background:var(--chart-5)"></span><code>--chart-5</code><code class="hx hx-l">#8a4fd1</code><code class="hx hx-d">#c792ff</code></li><li><span class="sw" style="background:var(--sidebar)"></span><code>--sidebar</code><code class="hx hx-l">#ffffff</code><code class="hx hx-d">#121a26</code></li><li><span class="sw" style="background:var(--sidebar-foreground)"></span><code>--sidebar-foreground</code><code class="hx hx-l">#10161f</code><code class="hx hx-d">#e9edf3</code></li><li><span class="sw" style="background:var(--sidebar-primary)"></span><code>--sidebar-primary</code><code class="hx hx-l">#10161f</code><code class="hx hx-d">#ffd23f</code></li><li><span class="sw" style="background:var(--sidebar-primary-foreground)"></span><code>--sidebar-primary-foreground</code><code class="hx hx-l">#f5f7fa</code><code class="hx hx-d">#0b1018</code></li><li><span class="sw" style="background:var(--sidebar-accent)"></span><code>--sidebar-accent</code><code class="hx hx-l">#dde3ec</code><code class="hx hx-d">#1e2a3c</code></li><li><span class="sw" style="background:var(--sidebar-accent-foreground)"></span><code>--sidebar-accent-foreground</code><code class="hx hx-l">#10161f</code><code class="hx hx-d">#e9edf3</code></li><li><span class="sw" style="background:var(--sidebar-border)"></span><code>--sidebar-border</code><code class="hx hx-l">#cfd6e0</code><code class="hx hx-d">#202c3f</code></li><li><span class="sw" style="background:var(--sidebar-ring)"></span><code>--sidebar-ring</code><code class="hx hx-l">#10161f</code><code class="hx hx-d">#ffd23f</code></li><li><span class="sw" style="background:var(--brand)"></span><code>--brand</code><code class="hx hx-l">#b07e00</code><code class="hx hx-d">#ffd23f</code></li><li><span class="sw" style="background:var(--brand-foreground)"></span><code>--brand-foreground</code><code class="hx hx-l">#10161f</code><code class="hx hx-d">#0b1018</code></li><li><span class="sw" style="background:var(--sky-1)"></span><code>--sky-1</code><code class="hx hx-l">#8fa6c6</code><code class="hx hx-d">#05080f</code></li><li><span class="sw" style="background:var(--sky-2)"></span><code>--sky-2</code><code class="hx hx-l">#e3eaf3</code><code class="hx hx-d">#1c2a45</code></li><li><span class="sw" style="background:var(--mount-1)"></span><code>--mount-1</code><code class="hx hx-l">#6b7f9c</code><code class="hx hx-d">#22304d</code></li><li><span class="sw" style="background:var(--mount-2)"></span><code>--mount-2</code><code class="hx hx-l">#8296b2</code><code class="hx hx-d">#2b3c5e</code></li><li><span class="sw" style="background:var(--mount-3)"></span><code>--mount-3</code><code class="hx hx-l">#3f5470</code><code class="hx hx-d">#111b2c</code></li><li><span class="sw" style="background:var(--ground)"></span><code>--ground</code><code class="hx hx-l">#56684a</code><code class="hx hx-d">#0d1420</code></li><li><span class="sw" style="background:var(--road)"></span><code>--road</code><code class="hx hx-l">#5b6270</code><code class="hx hx-d">#2a3346</code></li></ul>
+  </footer>
+</section>
+
+<section class="direction direction-crepuscule dark" aria-labelledby="t-crepuscule">
+  <header class="dir-head">
+    <div>
+      <h2 id="t-crepuscule">Crépuscule</h2>
+      <p>Le dernier quart d’heure de lumière : ciel orange, facettes violettes, la route qui passe à l’ombre.</p>
+    </div>
+    <button type="button" class="theme-toggle" aria-pressed="true" onclick="const s=this.closest('section');s.classList.toggle('dark');const n=s.classList.contains('dark');this.setAttribute('aria-pressed',n);this.textContent=n?'Voir de jour':'Voir de nuit'">Voir de jour</button>
+  </header>
+  <div class="mock">
+    <div class="screen" role="img" aria-label="Écran de jeu en course, direction Crépuscule">
+      <svg class="scene" viewBox="0 0 640 360" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+<defs><linearGradient id="sky-crepuscule" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--sky-1)"/><stop offset="1" style="stop-color:var(--sky-2)"/></linearGradient></defs>
+<rect width="640" height="360" fill="url(#sky-crepuscule)"/>
+<polygon points="0,147 71,105 16,250" style="fill:var(--mount-2)"/><polygon points="0,147 16,250 0,250" style="fill:var(--mount-1)"/><polygon points="71,105 71,250 16,250" style="fill:var(--mount-1)"/><polygon points="71,105 142,95 118,250" style="fill:var(--mount-1)"/><polygon points="71,105 118,250 71,250" style="fill:var(--mount-2)"/><polygon points="142,95 142,250 118,250" style="fill:var(--mount-2)"/><polygon points="142,95 213,163 188,250" style="fill:var(--mount-2)"/><polygon points="142,95 188,250 142,250" style="fill:var(--mount-1)"/><polygon points="213,163 213,250 188,250" style="fill:var(--mount-1)"/><polygon points="213,163 284,106 229,250" style="fill:var(--mount-1)"/><polygon points="213,163 229,250 213,250" style="fill:var(--mount-2)"/><polygon points="284,106 284,250 229,250" style="fill:var(--mount-2)"/><polygon points="284,106 356,167 328,250" style="fill:var(--mount-2)"/><polygon points="284,106 328,250 284,250" style="fill:var(--mount-1)"/><polygon points="356,167 356,250 328,250" style="fill:var(--mount-1)"/><polygon points="356,167 427,105 380,250" style="fill:var(--mount-1)"/><polygon points="356,167 380,250 356,250" style="fill:var(--mount-2)"/><polygon points="427,105 427,250 380,250" style="fill:var(--mount-2)"/><polygon points="427,105 498,129 464,250" style="fill:var(--mount-2)"/><polygon points="427,105 464,250 427,250" style="fill:var(--mount-1)"/><polygon points="498,129 498,250 464,250" style="fill:var(--mount-1)"/><polygon points="498,129 569,94 550,250" style="fill:var(--mount-1)"/><polygon points="498,129 550,250 498,250" style="fill:var(--mount-2)"/><polygon points="569,94 569,250 550,250" style="fill:var(--mount-2)"/><polygon points="569,94 640,101 614,250" style="fill:var(--mount-2)"/><polygon points="569,94 614,250 569,250" style="fill:var(--mount-1)"/><polygon points="640,101 640,250 614,250" style="fill:var(--mount-1)"/>
+<polygon points="0,220 91,200 60,262" style="fill:var(--mount-2)"/><polygon points="0,220 60,262 0,262" style="fill:var(--mount-3)"/><polygon points="91,200 91,262 60,262" style="fill:var(--mount-3)"/><polygon points="91,200 183,193 122,262" style="fill:var(--mount-3)"/><polygon points="91,200 122,262 91,262" style="fill:var(--mount-2)"/><polygon points="183,193 183,262 122,262" style="fill:var(--mount-2)"/><polygon points="183,193 274,196 234,262" style="fill:var(--mount-2)"/><polygon points="183,193 234,262 183,262" style="fill:var(--mount-3)"/><polygon points="274,196 274,262 234,262" style="fill:var(--mount-3)"/><polygon points="274,196 366,191 329,262" style="fill:var(--mount-3)"/><polygon points="274,196 329,262 274,262" style="fill:var(--mount-2)"/><polygon points="366,191 366,262 329,262" style="fill:var(--mount-2)"/><polygon points="366,191 457,214 434,262" style="fill:var(--mount-2)"/><polygon points="366,191 434,262 366,262" style="fill:var(--mount-3)"/><polygon points="457,214 457,262 434,262" style="fill:var(--mount-3)"/><polygon points="457,214 549,233 529,262" style="fill:var(--mount-3)"/><polygon points="457,214 529,262 457,262" style="fill:var(--mount-2)"/><polygon points="549,233 549,262 529,262" style="fill:var(--mount-2)"/><polygon points="549,233 640,201 590,262" style="fill:var(--mount-2)"/><polygon points="549,233 590,262 549,262" style="fill:var(--mount-3)"/><polygon points="640,201 640,262 590,262" style="fill:var(--mount-3)"/>
+<rect y="258" width="640" height="102" style="fill:var(--ground)"/>
+<polygon points="304,258 336,258 470,360 170,360" style="fill:var(--road)"/>
+<polygon points="318,268 322,268 325,288 315,288" style="fill:var(--foreground);opacity:.5"/><polygon points="314,305 326,305 331,340 309,340" style="fill:var(--foreground);opacity:.5"/>
+<polygon points="470,70 500,58 528,72 532,104 506,122 474,112" style="fill:var(--brand);opacity:.9"/>
+</svg>
+      <div class="hud hud-chrono">
+        <p class="hud-time">2:31.05</p>
+        <p class="hud-split">Inter 2 <span class="split-bad">+1,08</span></p>
+      </div>
+      <div class="hud hud-note">
+        <span class="badge badge-brand">100</span>
+        <span class="note-now">Gauche 4 longue</span>
+        <span class="note-next">puis Droite 2 se resserre</span>
+      </div>
+      <div class="hud hud-map">
+        <svg viewBox="0 0 80 60" aria-hidden="true"><path class="map-route" d="M6 52 C20 10 34 50 46 26 S70 8 74 18"/><circle class="map-me" cx="40" cy="34" r="3.5"/><circle class="map-end" cx="74" cy="18" r="3"/></svg>
+      </div>
+      <div class="hud hud-progress">
+        <span>km 3,1 sur 7,4</span>
+        <span class="bar"><span style="width:42%"></span></span>
+      </div>
+      <div class="hud hud-speed">
+        <span class="gear">3</span>
+        <span class="speed">117<small>km/h</small></span>
+        <span class="revs" aria-hidden="true"><i class="r1"></i><i class="r1"></i><i class="r1"></i><i class="r1"></i><i class="r1"></i><i class="r1"></i><i class="r2"></i><i class="r2"></i><i class="r3"></i><i class="off"></i></span>
+      </div>
+    </div>
+    <div class="panels">
+      <article class="card">
+        <h3>Pause</h3>
+        <ul class="menu">
+          <li><button type="button" class="is-hover">Reprendre</button></li>
+          <li><button type="button">Recommencer la spéciale</button></li>
+          <li><button type="button">Réglages de la voiture</button></li>
+          <li><button type="button" class="danger">Abandonner</button></li>
+        </ul>
+        <p class="desc">Col de la Croix-Fry, 7,4 km, notes du copilote activées</p>
+      </article>
+      <article class="card">
+        <h3>Arrivée</h3>
+        <p class="big-time">4:51.37</p>
+        <ul class="targets">
+          <li><span class="dot d1"></span>Or<b>4:38.00</b></li>
+          <li><span class="dot d2"></span>Argent<b>4:52.00</b> <span class="badge badge-brand">Battu</span></li>
+          <li><span class="dot d3"></span>Bronze<b>5:10.00</b></li>
+        </ul>
+        <p class="badge badge-destructive">Sortie de route au km 3,1 : +5 s</p>
+        <div class="field">
+          <label for="f-crepuscule">Nom du pilote</label>
+          <input id="f-crepuscule" class="is-focus" value="Baptiste">
+        </div>
+        <div class="actions">
+          <button type="button" class="btn btn-primary">Lancer le défi</button>
+          <button type="button" class="btn btn-secondary">Rejouer</button>
+        </div>
+      </article>
+    </div>
+  </div>
+  <footer class="tokens">
+    <ul class="fonts">
+      <li><code>--font-display</code> <span style="font-family:var(--font-display)">Michroma</span></li>
+      <li><code>--font-body</code> <span style="font-family:var(--font-body)">Manrope</span></li>
+      <li><code>--font-mono</code> <span style="font-family:var(--font-mono)">Share Tech Mono</span></li>
+      <li><code>--radius</code> <span>0.5rem</span></li>
+    </ul>
+    <ul class="swatches"><li><span class="sw" style="background:var(--background)"></span><code>--background</code><code class="hx hx-l">#f3eff7</code><code class="hx hx-d">#1a1230</code></li><li><span class="sw" style="background:var(--foreground)"></span><code>--foreground</code><code class="hx hx-l">#2a1d3d</code><code class="hx hx-d">#f1ebfa</code></li><li><span class="sw" style="background:var(--card)"></span><code>--card</code><code class="hx hx-l">#fbf9fd</code><code class="hx hx-d">#241a40</code></li><li><span class="sw" style="background:var(--card-foreground)"></span><code>--card-foreground</code><code class="hx hx-l">#2a1d3d</code><code class="hx hx-d">#f1ebfa</code></li><li><span class="sw" style="background:var(--popover)"></span><code>--popover</code><code class="hx hx-l">#fbf9fd</code><code class="hx hx-d">#241a40</code></li><li><span class="sw" style="background:var(--popover-foreground)"></span><code>--popover-foreground</code><code class="hx hx-l">#2a1d3d</code><code class="hx hx-d">#f1ebfa</code></li><li><span class="sw" style="background:var(--primary)"></span><code>--primary</code><code class="hx hx-l">#3b2667</code><code class="hx hx-d">#ff8a52</code></li><li><span class="sw" style="background:var(--primary-foreground)"></span><code>--primary-foreground</code><code class="hx hx-l">#fbf9fd</code><code class="hx hx-d">#1a1230</code></li><li><span class="sw" style="background:var(--secondary)"></span><code>--secondary</code><code class="hx hx-l">#e6dff0</code><code class="hx hx-d">#2f2450</code></li><li><span class="sw" style="background:var(--secondary-foreground)"></span><code>--secondary-foreground</code><code class="hx hx-l">#2a1d3d</code><code class="hx hx-d">#f1ebfa</code></li><li><span class="sw" style="background:var(--muted)"></span><code>--muted</code><code class="hx hx-l">#ebe5f3</code><code class="hx hx-d">#2b2149</code></li><li><span class="sw" style="background:var(--muted-foreground)"></span><code>--muted-foreground</code><code class="hx hx-l">#5f5272</code><code class="hx hx-d">#b3a6cc</code></li><li><span class="sw" style="background:var(--accent)"></span><code>--accent</code><code class="hx hx-l">#e3daf0</code><code class="hx hx-d">#33285a</code></li><li><span class="sw" style="background:var(--accent-foreground)"></span><code>--accent-foreground</code><code class="hx hx-l">#2a1d3d</code><code class="hx hx-d">#f1ebfa</code></li><li><span class="sw" style="background:var(--destructive)"></span><code>--destructive</code><code class="hx hx-l">#c4223b</code><code class="hx hx-d">#ff6b81</code></li><li><span class="sw" style="background:var(--border)"></span><code>--border</code><code class="hx hx-l">#d9cfe6</code><code class="hx hx-d">#3a2e5e</code></li><li><span class="sw" style="background:var(--input)"></span><code>--input</code><code class="hx hx-l">#89839e</code><code class="hx hx-d">#71639a</code></li><li><span class="sw" style="background:var(--ring)"></span><code>--ring</code><code class="hx hx-l">#6b4bb3</code><code class="hx hx-d">#ff8a52</code></li><li><span class="sw" style="background:var(--chart-1)"></span><code>--chart-1</code><code class="hx hx-l">#dc5f28</code><code class="hx hx-d">#ff8a52</code></li><li><span class="sw" style="background:var(--chart-2)"></span><code>--chart-2</code><code class="hx hx-l">#6b4bb3</code><code class="hx hx-d">#b59cff</code></li><li><span class="sw" style="background:var(--chart-3)"></span><code>--chart-3</code><code class="hx hx-l">#1f8a83</code><code class="hx hx-d">#4fd1c5</code></li><li><span class="sw" style="background:var(--chart-4)"></span><code>--chart-4</code><code class="hx hx-l">#b8860b</code><code class="hx hx-d">#f2c94c</code></li><li><span class="sw" style="background:var(--chart-5)"></span><code>--chart-5</code><code class="hx hx-l">#c23d7c</code><code class="hx hx-d">#ff7ab6</code></li><li><span class="sw" style="background:var(--sidebar)"></span><code>--sidebar</code><code class="hx hx-l">#fbf9fd</code><code class="hx hx-d">#241a40</code></li><li><span class="sw" style="background:var(--sidebar-foreground)"></span><code>--sidebar-foreground</code><code class="hx hx-l">#2a1d3d</code><code class="hx hx-d">#f1ebfa</code></li><li><span class="sw" style="background:var(--sidebar-primary)"></span><code>--sidebar-primary</code><code class="hx hx-l">#3b2667</code><code class="hx hx-d">#ff8a52</code></li><li><span class="sw" style="background:var(--sidebar-primary-foreground)"></span><code>--sidebar-primary-foreground</code><code class="hx hx-l">#fbf9fd</code><code class="hx hx-d">#1a1230</code></li><li><span class="sw" style="background:var(--sidebar-accent)"></span><code>--sidebar-accent</code><code class="hx hx-l">#e3daf0</code><code class="hx hx-d">#33285a</code></li><li><span class="sw" style="background:var(--sidebar-accent-foreground)"></span><code>--sidebar-accent-foreground</code><code class="hx hx-l">#2a1d3d</code><code class="hx hx-d">#f1ebfa</code></li><li><span class="sw" style="background:var(--sidebar-border)"></span><code>--sidebar-border</code><code class="hx hx-l">#d9cfe6</code><code class="hx hx-d">#3a2e5e</code></li><li><span class="sw" style="background:var(--sidebar-ring)"></span><code>--sidebar-ring</code><code class="hx hx-l">#6b4bb3</code><code class="hx hx-d">#ff8a52</code></li><li><span class="sw" style="background:var(--brand)"></span><code>--brand</code><code class="hx hx-l">#dc5f28</code><code class="hx hx-d">#ff8a52</code></li><li><span class="sw" style="background:var(--brand-foreground)"></span><code>--brand-foreground</code><code class="hx hx-l">#1d1d1d</code><code class="hx hx-d">#1a1230</code></li><li><span class="sw" style="background:var(--sky-1)"></span><code>--sky-1</code><code class="hx hx-l">#ffb38a</code><code class="hx hx-d">#2b1a4f</code></li><li><span class="sw" style="background:var(--sky-2)"></span><code>--sky-2</code><code class="hx hx-l">#ffe3c7</code><code class="hx hx-d">#ff9a6b</code></li><li><span class="sw" style="background:var(--mount-1)"></span><code>--mount-1</code><code class="hx hx-l">#b07aa8</code><code class="hx hx-d">#4a2d6e</code></li><li><span class="sw" style="background:var(--mount-2)"></span><code>--mount-2</code><code class="hx hx-l">#c993b4</code><code class="hx hx-d">#6b3f7f</code></li><li><span class="sw" style="background:var(--mount-3)"></span><code>--mount-3</code><code class="hx hx-l">#7a4f86</code><code class="hx hx-d">#2a1a45</code></li><li><span class="sw" style="background:var(--ground)"></span><code>--ground</code><code class="hx hx-l">#8d6b8f</code><code class="hx hx-d">#2f2347</code></li><li><span class="sw" style="background:var(--road)"></span><code>--road</code><code class="hx hx-l">#6e5a78</code><code class="hx hx-d">#3d3158</code></li></ul>
+  </footer>
+</section>
+
+<section class="direction direction-brouillard dark" aria-labelledby="t-brouillard">
+  <header class="dir-head">
+    <div>
+      <h2 id="t-brouillard">Brouillard d’aube</h2>
+      <p>Départ à l’aube dans un col embrumé : gris bleutés en couches, antibrouillards ambre.</p>
+    </div>
+    <button type="button" class="theme-toggle" aria-pressed="true" onclick="const s=this.closest('section');s.classList.toggle('dark');const n=s.classList.contains('dark');this.setAttribute('aria-pressed',n);this.textContent=n?'Voir de jour':'Voir de nuit'">Voir de jour</button>
+  </header>
+  <div class="mock">
+    <div class="screen" role="img" aria-label="Écran de jeu en course, direction Brouillard d’aube">
+      <svg class="scene" viewBox="0 0 640 360" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+<defs><linearGradient id="sky-brouillard" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--sky-1)"/><stop offset="1" style="stop-color:var(--sky-2)"/></linearGradient></defs>
+<rect width="640" height="360" fill="url(#sky-brouillard)"/>
+<polygon points="0,146 71,122 19,250" style="fill:var(--mount-2)"/><polygon points="0,146 19,250 0,250" style="fill:var(--mount-1)"/><polygon points="71,122 71,250 19,250" style="fill:var(--mount-1)"/><polygon points="71,122 142,164 127,250" style="fill:var(--mount-1)"/><polygon points="71,122 127,250 71,250" style="fill:var(--mount-2)"/><polygon points="142,164 142,250 127,250" style="fill:var(--mount-2)"/><polygon points="142,164 213,150 157,250" style="fill:var(--mount-2)"/><polygon points="142,164 157,250 142,250" style="fill:var(--mount-1)"/><polygon points="213,150 213,250 157,250" style="fill:var(--mount-1)"/><polygon points="213,150 284,137 251,250" style="fill:var(--mount-1)"/><polygon points="213,150 251,250 213,250" style="fill:var(--mount-2)"/><polygon points="284,137 284,250 251,250" style="fill:var(--mount-2)"/><polygon points="284,137 356,151 331,250" style="fill:var(--mount-2)"/><polygon points="284,137 331,250 284,250" style="fill:var(--mount-1)"/><polygon points="356,151 356,250 331,250" style="fill:var(--mount-1)"/><polygon points="356,151 427,162 399,250" style="fill:var(--mount-1)"/><polygon points="356,151 399,250 356,250" style="fill:var(--mount-2)"/><polygon points="427,162 427,250 399,250" style="fill:var(--mount-2)"/><polygon points="427,162 498,93 453,250" style="fill:var(--mount-2)"/><polygon points="427,162 453,250 427,250" style="fill:var(--mount-1)"/><polygon points="498,93 498,250 453,250" style="fill:var(--mount-1)"/><polygon points="498,93 569,115 528,250" style="fill:var(--mount-1)"/><polygon points="498,93 528,250 498,250" style="fill:var(--mount-2)"/><polygon points="569,115 569,250 528,250" style="fill:var(--mount-2)"/><polygon points="569,115 640,121 625,250" style="fill:var(--mount-2)"/><polygon points="569,115 625,250 569,250" style="fill:var(--mount-1)"/><polygon points="640,121 640,250 625,250" style="fill:var(--mount-1)"/>
+<polygon points="0,198 91,226 48,262" style="fill:var(--mount-2)"/><polygon points="0,198 48,262 0,262" style="fill:var(--mount-3)"/><polygon points="91,226 91,262 48,262" style="fill:var(--mount-3)"/><polygon points="91,226 183,218 128,262" style="fill:var(--mount-3)"/><polygon points="91,226 128,262 91,262" style="fill:var(--mount-2)"/><polygon points="183,218 183,262 128,262" style="fill:var(--mount-2)"/><polygon points="183,218 274,206 241,262" style="fill:var(--mount-2)"/><polygon points="183,218 241,262 183,262" style="fill:var(--mount-3)"/><polygon points="274,206 274,262 241,262" style="fill:var(--mount-3)"/><polygon points="274,206 366,226 341,262" style="fill:var(--mount-3)"/><polygon points="274,206 341,262 274,262" style="fill:var(--mount-2)"/><polygon points="366,226 366,262 341,262" style="fill:var(--mount-2)"/><polygon points="366,226 457,230 424,262" style="fill:var(--mount-2)"/><polygon points="366,226 424,262 366,262" style="fill:var(--mount-3)"/><polygon points="457,230 457,262 424,262" style="fill:var(--mount-3)"/><polygon points="457,230 549,201 522,262" style="fill:var(--mount-3)"/><polygon points="457,230 522,262 457,262" style="fill:var(--mount-2)"/><polygon points="549,201 549,262 522,262" style="fill:var(--mount-2)"/><polygon points="549,201 640,220 579,262" style="fill:var(--mount-2)"/><polygon points="549,201 579,262 549,262" style="fill:var(--mount-3)"/><polygon points="640,220 640,262 579,262" style="fill:var(--mount-3)"/>
+<rect y="258" width="640" height="102" style="fill:var(--ground)"/>
+<polygon points="304,258 336,258 470,360 170,360" style="fill:var(--road)"/>
+<polygon points="318,268 322,268 325,288 315,288" style="fill:var(--foreground);opacity:.5"/><polygon points="314,305 326,305 331,340 309,340" style="fill:var(--foreground);opacity:.5"/>
+<rect x="0" y="150" width="640" height="60" style="fill:var(--sky-2);opacity:.55"/><rect x="0" y="215" width="640" height="40" style="fill:var(--sky-2);opacity:.4"/>
+</svg>
+      <div class="hud hud-chrono">
+        <p class="hud-time">2:31.05</p>
+        <p class="hud-split">Inter 2 <span class="split-bad">+1,08</span></p>
+      </div>
+      <div class="hud hud-note">
+        <span class="badge badge-brand">100</span>
+        <span class="note-now">Gauche 4 longue</span>
+        <span class="note-next">puis Droite 2 se resserre</span>
+      </div>
+      <div class="hud hud-map">
+        <svg viewBox="0 0 80 60" aria-hidden="true"><path class="map-route" d="M6 52 C20 10 34 50 46 26 S70 8 74 18"/><circle class="map-me" cx="40" cy="34" r="3.5"/><circle class="map-end" cx="74" cy="18" r="3"/></svg>
+      </div>
+      <div class="hud hud-progress">
+        <span>km 3,1 sur 7,4</span>
+        <span class="bar"><span style="width:42%"></span></span>
+      </div>
+      <div class="hud hud-speed">
+        <span class="gear">3</span>
+        <span class="speed">117<small>km/h</small></span>
+        <span class="revs" aria-hidden="true"><i class="r1"></i><i class="r1"></i><i class="r1"></i><i class="r1"></i><i class="r1"></i><i class="r1"></i><i class="r2"></i><i class="r2"></i><i class="r3"></i><i class="off"></i></span>
+      </div>
+    </div>
+    <div class="panels">
+      <article class="card">
+        <h3>Pause</h3>
+        <ul class="menu">
+          <li><button type="button" class="is-hover">Reprendre</button></li>
+          <li><button type="button">Recommencer la spéciale</button></li>
+          <li><button type="button">Réglages de la voiture</button></li>
+          <li><button type="button" class="danger">Abandonner</button></li>
+        </ul>
+        <p class="desc">Col de la Croix-Fry, 7,4 km, notes du copilote activées</p>
+      </article>
+      <article class="card">
+        <h3>Arrivée</h3>
+        <p class="big-time">4:51.37</p>
+        <ul class="targets">
+          <li><span class="dot d1"></span>Or<b>4:38.00</b></li>
+          <li><span class="dot d2"></span>Argent<b>4:52.00</b> <span class="badge badge-brand">Battu</span></li>
+          <li><span class="dot d3"></span>Bronze<b>5:10.00</b></li>
+        </ul>
+        <p class="badge badge-destructive">Sortie de route au km 3,1 : +5 s</p>
+        <div class="field">
+          <label for="f-brouillard">Nom du pilote</label>
+          <input id="f-brouillard" class="is-focus" value="Baptiste">
+        </div>
+        <div class="actions">
+          <button type="button" class="btn btn-primary">Lancer le défi</button>
+          <button type="button" class="btn btn-secondary">Rejouer</button>
+        </div>
+      </article>
+    </div>
+  </div>
+  <footer class="tokens">
+    <ul class="fonts">
+      <li><code>--font-display</code> <span style="font-family:var(--font-display)">Michroma</span></li>
+      <li><code>--font-body</code> <span style="font-family:var(--font-body)">Manrope</span></li>
+      <li><code>--font-mono</code> <span style="font-family:var(--font-mono)">Share Tech Mono</span></li>
+      <li><code>--radius</code> <span>0.375rem</span></li>
+    </ul>
+    <ul class="swatches"><li><span class="sw" style="background:var(--background)"></span><code>--background</code><code class="hx hx-l">#e9edf0</code><code class="hx hx-d">#151a1f</code></li><li><span class="sw" style="background:var(--foreground)"></span><code>--foreground</code><code class="hx hx-l">#1c2329</code><code class="hx hx-d">#e6ebee</code></li><li><span class="sw" style="background:var(--card)"></span><code>--card</code><code class="hx hx-l">#f6f8f9</code><code class="hx hx-d">#1d242b</code></li><li><span class="sw" style="background:var(--card-foreground)"></span><code>--card-foreground</code><code class="hx hx-l">#1c2329</code><code class="hx hx-d">#e6ebee</code></li><li><span class="sw" style="background:var(--popover)"></span><code>--popover</code><code class="hx hx-l">#f6f8f9</code><code class="hx hx-d">#1d242b</code></li><li><span class="sw" style="background:var(--popover-foreground)"></span><code>--popover-foreground</code><code class="hx hx-l">#1c2329</code><code class="hx hx-d">#e6ebee</code></li><li><span class="sw" style="background:var(--primary)"></span><code>--primary</code><code class="hx hx-l">#1c2329</code><code class="hx hx-d">#ffb347</code></li><li><span class="sw" style="background:var(--primary-foreground)"></span><code>--primary-foreground</code><code class="hx hx-l">#f6f8f9</code><code class="hx hx-d">#151a1f</code></li><li><span class="sw" style="background:var(--secondary)"></span><code>--secondary</code><code class="hx hx-l">#dde3e7</code><code class="hx hx-d">#252e36</code></li><li><span class="sw" style="background:var(--secondary-foreground)"></span><code>--secondary-foreground</code><code class="hx hx-l">#1c2329</code><code class="hx hx-d">#e6ebee</code></li><li><span class="sw" style="background:var(--muted)"></span><code>--muted</code><code class="hx hx-l">#e1e6ea</code><code class="hx hx-d">#222a31</code></li><li><span class="sw" style="background:var(--muted-foreground)"></span><code>--muted-foreground</code><code class="hx hx-l">#4f5b64</code><code class="hx hx-d">#9eabb5</code></li><li><span class="sw" style="background:var(--accent)"></span><code>--accent</code><code class="hx hx-l">#d9e0e5</code><code class="hx hx-d">#2a343d</code></li><li><span class="sw" style="background:var(--accent-foreground)"></span><code>--accent-foreground</code><code class="hx hx-l">#1c2329</code><code class="hx hx-d">#e6ebee</code></li><li><span class="sw" style="background:var(--destructive)"></span><code>--destructive</code><code class="hx hx-l">#b42318</code><code class="hx hx-d">#ff6f61</code></li><li><span class="sw" style="background:var(--border)"></span><code>--border</code><code class="hx hx-l">#cbd3d9</code><code class="hx hx-d">#2d3740</code></li><li><span class="sw" style="background:var(--input)"></span><code>--input</code><code class="hx hx-l">#7d8992</code><code class="hx hx-d">#5f6d78</code></li><li><span class="sw" style="background:var(--ring)"></span><code>--ring</code><code class="hx hx-l">#b86e00</code><code class="hx hx-d">#ffb347</code></li><li><span class="sw" style="background:var(--chart-1)"></span><code>--chart-1</code><code class="hx hx-l">#b86e00</code><code class="hx hx-d">#ffb347</code></li><li><span class="sw" style="background:var(--chart-2)"></span><code>--chart-2</code><code class="hx hx-l">#2f7d96</code><code class="hx hx-d">#8ec5d6</code></li><li><span class="sw" style="background:var(--chart-3)"></span><code>--chart-3</code><code class="hx hx-l">#4f5b64</code><code class="hx hx-d">#c7d3dc</code></li><li><span class="sw" style="background:var(--chart-4)"></span><code>--chart-4</code><code class="hx hx-l">#c0492b</code><code class="hx hx-d">#e78a6e</code></li><li><span class="sw" style="background:var(--chart-5)"></span><code>--chart-5</code><code class="hx hx-l">#4d7d3a</code><code class="hx hx-d">#a3c98f</code></li><li><span class="sw" style="background:var(--sidebar)"></span><code>--sidebar</code><code class="hx hx-l">#f6f8f9</code><code class="hx hx-d">#1d242b</code></li><li><span class="sw" style="background:var(--sidebar-foreground)"></span><code>--sidebar-foreground</code><code class="hx hx-l">#1c2329</code><code class="hx hx-d">#e6ebee</code></li><li><span class="sw" style="background:var(--sidebar-primary)"></span><code>--sidebar-primary</code><code class="hx hx-l">#1c2329</code><code class="hx hx-d">#ffb347</code></li><li><span class="sw" style="background:var(--sidebar-primary-foreground)"></span><code>--sidebar-primary-foreground</code><code class="hx hx-l">#f6f8f9</code><code class="hx hx-d">#151a1f</code></li><li><span class="sw" style="background:var(--sidebar-accent)"></span><code>--sidebar-accent</code><code class="hx hx-l">#d9e0e5</code><code class="hx hx-d">#2a343d</code></li><li><span class="sw" style="background:var(--sidebar-accent-foreground)"></span><code>--sidebar-accent-foreground</code><code class="hx hx-l">#1c2329</code><code class="hx hx-d">#e6ebee</code></li><li><span class="sw" style="background:var(--sidebar-border)"></span><code>--sidebar-border</code><code class="hx hx-l">#cbd3d9</code><code class="hx hx-d">#2d3740</code></li><li><span class="sw" style="background:var(--sidebar-ring)"></span><code>--sidebar-ring</code><code class="hx hx-l">#b86e00</code><code class="hx hx-d">#ffb347</code></li><li><span class="sw" style="background:var(--brand)"></span><code>--brand</code><code class="hx hx-l">#b86e00</code><code class="hx hx-d">#ffb347</code></li><li><span class="sw" style="background:var(--brand-foreground)"></span><code>--brand-foreground</code><code class="hx hx-l">#161616</code><code class="hx hx-d">#151a1f</code></li><li><span class="sw" style="background:var(--sky-1)"></span><code>--sky-1</code><code class="hx hx-l">#c9d3da</code><code class="hx hx-d">#2f3a44</code></li><li><span class="sw" style="background:var(--sky-2)"></span><code>--sky-2</code><code class="hx hx-l">#eef2f4</code><code class="hx hx-d">#7d8b96</code></li><li><span class="sw" style="background:var(--mount-1)"></span><code>--mount-1</code><code class="hx hx-l">#a7b4bd</code><code class="hx hx-d">#56636e</code></li><li><span class="sw" style="background:var(--mount-2)"></span><code>--mount-2</code><code class="hx hx-l">#b9c4cb</code><code class="hx hx-d">#6a7782</code></li><li><span class="sw" style="background:var(--mount-3)"></span><code>--mount-3</code><code class="hx hx-l">#8796a1</code><code class="hx hx-d">#46525c</code></li><li><span class="sw" style="background:var(--ground)"></span><code>--ground</code><code class="hx hx-l">#9aa79c</code><code class="hx hx-d">#3b464f</code></li><li><span class="sw" style="background:var(--road)"></span><code>--road</code><code class="hx hx-l">#8e979e</code><code class="hx hx-d">#59636c</code></li></ul>
+  </footer>
+</section>
+
+<section class="direction direction-neige dark" aria-labelledby="t-neige">
+  <header class="dir-head">
+    <div>
+      <h2 id="t-neige">Neige de nuit</h2>
+      <p>Une spéciale d’hiver en altitude : pentes blanches facettées sous un ciel noir, reflets glacés.</p>
+    </div>
+    <button type="button" class="theme-toggle" aria-pressed="true" onclick="const s=this.closest('section');s.classList.toggle('dark');const n=s.classList.contains('dark');this.setAttribute('aria-pressed',n);this.textContent=n?'Voir de jour':'Voir de nuit'">Voir de jour</button>
+  </header>
+  <div class="mock">
+    <div class="screen" role="img" aria-label="Écran de jeu en course, direction Neige de nuit">
+      <svg class="scene" viewBox="0 0 640 360" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+<defs><linearGradient id="sky-neige" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--sky-1)"/><stop offset="1" style="stop-color:var(--sky-2)"/></linearGradient></defs>
+<rect width="640" height="360" fill="url(#sky-neige)"/>
+<polygon points="0,145 71,139 21,250" style="fill:var(--mount-2)"/><polygon points="0,145 21,250 0,250" style="fill:var(--mount-1)"/><polygon points="71,139 71,250 21,250" style="fill:var(--mount-1)"/><polygon points="71,139 142,144 95,250" style="fill:var(--mount-1)"/><polygon points="71,139 95,250 71,250" style="fill:var(--mount-2)"/><polygon points="142,144 142,250 95,250" style="fill:var(--mount-2)"/><polygon points="142,144 213,137 169,250" style="fill:var(--mount-2)"/><polygon points="142,144 169,250 142,250" style="fill:var(--mount-1)"/><polygon points="213,137 213,250 169,250" style="fill:var(--mount-1)"/><polygon points="213,137 284,167 230,250" style="fill:var(--mount-1)"/><polygon points="213,137 230,250 213,250" style="fill:var(--mount-2)"/><polygon points="284,167 284,250 230,250" style="fill:var(--mount-2)"/><polygon points="284,167 356,135 334,250" style="fill:var(--mount-2)"/><polygon points="284,167 334,250 284,250" style="fill:var(--mount-1)"/><polygon points="356,135 356,250 334,250" style="fill:var(--mount-1)"/><polygon points="356,135 427,130 375,250" style="fill:var(--mount-1)"/><polygon points="356,135 375,250 356,250" style="fill:var(--mount-2)"/><polygon points="427,130 427,250 375,250" style="fill:var(--mount-2)"/><polygon points="427,130 498,147 442,250" style="fill:var(--mount-2)"/><polygon points="427,130 442,250 427,250" style="fill:var(--mount-1)"/><polygon points="498,147 498,250 442,250" style="fill:var(--mount-1)"/><polygon points="498,147 569,136 548,250" style="fill:var(--mount-1)"/><polygon points="498,147 548,250 498,250" style="fill:var(--mount-2)"/><polygon points="569,136 569,250 548,250" style="fill:var(--mount-2)"/><polygon points="569,136 640,141 594,250" style="fill:var(--mount-2)"/><polygon points="569,136 594,250 569,250" style="fill:var(--mount-1)"/><polygon points="640,141 640,250 594,250" style="fill:var(--mount-1)"/>
+<polygon points="0,220 91,206 36,262" style="fill:var(--mount-2)"/><polygon points="0,220 36,262 0,262" style="fill:var(--mount-3)"/><polygon points="91,206 91,262 36,262" style="fill:var(--mount-3)"/><polygon points="91,206 183,198 134,262" style="fill:var(--mount-3)"/><polygon points="91,206 134,262 91,262" style="fill:var(--mount-2)"/><polygon points="183,198 183,262 134,262" style="fill:var(--mount-2)"/><polygon points="183,198 274,216 249,262" style="fill:var(--mount-2)"/><polygon points="183,198 249,262 183,262" style="fill:var(--mount-3)"/><polygon points="274,216 274,262 249,262" style="fill:var(--mount-3)"/><polygon points="274,216 366,216 298,262" style="fill:var(--mount-3)"/><polygon points="274,216 298,262 274,262" style="fill:var(--mount-2)"/><polygon points="366,216 366,262 298,262" style="fill:var(--mount-2)"/><polygon points="366,216 457,201 413,262" style="fill:var(--mount-2)"/><polygon points="366,216 413,262 366,262" style="fill:var(--mount-3)"/><polygon points="457,201 457,262 413,262" style="fill:var(--mount-3)"/><polygon points="457,201 549,215 514,262" style="fill:var(--mount-3)"/><polygon points="457,201 514,262 457,262" style="fill:var(--mount-2)"/><polygon points="549,215 549,262 514,262" style="fill:var(--mount-2)"/><polygon points="549,215 640,194 568,262" style="fill:var(--mount-2)"/><polygon points="549,215 568,262 549,262" style="fill:var(--mount-3)"/><polygon points="640,194 640,262 568,262" style="fill:var(--mount-3)"/>
+<rect y="258" width="640" height="102" style="fill:var(--ground)"/>
+<polygon points="304,258 336,258 470,360 170,360" style="fill:var(--road)"/>
+<polygon points="318,268 322,268 325,288 315,288" style="fill:var(--foreground);opacity:.5"/><polygon points="314,305 326,305 331,340 309,340" style="fill:var(--foreground);opacity:.5"/>
+<circle cx="0" cy="0" r="1" style="fill:var(--foreground);opacity:.55"/><circle cx="97" cy="53" r="1.6" style="fill:var(--foreground);opacity:.55"/><circle cx="194" cy="106" r="2.2" style="fill:var(--foreground);opacity:.55"/><circle cx="291" cy="159" r="1" style="fill:var(--foreground);opacity:.55"/><circle cx="388" cy="212" r="1.6" style="fill:var(--foreground);opacity:.55"/><circle cx="485" cy="25" r="2.2" style="fill:var(--foreground);opacity:.55"/><circle cx="582" cy="78" r="1" style="fill:var(--foreground);opacity:.55"/><circle cx="39" cy="131" r="1.6" style="fill:var(--foreground);opacity:.55"/><circle cx="136" cy="184" r="2.2" style="fill:var(--foreground);opacity:.55"/><circle cx="233" cy="237" r="1" style="fill:var(--foreground);opacity:.55"/><circle cx="330" cy="50" r="1.6" style="fill:var(--foreground);opacity:.55"/><circle cx="427" cy="103" r="2.2" style="fill:var(--foreground);opacity:.55"/><circle cx="524" cy="156" r="1" style="fill:var(--foreground);opacity:.55"/><circle cx="621" cy="209" r="1.6" style="fill:var(--foreground);opacity:.55"/><circle cx="78" cy="22" r="2.2" style="fill:var(--foreground);opacity:.55"/><circle cx="175" cy="75" r="1" style="fill:var(--foreground);opacity:.55"/><circle cx="272" cy="128" r="1.6" style="fill:var(--foreground);opacity:.55"/><circle cx="369" cy="181" r="2.2" style="fill:var(--foreground);opacity:.55"/><circle cx="466" cy="234" r="1" style="fill:var(--foreground);opacity:.55"/><circle cx="563" cy="47" r="1.6" style="fill:var(--foreground);opacity:.55"/><circle cx="20" cy="100" r="2.2" style="fill:var(--foreground);opacity:.55"/><circle cx="117" cy="153" r="1" style="fill:var(--foreground);opacity:.55"/><circle cx="214" cy="206" r="1.6" style="fill:var(--foreground);opacity:.55"/><circle cx="311" cy="19" r="2.2" style="fill:var(--foreground);opacity:.55"/><circle cx="408" cy="72" r="1" style="fill:var(--foreground);opacity:.55"/><circle cx="505" cy="125" r="1.6" style="fill:var(--foreground);opacity:.55"/><circle cx="602" cy="178" r="2.2" style="fill:var(--foreground);opacity:.55"/><circle cx="59" cy="231" r="1" style="fill:var(--foreground);opacity:.55"/><circle cx="156" cy="44" r="1.6" style="fill:var(--foreground);opacity:.55"/><circle cx="253" cy="97" r="2.2" style="fill:var(--foreground);opacity:.55"/><circle cx="350" cy="150" r="1" style="fill:var(--foreground);opacity:.55"/><circle cx="447" cy="203" r="1.6" style="fill:var(--foreground);opacity:.55"/><circle cx="544" cy="16" r="2.2" style="fill:var(--foreground);opacity:.55"/><circle cx="1" cy="69" r="1" style="fill:var(--foreground);opacity:.55"/><circle cx="98" cy="122" r="1.6" style="fill:var(--foreground);opacity:.55"/><circle cx="195" cy="175" r="2.2" style="fill:var(--foreground);opacity:.55"/><circle cx="292" cy="228" r="1" style="fill:var(--foreground);opacity:.55"/><circle cx="389" cy="41" r="1.6" style="fill:var(--foreground);opacity:.55"/><circle cx="486" cy="94" r="2.2" style="fill:var(--foreground);opacity:.55"/><circle cx="583" cy="147" r="1" style="fill:var(--foreground);opacity:.55"/>
+</svg>
+      <div class="hud hud-chrono">
+        <p class="hud-time">2:31.05</p>
+        <p class="hud-split">Inter 2 <span class="split-bad">+1,08</span></p>
+      </div>
+      <div class="hud hud-note">
+        <span class="badge badge-brand">100</span>
+        <span class="note-now">Gauche 4 longue</span>
+        <span class="note-next">puis Droite 2 se resserre</span>
+      </div>
+      <div class="hud hud-map">
+        <svg viewBox="0 0 80 60" aria-hidden="true"><path class="map-route" d="M6 52 C20 10 34 50 46 26 S70 8 74 18"/><circle class="map-me" cx="40" cy="34" r="3.5"/><circle class="map-end" cx="74" cy="18" r="3"/></svg>
+      </div>
+      <div class="hud hud-progress">
+        <span>km 3,1 sur 7,4</span>
+        <span class="bar"><span style="width:42%"></span></span>
+      </div>
+      <div class="hud hud-speed">
+        <span class="gear">3</span>
+        <span class="speed">117<small>km/h</small></span>
+        <span class="revs" aria-hidden="true"><i class="r1"></i><i class="r1"></i><i class="r1"></i><i class="r1"></i><i class="r1"></i><i class="r1"></i><i class="r2"></i><i class="r2"></i><i class="r3"></i><i class="off"></i></span>
+      </div>
+    </div>
+    <div class="panels">
+      <article class="card">
+        <h3>Pause</h3>
+        <ul class="menu">
+          <li><button type="button" class="is-hover">Reprendre</button></li>
+          <li><button type="button">Recommencer la spéciale</button></li>
+          <li><button type="button">Réglages de la voiture</button></li>
+          <li><button type="button" class="danger">Abandonner</button></li>
+        </ul>
+        <p class="desc">Col de la Croix-Fry, 7,4 km, notes du copilote activées</p>
+      </article>
+      <article class="card">
+        <h3>Arrivée</h3>
+        <p class="big-time">4:51.37</p>
+        <ul class="targets">
+          <li><span class="dot d1"></span>Or<b>4:38.00</b></li>
+          <li><span class="dot d2"></span>Argent<b>4:52.00</b> <span class="badge badge-brand">Battu</span></li>
+          <li><span class="dot d3"></span>Bronze<b>5:10.00</b></li>
+        </ul>
+        <p class="badge badge-destructive">Sortie de route au km 3,1 : +5 s</p>
+        <div class="field">
+          <label for="f-neige">Nom du pilote</label>
+          <input id="f-neige" class="is-focus" value="Baptiste">
+        </div>
+        <div class="actions">
+          <button type="button" class="btn btn-primary">Lancer le défi</button>
+          <button type="button" class="btn btn-secondary">Rejouer</button>
+        </div>
+      </article>
+    </div>
+  </div>
+  <footer class="tokens">
+    <ul class="fonts">
+      <li><code>--font-display</code> <span style="font-family:var(--font-display)">Michroma</span></li>
+      <li><code>--font-body</code> <span style="font-family:var(--font-body)">Manrope</span></li>
+      <li><code>--font-mono</code> <span style="font-family:var(--font-mono)">Share Tech Mono</span></li>
+      <li><code>--radius</code> <span>0.25rem</span></li>
+    </ul>
+    <ul class="swatches"><li><span class="sw" style="background:var(--background)"></span><code>--background</code><code class="hx hx-l">#f2f6fb</code><code class="hx hx-d">#0d1424</code></li><li><span class="sw" style="background:var(--foreground)"></span><code>--foreground</code><code class="hx hx-l">#0f1a30</code><code class="hx hx-d">#eef4fb</code></li><li><span class="sw" style="background:var(--card)"></span><code>--card</code><code class="hx hx-l">#ffffff</code><code class="hx hx-d">#15203a</code></li><li><span class="sw" style="background:var(--card-foreground)"></span><code>--card-foreground</code><code class="hx hx-l">#0f1a30</code><code class="hx hx-d">#eef4fb</code></li><li><span class="sw" style="background:var(--popover)"></span><code>--popover</code><code class="hx hx-l">#ffffff</code><code class="hx hx-d">#15203a</code></li><li><span class="sw" style="background:var(--popover-foreground)"></span><code>--popover-foreground</code><code class="hx hx-l">#0f1a30</code><code class="hx hx-d">#eef4fb</code></li><li><span class="sw" style="background:var(--primary)"></span><code>--primary</code><code class="hx hx-l">#0f1a30</code><code class="hx hx-d">#e8f1ff</code></li><li><span class="sw" style="background:var(--primary-foreground)"></span><code>--primary-foreground</code><code class="hx hx-l">#ffffff</code><code class="hx hx-d">#0d1424</code></li><li><span class="sw" style="background:var(--secondary)"></span><code>--secondary</code><code class="hx hx-l">#e1e9f4</code><code class="hx hx-d">#1c2a48</code></li><li><span class="sw" style="background:var(--secondary-foreground)"></span><code>--secondary-foreground</code><code class="hx hx-l">#0f1a30</code><code class="hx hx-d">#eef4fb</code></li><li><span class="sw" style="background:var(--muted)"></span><code>--muted</code><code class="hx hx-l">#e7edf6</code><code class="hx hx-d">#192642</code></li><li><span class="sw" style="background:var(--muted-foreground)"></span><code>--muted-foreground</code><code class="hx hx-l">#4b5b76</code><code class="hx hx-d">#a3b4cc</code></li><li><span class="sw" style="background:var(--accent)"></span><code>--accent</code><code class="hx hx-l">#dce6f3</code><code class="hx hx-d">#213152</code></li><li><span class="sw" style="background:var(--accent-foreground)"></span><code>--accent-foreground</code><code class="hx hx-l">#0f1a30</code><code class="hx hx-d">#eef4fb</code></li><li><span class="sw" style="background:var(--destructive)"></span><code>--destructive</code><code class="hx hx-l">#c8102e</code><code class="hx hx-d">#ff6b6b</code></li><li><span class="sw" style="background:var(--border)"></span><code>--border</code><code class="hx hx-l">#d0dbea</code><code class="hx hx-d">#22335a</code></li><li><span class="sw" style="background:var(--input)"></span><code>--input</code><code class="hx hx-l">#7c8aa2</code><code class="hx hx-d">#5a6c92</code></li><li><span class="sw" style="background:var(--ring)"></span><code>--ring</code><code class="hx hx-l">#076a98</code><code class="hx hx-d">#6fd3ff</code></li><li><span class="sw" style="background:var(--chart-1)"></span><code>--chart-1</code><code class="hx hx-l">#076a98</code><code class="hx hx-d">#6fd3ff</code></li><li><span class="sw" style="background:var(--chart-2)"></span><code>--chart-2</code><code class="hx hx-l">#d62839</code><code class="hx hx-d">#ff5a6a</code></li><li><span class="sw" style="background:var(--chart-3)"></span><code>--chart-3</code><code class="hx hx-l">#0f1a30</code><code class="hx hx-d">#e8f1ff</code></li><li><span class="sw" style="background:var(--chart-4)"></span><code>--chart-4</code><code class="hx hx-l">#b88600</code><code class="hx hx-d">#ffc857</code></li><li><span class="sw" style="background:var(--chart-5)"></span><code>--chart-5</code><code class="hx hx-l">#6d4bd1</code><code class="hx hx-d">#a78bfa</code></li><li><span class="sw" style="background:var(--sidebar)"></span><code>--sidebar</code><code class="hx hx-l">#ffffff</code><code class="hx hx-d">#15203a</code></li><li><span class="sw" style="background:var(--sidebar-foreground)"></span><code>--sidebar-foreground</code><code class="hx hx-l">#0f1a30</code><code class="hx hx-d">#eef4fb</code></li><li><span class="sw" style="background:var(--sidebar-primary)"></span><code>--sidebar-primary</code><code class="hx hx-l">#0f1a30</code><code class="hx hx-d">#e8f1ff</code></li><li><span class="sw" style="background:var(--sidebar-primary-foreground)"></span><code>--sidebar-primary-foreground</code><code class="hx hx-l">#ffffff</code><code class="hx hx-d">#0d1424</code></li><li><span class="sw" style="background:var(--sidebar-accent)"></span><code>--sidebar-accent</code><code class="hx hx-l">#dce6f3</code><code class="hx hx-d">#213152</code></li><li><span class="sw" style="background:var(--sidebar-accent-foreground)"></span><code>--sidebar-accent-foreground</code><code class="hx hx-l">#0f1a30</code><code class="hx hx-d">#eef4fb</code></li><li><span class="sw" style="background:var(--sidebar-border)"></span><code>--sidebar-border</code><code class="hx hx-l">#d0dbea</code><code class="hx hx-d">#22335a</code></li><li><span class="sw" style="background:var(--sidebar-ring)"></span><code>--sidebar-ring</code><code class="hx hx-l">#076a98</code><code class="hx hx-d">#6fd3ff</code></li><li><span class="sw" style="background:var(--brand)"></span><code>--brand</code><code class="hx hx-l">#076a98</code><code class="hx hx-d">#6fd3ff</code></li><li><span class="sw" style="background:var(--brand-foreground)"></span><code>--brand-foreground</code><code class="hx hx-l">#ffffff</code><code class="hx hx-d">#0d1424</code></li><li><span class="sw" style="background:var(--sky-1)"></span><code>--sky-1</code><code class="hx hx-l">#9cc4e8</code><code class="hx hx-d">#070c18</code></li><li><span class="sw" style="background:var(--sky-2)"></span><code>--sky-2</code><code class="hx hx-l">#e9f3fb</code><code class="hx hx-d">#1c2b4d</code></li><li><span class="sw" style="background:var(--mount-1)"></span><code>--mount-1</code><code class="hx hx-l">#c4d3e6</code><code class="hx hx-d">#8fa3c2</code></li><li><span class="sw" style="background:var(--mount-2)"></span><code>--mount-2</code><code class="hx hx-l">#e6eef8</code><code class="hx hx-d">#c9d6ea</code></li><li><span class="sw" style="background:var(--mount-3)"></span><code>--mount-3</code><code class="hx hx-l">#9fb3cf</code><code class="hx hx-d">#5d7294</code></li><li><span class="sw" style="background:var(--ground)"></span><code>--ground</code><code class="hx hx-l">#eef3f9</code><code class="hx hx-d">#dbe5f2</code></li><li><span class="sw" style="background:var(--road)"></span><code>--road</code><code class="hx hx-l">#5d6a80</code><code class="hx hx-d">#3a4660</code></li></ul>
+  </footer>
+</section>
+
+<section class="direction direction-foret dark" aria-labelledby="t-foret">
+  <header class="dir-head">
+    <div>
+      <h2 id="t-foret">Forêt de nuit</h2>
+      <p>Les sapins en triangles qui défilent dans les phares, éclairés par l’orange des lampadaires de village.</p>
+    </div>
+    <button type="button" class="theme-toggle" aria-pressed="true" onclick="const s=this.closest('section');s.classList.toggle('dark');const n=s.classList.contains('dark');this.setAttribute('aria-pressed',n);this.textContent=n?'Voir de jour':'Voir de nuit'">Voir de jour</button>
+  </header>
+  <div class="mock">
+    <div class="screen" role="img" aria-label="Écran de jeu en course, direction Forêt de nuit">
+      <svg class="scene" viewBox="0 0 640 360" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+<defs><linearGradient id="sky-foret" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--sky-1)"/><stop offset="1" style="stop-color:var(--sky-2)"/></linearGradient></defs>
+<rect width="640" height="360" fill="url(#sky-foret)"/>
+<polygon points="0,144 71,156 24,250" style="fill:var(--mount-2)"/><polygon points="0,144 24,250 0,250" style="fill:var(--mount-1)"/><polygon points="71,156 71,250 24,250" style="fill:var(--mount-1)"/><polygon points="71,156 142,124 104,250" style="fill:var(--mount-1)"/><polygon points="71,156 104,250 71,250" style="fill:var(--mount-2)"/><polygon points="142,124 142,250 104,250" style="fill:var(--mount-2)"/><polygon points="142,124 213,123 181,250" style="fill:var(--mount-2)"/><polygon points="142,124 181,250 142,250" style="fill:var(--mount-1)"/><polygon points="213,123 213,250 181,250" style="fill:var(--mount-1)"/><polygon points="213,123 284,108 252,250" style="fill:var(--mount-1)"/><polygon points="213,123 252,250 213,250" style="fill:var(--mount-2)"/><polygon points="284,108 284,250 252,250" style="fill:var(--mount-2)"/><polygon points="284,108 356,119 338,250" style="fill:var(--mount-2)"/><polygon points="284,108 338,250 284,250" style="fill:var(--mount-1)"/><polygon points="356,119 356,250 338,250" style="fill:var(--mount-1)"/><polygon points="356,119 427,97 395,250" style="fill:var(--mount-1)"/><polygon points="356,119 395,250 356,250" style="fill:var(--mount-2)"/><polygon points="427,97 427,250 395,250" style="fill:var(--mount-2)"/><polygon points="427,97 498,111 474,250" style="fill:var(--mount-2)"/><polygon points="427,97 474,250 427,250" style="fill:var(--mount-1)"/><polygon points="498,111 498,250 474,250" style="fill:var(--mount-1)"/><polygon points="498,111 569,157 525,250" style="fill:var(--mount-1)"/><polygon points="498,111 525,250 498,250" style="fill:var(--mount-2)"/><polygon points="569,157 569,250 525,250" style="fill:var(--mount-2)"/><polygon points="569,157 640,160 604,250" style="fill:var(--mount-2)"/><polygon points="569,157 604,250 569,250" style="fill:var(--mount-1)"/><polygon points="640,160 640,250 604,250" style="fill:var(--mount-1)"/>
+<polygon points="0,198 91,232 24,262" style="fill:var(--mount-2)"/><polygon points="0,198 24,262 0,262" style="fill:var(--mount-3)"/><polygon points="91,232 91,262 24,262" style="fill:var(--mount-3)"/><polygon points="91,232 183,223 139,262" style="fill:var(--mount-3)"/><polygon points="91,232 139,262 91,262" style="fill:var(--mount-2)"/><polygon points="183,223 183,262 139,262" style="fill:var(--mount-2)"/><polygon points="183,223 274,226 201,262" style="fill:var(--mount-2)"/><polygon points="183,223 201,262 183,262" style="fill:var(--mount-3)"/><polygon points="274,226 274,262 201,262" style="fill:var(--mount-3)"/><polygon points="274,226 366,206 310,262" style="fill:var(--mount-3)"/><polygon points="274,226 310,262 274,262" style="fill:var(--mount-2)"/><polygon points="366,206 366,262 310,262" style="fill:var(--mount-2)"/><polygon points="366,206 457,217 403,262" style="fill:var(--mount-2)"/><polygon points="366,206 403,262 366,262" style="fill:var(--mount-3)"/><polygon points="457,217 457,262 403,262" style="fill:var(--mount-3)"/><polygon points="457,217 549,229 507,262" style="fill:var(--mount-3)"/><polygon points="457,217 507,262 457,262" style="fill:var(--mount-2)"/><polygon points="549,229 549,262 507,262" style="fill:var(--mount-2)"/><polygon points="549,229 640,213 612,262" style="fill:var(--mount-2)"/><polygon points="549,229 612,262 549,262" style="fill:var(--mount-3)"/><polygon points="640,213 640,262 612,262" style="fill:var(--mount-3)"/>
+<rect y="258" width="640" height="102" style="fill:var(--ground)"/>
+<polygon points="304,258 336,258 470,360 170,360" style="fill:var(--road)"/>
+<polygon points="318,268 322,268 325,288 315,288" style="fill:var(--foreground);opacity:.5"/><polygon points="314,305 326,305 331,340 309,340" style="fill:var(--foreground);opacity:.5"/>
+<polygon points="60,202 39,262 81,262" style="fill:var(--mount-3)"/><polygon points="60,202 81,262 60,262" style="fill:var(--ground);opacity:.35"/><polygon points="110,192 82.7,270 137.3,270" style="fill:var(--mount-3)"/><polygon points="110,192 137.3,270 110,270" style="fill:var(--ground);opacity:.35"/><polygon points="150,166 116.4,262 183.6,262" style="fill:var(--mount-3)"/><polygon points="150,166 183.6,262 150,262" style="fill:var(--ground);opacity:.35"/><polygon points="500,210 479,270 521,270" style="fill:var(--mount-3)"/><polygon points="500,210 521,270 500,270" style="fill:var(--ground);opacity:.35"/><polygon points="545,184 517.7,262 572.3,262" style="fill:var(--mount-3)"/><polygon points="545,184 572.3,262 545,262" style="fill:var(--ground);opacity:.35"/><polygon points="590,174 556.4,270 623.6,270" style="fill:var(--mount-3)"/><polygon points="590,174 623.6,270 590,270" style="fill:var(--ground);opacity:.35"/><polygon points="620,202 599,262 641,262" style="fill:var(--mount-3)"/><polygon points="620,202 641,262 620,262" style="fill:var(--ground);opacity:.35"/><circle cx="560" cy="200" r="22" style="fill:var(--brand);opacity:.22"/>
+</svg>
+      <div class="hud hud-chrono">
+        <p class="hud-time">2:31.05</p>
+        <p class="hud-split">Inter 2 <span class="split-bad">+1,08</span></p>
+      </div>
+      <div class="hud hud-note">
+        <span class="badge badge-brand">100</span>
+        <span class="note-now">Gauche 4 longue</span>
+        <span class="note-next">puis Droite 2 se resserre</span>
+      </div>
+      <div class="hud hud-map">
+        <svg viewBox="0 0 80 60" aria-hidden="true"><path class="map-route" d="M6 52 C20 10 34 50 46 26 S70 8 74 18"/><circle class="map-me" cx="40" cy="34" r="3.5"/><circle class="map-end" cx="74" cy="18" r="3"/></svg>
+      </div>
+      <div class="hud hud-progress">
+        <span>km 3,1 sur 7,4</span>
+        <span class="bar"><span style="width:42%"></span></span>
+      </div>
+      <div class="hud hud-speed">
+        <span class="gear">3</span>
+        <span class="speed">117<small>km/h</small></span>
+        <span class="revs" aria-hidden="true"><i class="r1"></i><i class="r1"></i><i class="r1"></i><i class="r1"></i><i class="r1"></i><i class="r1"></i><i class="r2"></i><i class="r2"></i><i class="r3"></i><i class="off"></i></span>
+      </div>
+    </div>
+    <div class="panels">
+      <article class="card">
+        <h3>Pause</h3>
+        <ul class="menu">
+          <li><button type="button" class="is-hover">Reprendre</button></li>
+          <li><button type="button">Recommencer la spéciale</button></li>
+          <li><button type="button">Réglages de la voiture</button></li>
+          <li><button type="button" class="danger">Abandonner</button></li>
+        </ul>
+        <p class="desc">Col de la Croix-Fry, 7,4 km, notes du copilote activées</p>
+      </article>
+      <article class="card">
+        <h3>Arrivée</h3>
+        <p class="big-time">4:51.37</p>
+        <ul class="targets">
+          <li><span class="dot d1"></span>Or<b>4:38.00</b></li>
+          <li><span class="dot d2"></span>Argent<b>4:52.00</b> <span class="badge badge-brand">Battu</span></li>
+          <li><span class="dot d3"></span>Bronze<b>5:10.00</b></li>
+        </ul>
+        <p class="badge badge-destructive">Sortie de route au km 3,1 : +5 s</p>
+        <div class="field">
+          <label for="f-foret">Nom du pilote</label>
+          <input id="f-foret" class="is-focus" value="Baptiste">
+        </div>
+        <div class="actions">
+          <button type="button" class="btn btn-primary">Lancer le défi</button>
+          <button type="button" class="btn btn-secondary">Rejouer</button>
+        </div>
+      </article>
+    </div>
+  </div>
+  <footer class="tokens">
+    <ul class="fonts">
+      <li><code>--font-display</code> <span style="font-family:var(--font-display)">Michroma</span></li>
+      <li><code>--font-body</code> <span style="font-family:var(--font-body)">Manrope</span></li>
+      <li><code>--font-mono</code> <span style="font-family:var(--font-mono)">Share Tech Mono</span></li>
+      <li><code>--radius</code> <span>0.375rem</span></li>
+    </ul>
+    <ul class="swatches"><li><span class="sw" style="background:var(--background)"></span><code>--background</code><code class="hx hx-l">#edf1ec</code><code class="hx hx-d">#0e1612</code></li><li><span class="sw" style="background:var(--foreground)"></span><code>--foreground</code><code class="hx hx-l">#18241d</code><code class="hx hx-d">#e7efe9</code></li><li><span class="sw" style="background:var(--card)"></span><code>--card</code><code class="hx hx-l">#f8faf7</code><code class="hx hx-d">#15211b</code></li><li><span class="sw" style="background:var(--card-foreground)"></span><code>--card-foreground</code><code class="hx hx-l">#18241d</code><code class="hx hx-d">#e7efe9</code></li><li><span class="sw" style="background:var(--popover)"></span><code>--popover</code><code class="hx hx-l">#f8faf7</code><code class="hx hx-d">#15211b</code></li><li><span class="sw" style="background:var(--popover-foreground)"></span><code>--popover-foreground</code><code class="hx hx-l">#18241d</code><code class="hx hx-d">#e7efe9</code></li><li><span class="sw" style="background:var(--primary)"></span><code>--primary</code><code class="hx hx-l">#1f4a33</code><code class="hx hx-d">#ff9a3c</code></li><li><span class="sw" style="background:var(--primary-foreground)"></span><code>--primary-foreground</code><code class="hx hx-l">#f8faf7</code><code class="hx hx-d">#0e1612</code></li><li><span class="sw" style="background:var(--secondary)"></span><code>--secondary</code><code class="hx hx-l">#dfe7df</code><code class="hx hx-d">#1d2b24</code></li><li><span class="sw" style="background:var(--secondary-foreground)"></span><code>--secondary-foreground</code><code class="hx hx-l">#18241d</code><code class="hx hx-d">#e7efe9</code></li><li><span class="sw" style="background:var(--muted)"></span><code>--muted</code><code class="hx hx-l">#e3eae2</code><code class="hx hx-d">#1a2720</code></li><li><span class="sw" style="background:var(--muted-foreground)"></span><code>--muted-foreground</code><code class="hx hx-l">#4d5e53</code><code class="hx hx-d">#9fb2a6</code></li><li><span class="sw" style="background:var(--accent)"></span><code>--accent</code><code class="hx hx-l">#dbe4da</code><code class="hx hx-d">#213229</code></li><li><span class="sw" style="background:var(--accent-foreground)"></span><code>--accent-foreground</code><code class="hx hx-l">#18241d</code><code class="hx hx-d">#e7efe9</code></li><li><span class="sw" style="background:var(--destructive)"></span><code>--destructive</code><code class="hx hx-l">#b3261e</code><code class="hx hx-d">#ff6b5e</code></li><li><span class="sw" style="background:var(--border)"></span><code>--border</code><code class="hx hx-l">#ccd7cc</code><code class="hx hx-d">#243529</code></li><li><span class="sw" style="background:var(--input)"></span><code>--input</code><code class="hx hx-l">#7f8e83</code><code class="hx hx-d">#5a6e62</code></li><li><span class="sw" style="background:var(--ring)"></span><code>--ring</code><code class="hx hx-l">#1f4a33</code><code class="hx hx-d">#ff9a3c</code></li><li><span class="sw" style="background:var(--chart-1)"></span><code>--chart-1</code><code class="hx hx-l">#c25e00</code><code class="hx hx-d">#ff9a3c</code></li><li><span class="sw" style="background:var(--chart-2)"></span><code>--chart-2</code><code class="hx hx-l">#1f4a33</code><code class="hx hx-d">#7fd1a1</code></li><li><span class="sw" style="background:var(--chart-3)"></span><code>--chart-3</code><code class="hx hx-l">#a37b00</code><code class="hx hx-d">#ffd166</code></li><li><span class="sw" style="background:var(--chart-4)"></span><code>--chart-4</code><code class="hx hx-l">#2f6f99</code><code class="hx hx-d">#6fb7ff</code></li><li><span class="sw" style="background:var(--chart-5)"></span><code>--chart-5</code><code class="hx hx-l">#9a3f6f</code><code class="hx hx-d">#e58fbf</code></li><li><span class="sw" style="background:var(--sidebar)"></span><code>--sidebar</code><code class="hx hx-l">#f8faf7</code><code class="hx hx-d">#15211b</code></li><li><span class="sw" style="background:var(--sidebar-foreground)"></span><code>--sidebar-foreground</code><code class="hx hx-l">#18241d</code><code class="hx hx-d">#e7efe9</code></li><li><span class="sw" style="background:var(--sidebar-primary)"></span><code>--sidebar-primary</code><code class="hx hx-l">#1f4a33</code><code class="hx hx-d">#ff9a3c</code></li><li><span class="sw" style="background:var(--sidebar-primary-foreground)"></span><code>--sidebar-primary-foreground</code><code class="hx hx-l">#f8faf7</code><code class="hx hx-d">#0e1612</code></li><li><span class="sw" style="background:var(--sidebar-accent)"></span><code>--sidebar-accent</code><code class="hx hx-l">#dbe4da</code><code class="hx hx-d">#213229</code></li><li><span class="sw" style="background:var(--sidebar-accent-foreground)"></span><code>--sidebar-accent-foreground</code><code class="hx hx-l">#18241d</code><code class="hx hx-d">#e7efe9</code></li><li><span class="sw" style="background:var(--sidebar-border)"></span><code>--sidebar-border</code><code class="hx hx-l">#ccd7cc</code><code class="hx hx-d">#243529</code></li><li><span class="sw" style="background:var(--sidebar-ring)"></span><code>--sidebar-ring</code><code class="hx hx-l">#1f4a33</code><code class="hx hx-d">#ff9a3c</code></li><li><span class="sw" style="background:var(--brand)"></span><code>--brand</code><code class="hx hx-l">#c25e00</code><code class="hx hx-d">#ff9a3c</code></li><li><span class="sw" style="background:var(--brand-foreground)"></span><code>--brand-foreground</code><code class="hx hx-l">#0d0d0d</code><code class="hx hx-d">#0e1612</code></li><li><span class="sw" style="background:var(--sky-1)"></span><code>--sky-1</code><code class="hx hx-l">#a8c9b5</code><code class="hx hx-d">#060b09</code></li><li><span class="sw" style="background:var(--sky-2)"></span><code>--sky-2</code><code class="hx hx-l">#e6f0e8</code><code class="hx hx-d">#1a2c22</code></li><li><span class="sw" style="background:var(--mount-1)"></span><code>--mount-1</code><code class="hx hx-l">#4f7a5c</code><code class="hx hx-d">#1f3a2b</code></li><li><span class="sw" style="background:var(--mount-2)"></span><code>--mount-2</code><code class="hx hx-l">#6a9475</code><code class="hx hx-d">#2a4a37</code></li><li><span class="sw" style="background:var(--mount-3)"></span><code>--mount-3</code><code class="hx hx-l">#2f5a3e</code><code class="hx hx-d">#12261a</code></li><li><span class="sw" style="background:var(--ground)"></span><code>--ground</code><code class="hx hx-l">#6d8a5a</code><code class="hx hx-d">#0f1c15</code></li><li><span class="sw" style="background:var(--road)"></span><code>--road</code><code class="hx hx-l">#6a6f68</code><code class="hx hx-d">#2b3530</code></li></ul>
+  </footer>
+</section>
+
+<section class="direction direction-pluie dark" aria-labelledby="t-pluie">
+  <header class="dir-head">
+    <div>
+      <h2 id="t-pluie">Asphalte mouillé</h2>
+      <p>Sous l’averse, de nuit : bitume noir qui renvoie les phares, reflets turquoise et rideaux de pluie.</p>
+    </div>
+    <button type="button" class="theme-toggle" aria-pressed="true" onclick="const s=this.closest('section');s.classList.toggle('dark');const n=s.classList.contains('dark');this.setAttribute('aria-pressed',n);this.textContent=n?'Voir de jour':'Voir de nuit'">Voir de jour</button>
+  </header>
+  <div class="mock">
+    <div class="screen" role="img" aria-label="Écran de jeu en course, direction Asphalte mouillé">
+      <svg class="scene" viewBox="0 0 640 360" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+<defs><linearGradient id="sky-pluie" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--sky-1)"/><stop offset="1" style="stop-color:var(--sky-2)"/></linearGradient></defs>
+<rect width="640" height="360" fill="url(#sky-pluie)"/>
+<polygon points="0,143 71,82 27,250" style="fill:var(--mount-2)"/><polygon points="0,143 27,250 0,250" style="fill:var(--mount-1)"/><polygon points="71,82 71,250 27,250" style="fill:var(--mount-1)"/><polygon points="71,82 142,103 114,250" style="fill:var(--mount-1)"/><polygon points="71,82 114,250 71,250" style="fill:var(--mount-2)"/><polygon points="142,103 142,250 114,250" style="fill:var(--mount-2)"/><polygon points="142,103 213,110 193,250" style="fill:var(--mount-2)"/><polygon points="142,103 193,250 142,250" style="fill:var(--mount-1)"/><polygon points="213,110 213,250 193,250" style="fill:var(--mount-1)"/><polygon points="213,110 284,138 231,250" style="fill:var(--mount-1)"/><polygon points="213,110 231,250 213,250" style="fill:var(--mount-2)"/><polygon points="284,138 284,250 231,250" style="fill:var(--mount-2)"/><polygon points="284,138 356,102 341,250" style="fill:var(--mount-2)"/><polygon points="284,138 341,250 284,250" style="fill:var(--mount-1)"/><polygon points="356,102 356,250 341,250" style="fill:var(--mount-1)"/><polygon points="356,102 427,155 371,250" style="fill:var(--mount-1)"/><polygon points="356,102 371,250 356,250" style="fill:var(--mount-2)"/><polygon points="427,155 427,250 371,250" style="fill:var(--mount-2)"/><polygon points="427,155 498,165 463,250" style="fill:var(--mount-2)"/><polygon points="427,155 463,250 427,250" style="fill:var(--mount-1)"/><polygon points="498,165 498,250 463,250" style="fill:var(--mount-1)"/><polygon points="498,165 569,87 545,250" style="fill:var(--mount-1)"/><polygon points="498,165 545,250 498,250" style="fill:var(--mount-2)"/><polygon points="569,87 569,250 545,250" style="fill:var(--mount-2)"/><polygon points="569,87 640,90 615,250" style="fill:var(--mount-2)"/><polygon points="569,87 615,250 569,250" style="fill:var(--mount-1)"/><polygon points="640,90 640,250 615,250" style="fill:var(--mount-1)"/>
+<polygon points="0,221 91,213 66,262" style="fill:var(--mount-2)"/><polygon points="0,221 66,262 0,262" style="fill:var(--mount-3)"/><polygon points="91,213 91,262 66,262" style="fill:var(--mount-3)"/><polygon points="91,213 183,203 145,262" style="fill:var(--mount-3)"/><polygon points="91,213 145,262 91,262" style="fill:var(--mount-2)"/><polygon points="183,203 183,262 145,262" style="fill:var(--mount-2)"/><polygon points="183,203 274,191 209,262" style="fill:var(--mount-2)"/><polygon points="183,203 209,262 183,262" style="fill:var(--mount-3)"/><polygon points="274,191 274,262 209,262" style="fill:var(--mount-3)"/><polygon points="274,191 366,196 322,262" style="fill:var(--mount-3)"/><polygon points="274,191 322,262 274,262" style="fill:var(--mount-2)"/><polygon points="366,196 366,262 322,262" style="fill:var(--mount-2)"/><polygon points="366,196 457,234 392,262" style="fill:var(--mount-2)"/><polygon points="366,196 392,262 366,262" style="fill:var(--mount-3)"/><polygon points="457,234 457,262 392,262" style="fill:var(--mount-3)"/><polygon points="457,234 549,197 499,262" style="fill:var(--mount-3)"/><polygon points="457,234 499,262 457,262" style="fill:var(--mount-2)"/><polygon points="549,197 549,262 499,262" style="fill:var(--mount-2)"/><polygon points="549,197 640,232 601,262" style="fill:var(--mount-2)"/><polygon points="549,197 601,262 549,262" style="fill:var(--mount-3)"/><polygon points="640,232 640,262 601,262" style="fill:var(--mount-3)"/>
+<rect y="258" width="640" height="102" style="fill:var(--ground)"/>
+<polygon points="304,258 336,258 470,360 170,360" style="fill:var(--road)"/>
+<polygon points="318,268 322,268 325,288 315,288" style="fill:var(--foreground);opacity:.5"/><polygon points="314,305 326,305 331,340 309,340" style="fill:var(--foreground);opacity:.5"/>
+<line x1="0" y1="0" x2="-14" y2="46" style="stroke:var(--sky-2);stroke-width:1.2;opacity:.6"/><line x1="41" y1="29" x2="27" y2="75" style="stroke:var(--sky-2);stroke-width:1.2;opacity:.6"/><line x1="82" y1="58" x2="68" y2="104" style="stroke:var(--sky-2);stroke-width:1.2;opacity:.6"/><line x1="123" y1="87" x2="109" y2="133" style="stroke:var(--sky-2);stroke-width:1.2;opacity:.6"/><line x1="164" y1="116" x2="150" y2="162" style="stroke:var(--sky-2);stroke-width:1.2;opacity:.6"/><line x1="205" y1="145" x2="191" y2="191" style="stroke:var(--sky-2);stroke-width:1.2;opacity:.6"/><line x1="246" y1="174" x2="232" y2="220" style="stroke:var(--sky-2);stroke-width:1.2;opacity:.6"/><line x1="287" y1="3" x2="273" y2="49" style="stroke:var(--sky-2);stroke-width:1.2;opacity:.6"/><line x1="328" y1="32" x2="314" y2="78" style="stroke:var(--sky-2);stroke-width:1.2;opacity:.6"/><line x1="369" y1="61" x2="355" y2="107" style="stroke:var(--sky-2);stroke-width:1.2;opacity:.6"/><line x1="410" y1="90" x2="396" y2="136" style="stroke:var(--sky-2);stroke-width:1.2;opacity:.6"/><line x1="451" y1="119" x2="437" y2="165" style="stroke:var(--sky-2);stroke-width:1.2;opacity:.6"/><line x1="492" y1="148" x2="478" y2="194" style="stroke:var(--sky-2);stroke-width:1.2;opacity:.6"/><line x1="533" y1="177" x2="519" y2="223" style="stroke:var(--sky-2);stroke-width:1.2;opacity:.6"/><line x1="574" y1="6" x2="560" y2="52" style="stroke:var(--sky-2);stroke-width:1.2;opacity:.6"/><line x1="615" y1="35" x2="601" y2="81" style="stroke:var(--sky-2);stroke-width:1.2;opacity:.6"/><line x1="656" y1="64" x2="642" y2="110" style="stroke:var(--sky-2);stroke-width:1.2;opacity:.6"/><line x1="37" y1="93" x2="23" y2="139" style="stroke:var(--sky-2);stroke-width:1.2;opacity:.6"/><line x1="78" y1="122" x2="64" y2="168" style="stroke:var(--sky-2);stroke-width:1.2;opacity:.6"/><line x1="119" y1="151" x2="105" y2="197" style="stroke:var(--sky-2);stroke-width:1.2;opacity:.6"/><line x1="160" y1="180" x2="146" y2="226" style="stroke:var(--sky-2);stroke-width:1.2;opacity:.6"/><line x1="201" y1="9" x2="187" y2="55" style="stroke:var(--sky-2);stroke-width:1.2;opacity:.6"/><line x1="242" y1="38" x2="228" y2="84" style="stroke:var(--sky-2);stroke-width:1.2;opacity:.6"/><line x1="283" y1="67" x2="269" y2="113" style="stroke:var(--sky-2);stroke-width:1.2;opacity:.6"/><line x1="324" y1="96" x2="310" y2="142" style="stroke:var(--sky-2);stroke-width:1.2;opacity:.6"/><line x1="365" y1="125" x2="351" y2="171" style="stroke:var(--sky-2);stroke-width:1.2;opacity:.6"/><line x1="406" y1="154" x2="392" y2="200" style="stroke:var(--sky-2);stroke-width:1.2;opacity:.6"/><line x1="447" y1="183" x2="433" y2="229" style="stroke:var(--sky-2);stroke-width:1.2;opacity:.6"/><line x1="488" y1="12" x2="474" y2="58" style="stroke:var(--sky-2);stroke-width:1.2;opacity:.6"/><line x1="529" y1="41" x2="515" y2="87" style="stroke:var(--sky-2);stroke-width:1.2;opacity:.6"/><line x1="570" y1="70" x2="556" y2="116" style="stroke:var(--sky-2);stroke-width:1.2;opacity:.6"/><line x1="611" y1="99" x2="597" y2="145" style="stroke:var(--sky-2);stroke-width:1.2;opacity:.6"/><line x1="652" y1="128" x2="638" y2="174" style="stroke:var(--sky-2);stroke-width:1.2;opacity:.6"/><line x1="33" y1="157" x2="19" y2="203" style="stroke:var(--sky-2);stroke-width:1.2;opacity:.6"/><polygon points="312,265 328,265 360,360 280,360" style="fill:var(--brand);opacity:.2"/>
+</svg>
+      <div class="hud hud-chrono">
+        <p class="hud-time">2:31.05</p>
+        <p class="hud-split">Inter 2 <span class="split-bad">+1,08</span></p>
+      </div>
+      <div class="hud hud-note">
+        <span class="badge badge-brand">100</span>
+        <span class="note-now">Gauche 4 longue</span>
+        <span class="note-next">puis Droite 2 se resserre</span>
+      </div>
+      <div class="hud hud-map">
+        <svg viewBox="0 0 80 60" aria-hidden="true"><path class="map-route" d="M6 52 C20 10 34 50 46 26 S70 8 74 18"/><circle class="map-me" cx="40" cy="34" r="3.5"/><circle class="map-end" cx="74" cy="18" r="3"/></svg>
+      </div>
+      <div class="hud hud-progress">
+        <span>km 3,1 sur 7,4</span>
+        <span class="bar"><span style="width:42%"></span></span>
+      </div>
+      <div class="hud hud-speed">
+        <span class="gear">3</span>
+        <span class="speed">117<small>km/h</small></span>
+        <span class="revs" aria-hidden="true"><i class="r1"></i><i class="r1"></i><i class="r1"></i><i class="r1"></i><i class="r1"></i><i class="r1"></i><i class="r2"></i><i class="r2"></i><i class="r3"></i><i class="off"></i></span>
+      </div>
+    </div>
+    <div class="panels">
+      <article class="card">
+        <h3>Pause</h3>
+        <ul class="menu">
+          <li><button type="button" class="is-hover">Reprendre</button></li>
+          <li><button type="button">Recommencer la spéciale</button></li>
+          <li><button type="button">Réglages de la voiture</button></li>
+          <li><button type="button" class="danger">Abandonner</button></li>
+        </ul>
+        <p class="desc">Col de la Croix-Fry, 7,4 km, notes du copilote activées</p>
+      </article>
+      <article class="card">
+        <h3>Arrivée</h3>
+        <p class="big-time">4:51.37</p>
+        <ul class="targets">
+          <li><span class="dot d1"></span>Or<b>4:38.00</b></li>
+          <li><span class="dot d2"></span>Argent<b>4:52.00</b> <span class="badge badge-brand">Battu</span></li>
+          <li><span class="dot d3"></span>Bronze<b>5:10.00</b></li>
+        </ul>
+        <p class="badge badge-destructive">Sortie de route au km 3,1 : +5 s</p>
+        <div class="field">
+          <label for="f-pluie">Nom du pilote</label>
+          <input id="f-pluie" class="is-focus" value="Baptiste">
+        </div>
+        <div class="actions">
+          <button type="button" class="btn btn-primary">Lancer le défi</button>
+          <button type="button" class="btn btn-secondary">Rejouer</button>
+        </div>
+      </article>
+    </div>
+  </div>
+  <footer class="tokens">
+    <ul class="fonts">
+      <li><code>--font-display</code> <span style="font-family:var(--font-display)">Michroma</span></li>
+      <li><code>--font-body</code> <span style="font-family:var(--font-body)">Manrope</span></li>
+      <li><code>--font-mono</code> <span style="font-family:var(--font-mono)">Share Tech Mono</span></li>
+      <li><code>--radius</code> <span>0.25rem</span></li>
+    </ul>
+    <ul class="swatches"><li><span class="sw" style="background:var(--background)"></span><code>--background</code><code class="hx hx-l">#ecf2f3</code><code class="hx hx-d">#0c1216</code></li><li><span class="sw" style="background:var(--foreground)"></span><code>--foreground</code><code class="hx hx-l">#12202a</code><code class="hx hx-d">#e6f0f2</code></li><li><span class="sw" style="background:var(--card)"></span><code>--card</code><code class="hx hx-l">#f8fbfb</code><code class="hx hx-d">#131c22</code></li><li><span class="sw" style="background:var(--card-foreground)"></span><code>--card-foreground</code><code class="hx hx-l">#12202a</code><code class="hx hx-d">#e6f0f2</code></li><li><span class="sw" style="background:var(--popover)"></span><code>--popover</code><code class="hx hx-l">#f8fbfb</code><code class="hx hx-d">#131c22</code></li><li><span class="sw" style="background:var(--popover-foreground)"></span><code>--popover-foreground</code><code class="hx hx-l">#12202a</code><code class="hx hx-d">#e6f0f2</code></li><li><span class="sw" style="background:var(--primary)"></span><code>--primary</code><code class="hx hx-l">#12202a</code><code class="hx hx-d">#36d6c8</code></li><li><span class="sw" style="background:var(--primary-foreground)"></span><code>--primary-foreground</code><code class="hx hx-l">#f8fbfb</code><code class="hx hx-d">#0c1216</code></li><li><span class="sw" style="background:var(--secondary)"></span><code>--secondary</code><code class="hx hx-l">#dde7e9</code><code class="hx hx-d">#1a252c</code></li><li><span class="sw" style="background:var(--secondary-foreground)"></span><code>--secondary-foreground</code><code class="hx hx-l">#12202a</code><code class="hx hx-d">#e6f0f2</code></li><li><span class="sw" style="background:var(--muted)"></span><code>--muted</code><code class="hx hx-l">#e2eaec</code><code class="hx hx-d">#17222a</code></li><li><span class="sw" style="background:var(--muted-foreground)"></span><code>--muted-foreground</code><code class="hx hx-l">#4a5c65</code><code class="hx hx-d">#93a7b0</code></li><li><span class="sw" style="background:var(--accent)"></span><code>--accent</code><code class="hx hx-l">#d8e3e6</code><code class="hx hx-d">#1d2a32</code></li><li><span class="sw" style="background:var(--accent-foreground)"></span><code>--accent-foreground</code><code class="hx hx-l">#12202a</code><code class="hx hx-d">#e6f0f2</code></li><li><span class="sw" style="background:var(--destructive)"></span><code>--destructive</code><code class="hx hx-l">#c62828</code><code class="hx hx-d">#ff6b6b</code></li><li><span class="sw" style="background:var(--border)"></span><code>--border</code><code class="hx hx-l">#c9d7db</code><code class="hx hx-d">#1f2d35</code></li><li><span class="sw" style="background:var(--input)"></span><code>--input</code><code class="hx hx-l">#7b8d95</code><code class="hx hx-d">#52656f</code></li><li><span class="sw" style="background:var(--ring)"></span><code>--ring</code><code class="hx hx-l">#0b8a80</code><code class="hx hx-d">#36d6c8</code></li><li><span class="sw" style="background:var(--chart-1)"></span><code>--chart-1</code><code class="hx hx-l">#0b8a80</code><code class="hx hx-d">#36d6c8</code></li><li><span class="sw" style="background:var(--chart-2)"></span><code>--chart-2</code><code class="hx hx-l">#b87800</code><code class="hx hx-d">#ffb02e</code></li><li><span class="sw" style="background:var(--chart-3)"></span><code>--chart-3</code><code class="hx hx-l">#c2366b</code><code class="hx hx-d">#ff6b9a</code></li><li><span class="sw" style="background:var(--chart-4)"></span><code>--chart-4</code><code class="hx hx-l">#4a63c9</code><code class="hx hx-d">#8fa8ff</code></li><li><span class="sw" style="background:var(--chart-5)"></span><code>--chart-5</code><code class="hx hx-l">#5f8f1f</code><code class="hx hx-d">#b8e986</code></li><li><span class="sw" style="background:var(--sidebar)"></span><code>--sidebar</code><code class="hx hx-l">#f8fbfb</code><code class="hx hx-d">#131c22</code></li><li><span class="sw" style="background:var(--sidebar-foreground)"></span><code>--sidebar-foreground</code><code class="hx hx-l">#12202a</code><code class="hx hx-d">#e6f0f2</code></li><li><span class="sw" style="background:var(--sidebar-primary)"></span><code>--sidebar-primary</code><code class="hx hx-l">#12202a</code><code class="hx hx-d">#36d6c8</code></li><li><span class="sw" style="background:var(--sidebar-primary-foreground)"></span><code>--sidebar-primary-foreground</code><code class="hx hx-l">#f8fbfb</code><code class="hx hx-d">#0c1216</code></li><li><span class="sw" style="background:var(--sidebar-accent)"></span><code>--sidebar-accent</code><code class="hx hx-l">#d8e3e6</code><code class="hx hx-d">#1d2a32</code></li><li><span class="sw" style="background:var(--sidebar-accent-foreground)"></span><code>--sidebar-accent-foreground</code><code class="hx hx-l">#12202a</code><code class="hx hx-d">#e6f0f2</code></li><li><span class="sw" style="background:var(--sidebar-border)"></span><code>--sidebar-border</code><code class="hx hx-l">#c9d7db</code><code class="hx hx-d">#1f2d35</code></li><li><span class="sw" style="background:var(--sidebar-ring)"></span><code>--sidebar-ring</code><code class="hx hx-l">#0b8a80</code><code class="hx hx-d">#36d6c8</code></li><li><span class="sw" style="background:var(--brand)"></span><code>--brand</code><code class="hx hx-l">#0b8a80</code><code class="hx hx-d">#36d6c8</code></li><li><span class="sw" style="background:var(--brand-foreground)"></span><code>--brand-foreground</code><code class="hx hx-l">#0f0f0f</code><code class="hx hx-d">#0c1216</code></li><li><span class="sw" style="background:var(--sky-1)"></span><code>--sky-1</code><code class="hx hx-l">#a9bcc4</code><code class="hx hx-d">#080d11</code></li><li><span class="sw" style="background:var(--sky-2)"></span><code>--sky-2</code><code class="hx hx-l">#e3ecef</code><code class="hx hx-d">#1c2a33</code></li><li><span class="sw" style="background:var(--mount-1)"></span><code>--mount-1</code><code class="hx hx-l">#7f949e</code><code class="hx hx-d">#22323b</code></li><li><span class="sw" style="background:var(--mount-2)"></span><code>--mount-2</code><code class="hx hx-l">#93a7b0</code><code class="hx hx-d">#2c3f49</code></li><li><span class="sw" style="background:var(--mount-3)"></span><code>--mount-3</code><code class="hx hx-l">#5f747e</code><code class="hx hx-d">#16242b</code></li><li><span class="sw" style="background:var(--ground)"></span><code>--ground</code><code class="hx hx-l">#6f7f86</code><code class="hx hx-d">#111a1f</code></li><li><span class="sw" style="background:var(--road)"></span><code>--road</code><code class="hx hx-l">#4c5a61</code><code class="hx hx-d">#1e2b33</code></li></ul>
+  </footer>
+</section>
+</main>
+</body>
+</html>

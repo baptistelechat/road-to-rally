@@ -67,9 +67,11 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Balance du son dans les options : curseurs à crans de 10 % pour la voix, le moteur et les effets (pneus, herbe, vent, chocs)
 - Quatre compteurs au choix dans les options : chiffres avec LED de régime, cadran rond à aiguille avec anneau de régime, arc de régime gradué, et télémétrie avec accélérateur et frein
 - Le copilote annonce les chicanes (« Chicane droite », dans le sens du panneau) et l'arrivée des spéciales, avec leur icône
+- Aperçu de partage aux couleurs du jeu quand on colle un lien : scène low-poly, icône et logotype, avec le nom de la spéciale et le temps pour un tracé ou un défi partagé
 
 ### Changed
 
+- Le jeu s'appelle désormais « Road to Rally » dans l'onglet du navigateur et les aperçus de lien
 - Voix du copilote plus fluide et plus forte : chaque note est dite d'un seul tenant au lieu de mots recollés
 - Son du moteur plus réaliste en course : résonance d'échappement, admission, mécanique, saturation, frein moteur et pétarades, plus sifflement et « pschitt » sur les moteurs turbo
 
