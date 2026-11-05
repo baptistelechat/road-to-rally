@@ -318,3 +318,14 @@ og:image : six templates ogimagecn proposés, puis une carte unique retenue apr�
 **Entrées clés :**
 
 - [BDR-261105_1736-1](decisions/BDR-261105_1736-1.md) — Identité Road to Rally : Nuit facettée, Épingle, carte og unique
+
+---
+
+Reprise de brand-creator à l'étape 15. Les tokens Nuit facettée sont appliqués partout (globals.css en oklch, polices next/font, `<html class="dark">`) et ~50 composants du jeu, du HUD, du garage et de l'éditeur passent des couleurs en dur aux tokens. L'icône Épingle sert de favicon, à angles droits ; l'écran titre et l'og:image gardent leur arrondi. Le garage affiche enfin le logotype sur sa bannière et l'icône dans son cadre. DESIGN.md est écrit et linté (le lint passe par `node`, `npx` ouvrant Visual Studio sous Windows). Le Design System Claude est publié avec tous les visuels de marque, et le skill est mis à jour pour les inclure.
+
+L'étape 18 a pris l'essentiel de la session : une première série de maquettes trop fidèle à l'existant a été rejetée, puis trois directions (Road-book, Cockpit facetté, Broadcast) ont mené à une direction retenue, déclinée sur le menu, la pause, deux HUD au choix, les compteurs, les notes du copilote, le garage, l'éditeur, le départ, l'arrivée et les panneaux de course. Plusieurs retours venaient d'éléments oubliés qui n'existaient que dans le code ou sur `origin/main` (epic 4). Les 13 écrans retenus et l'export HTML du canevas sont rapatriés dans `docs/design/mockups/`, et le skill demande désormais l'export à chaque étape 18. Commit `cbc7838` sur `development`, sans push.
+
+**Entrées clés :**
+
+- [BDR-261105_2313-1](decisions/BDR-261105_2313-1.md) — Redesign retenu : menu B, pause road-book, HUD au choix
+- [BLK-261105_2313-5](blockers/BLK-261105_2313-5.md) — `development` en retard sur la prod epic 4, HUD en conflit

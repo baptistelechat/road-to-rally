@@ -18,6 +18,7 @@ register: decisions
 | [BDR-261104_2034-4](decisions/BDR-261104_2034-4.md) | 2026-11-04 | Arrivée annoncée : « Arrivée », icône A3b | #copilote #arrivee #pace-notes #hud #icones #voix | actif |
 | [BDR-261104_2127-1](decisions/BDR-261104_2127-1.md) | 2026-11-04 | Fichiers voix : un dossier par voix, nom tiré du texte | #copilote #voix #web-audio #fichiers #kokoro #gain | actif |
 | [BDR-261105_1736-1](decisions/BDR-261105_1736-1.md) | 2026-11-05 | Identité Road to Rally : Nuit facettée, Épingle, carte og unique | #brand #logo #og-image #nextjs #design-system #low-poly | actif |
+| [BDR-261105_2313-1](decisions/BDR-261105_2313-1.md) | 2026-11-05 | Redesign retenu : menu B, pause road-book, HUD au choix | #redesign #hud #game-ui #mockups #claude-design #nuit-facettee | actif |
 | [BDR-20261101115222-1](decisions/BDR-20261101115222-1.md) | 2026-11-01 | L'IGN est la seule source d'altitude en jeu | #ign #brouter #srtm #relief #altitude #epic-2 | actif |
 | [BDR-20261101115222-2](decisions/BDR-20261101115222-2.md) | 2026-11-01 | Circuit conservé et trois cartes de test | #sandbox #cartes #url #selecteur #localstorage #epic-2 | actif |
 | [BDR-20261101115222-3](decisions/BDR-20261101115222-3.md) | 2026-11-01 | Les tracés qui se croisent sont refusés en v0 | #ribbon #nearest #croisement #maillage #scope #epic-2 | actif |
