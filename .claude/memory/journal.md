@@ -266,7 +266,7 @@ La voix (Kokoro, « long » au lieu de « longue ») est reportée à une sessio
 - [BDR-20261103202354-1](decisions/BDR-20261103202354-1.md) — Panneaux du copilote en pilule colorée
 - [BDR-20261103202354-2](decisions/BDR-20261103202354-2.md) — Resserrement annoncé avec la note d'entrée
 - [BDR-20261103202354-3](decisions/BDR-20261103202354-3.md) — Crête : rayon vertical sous 100 m
-- [BLK-20261103202354-5](blockers/BLK-20261103202354-5.md) — Modèles Kokoro absents : « long » non régénéré
+- [ZBLK-20261103202354-5](archive/blockers/ZBLK-20261103202354-5.md) — Modèles Kokoro absents : « long » non régénéré
 
 ---
 
@@ -305,4 +305,16 @@ Intégration des voix du copilote. La voix ne recolle plus des mots : chaque not
 **Entrées clés :**
 
 - [BDR-261104_2127-1](decisions/BDR-261104_2127-1.md) — Fichiers voix : un dossier par voix, nom tiré du texte
-- [BLK-20261103202354-5](blockers/BLK-20261103202354-5.md) — Modèles Kokoro absents : « long » régénéré, résolu
+- [ZBLK-20261103202354-5](archive/blockers/ZBLK-20261103202354-5.md) — Modèles Kokoro absents : « long » régénéré, résolu
+
+## 2026-11-05
+
+Session d'identité visuelle avec le skill brand-creator. Une première série de six directions de design, pensées comme des sites, a été écartée : Baptiste a gardé la typo de la Spéciale de nuit (Michroma, Manrope, Share Tech Mono) et demandé des variations autour du low-poly, maquettées comme des écrans de jeu (HUD en course, pause, arrivée). La direction Nuit facettée a été retenue. Le nom du jeu est fixé à « Road to Rally ».
+
+Logo : 18 propositions (Lucide et trois concepts dessinés à la main, Python étant absent du poste pour les scripts de logo-design), puis un logotype facetté construit sur la grille du R. Les coupes des lettres ne traversaient pas : corrigées en deux passes, avec des masques et des lignes prolongées de peu. L'icône d'app est l'Épingle, agrandie et posée sur un fond low-poly ; l'écran titre mêle la version empilée et la scène facettée.
+
+og:image : six templates ogimagecn proposés, puis une carte unique retenue après deux tests rendus hors projet : même scène et même grand logo pour le jeu, un tracé ou un temps, seule la ligne du bas change. Intégré en Next.js (`opengraph-image.tsx`, route `/og/stage`, helper `stageShareMetadata` pour l'epic 6), avec un avertissement de traçage Turbopack corrigé et deux remarques React Doctor traitées. Commit 03ef903 poussé sur development. Pause du workflow à l'étape 15 (tokens shadcn et favicon).
+
+**Entrées clés :**
+
+- [BDR-261105_1736-1](decisions/BDR-261105_1736-1.md) — Identité Road to Rally : Nuit facettée, Épingle, carte og unique
