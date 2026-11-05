@@ -49,7 +49,7 @@ const AnchorMarker = ({
       <MarkerContent className={moving ? "cursor-grab" : undefined}>
         {/* Une marge autour de la pastille : plus facile à attraper en mode déplacement. */}
         <span className={moving ? "block p-2" : "block"}>
-          <span className="grid size-6 place-items-center rounded-full border-2 border-white bg-sky-600 text-xs font-bold text-white shadow-md">
+          <span className="grid size-6 place-items-center rounded-full border-2 border-foreground bg-sky-600 text-xs font-bold text-foreground shadow-md">
             {rank}
           </span>
         </span>

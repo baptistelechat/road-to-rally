@@ -73,7 +73,7 @@ const ChicaneRow = ({ chicane }: { chicane: ListedChicane }) => {
       >
         {/* Le même point que sur la carte, avec son texte pour un lecteur d'écran. */}
         {chicane.origin === "player" && (
-          <span className="mr-1 inline-block size-2 rounded-full border border-white bg-orange-500">
+          <span className="mr-1 inline-block size-2 rounded-full border border-foreground bg-orange-500">
             <span className="sr-only">Placée par toi : </span>
           </span>
         )}
@@ -144,7 +144,7 @@ export const ChicanePanel = () => {
         </span>
       </label>
       {/* Aussi ici : un refus affiché seulement plus haut passerait inaperçu une fois le panneau défilé. */}
-      {notice && <p className="text-xs text-amber-400">{notice}</p>}
+      {notice && <p className="text-xs text-brand">{notice}</p>}
 
       {trace.chicanesEnabled && (
         <>
@@ -152,7 +152,7 @@ export const ChicanePanel = () => {
           {axisReady &&
             !analyzing &&
             chicaneSpacingWarnings(chicanes, runoffPoints).map((warning, i) => (
-              <p key={`${i}-${warning}`} className="text-xs text-amber-400">
+              <p key={`${i}-${warning}`} className="text-xs text-brand">
                 {warning}
               </p>
             ))}

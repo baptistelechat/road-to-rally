@@ -36,12 +36,12 @@ export const MenuCards = <T extends string>({
           type="button"
           role="radio"
           aria-checked={id === value}
-          className={`flex flex-col items-center gap-1 rounded border p-1.5 text-xs font-semibold hover:bg-white/10 ${id === value ? "border-amber-400 text-amber-400" : "border-white/15"} ${menuFocus}`}
+          className={`flex flex-col items-center gap-1 rounded border p-1.5 text-xs font-semibold hover:bg-foreground/10 ${id === value ? "border-brand text-brand" : "border-foreground/15"} ${menuFocus}`}
           onClick={() => onChoose(id)}
         >
           <span
             aria-hidden="true"
-            className="pointer-events-none relative block h-24 w-full overflow-hidden rounded-sm bg-neutral-800"
+            className="pointer-events-none relative block h-24 w-full overflow-hidden rounded-sm bg-muted"
           >
             {preview}
           </span>

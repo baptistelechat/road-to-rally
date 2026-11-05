@@ -67,7 +67,7 @@ export const MenuSelect = <T extends string | number | boolean>({
           aria-label={`${title} : ${current}`}
           aria-haspopup="listbox"
           aria-expanded={open}
-          className={`flex max-w-40 items-center gap-2 rounded border border-white/25 bg-neutral-900 px-2 py-0.5 text-xs font-semibold ${menuFocus}`}
+          className={`flex max-w-40 items-center gap-2 rounded border border-foreground/25 bg-background px-2 py-0.5 text-xs font-semibold ${menuFocus}`}
           onClick={() => (open ? close() : setOpen(true))}
         >
           <span className="truncate">{current}</span>
@@ -77,7 +77,7 @@ export const MenuSelect = <T extends string | number | boolean>({
           <div
             role="listbox"
             aria-label={title}
-            className="absolute top-full right-0 z-10 mt-1 flex w-40 flex-col gap-1 rounded border border-white/25 bg-neutral-900 p-1"
+            className="absolute top-full right-0 z-10 mt-1 flex w-40 flex-col gap-1 rounded border border-foreground/25 bg-background p-1"
           >
             {options.map(({ id, name }) => (
               <button
@@ -86,7 +86,7 @@ export const MenuSelect = <T extends string | number | boolean>({
                 role="option"
                 aria-selected={id === value}
                 autoFocus={id === value}
-                className={`truncate rounded px-2 py-1 text-left text-xs font-semibold hover:bg-white/15 ${id === value ? "text-amber-400" : ""} ${menuFocus}`}
+                className={`truncate rounded px-2 py-1 text-left text-xs font-semibold hover:bg-foreground/15 ${id === value ? "text-brand" : ""} ${menuFocus}`}
                 onClick={() => (id === value ? close() : onChoose(id, close))}
               >
                 {name}

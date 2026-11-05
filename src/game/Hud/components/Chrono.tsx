@@ -33,7 +33,7 @@ export const Chrono = ({ closed }: { closed: boolean }) => {
       </div>
       <dl
         aria-live="polite"
-        className="mt-2 space-y-0.5 border-t border-white/15 pt-2"
+        className="mt-2 space-y-0.5 border-t border-foreground/15 pt-2"
       >
         {closed && <LapRow name="Dernier" value={formatLap(lastLapMs)} />}
         <LapRow name="Meilleur" value={formatLap(bestLapMs)} />
@@ -65,7 +65,7 @@ export const FinishBanner = () => {
       {finished && (
         <div className={`${panel} px-6 py-3 text-center`}>
           <div className={label}>Arrivée</div>
-          <div className="font-mono text-4xl font-bold text-amber-400 tabular-nums">
+          <div className="font-mono text-4xl font-bold text-brand tabular-nums">
             {formatLap(lastLapMs)}
           </div>
         </div>

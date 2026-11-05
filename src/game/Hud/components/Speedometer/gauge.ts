@@ -10,7 +10,7 @@ export interface GaugeData {
   brake: number;
 }
 
-export const AMBER = "#fbbf24";
+export const BRAND = "#ffd23f" // = --brand (.dark), une couleur SVG ne lit pas les variables CSS;
 export const RED = "#ef4444";
 export const GREEN = "#22c55e";
 export const TRACK = "rgba(255,255,255,0.12)";

@@ -57,7 +57,7 @@ export const ReturnLayer = () => {
           rotationAlignment="map"
         >
           <MarkerContent className="pointer-events-none">
-            <span className="grid size-5 place-items-center rounded-full bg-purple-600 text-white shadow">
+            <span className="grid size-5 place-items-center rounded-full bg-purple-600 text-foreground shadow">
               <ArrowUpDown aria-hidden="true" className="size-3.5" />
             </span>
           </MarkerContent>

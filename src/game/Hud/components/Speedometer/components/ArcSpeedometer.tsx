@@ -1,6 +1,6 @@
 import { carConfig } from "@/sim/carConfig";
 import {
-  AMBER,
+  BRAND,
   formatGear,
   type GaugeData,
   RED,
@@ -50,7 +50,7 @@ export const ArcSpeedometer = ({ speedKmh, gear, rpm }: GaugeData) => {
       <path
         d={ARC}
         fill="none"
-        stroke={ratio >= RED_ZONE ? RED : AMBER}
+        stroke={ratio >= RED_ZONE ? RED : BRAND}
         strokeWidth={10}
         strokeLinecap="round"
         pathLength={100}
@@ -102,12 +102,12 @@ export const ArcSpeedometer = ({ speedKmh, gear, rpm }: GaugeData) => {
       >
         ×1000 TR/MIN
       </text>
-      <rect x={66} y={116} width={28} height={24} rx={5} fill={AMBER} />
+      <rect x={66} y={116} width={28} height={24} rx={5} fill={BRAND} />
       <text
         x={C}
         y={134}
         textAnchor="middle"
-        fill="#412402"
+        fill="#0b1018"
         fontSize={17}
         fontWeight={700}
         className="font-mono"

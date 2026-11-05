@@ -55,7 +55,7 @@ export const TelemetrySpeedometer = ({
           />
         </div>
       </div>
-      <div className="self-stretch border-l border-white/15 pl-3 font-mono text-5xl leading-none font-bold text-amber-400">
+      <div className="self-stretch border-l border-foreground/15 pl-3 font-mono text-5xl leading-none font-bold text-brand">
         {formatGear(gear)}
       </div>
     </div>

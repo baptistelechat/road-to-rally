@@ -29,7 +29,7 @@ export const MiniMapPreview = ({
 }) => (
   <svg
     viewBox="0 0 48 48"
-    className="absolute top-1/2 left-1/2 size-20 -translate-1/2 rounded-sm bg-black/70"
+    className="absolute top-1/2 left-1/2 size-20 -translate-1/2 rounded-sm bg-background/70"
   >
     {style === "off" && (
       <path

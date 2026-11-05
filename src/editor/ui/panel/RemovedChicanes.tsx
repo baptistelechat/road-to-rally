@@ -26,7 +26,7 @@ export const RemovedChicanes = ({
         key={message}
         type="button"
         title="Voir sur la carte"
-        className="block rounded text-left text-amber-400 hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+        className="block rounded text-left text-brand hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
         onClick={() => editorStore.setState({ focus: { position } })}
       >
         {listed

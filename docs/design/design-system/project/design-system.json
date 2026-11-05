@@ -1,0 +1,80 @@
+{
+  "v": 3,
+  "layout": "files",
+  "createdOnFiles": {
+    "v": 1,
+    "at": "2026-11-05T19:16:35Z"
+  },
+  "title": "Road to Rally",
+  "namespace": "RoadToRally",
+  "libraries": [],
+  "sections": {},
+  "groups": [
+    "Logos",
+    "Illustrations"
+  ],
+  "assetGroups": {
+    "Logos": {
+      "name": "Logos",
+      "tile": "l",
+      "order": [
+        "road-to-rally-icon.svg",
+        "road-to-rally-wordmark.svg",
+        "road-to-rally-wordmark-line.svg"
+      ],
+      "files": {
+        "road-to-rally-icon.svg": {
+          "name": "road-to-rally-icon.svg",
+          "blob": "9924427f6ac81cc31e058dfe102f86b8",
+          "size": 2977,
+          "type": "image/svg+xml"
+        },
+        "road-to-rally-wordmark.svg": {
+          "name": "road-to-rally-wordmark.svg",
+          "blob": "8c8a103abb9a666986ec13ad8977b11c",
+          "size": 5232,
+          "type": "image/svg+xml"
+        },
+        "road-to-rally-wordmark-line.svg": {
+          "name": "road-to-rally-wordmark-line.svg",
+          "blob": "ced05669baaf2a11771e619bfc916e33",
+          "size": 5161,
+          "type": "image/svg+xml"
+        }
+      }
+    },
+    "Illustrations": {
+      "name": "Illustrations",
+      "tile": "l",
+      "order": [
+        "title-screen.svg",
+        "og-scene.svg"
+      ],
+      "files": {
+        "title-screen.svg": {
+          "name": "title-screen.svg",
+          "blob": "a3db038d7e676ff583c2243e4d252d0e",
+          "size": 6481,
+          "type": "image/svg+xml"
+        },
+        "og-scene.svg": {
+          "name": "og-scene.svg",
+          "blob": "d52bb8be070820d42326d17e196ac490",
+          "size": 714,
+          "type": "image/svg+xml"
+        }
+      }
+    }
+  },
+  "blobs": {},
+  "docs": {
+    "readme": "project/README.md",
+    "sections": []
+  },
+  "lastChange": {
+    "by": "Baptiste",
+    "at": "2026-11-05T19:16:35Z",
+    "via": "Claude Code — brand-creator",
+    "note": "Créé depuis docs/design/DESIGN.md"
+  }
+}

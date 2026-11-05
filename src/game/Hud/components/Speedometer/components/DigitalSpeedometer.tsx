@@ -1,6 +1,6 @@
 import { label } from "../../../hudStyles";
 import {
-  AMBER,
+  BRAND,
   formatGear,
   GREEN,
   type GaugeData,
@@ -15,7 +15,7 @@ const LEDS = 12;
 const ledColor = (i: number): string => {
   const at = (i + 1) / LEDS;
   if (at > RED_ZONE) return RED;
-  return at > RED_ZONE - 0.25 ? AMBER : GREEN;
+  return at > RED_ZONE - 0.25 ? BRAND : GREEN;
 };
 
 /** Chiffres et barre de LED de régime, qui passe au rouge quand la boîte change de rapport. */
@@ -33,9 +33,9 @@ export const DigitalSpeedometer = ({ speedKmh, gear, rpm }: GaugeData) => {
         ))}
       </div>
       <div className="flex items-stretch gap-4">
-        <div className="flex w-14 flex-col items-center justify-center border-r border-white/15 pr-4">
+        <div className="flex w-14 flex-col items-center justify-center border-r border-foreground/15 pr-4">
           <span className={label}>Rapport</span>
-          <span className="font-mono text-4xl font-bold text-amber-400 tabular-nums">
+          <span className="font-mono text-4xl font-bold text-brand tabular-nums">
             {formatGear(gear)}
           </span>
         </div>

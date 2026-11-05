@@ -23,7 +23,7 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Numéro personnalisable au garage, sur les portières et le capot : 3 chiffres et 6 styles
 - Drapeau de 255 pays sur les flancs arrière, redessiné en style low-poly, avec une option sans drapeau
 - Décor de tente d'assistance autour de la voiture au garage : bannière, drapeau et numéro aux couleurs de la livrée, écran avec l'heure réelle, plaques de rallye, trophées, étagères et armoires à outils
-- Emplacement réservé au logo du jeu dans le garage
+- Logo du jeu dans le garage : logotype facetté sur la bannière et icône encadrée au mur
 - Sélecteur de carte avec deux vraies routes de France, Road et Mountain, et un record par carte
 - Vrai relief low-poly autour de la route, largeur de route selon OpenStreetMap
 - Spéciales du départ à l'arrivée : la voiture attend le premier coup de gaz, puis s'arrête seule après la ligne
@@ -68,6 +68,7 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Quatre compteurs au choix dans les options : chiffres avec LED de régime, cadran rond à aiguille avec anneau de régime, arc de régime gradué, et télémétrie avec accélérateur et frein
 - Le copilote annonce les chicanes (« Chicane droite », dans le sens du panneau) et l'arrivée des spéciales, avec leur icône
 - Aperçu de partage aux couleurs du jeu quand on colle un lien : scène low-poly, icône et logotype, avec le nom de la spéciale et le temps pour un tracé ou un défi partagé
+- Icône de Road to Rally dans l'onglet du navigateur
 
 ### Changed
 
@@ -103,6 +104,7 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Seuls les vrais sommets sont annoncés comme des crêtes : les petites ondulations de la route ne le sont plus
 - La mini-carte montre le parcouru en ambre et la route à venir en gris, avec une flèche orientée selon le cap, un départ vert et un damier à l'arrivée, et suit la voiture à chaque image
 - Le volume de la voix se règle par un curseur, sans phrase de test
+- Nouvelle charte « Nuit facettée » sur le jeu, le garage et l'éditeur : fond bleu nuit, jaune des phares pour le rapport, les actions principales et la sélection, titres en Michroma, texte en Manrope, chiffres en Share Tech Mono, coins plus anguleux
 
 ### Removed
 

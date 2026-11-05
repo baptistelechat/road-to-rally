@@ -1,0 +1,965 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Panneaux de course</title>
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Michroma&amp;family=Share+Tech+Mono&amp;display=swap"
+          rel="stylesheet"
+        />
+        <style>
+          body {
+            margin: 0;
+            background: #0b1018;
+          }
+          a {
+            color: #ffd23f;
+          }
+          a:hover {
+            color: #ffe27a;
+          }
+        </style>
+      </helmet>
+      <main
+        style="
+          position: relative;
+          width: 1440px;
+          height: 980px;
+          overflow: hidden;
+          background: #0b1018;
+          color: #e9edf3;
+          font-family: Manrope, system-ui, sans-serif;
+        "
+      >
+        <img
+          src="/_blob/ac72bf9d2e41631be25024721e914dd6"
+          alt=""
+          style="
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          "
+        />
+        <div
+          style="
+            position: relative;
+            padding: 36px 56px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+          "
+        >
+          <header
+            style="
+              display: inline-flex;
+              flex-direction: column;
+              align-self: flex-start;
+              padding: 12px 18px;
+              background: rgba(11, 16, 24, 0.88);
+            "
+          >
+            <h1
+              style="
+                margin: 0;
+                font-family: Michroma, sans-serif;
+                font-size: 20px;
+                font-weight: 400;
+              "
+            >
+              Panneaux de course
+            </h1>
+            <p style="margin: 4px 0 0; font-size: 13px; color: #93a0b4">
+              Communs aux HUD Cockpit et Broadcast. Libellés et durées repris de
+              la prod.
+            </p>
+          </header>
+
+          <section aria-labelledby="t-depart">
+            <h2
+              id="t-depart"
+              style="
+                display: inline-block;
+                margin: 0 0 12px;
+                padding: 4px 10px;
+                background: #0b1018;
+                font-family: Michroma, sans-serif;
+                font-size: 10px;
+                letter-spacing: 0.18em;
+                color: #e9edf3;
+                font-weight: 400;
+              "
+            >
+              DÉCOMPTE DU DÉPART
+            </h2>
+            <div style="display: flex; gap: 28px; align-items: flex-end">
+              <div
+                aria-live="assertive"
+                style="
+                  width: 150px;
+                  height: 168px;
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                  justify-content: center;
+                  gap: 10px;
+                  background: rgba(11, 16, 24, 0.9);
+                  clip-path: polygon(
+                    50% 0,
+                    100% 22%,
+                    100% 78%,
+                    50% 100%,
+                    0 78%,
+                    0 22%
+                  );
+                "
+              >
+                <span aria-hidden="true" style="display: flex; gap: 8px"
+                  ><span
+                    style="
+                      width: 14px;
+                      height: 14px;
+                      border-radius: 999px;
+                      background: #ff6b5e;
+                    "
+                  ></span
+                  ><span
+                    style="
+                      width: 14px;
+                      height: 14px;
+                      border-radius: 999px;
+                      background: rgba(233, 237, 243, 0.15);
+                    "
+                  ></span
+                  ><span
+                    style="
+                      width: 14px;
+                      height: 14px;
+                      border-radius: 999px;
+                      background: rgba(233, 237, 243, 0.15);
+                    "
+                  ></span
+                ></span>
+                <span
+                  style="
+                    font-family: &quot;Share Tech Mono&quot;, monospace;
+                    font-size: 84px;
+                    line-height: 0.9;
+                    color: #ffd23f;
+                  "
+                  >3</span
+                >
+              </div>
+              <div
+                style="
+                  width: 150px;
+                  height: 168px;
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                  justify-content: center;
+                  gap: 10px;
+                  background: rgba(11, 16, 24, 0.9);
+                  clip-path: polygon(
+                    50% 0,
+                    100% 22%,
+                    100% 78%,
+                    50% 100%,
+                    0 78%,
+                    0 22%
+                  );
+                "
+              >
+                <span aria-hidden="true" style="display: flex; gap: 8px"
+                  ><span
+                    style="
+                      width: 14px;
+                      height: 14px;
+                      border-radius: 999px;
+                      background: #ff6b5e;
+                    "
+                  ></span
+                  ><span
+                    style="
+                      width: 14px;
+                      height: 14px;
+                      border-radius: 999px;
+                      background: #ff6b5e;
+                    "
+                  ></span
+                  ><span
+                    style="
+                      width: 14px;
+                      height: 14px;
+                      border-radius: 999px;
+                      background: rgba(233, 237, 243, 0.15);
+                    "
+                  ></span
+                ></span>
+                <span
+                  style="
+                    font-family: &quot;Share Tech Mono&quot;, monospace;
+                    font-size: 84px;
+                    line-height: 0.9;
+                    color: #ffd23f;
+                  "
+                  >2</span
+                >
+              </div>
+              <div
+                style="
+                  width: 150px;
+                  height: 168px;
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                  justify-content: center;
+                  gap: 10px;
+                  background: rgba(11, 16, 24, 0.9);
+                  clip-path: polygon(
+                    50% 0,
+                    100% 22%,
+                    100% 78%,
+                    50% 100%,
+                    0 78%,
+                    0 22%
+                  );
+                "
+              >
+                <span aria-hidden="true" style="display: flex; gap: 8px"
+                  ><span
+                    style="
+                      width: 14px;
+                      height: 14px;
+                      border-radius: 999px;
+                      background: #ff6b5e;
+                    "
+                  ></span
+                  ><span
+                    style="
+                      width: 14px;
+                      height: 14px;
+                      border-radius: 999px;
+                      background: #ff6b5e;
+                    "
+                  ></span
+                  ><span
+                    style="
+                      width: 14px;
+                      height: 14px;
+                      border-radius: 999px;
+                      background: #ff6b5e;
+                    "
+                  ></span
+                ></span>
+                <span
+                  style="
+                    font-family: &quot;Share Tech Mono&quot;, monospace;
+                    font-size: 84px;
+                    line-height: 0.9;
+                    color: #ffd23f;
+                  "
+                  >1</span
+                >
+              </div>
+              <div
+                style="
+                  width: 150px;
+                  height: 168px;
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                  justify-content: center;
+                  gap: 10px;
+                  background: #7ee0a1;
+                  clip-path: polygon(
+                    50% 0,
+                    100% 22%,
+                    100% 78%,
+                    50% 100%,
+                    0 78%,
+                    0 22%
+                  );
+                "
+              >
+                <span aria-hidden="true" style="display: flex; gap: 8px"
+                  ><span
+                    style="
+                      width: 14px;
+                      height: 14px;
+                      border-radius: 999px;
+                      background: #0b1018;
+                    "
+                  ></span
+                  ><span
+                    style="
+                      width: 14px;
+                      height: 14px;
+                      border-radius: 999px;
+                      background: #0b1018;
+                    "
+                  ></span
+                  ><span
+                    style="
+                      width: 14px;
+                      height: 14px;
+                      border-radius: 999px;
+                      background: #0b1018;
+                    "
+                  ></span
+                ></span>
+                <span
+                  style="
+                    font-family: Michroma, sans-serif;
+                    font-size: 44px;
+                    line-height: 1;
+                    color: #0b1018;
+                  "
+                  >GO</span
+                >
+              </div>
+              <p
+                style="
+                  margin: 0 0 0 12px;
+                  max-width: 360px;
+                  padding: 10px 14px;
+                  background: rgba(11, 16, 24, 0.88);
+                  font-size: 13px;
+                  color: #e9edf3;
+                "
+              >
+                Hexagone facetté au centre. Les 3 feux répondent aux lampes de
+                l'arche, puis tout passe au vert sur GO, affiché 0,8 s.
+              </p>
+            </div>
+          </section>
+
+          <section aria-labelledby="t-piste">
+            <h2
+              id="t-piste"
+              style="
+                display: inline-block;
+                margin: 0 0 12px;
+                padding: 4px 10px;
+                background: #0b1018;
+                font-family: Michroma, sans-serif;
+                font-size: 10px;
+                letter-spacing: 0.18em;
+                color: #e9edf3;
+                font-weight: 400;
+              "
+            >
+              HORS PISTE · CONTRESENS · REMISE EN PISTE
+            </h2>
+            <div style="display: flex; gap: 24px">
+              <div
+                role="status"
+                style="
+                  width: 300px;
+                  display: flex;
+                  background: rgba(11, 16, 24, 0.9);
+                  clip-path: polygon(6% 0, 100% 0, 94% 100%, 0 100%);
+                "
+              >
+                <span
+                  aria-hidden="true"
+                  style="
+                    width: 36px;
+                    background: repeating-linear-gradient(
+                      135deg,
+                      #ff6b5e 0 10px,
+                      #0b1018 10px 20px
+                    );
+                  "
+                ></span>
+                <span
+                  style="
+                    flex: 1;
+                    padding: 14px 24px 14px 16px;
+                    text-align: center;
+                  "
+                >
+                  <span
+                    style="
+                      display: block;
+                      font-family: Michroma, sans-serif;
+                      font-size: 11px;
+                      letter-spacing: 0.18em;
+                      color: #ff6b5e;
+                    "
+                    >HORS PISTE</span
+                  >
+                  <span
+                    style="
+                      display: block;
+                      font-family: &quot;Share Tech Mono&quot;, monospace;
+                      font-size: 56px;
+                      line-height: 1.05;
+                      color: #e9edf3;
+                    "
+                    >1.4</span
+                  >
+                  <span style="display: block; font-size: 13px; color: #93a0b4"
+                    >Reviens sur la route</span
+                  >
+                </span>
+              </div>
+              <div
+                role="status"
+                style="
+                  width: 300px;
+                  display: flex;
+                  background: rgba(11, 16, 24, 0.9);
+                  clip-path: polygon(6% 0, 100% 0, 94% 100%, 0 100%);
+                "
+              >
+                <span
+                  aria-hidden="true"
+                  style="
+                    width: 36px;
+                    background: repeating-linear-gradient(
+                      135deg,
+                      #ff6b5e 0 10px,
+                      #0b1018 10px 20px
+                    );
+                  "
+                ></span>
+                <span
+                  style="
+                    flex: 1;
+                    padding: 14px 24px 14px 16px;
+                    display: flex;
+                    align-items: center;
+                    gap: 14px;
+                  "
+                >
+                  <svg
+                    width="48"
+                    height="48"
+                    viewBox="0 0 48 48"
+                    role="img"
+                    aria-label="Sens interdit"
+                  >
+                    <circle
+                      cx="24"
+                      cy="24"
+                      r="22"
+                      fill="#dc2626"
+                      stroke="#e9edf3"
+                      stroke-width="3"
+                    />
+                    <rect x="10" y="20" width="28" height="8" fill="#e9edf3" />
+                  </svg>
+                  <span style="text-align: left">
+                    <span
+                      style="
+                        display: block;
+                        font-family: Michroma, sans-serif;
+                        font-size: 11px;
+                        letter-spacing: 0.18em;
+                        color: #ff6b5e;
+                      "
+                      >SENS INTERDIT</span
+                    >
+                    <span
+                      style="
+                        display: block;
+                        font-family: &quot;Share Tech Mono&quot;, monospace;
+                        font-size: 56px;
+                        line-height: 1.05;
+                        color: #e9edf3;
+                      "
+                      >2.6</span
+                    >
+                    <span
+                      style="display: block; font-size: 13px; color: #93a0b4"
+                      >Fais demi-tour</span
+                    >
+                  </span>
+                </span>
+              </div>
+              <div
+                role="status"
+                style="
+                  width: 300px;
+                  display: flex;
+                  background: rgba(11, 16, 24, 0.9);
+                  clip-path: polygon(6% 0, 100% 0, 94% 100%, 0 100%);
+                "
+              >
+                <span
+                  aria-hidden="true"
+                  style="
+                    width: 36px;
+                    background: repeating-linear-gradient(
+                      135deg,
+                      #ffd23f 0 10px,
+                      #0b1018 10px 20px
+                    );
+                  "
+                ></span>
+                <span
+                  style="
+                    flex: 1;
+                    padding: 14px 24px 14px 16px;
+                    text-align: center;
+                  "
+                >
+                  <span
+                    style="
+                      display: block;
+                      font-family: Michroma, sans-serif;
+                      font-size: 11px;
+                      letter-spacing: 0.18em;
+                      color: #ffd23f;
+                    "
+                    >REMISE EN PISTE</span
+                  >
+                  <span
+                    style="
+                      display: block;
+                      font-family: &quot;Share Tech Mono&quot;, monospace;
+                      font-size: 56px;
+                      line-height: 1.05;
+                      color: #e9edf3;
+                    "
+                    >0.8</span
+                  >
+                  <span
+                    aria-hidden="true"
+                    style="
+                      display: block;
+                      height: 4px;
+                      margin: 4px 0 6px;
+                      background: rgba(233, 237, 243, 0.15);
+                    "
+                    ><span
+                      style="
+                        display: block;
+                        width: 73%;
+                        height: 100%;
+                        background: #ffd23f;
+                      "
+                    ></span
+                  ></span>
+                  <span style="display: block; font-size: 13px; color: #93a0b4"
+                    >Relâche pour annuler</span
+                  >
+                </span>
+              </div>
+            </div>
+          </section>
+
+          <section aria-labelledby="t-temps">
+            <h2
+              id="t-temps"
+              style="
+                display: inline-block;
+                margin: 0 0 12px;
+                padding: 4px 10px;
+                background: #0b1018;
+                font-family: Michroma, sans-serif;
+                font-size: 10px;
+                letter-spacing: 0.18em;
+                color: #e9edf3;
+                font-weight: 400;
+              "
+            >
+              PÉNALITÉS ET INTERMÉDIAIRES
+            </h2>
+            <div
+              style="
+                display: flex;
+                gap: 20px;
+                align-items: flex-start;
+                flex-wrap: wrap;
+              "
+            >
+              <div style="display: flex; flex-direction: column; gap: 8px">
+                <div
+                  aria-live="polite"
+                  style="
+                    display: flex;
+                    align-items: stretch;
+                    height: 44px;
+                    background: rgba(11, 16, 24, 0.9);
+                    clip-path: polygon(4% 0, 100% 0, 96% 100%, 0 100%);
+                  "
+                >
+                  <span
+                    style="
+                      padding: 0 16px 0 22px;
+                      display: flex;
+                      align-items: center;
+                      background: #ff6b5e;
+                      color: #0b1018;
+                      font-family: &quot;Share Tech Mono&quot;, monospace;
+                      font-size: 22px;
+                    "
+                    >+00:05.000</span
+                  ><span
+                    style="
+                      padding: 0 26px 0 14px;
+                      display: flex;
+                      align-items: center;
+                      font-family: Michroma, sans-serif;
+                      font-size: 11px;
+                      letter-spacing: 0.14em;
+                    "
+                    >HORS PISTE</span
+                  >
+                </div>
+                <div
+                  style="
+                    display: flex;
+                    align-items: stretch;
+                    height: 44px;
+                    background: rgba(11, 16, 24, 0.9);
+                    clip-path: polygon(4% 0, 100% 0, 96% 100%, 0 100%);
+                  "
+                >
+                  <span
+                    style="
+                      padding: 0 16px 0 22px;
+                      display: flex;
+                      align-items: center;
+                      background: #ff6b5e;
+                      color: #0b1018;
+                      font-family: &quot;Share Tech Mono&quot;, monospace;
+                      font-size: 22px;
+                    "
+                    >+00:05.000</span
+                  ><span
+                    style="
+                      padding: 0 26px 0 14px;
+                      display: flex;
+                      align-items: center;
+                      font-family: Michroma, sans-serif;
+                      font-size: 11px;
+                      letter-spacing: 0.14em;
+                    "
+                    >CONTRESENS</span
+                  >
+                </div>
+                <div
+                  style="
+                    display: flex;
+                    align-items: stretch;
+                    height: 44px;
+                    background: rgba(11, 16, 24, 0.9);
+                    clip-path: polygon(4% 0, 100% 0, 96% 100%, 0 100%);
+                  "
+                >
+                  <span
+                    style="
+                      padding: 0 16px 0 22px;
+                      display: flex;
+                      align-items: center;
+                      background: #ff6b5e;
+                      color: #0b1018;
+                      font-family: &quot;Share Tech Mono&quot;, monospace;
+                      font-size: 22px;
+                    "
+                    >+00:05.000</span
+                  ><span
+                    style="
+                      padding: 0 26px 0 14px;
+                      display: flex;
+                      align-items: center;
+                      font-family: Michroma, sans-serif;
+                      font-size: 11px;
+                      letter-spacing: 0.14em;
+                    "
+                    >REMISE EN PISTE</span
+                  >
+                </div>
+              </div>
+              <div
+                aria-live="polite"
+                style="
+                  width: 220px;
+                  padding: 10px 18px;
+                  text-align: center;
+                  background: rgba(11, 16, 24, 0.9);
+                  clip-path: polygon(8% 0, 100% 0, 92% 100%, 0 100%);
+                "
+              >
+                <div
+                  style="
+                    font-family: Michroma, sans-serif;
+                    font-size: 10px;
+                    letter-spacing: 0.18em;
+                    color: #93a0b4;
+                  "
+                >
+                  INTERMÉDIAIRE 2
+                </div>
+                <div
+                  style="
+                    font-family: &quot;Share Tech Mono&quot;, monospace;
+                    font-size: 24px;
+                  "
+                >
+                  02:20.550
+                </div>
+                <div
+                  style="
+                    margin-top: 4px;
+                    padding: 2px 0;
+                    background: #7ee0a1;
+                    color: #0b1018;
+                    font-family: &quot;Share Tech Mono&quot;, monospace;
+                    font-size: 26px;
+                  "
+                >
+                  −00:01.240
+                </div>
+              </div>
+              <div
+                style="
+                  width: 220px;
+                  padding: 10px 18px;
+                  text-align: center;
+                  background: rgba(11, 16, 24, 0.9);
+                  clip-path: polygon(8% 0, 100% 0, 92% 100%, 0 100%);
+                "
+              >
+                <div
+                  style="
+                    font-family: Michroma, sans-serif;
+                    font-size: 10px;
+                    letter-spacing: 0.18em;
+                    color: #93a0b4;
+                  "
+                >
+                  INTERMÉDIAIRE 2
+                </div>
+                <div
+                  style="
+                    font-family: &quot;Share Tech Mono&quot;, monospace;
+                    font-size: 24px;
+                  "
+                >
+                  02:20.550
+                </div>
+                <div
+                  style="
+                    margin-top: 4px;
+                    padding: 2px 0;
+                    background: #ff6b5e;
+                    color: #0b1018;
+                    font-family: &quot;Share Tech Mono&quot;, monospace;
+                    font-size: 26px;
+                  "
+                >
+                  +00:00.870
+                </div>
+              </div>
+              <div
+                style="
+                  width: 220px;
+                  padding: 10px 18px;
+                  text-align: center;
+                  background: rgba(11, 16, 24, 0.9);
+                  clip-path: polygon(8% 0, 100% 0, 92% 100%, 0 100%);
+                "
+              >
+                <div
+                  style="
+                    font-family: Michroma, sans-serif;
+                    font-size: 10px;
+                    letter-spacing: 0.18em;
+                    color: #93a0b4;
+                  "
+                >
+                  INTERMÉDIAIRE 2
+                </div>
+                <div
+                  style="
+                    font-family: &quot;Share Tech Mono&quot;, monospace;
+                    font-size: 24px;
+                  "
+                >
+                  02:20.550
+                </div>
+                <div style="margin-top: 4px; font-size: 12px; color: #93a0b4">
+                  Pas encore de record
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <aside
+          aria-label="Frise de la spéciale"
+          style="
+            position: absolute;
+            top: 120px;
+            right: 80px;
+            width: 200px;
+            padding: 16px;
+            background: rgba(11, 16, 24, 0.88);
+          "
+        >
+          <h2
+            style="
+              margin: 0 0 12px;
+              font-family: Michroma, sans-serif;
+              font-size: 10px;
+              letter-spacing: 0.18em;
+              font-weight: 400;
+            "
+          >
+            FRISE DES SECTEURS
+          </h2>
+          <div style="display: flex; gap: 18px">
+            <div
+              role="img"
+              aria-label="Spéciale en 3 secteurs : 1 terminé en avance, 1 en cours"
+              style="position: relative; width: 22px; height: 320px"
+            >
+              <span
+                style="
+                  position: absolute;
+                  left: 7px;
+                  bottom: 0;
+                  width: 8px;
+                  height: 35%;
+                  background: #7ee0a1;
+                  clip-path: polygon(0 4%, 100% 0, 100% 100%, 0 100%);
+                "
+              ></span>
+              <span
+                style="
+                  position: absolute;
+                  left: 7px;
+                  bottom: 35%;
+                  width: 8px;
+                  height: 35%;
+                  background: rgba(233, 237, 243, 0.6);
+                  clip-path: polygon(0 4%, 100% 0, 100% 100%, 0 100%);
+                "
+              ></span>
+              <span
+                style="
+                  position: absolute;
+                  left: 7px;
+                  bottom: 70%;
+                  width: 8px;
+                  height: 30%;
+                  background: rgba(233, 237, 243, 0.2);
+                "
+              ></span>
+              <span
+                style="
+                  position: absolute;
+                  left: 1px;
+                  bottom: 35%;
+                  width: 20px;
+                  height: 3px;
+                  background: #e9edf3;
+                "
+              ></span>
+              <span
+                style="
+                  position: absolute;
+                  left: 1px;
+                  bottom: 70%;
+                  width: 20px;
+                  height: 3px;
+                  background: #e9edf3;
+                "
+              ></span>
+              <span
+                style="
+                  position: absolute;
+                  left: 3px;
+                  bottom: -8px;
+                  width: 16px;
+                  height: 16px;
+                  background: #7ee0a1;
+                  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+                "
+              ></span>
+              <span
+                style="
+                  position: absolute;
+                  left: 2px;
+                  top: -9px;
+                  width: 18px;
+                  height: 18px;
+                  background: repeating-conic-gradient(
+                      #0b1018 0 25%,
+                      #e9edf3 0 50%
+                    )
+                    0 0 / 50% 50%;
+                "
+              ></span>
+              <span
+                style="
+                  position: absolute;
+                  left: 4px;
+                  bottom: 50%;
+                  width: 14px;
+                  height: 14px;
+                  border-radius: 999px;
+                  background: rgba(233, 237, 243, 0.4);
+                  border: 1px solid #e9edf3;
+                "
+              ></span>
+              <span
+                style="
+                  position: absolute;
+                  left: 0;
+                  bottom: 54%;
+                  width: 0;
+                  height: 0;
+                  border-left: 11px solid transparent;
+                  border-right: 11px solid transparent;
+                  border-bottom: 16px solid #ffd23f;
+                "
+              ></span>
+            </div>
+            <ul
+              style="
+                margin: 0;
+                padding: 0;
+                list-style: none;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                font-size: 12px;
+                color: #e9edf3;
+              "
+            >
+              <li><span style="color: #7ee0a1">■</span> Secteur en avance</li>
+              <li><span style="color: #ff6b5e">■</span> Secteur en retard</li>
+              <li>
+                <span style="color: rgba(233, 237, 243, 0.6)">■</span> Secteur
+                en cours
+              </li>
+              <li><span style="color: #ffd23f">▲</span> Ta voiture</li>
+              <li><span style="color: #93a0b4">●</span> Fantôme du record</li>
+              <li>Départ en bas, arrivée en haut</li>
+            </ul>
+          </div>
+        </aside>
+      </main>
+    </x-dc>
+    <script
+      type="text/x-dc"
+      data-dc-script
+      data-props='{"$preview":{"width":1440,"height":980}}'
+    >
+      class Component extends DCLogic {
+        renderVals() { return {}; }
+      }
+    </script>
+  </body>
+</html>

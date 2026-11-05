@@ -95,12 +95,33 @@ export const drawBanner = (
     ctx.lineTo(x, height);
     ctx.fill();
   }
-  fitText(ctx, "ROAD TO RALLY", {
-    center: [width / 2, height / 2],
-    box: [width - 340, height * 0.6],
-    font: (size) => `italic ${size}px Impact, "Arial Black", sans-serif`,
-    ink: readableInk(primary),
-  });
+};
+
+/** Logotype facetté (blanc dans le fichier), teinté pour rester lisible sur la couleur de la bannière. */
+export const WORDMARK_SRC = "/brand/road-to-rally-line.svg";
+
+export const drawWordmark = (
+  ctx: CanvasRenderingContext2D,
+  image: HTMLImageElement,
+  ink: string,
+): void => {
+  const { width, height } = ctx.canvas;
+  const markHeight = height * 0.78;
+  const markWidth = Math.min(width - 340, (markHeight * 2024) / 336); // viewBox du fichier
+  const tinted = document.createElement("canvas");
+  tinted.width = Math.round(markWidth);
+  tinted.height = Math.round(markHeight);
+  const tintedCtx = tinted.getContext("2d");
+  if (!tintedCtx) return;
+  tintedCtx.drawImage(image, 0, 0, tinted.width, tinted.height);
+  tintedCtx.globalCompositeOperation = "source-in";
+  tintedCtx.fillStyle = ink;
+  tintedCtx.fillRect(0, 0, tinted.width, tinted.height);
+  ctx.drawImage(
+    tinted,
+    (width - tinted.width) / 2,
+    (height - tinted.height) / 2,
+  );
 };
 
 /** Silhouette d'une plaque de rallye : un rectangle surmonté d'un dôme. */
@@ -345,20 +366,54 @@ export const drawNumberCloth = (
 
 export const LOGO_SIZE_PX = [512, 512] as const;
 
-// ponytail: cadre d'attente, à remplacer par un drawImage du logo quand le fichier existera.
-export const drawLogoSlot = (ctx: CanvasRenderingContext2D): void => {
-  const { width, height } = ctx.canvas;
-  ctx.fillStyle = "#17181b";
-  ctx.fillRect(0, 0, width, height);
-  ctx.strokeStyle = "#8d9196";
-  ctx.lineWidth = 8;
-  ctx.setLineDash([28, 18]);
-  ctx.strokeRect(36, 36, width - 72, height - 72);
-  ctx.setLineDash([]);
-  fitText(ctx, "LOGO", {
-    center: [width / 2, height / 2],
-    box: [width * 0.6, height * 0.25],
-    font: (size) => `bold ${size}px Arial, sans-serif`,
-    ink: "#8d9196",
-  });
+export const LOGO_SRC = "/icon.svg";
+
+/** Fond du cadre (= --background en .dark), visible le temps que l'icône charge et dans ses coins arrondis. */
+export const drawLogoBackdrop = (ctx: CanvasRenderingContext2D): void => {
+  ctx.fillStyle = "#0b1018";
+  ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+};
+
+export const drawLogo = (
+  ctx: CanvasRenderingContext2D,
+  image: HTMLImageElement,
+): void => {
+  drawLogoBackdrop(ctx);
+  ctx.drawImage(image, 0, 0, ctx.canvas.width, ctx.canvas.height);
+};
+
+const images = new Map<string, Promise<HTMLImageElement>>();
+
+const loadImage = (src: string): Promise<HTMLImageElement> => {
+  let image = images.get(src);
+  if (!image) {
+    image = new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = src;
+    });
+    images.set(src, image);
+  }
+  return image;
+};
+
+/** Dessine l'image dans la texture une fois chargée ; renvoie de quoi l'annuler. */
+export const drawWhenLoaded = (
+  texture: CanvasTexture,
+  src: string,
+  draw: (ctx: CanvasRenderingContext2D, image: HTMLImageElement) => void,
+): (() => void) => {
+  let cancelled = false;
+  loadImage(src)
+    .then((image) => {
+      const ctx = (texture.image as HTMLCanvasElement).getContext("2d");
+      if (cancelled || !ctx) return;
+      draw(ctx, image);
+      texture.needsUpdate = true;
+    })
+    .catch(() => images.delete(src));
+  return () => {
+    cancelled = true;
+  };
 };

@@ -38,7 +38,7 @@ const MenuDialog = ({
     <dialog
       open
       aria-labelledby="menu-title"
-      className="pointer-events-auto absolute inset-0 z-20 m-0 grid size-full max-h-none max-w-none place-items-center border-0 bg-black/45 p-0 text-inherit opacity-100 transition-opacity duration-200 starting:opacity-0"
+      className="pointer-events-auto absolute inset-0 z-20 m-0 grid size-full max-h-none max-w-none place-items-center border-0 bg-background/45 p-0 text-inherit opacity-100 transition-opacity duration-200 starting:opacity-0"
     >
       <div
         className={`${panel} ${inOptions ? "max-h-[95vh] w-[34rem] overflow-y-auto" : "w-80"} space-y-4 p-6 text-center`}
@@ -58,7 +58,7 @@ const MenuDialog = ({
               type="button"
               autoFocus={view === "menu"}
               data-needs-sound={paused ? undefined : ""}
-              className={`w-full rounded bg-amber-400 px-4 py-3 font-bold text-black hover:bg-amber-300 ${menuFocus}`}
+              className={`w-full rounded bg-brand px-4 py-3 font-bold text-brand-foreground hover:bg-brand/85 ${menuFocus}`}
               onClick={() => setHudScreen("race")}
             >
               {paused ? "Reprendre" : "Prendre le départ"}

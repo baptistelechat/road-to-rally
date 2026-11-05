@@ -34,7 +34,7 @@ export const IssueList = () => {
           {issues.map((issue, i) => {
             const { position } = issue;
             const label = issue.blocking ? "Bloquant" : "À savoir";
-            const tone = issue.blocking ? "text-destructive" : "text-amber-400";
+            const tone = issue.blocking ? "text-destructive" : "text-brand";
             const text = (
               <>
                 <strong className="font-semibold">{label} : </strong>

@@ -102,7 +102,7 @@ const ChicaneMarker = ({ chicane }: { chicane: ListedChicane }) => {
         >
           <ChicaneSign side={chicane.side} />
           {chicane.origin === "player" && (
-            <span className="absolute -top-0.5 -right-0.5 size-2.5 rounded-full border border-white bg-orange-500" />
+            <span className="absolute -top-0.5 -right-0.5 size-2.5 rounded-full border border-foreground bg-orange-500" />
           )}
         </span>
       </MarkerContent>

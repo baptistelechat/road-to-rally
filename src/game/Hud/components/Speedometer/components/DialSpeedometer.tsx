@@ -1,5 +1,5 @@
 import {
-  AMBER,
+  BRAND,
   formatGear,
   type GaugeData,
   RED,
@@ -38,7 +38,7 @@ export const DialSpeedometer = ({ speedKmh, gear, rpm }: GaugeData) => {
       <path
         d={RING}
         fill="none"
-        stroke={ratio >= RED_ZONE ? RED : AMBER}
+        stroke={ratio >= RED_ZONE ? RED : BRAND}
         strokeWidth={4}
         pathLength={100}
         strokeDasharray={`${Math.round(ratio * 1000) / 10} 100`}
@@ -106,7 +106,7 @@ export const DialSpeedometer = ({ speedKmh, gear, rpm }: GaugeData) => {
         x={C}
         y={146}
         textAnchor="middle"
-        fill={AMBER}
+        fill={BRAND}
         fontSize={15}
         fontWeight={700}
         className="font-mono"

@@ -1,0 +1,264 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "A-Course.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "title": "A · Road-book — Course",
+      "w": 1440,
+      "x": 1520,
+      "y": 2400
+    },
+    "A-Menu.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "title": "A · Road-book — Menu",
+      "w": 1440,
+      "x": 0,
+      "y": 2400
+    },
+    "Arrivee.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "title": "/ — Arrivée et défi",
+      "w": 1440,
+      "x": 0,
+      "y": 1020
+    },
+    "B-Course.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "title": "B · Cockpit facetté — Course",
+      "w": 1440,
+      "x": 1520,
+      "y": 3660
+    },
+    "B-Menu.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "title": "B · Cockpit facetté — Menu",
+      "w": 1440,
+      "x": 0,
+      "y": 3660
+    },
+    "C-Course.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "title": "C · Broadcast — Course",
+      "w": 1440,
+      "x": 1520,
+      "y": 4920
+    },
+    "C-Menu.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "title": "C · Broadcast — Menu",
+      "w": 1440,
+      "x": 0,
+      "y": 4920
+    },
+    "Course.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "title": "/ — HUD en course",
+      "w": 1440,
+      "x": 1520,
+      "y": 0
+    },
+    "Garage.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "title": "/garage — Garage",
+      "w": 1440,
+      "x": 1520,
+      "y": 1020
+    },
+    "Main.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "title": "/ — Menu de départ",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "R-Compteurs.dc.html": {
+      "h": 440,
+      "title": "Compteurs actuels du jeu",
+      "w": 1440,
+      "x": 0,
+      "y": 8220
+    },
+    "R-Editeur-Liste.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "title": "Retenu — /editor (mes spéciales)",
+      "w": 1440,
+      "x": 0,
+      "y": 10240
+    },
+    "R-Editeur-Trace.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "title": "Retenu — /editor/trace (création)",
+      "w": 1440,
+      "x": 1520,
+      "y": 10240
+    },
+    "R-Garage.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "title": "Retenu — /garage",
+      "w": 1440,
+      "x": 1520,
+      "y": 9220
+    },
+    "R-HUD-Broadcast.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "title": "Retenu — HUD Broadcast",
+      "w": 1440,
+      "x": 1520,
+      "y": 7200
+    },
+    "R-HUD-Cockpit-Rond.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "title": "Retenu — HUD Cockpit, compteur Arc",
+      "w": 1440,
+      "x": 0,
+      "y": 9220
+    },
+    "R-HUD-Cockpit.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "title": "Retenu — HUD Cockpit",
+      "w": 1440,
+      "x": 0,
+      "y": 7200
+    },
+    "R-Menu.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "title": "Retenu — Menu de départ",
+      "w": 1440,
+      "x": 0,
+      "y": 6180
+    },
+    "R-Notes.dc.html": {
+      "h": 760,
+      "title": "Notes du copilote — redesign",
+      "w": 1440,
+      "x": 1520,
+      "y": 8220
+    },
+    "R-Pause.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "title": "Retenu — Pause (drawer)",
+      "w": 1440,
+      "x": 1520,
+      "y": 6180
+    },
+    "R-Depart.dc.html": {
+      "x": 0,
+      "y": 11260,
+      "w": 1440,
+      "h": 900,
+      "title": "Retenu — Départ arrêté (décompte)",
+      "expand": "fill"
+    },
+    "R-Arrivee.dc.html": {
+      "x": 1520,
+      "y": 11260,
+      "w": 1440,
+      "h": 900,
+      "title": "Retenu — Arrivée (résultat)",
+      "expand": "fill"
+    },
+    "R-Panneaux.dc.html": {
+      "x": 0,
+      "y": 12280,
+      "w": 1440,
+      "h": 980,
+      "title": "Panneaux de course"
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-11-05T19:45:00Z",
+    "v": 1
+  },
+  "designSystems": [
+    {
+      "artifact": "https://claude.ai/artifact/YJZzWEK4t6mBWV4sQTWrRn",
+      "copiedAt": "2026-11-05T19:45:00Z",
+      "namespace": "roadtorally",
+      "title": "Road to Rally",
+      "version": "1793906216-2a6f"
+    }
+  ],
+  "launch": {
+    "view": "canvas"
+  },
+  "notes": {
+    "base": {
+      "kind": "title1",
+      "maxW": 2960,
+      "text": "Base — la DA posée sur l'app actuelle",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "dirA": {
+      "kind": "title1",
+      "maxW": 2960,
+      "text": "A · Road-book — le copilote au cœur de l'écran",
+      "w": 240,
+      "x": 0,
+      "y": 2100
+    },
+    "dirB": {
+      "kind": "title1",
+      "maxW": 2960,
+      "text": "B · Cockpit facetté — un seul instrument, en bas",
+      "w": 240,
+      "x": 0,
+      "y": 3360
+    },
+    "dirC": {
+      "kind": "title1",
+      "maxW": 2960,
+      "text": "C · Broadcast — l'habillage télé d'une spéciale",
+      "w": 240,
+      "x": 0,
+      "y": 4620
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "Course.dc.html",
+    "Arrivee.dc.html",
+    "Garage.dc.html",
+    "A-Menu.dc.html",
+    "A-Course.dc.html",
+    "B-Menu.dc.html",
+    "B-Course.dc.html",
+    "C-Menu.dc.html",
+    "C-Course.dc.html",
+    "R-Menu.dc.html",
+    "R-Pause.dc.html",
+    "R-HUD-Cockpit.dc.html",
+    "R-HUD-Broadcast.dc.html",
+    "R-Compteurs.dc.html",
+    "R-Notes.dc.html",
+    "R-HUD-Cockpit-Rond.dc.html",
+    "R-Garage.dc.html",
+    "R-Editeur-Liste.dc.html",
+    "R-Editeur-Trace.dc.html",
+    "R-Depart.dc.html",
+    "R-Arrivee.dc.html",
+    "R-Panneaux.dc.html"
+  ],
+  "pages": [],
+  "title": "Road to Rally — maquettes"
+}

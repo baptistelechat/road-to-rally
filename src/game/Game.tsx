@@ -90,7 +90,7 @@ const Scene = ({ sim, audio, copilot, useBot, bestLapKey }: SceneProps) => {
 };
 
 const screen =
-  "fixed inset-0 grid place-items-center bg-neutral-900 p-8 text-center text-neutral-400";
+  "fixed inset-0 grid place-items-center bg-background p-8 text-center text-muted-foreground";
 
 interface GameProps {
   /** Spéciale de l'éditeur, déjà relue depuis le cache par `GameEntry` */
@@ -118,7 +118,7 @@ export const Game = ({ initialStage }: GameProps) => {
           <p>Impossible de charger la carte « {map.label} ».</p>
           <a
             href={mapSearch("track")}
-            className="font-semibold text-amber-400 underline focus-visible:outline-2 focus-visible:outline-amber-400"
+            className="font-semibold text-brand underline focus-visible:outline-2 focus-visible:outline-brand"
           >
             Revenir au circuit
           </a>
@@ -136,7 +136,7 @@ export const Game = ({ initialStage }: GameProps) => {
     );
 
   return (
-    <div className="fixed inset-0 bg-neutral-900">
+    <div className="fixed inset-0 bg-background">
       <Canvas
         shadows="percentage"
         dpr={[1, 1.75]}

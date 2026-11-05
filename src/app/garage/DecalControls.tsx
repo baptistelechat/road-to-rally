@@ -87,7 +87,7 @@ export const StylePicker = ({
           aria-label={label}
           aria-pressed={livery[row.key] === id}
           tabIndex={-1}
-          className={`cursor-pointer rounded-[2px] bg-neutral-500 p-0.5 ${livery[row.key] === id ? "outline-2 outline-white" : ""}`}
+          className={`cursor-pointer rounded-[2px] bg-neutral-500 p-0.5 ${livery[row.key] === id ? "outline-2 outline-foreground" : ""}`}
           onMouseDown={(event) => event.preventDefault()}
           onClick={() => dispatch({ type: "style", row: rowIndex, style })}
         >
@@ -96,7 +96,7 @@ export const StylePicker = ({
       ))}
     </div>
     {open && (
-      <p className="text-xs text-white/70">
+      <p className="text-xs text-muted-foreground">
         Valider : Entrée ou A
         <br />
         Annuler : Échap ou B
@@ -113,7 +113,7 @@ interface SlotEditorProps {
 }
 
 const ARROW_BUTTON =
-  "flex-1 cursor-pointer rounded border border-white/25 py-0.5 hover:bg-white/15";
+  "flex-1 cursor-pointer rounded border border-foreground/25 py-0.5 hover:bg-foreground/15";
 
 export const SlotEditor = ({ row, text, value, dispatch }: SlotEditorProps) => (
   <div className="flex flex-col gap-1.5">
@@ -128,7 +128,7 @@ export const SlotEditor = ({ row, text, value, dispatch }: SlotEditorProps) => (
           tabIndex={-1}
           aria-label={`Caractère ${slot + 1} : ${char === " " ? "vide" : char}`}
           aria-pressed={text.slot === slot}
-          className={`h-7 cursor-pointer rounded-[2px] bg-white/10 ${text.slot === slot ? "outline-2 outline-white" : ""}`}
+          className={`h-7 cursor-pointer rounded-[2px] bg-foreground/10 ${text.slot === slot ? "outline-2 outline-foreground" : ""}`}
           // Sans le focus sur la case, Entrée continue de valider toute la saisie.
           onMouseDown={(event) => event.preventDefault()}
           onClick={() => dispatch({ type: "slot", slot })}
@@ -159,7 +159,7 @@ export const SlotEditor = ({ row, text, value, dispatch }: SlotEditorProps) => (
         ▼
       </button>
     </div>
-    <p className="text-xs text-white/70">
+    <p className="text-xs text-muted-foreground">
       Taper au clavier ou utiliser les flèches
       <br />
       Valider : Entrée ou A

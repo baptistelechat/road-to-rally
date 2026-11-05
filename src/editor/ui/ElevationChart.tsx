@@ -172,11 +172,11 @@ export const ElevationChart = ({
           <div
             aria-hidden="true"
             data-testid="elevation-cursor"
-            className="pointer-events-none absolute inset-y-0 w-px bg-amber-300"
+            className="pointer-events-none absolute inset-y-0 w-px bg-brand"
             style={{ left: `${(xOf(abscissas[cursorIndex]) / WIDTH) * 100}%` }}
           >
             <span
-              className="absolute size-2 -translate-1/2 rounded-full bg-amber-300"
+              className="absolute size-2 -translate-1/2 rounded-full bg-brand"
               style={{
                 top: `${(yOf(altitudes[cursorIndex]) / HEIGHT) * 100}%`,
               }}

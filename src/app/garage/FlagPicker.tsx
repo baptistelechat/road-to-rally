@@ -58,7 +58,7 @@ const FlagCell = memo(function FlagCell({
           ? (element) => element?.scrollIntoView({ block: "nearest" })
           : undefined
       }
-      className={`flex aspect-3/2 cursor-pointer items-center justify-center rounded-[2px] bg-white/10 text-xs leading-none ${selected ? "relative z-10 outline-2 outline-white" : ""}`}
+      className={`flex aspect-3/2 cursor-pointer items-center justify-center rounded-[2px] bg-foreground/10 text-xs leading-none ${selected ? "relative z-10 outline-2 outline-foreground" : ""}`}
       onMouseDown={(event) => event.preventDefault()}
       onMouseEnter={() => dispatch({ type: "try", style })}
       onClick={() => dispatch({ type: "style", row: rowIndex, style })}
@@ -126,7 +126,7 @@ export const FlagPicker = ({
           />
         ))}
       </div>
-      <p className="text-xs text-white/70">
+      <p className="text-xs text-muted-foreground">
         Valider : clic, Entrée ou A
         <br />
         Annuler : Échap ou B

@@ -21,10 +21,16 @@ import {
   CLOTH_SIZE,
   createPlaquesTexture,
   drawBanner,
-  drawLogoSlot,
+  drawLogo,
+  drawLogoBackdrop,
   drawNumberCloth,
   drawWeave,
+  drawWhenLoaded,
+  drawWordmark,
   LOGO_SIZE_PX,
+  LOGO_SRC,
+  readableInk,
+  WORDMARK_SRC,
   runServiceScreen,
   SCREEN_SIZE,
 } from "./garageDecals";
@@ -99,7 +105,7 @@ export const GarageDecor = ({ livery }: GarageDecorProps) => {
   const board = useMemo(() => createPlaquesTexture(), []);
   const screen = useMemo(() => createDecalTexture(SCREEN_SIZE, () => {}), []);
   const logo = useMemo(
-    () => createDecalTexture(LOGO_SIZE_PX, drawLogoSlot),
+    () => createDecalTexture(LOGO_SIZE_PX, drawLogoBackdrop),
     [],
   );
   const flagTexture = useMemo(
@@ -139,6 +145,14 @@ export const GarageDecor = ({ livery }: GarageDecorProps) => {
     [screen, numberText, plateText],
   );
   useEffect(() => runFlagCloth(flagTexture, flag), [flagTexture, flag]);
+  useEffect(
+    () =>
+      drawWhenLoaded(banner, WORDMARK_SRC, (ctx, image) =>
+        drawWordmark(ctx, image, readableInk(primary)),
+      ),
+    [banner, primary],
+  );
+  useEffect(() => drawWhenLoaded(logo, LOGO_SRC, drawLogo), [logo]);
 
   return (
     <group>

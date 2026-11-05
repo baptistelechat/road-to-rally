@@ -36,7 +36,7 @@ const DiagToast = () => {
     >
       {diag && (
         <div
-          className={`${panel} px-4 py-2 text-sm font-semibold text-amber-400`}
+          className={`${panel} px-4 py-2 text-sm font-semibold text-brand`}
         >
           {diag}
         </div>
@@ -64,10 +64,10 @@ const RecoveryCountdown = () => {
       className={`${panel} absolute top-1/4 left-1/2 w-72 -translate-x-1/2 px-5 py-4 text-center`}
     >
       <div className={label}>{title}</div>
-      <div className="font-mono text-5xl font-bold text-amber-400 tabular-nums">
+      <div className="font-mono text-5xl font-bold text-brand tabular-nums">
         {recovery.remaining.toFixed(1)}
       </div>
-      <div className="mt-1 text-xs text-white/70">{hint}</div>
+      <div className="mt-1 text-xs text-muted-foreground">{hint}</div>
     </div>
   );
 };

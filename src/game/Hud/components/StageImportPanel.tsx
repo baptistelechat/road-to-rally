@@ -38,7 +38,7 @@ export const StageImportPanel = ({
           accept=".gpx,application/gpx+xml"
           autoFocus
           disabled={running}
-          className="text-xs file:mr-3 file:rounded file:border file:border-white/25 file:bg-transparent file:px-2 file:py-1 file:font-semibold file:text-white disabled:opacity-50"
+          className="text-xs file:mr-3 file:rounded file:border file:border-foreground/25 file:bg-transparent file:px-2 file:py-1 file:font-semibold file:text-foreground disabled:opacity-50"
           onChange={(event) => {
             const file = event.currentTarget.files?.[0];
             // Vidé tout de suite : rechoisir le même fichier doit relancer un chargement.

@@ -19,7 +19,7 @@ export const HoverMarker = () => {
       className="pointer-events-none"
     >
       <MarkerContent className="pointer-events-none">
-        <span className="block size-3 rounded-full border-2 border-neutral-900 bg-amber-300" />
+        <span className="block size-3 rounded-full border-2 border-background bg-brand" />
       </MarkerContent>
     </MapMarker>
   );

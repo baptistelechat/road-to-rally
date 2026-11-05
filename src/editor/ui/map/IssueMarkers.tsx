@@ -25,7 +25,7 @@ const IssueLink = ({ id, issue }: { id: string; issue: EditorIssue }) => {
     <MapRoute
       id={id}
       coordinates={coordinates}
-      color={issue.blocking ? "#f87171" : "#fbbf24"}
+      color={issue.blocking ? "#f87171" : "#ffd23f"}
       width={3}
       opacity={1}
       dashArray={[1, 1]}
@@ -59,7 +59,7 @@ export const IssueMarkers = () => {
       >
         <MarkerContent className="cursor-help">
           <span
-            className={`grid size-6 place-items-center rounded-full border border-white shadow-md ${issue.blocking ? "bg-red-600 text-white" : "bg-amber-400 text-neutral-900"}`}
+            className={`grid size-6 place-items-center rounded-full border border-foreground shadow-md ${issue.blocking ? "bg-red-600 text-foreground" : "bg-brand text-brand-foreground"}`}
           >
             <TriangleAlert aria-hidden="true" className="size-3.5" />
           </span>

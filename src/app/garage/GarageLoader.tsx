@@ -8,7 +8,7 @@ const GarageScene = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="fixed inset-0 grid place-items-center bg-neutral-900 text-neutral-400">
+      <div className="fixed inset-0 grid place-items-center bg-background text-muted-foreground">
         Chargement…
       </div>
     ),

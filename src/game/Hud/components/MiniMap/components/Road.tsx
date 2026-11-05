@@ -35,7 +35,7 @@ export const Road = ({ path, width, scale, doneRef }: RoadProps) => (
       d={path}
       pathLength={1}
       fill="none"
-      stroke="#fbbf24"
+      stroke="#ffd23f"
       strokeWidth={width * scale}
       strokeDasharray="0 1"
       strokeLinejoin="round"
@@ -106,7 +106,7 @@ export const CarArrow = ({
     ref={arrowRef}
     transform={transform}
     d={`M0 ${-7 * unit}L${5 * unit} ${6 * unit}L0 ${3 * unit}L${-5 * unit} ${6 * unit}Z`}
-    fill="#fbbf24"
+    fill="#ffd23f"
     stroke="black"
     strokeWidth={1.5}
     strokeLinejoin="round"

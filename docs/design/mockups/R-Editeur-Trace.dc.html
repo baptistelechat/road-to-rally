@@ -1,0 +1,902 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Retenu — Éditeur, tracé</title>
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Michroma&amp;family=Share+Tech+Mono&amp;display=swap"
+          rel="stylesheet"
+        />
+        <style>
+          body {
+            margin: 0;
+            background: #0b1018;
+          }
+          a {
+            color: #ffd23f;
+          }
+          a:hover {
+            color: #ffe27a;
+          }
+        </style>
+      </helmet>
+      <main
+        style="
+          position: relative;
+          width: 100%;
+          height: 900px;
+          overflow: hidden;
+          background: #141a22;
+          color: #e9edf3;
+          font-family: Manrope, system-ui, sans-serif;
+        "
+      >
+        <img
+          src="/_blob/475aba501031d911302f509db68a4298"
+          alt=""
+          style="
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          "
+        />
+        <svg
+          viewBox="0 0 1440 900"
+          aria-hidden="true"
+          style="position: absolute; inset: 0; width: 100%; height: 100%"
+        >
+          <path
+            d="M520 560 C600 470 640 380 700 360 S820 330 880 300 S980 250 1060 300"
+            fill="none"
+            stroke="#0b1018"
+            stroke-width="12"
+            stroke-linecap="round"
+          />
+          <path
+            d="M520 560 C600 470 640 380 700 360 S820 330 880 300 S980 250 1060 300"
+            fill="none"
+            stroke="#ffd23f"
+            stroke-width="6"
+            stroke-linecap="round"
+          />
+          <g fill="#0b1018" stroke="#e9edf3" stroke-width="2.5">
+            <circle cx="700" cy="360" r="8" />
+            <circle cx="880" cy="300" r="8" />
+          </g>
+          <g>
+            <circle
+              cx="520"
+              cy="560"
+              r="12"
+              fill="#e9edf3"
+              stroke="#0b1018"
+              stroke-width="3"
+            />
+            <text
+              x="520"
+              y="565"
+              text-anchor="middle"
+              font-family="Manrope, sans-serif"
+              font-size="12"
+              font-weight="800"
+              fill="#0b1018"
+            >
+              D
+            </text>
+          </g>
+          <g>
+            <rect
+              x="1048"
+              y="288"
+              width="24"
+              height="24"
+              fill="#e9edf3"
+              stroke="#0b1018"
+              stroke-width="3"
+            />
+            <text
+              x="1060"
+              y="305"
+              text-anchor="middle"
+              font-family="Manrope, sans-serif"
+              font-size="12"
+              font-weight="800"
+              fill="#0b1018"
+            >
+              A
+            </text>
+          </g>
+          <g>
+            <polygon
+              points="640,418 660,384 680,418"
+              fill="#ff8f5a"
+              stroke="#0b1018"
+              stroke-width="2"
+            />
+            <polygon
+              points="950,274 970,240 990,274"
+              fill="#ff8f5a"
+              stroke="#0b1018"
+              stroke-width="2"
+            />
+          </g>
+          <g>
+            <circle
+              cx="790"
+              cy="336"
+              r="13"
+              fill="#ff6b5e"
+              stroke="#0b1018"
+              stroke-width="2"
+            />
+            <text
+              x="790"
+              y="342"
+              text-anchor="middle"
+              font-family="Manrope, sans-serif"
+              font-size="15"
+              font-weight="800"
+              fill="#0b1018"
+            >
+              !
+            </text>
+          </g>
+        </svg>
+
+        <header
+          style="
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            box-sizing: border-box;
+            padding: 0 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(11, 16, 24, 0.94);
+            border-bottom: 1px solid #202c3f;
+          "
+        >
+          <a
+            href="R-Editeur-Liste.dc.html"
+            style="
+              min-height: 44px;
+              display: flex;
+              align-items: center;
+              color: #e9edf3;
+              font-size: 14px;
+              font-weight: 700;
+              text-decoration: none;
+            "
+            >← Mes spéciales</a
+          >
+          <div
+            role="toolbar"
+            aria-label="Actions sur le tracé"
+            style="display: flex; gap: 4px; margin-left: 8px"
+          >
+            <button
+              type="button"
+              aria-label="Annuler (Ctrl+Z)"
+              style="
+                width: 40px;
+                height: 40px;
+                display: grid;
+                place-items: center;
+                background: #1e2a3c;
+                color: #e9edf3;
+                border: 0;
+                border-radius: 4px;
+              "
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M9 14 4 9l5-5" />
+                <path d="M4 9h11a5 5 0 0 1 0 10h-3" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              aria-label="Rétablir (Ctrl+Y)"
+              style="
+                width: 40px;
+                height: 40px;
+                display: grid;
+                place-items: center;
+                background: #1e2a3c;
+                color: #e9edf3;
+                border: 0;
+                border-radius: 4px;
+              "
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="m15 14 5-5-5-5" />
+                <path d="M20 9H9a5 5 0 0 0 0 10h3" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              aria-label="Inverser le sens du tracé"
+              style="
+                width: 40px;
+                height: 40px;
+                display: grid;
+                place-items: center;
+                background: #1e2a3c;
+                color: #e9edf3;
+                border: 0;
+                border-radius: 4px;
+              "
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="m16 3 4 4-4 4" />
+                <path d="M20 7H4" />
+                <path d="m8 21-4-4 4-4" />
+                <path d="M4 17h16" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              aria-label="Tout vider"
+              style="
+                width: 40px;
+                height: 40px;
+                display: grid;
+                place-items: center;
+                background: #1e2a3c;
+                color: #ff6b5e;
+                border: 0;
+                border-radius: 4px;
+              "
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M3 6h18" />
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+                <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+              </svg>
+            </button>
+          </div>
+          <input
+            aria-label="Nom de la spéciale"
+            value="Col de Turini"
+            style="
+              margin-left: auto;
+              width: 260px;
+              min-height: 40px;
+              padding: 0 12px;
+              background: #121a26;
+              color: #e9edf3;
+              border: 1px solid #56657d;
+              border-radius: 4px;
+              font-family: Manrope, sans-serif;
+              font-size: 14px;
+              font-weight: 700;
+            "
+          />
+          <span style="font-size: 12px; color: #93a0b4"
+            >1 problème bloquant</span
+          >
+          <button
+            type="button"
+            style="
+              min-height: 44px;
+              padding: 0 30px;
+              background: #ffd23f;
+              color: #0b1018;
+              border: 0;
+              clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+              font-family: Michroma, sans-serif;
+              font-size: 12px;
+              letter-spacing: 0.06em;
+            "
+          >
+            ▶ ROULER
+          </button>
+        </header>
+
+        <aside
+          aria-label="Spéciale"
+          style="
+            position: absolute;
+            top: 60px;
+            bottom: 0;
+            left: 0;
+            width: 360px;
+            box-sizing: border-box;
+            padding: 16px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            background: rgba(11, 16, 24, 0.94);
+            border-right: 1px solid #202c3f;
+            overflow-y: auto;
+          "
+        >
+          <div>
+            <label
+              for="lieu"
+              style="
+                font-family: Michroma, sans-serif;
+                font-size: 10px;
+                letter-spacing: 0.18em;
+                color: #93a0b4;
+              "
+              >RECHERCHER UN LIEU</label
+            >
+            <input
+              id="lieu"
+              placeholder="Col de Turini, Gap…"
+              style="
+                margin-top: 6px;
+                width: 100%;
+                box-sizing: border-box;
+                min-height: 40px;
+                padding: 0 12px;
+                background: #121a26;
+                color: #e9edf3;
+                border: 1px solid #56657d;
+                border-radius: 4px;
+                font-family: Manrope, sans-serif;
+                font-size: 14px;
+              "
+            />
+          </div>
+          <div
+            role="tablist"
+            aria-label="Panneaux"
+            style="
+              display: grid;
+              grid-template-columns: repeat(3, minmax(0, 1fr));
+              gap: 4px;
+            "
+          >
+            <button
+              type="button"
+              role="tab"
+              aria-selected="true"
+              style="
+                min-height: 40px;
+                background: #1e2a3c;
+                color: #ffd23f;
+                border: 0;
+                border-bottom: 3px solid #ffd23f;
+                font-family: Manrope, sans-serif;
+                font-size: 13px;
+                font-weight: 800;
+              "
+            >
+              Points (4)
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected="false"
+              style="
+                min-height: 40px;
+                background: transparent;
+                color: #e9edf3;
+                border: 0;
+                border-bottom: 3px solid #202c3f;
+                font-family: Manrope, sans-serif;
+                font-size: 13px;
+                font-weight: 600;
+              "
+            >
+              Chicanes (2)
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected="false"
+              style="
+                min-height: 40px;
+                background: transparent;
+                color: #e9edf3;
+                border: 0;
+                border-bottom: 3px solid #202c3f;
+                font-family: Manrope, sans-serif;
+                font-size: 13px;
+                font-weight: 600;
+              "
+            >
+              Score
+            </button>
+          </div>
+          <ol
+            style="
+              margin: 0;
+              padding: 0;
+              list-style: none;
+              display: flex;
+              flex-direction: column;
+              gap: 6px;
+            "
+          >
+            <li
+              style="
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                min-height: 44px;
+                padding: 0 10px;
+                background: #121a26;
+                border: 1px solid #202c3f;
+                border-radius: 4px;
+                font-size: 13px;
+                font-weight: 700;
+              "
+            >
+              <span
+                style="
+                  width: 28px;
+                  height: 28px;
+                  display: grid;
+                  place-items: center;
+                  background: #e9edf3;
+                  color: #0b1018;
+                  border-radius: 3px;
+                  font-family: &quot;Share Tech Mono&quot;, monospace;
+                "
+                >D</span
+              >Départ<span
+                style="
+                  margin-left: auto;
+                  font-family: &quot;Share Tech Mono&quot;, monospace;
+                  font-size: 12px;
+                  color: #93a0b4;
+                "
+                >0,00 km</span
+              >
+            </li>
+            <li
+              style="
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                min-height: 44px;
+                padding: 0 10px;
+                background: #121a26;
+                border: 1px solid #202c3f;
+                border-radius: 4px;
+                font-size: 13px;
+                font-weight: 700;
+              "
+            >
+              <span
+                style="
+                  width: 28px;
+                  height: 28px;
+                  display: grid;
+                  place-items: center;
+                  border: 1px solid #56657d;
+                  border-radius: 3px;
+                  font-family: &quot;Share Tech Mono&quot;, monospace;
+                "
+                >02</span
+              >Passage<span
+                style="
+                  margin-left: auto;
+                  font-family: &quot;Share Tech Mono&quot;, monospace;
+                  font-size: 12px;
+                  color: #93a0b4;
+                "
+                >1,62 km</span
+              >
+            </li>
+            <li
+              style="
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                min-height: 44px;
+                padding: 0 10px;
+                background: #121a26;
+                border: 1px solid #202c3f;
+                border-radius: 4px;
+                font-size: 13px;
+                font-weight: 700;
+              "
+            >
+              <span
+                style="
+                  width: 28px;
+                  height: 28px;
+                  display: grid;
+                  place-items: center;
+                  border: 1px solid #56657d;
+                  border-radius: 3px;
+                  font-family: &quot;Share Tech Mono&quot;, monospace;
+                "
+                >03</span
+              >Passage<span
+                style="
+                  margin-left: auto;
+                  font-family: &quot;Share Tech Mono&quot;, monospace;
+                  font-size: 12px;
+                  color: #93a0b4;
+                "
+                >3,05 km</span
+              >
+            </li>
+            <li
+              style="
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                min-height: 44px;
+                padding: 0 10px;
+                background: #121a26;
+                border: 1px solid #202c3f;
+                border-radius: 4px;
+                font-size: 13px;
+                font-weight: 700;
+              "
+            >
+              <span
+                style="
+                  width: 28px;
+                  height: 28px;
+                  display: grid;
+                  place-items: center;
+                  background: #e9edf3;
+                  color: #0b1018;
+                  border-radius: 3px;
+                  font-family: &quot;Share Tech Mono&quot;, monospace;
+                "
+                >A</span
+              >Arrivée<span
+                style="
+                  margin-left: auto;
+                  font-family: &quot;Share Tech Mono&quot;, monospace;
+                  font-size: 12px;
+                  color: #93a0b4;
+                "
+                >4,82 km</span
+              >
+            </li>
+          </ol>
+          <button
+            type="button"
+            style="
+              min-height: 44px;
+              background: transparent;
+              color: #e9edf3;
+              border: 1px dashed #56657d;
+              border-radius: 4px;
+              font-family: Manrope, sans-serif;
+              font-size: 13px;
+              font-weight: 600;
+            "
+          >
+            Revenir par la même route
+          </button>
+          <section
+            aria-label="Problèmes du tracé"
+            style="
+              padding: 12px;
+              background: rgba(255, 107, 94, 0.1);
+              border: 1px solid rgba(255, 107, 94, 0.45);
+              border-radius: 4px;
+              font-size: 13px;
+            "
+          >
+            <strong style="color: #ff6b5e">Bloquant :</strong> le tracé repasse
+            sur lui-même au km 2,1.
+            <a
+              href="#"
+              style="
+                display: block;
+                margin-top: 6px;
+                font-size: 12px;
+                font-weight: 700;
+              "
+              >Voir sur la carte</a
+            >
+          </section>
+        </aside>
+
+        <div
+          style="
+            position: absolute;
+            top: 76px;
+            right: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 8px;
+          "
+        >
+          <div
+            role="group"
+            aria-label="Fond de carte"
+            style="
+              display: flex;
+              gap: 2px;
+              padding: 4px;
+              background: rgba(11, 16, 24, 0.94);
+              border-radius: 4px;
+            "
+          >
+            <button
+              type="button"
+              aria-pressed="false"
+              style="
+                min-height: 36px;
+                padding: 0 12px;
+                background: transparent;
+                color: #e9edf3;
+                border: 0;
+                border-radius: 3px;
+                font-family: Manrope, sans-serif;
+                font-size: 13px;
+                font-weight: 600;
+              "
+            >
+              Clair
+            </button>
+            <button
+              type="button"
+              aria-pressed="true"
+              style="
+                min-height: 36px;
+                padding: 0 12px;
+                background: #1e2a3c;
+                color: #ffd23f;
+                border: 0;
+                border-radius: 3px;
+                font-family: Manrope, sans-serif;
+                font-size: 13px;
+                font-weight: 800;
+              "
+            >
+              Sombre
+            </button>
+            <button
+              type="button"
+              aria-pressed="false"
+              style="
+                min-height: 36px;
+                padding: 0 12px;
+                background: transparent;
+                color: #e9edf3;
+                border: 0;
+                border-radius: 3px;
+                font-family: Manrope, sans-serif;
+                font-size: 13px;
+                font-weight: 600;
+              "
+            >
+              Satellite
+            </button>
+          </div>
+          <div
+            style="
+              display: flex;
+              gap: 2px;
+              padding: 4px;
+              background: rgba(11, 16, 24, 0.94);
+              border-radius: 4px;
+            "
+          >
+            <button
+              type="button"
+              aria-pressed="true"
+              style="
+                min-height: 36px;
+                padding: 0 12px;
+                background: #1e2a3c;
+                color: #e9edf3;
+                border: 0;
+                border-radius: 3px;
+                font-family: Manrope, sans-serif;
+                font-size: 13px;
+                font-weight: 700;
+              "
+            >
+              Routes
+            </button>
+            <button
+              type="button"
+              style="
+                min-height: 36px;
+                padding: 0 12px;
+                background: transparent;
+                color: #e9edf3;
+                border: 0;
+                border-radius: 3px;
+                font-family: Manrope, sans-serif;
+                font-size: 13px;
+                font-weight: 600;
+              "
+            >
+              Légende
+            </button>
+          </div>
+        </div>
+
+        <section
+          aria-label="Profil d'altitude"
+          style="
+            position: absolute;
+            left: 376px;
+            right: 84px;
+            bottom: 16px;
+            height: 150px;
+            box-sizing: border-box;
+            padding: 12px 16px;
+            background: rgba(11, 16, 24, 0.94);
+            clip-path: polygon(2% 0, 100% 0, 100% 100%, 0 100%, 0 12%);
+          "
+        >
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              font-size: 12px;
+              color: #93a0b4;
+            "
+          >
+            <span
+              style="
+                font-family: Michroma, sans-serif;
+                font-size: 10px;
+                letter-spacing: 0.18em;
+              "
+              >PROFIL D'ALTITUDE</span
+            ><span style="font-family: &quot;Share Tech Mono&quot;, monospace"
+              >D+ 612 m · 4,82 km</span
+            >
+          </div>
+          <svg
+            viewBox="0 0 960 96"
+            width="100%"
+            height="96"
+            preserveAspectRatio="none"
+            aria-hidden="true"
+          >
+            <polygon
+              points="0,96 0,80 80,72 150,76 230,58 300,62 380,44 450,48 520,30 600,36 680,22 760,26 840,14 900,18 960,10 960,96"
+              fill="#2b3c5e"
+            />
+            <polygon
+              points="0,96 0,80 80,72 150,76 230,58 300,62 380,44 450,48 520,96"
+              fill="#22304d"
+            />
+            <polyline
+              points="0,80 80,72 150,76 230,58 300,62 380,44 450,48 520,30 600,36 680,22 760,26 840,14 900,18 960,10"
+              fill="none"
+              stroke="#e9edf3"
+              stroke-width="2"
+            />
+            <line
+              x1="520"
+              y1="0"
+              x2="520"
+              y2="96"
+              stroke="#ffd23f"
+              stroke-width="2"
+            />
+            <circle cx="520" cy="30" r="5" fill="#ffd23f" />
+          </svg>
+        </section>
+
+        <div
+          role="group"
+          aria-label="Navigation de la carte"
+          style="
+            position: absolute;
+            right: 16px;
+            bottom: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+          "
+        >
+          <button
+            type="button"
+            aria-label="Zoomer"
+            style="
+              width: 44px;
+              height: 44px;
+              background: rgba(11, 16, 24, 0.94);
+              color: #e9edf3;
+              border: 0;
+              border-radius: 4px;
+              font-size: 20px;
+            "
+          >
+            +
+          </button>
+          <button
+            type="button"
+            aria-label="Dézoomer"
+            style="
+              width: 44px;
+              height: 44px;
+              background: rgba(11, 16, 24, 0.94);
+              color: #e9edf3;
+              border: 0;
+              border-radius: 4px;
+              font-size: 20px;
+            "
+          >
+            −
+          </button>
+          <button
+            type="button"
+            aria-label="Nord en haut"
+            style="
+              width: 44px;
+              height: 44px;
+              background: rgba(11, 16, 24, 0.94);
+              color: #ff6b5e;
+              border: 0;
+              border-radius: 4px;
+              font-family: Michroma, sans-serif;
+              font-size: 12px;
+            "
+          >
+            N
+          </button>
+        </div>
+      </main>
+    </x-dc>
+    <script
+      type="text/x-dc"
+      data-dc-script
+      data-props='{"$preview":{"width":1440,"height":900}}'
+    >
+      class Component extends DCLogic {
+        renderVals() { return {}; }
+      }
+    </script>
+  </body>
+</html>

@@ -8,7 +8,7 @@ import { CUSTOM_MAP_ID, EDITOR_URL } from "./maps";
 const Game = dynamic(() => import("./Game").then((mod) => mod.Game), {
   ssr: false,
   loading: () => (
-    <div className="fixed inset-0 grid place-items-center bg-neutral-900 text-neutral-400">
+    <div className="fixed inset-0 grid place-items-center bg-background text-muted-foreground">
       Chargement…
     </div>
   ),
@@ -20,7 +20,7 @@ const isTouchOnly = (): boolean =>
   !window.matchMedia("(any-pointer: fine)").matches;
 
 const screen =
-  "fixed inset-0 grid place-items-center bg-neutral-900 p-8 text-center text-neutral-400";
+  "fixed inset-0 grid place-items-center bg-background p-8 text-center text-muted-foreground";
 
 /** Relit la spéciale de l'éditeur avant de monter le jeu : une clé absente ou illisible ne le plante pas. */
 const CustomStage = () => {
@@ -58,7 +58,7 @@ const CustomStage = () => {
         </p>
         <a
           href={EDITOR_URL}
-          className="font-semibold text-amber-400 underline focus-visible:outline-2 focus-visible:outline-amber-400"
+          className="font-semibold text-brand underline focus-visible:outline-2 focus-visible:outline-brand"
         >
           Retour à l&apos;éditeur
         </a>
@@ -71,12 +71,12 @@ const CustomStage = () => {
 export const GameEntry = () => {
   if (isTouchOnly())
     return (
-      <main className="fixed inset-0 grid place-items-center bg-neutral-900 p-8 text-center">
+      <main className="fixed inset-0 grid place-items-center bg-background p-8 text-center">
         <div className="max-w-sm space-y-3">
           <h1 className="text-2xl font-semibold">
             Rally se joue sur ordinateur
           </h1>
-          <p className="text-neutral-400">
+          <p className="text-muted-foreground">
             Ouvre cette page sur un PC, avec un clavier ou une manette.
           </p>
         </div>
