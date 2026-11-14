@@ -11,8 +11,6 @@ register: learnings
 | [LRN-003](learnings/LRN-003.md) | 2026-11-01 | Lag : comparer dev et production, une variable par test | #performance #diagnostic #nextjs #dev-mode #production #methode |
 | [LRN-004](learnings/LRN-004.md) | 2026-11-01 | Worker témoin et calcul fixe pour localiser un lag | #performance #diagnostic #web-worker #gamepad #web-audio #mesure |
 | [LRN-005](learnings/LRN-005.md) | 2026-11-01 | Sur AZERTY, la touche M a le code Semicolon | #clavier #azerty #keyboard-event #code #input |
-| [LRN-261104_2034-5](learnings/LRN-261104_2034-5.md) | 2026-11-04 | Kokoro : ponctuation ignorée, mots seuls ratés | #kokoro #tts #voix #prosodie #ponctuation #decoupage |
-| [LRN-261104_2034-6](learnings/LRN-261104_2034-6.md) | 2026-11-04 | Voix masculine française avec Kokoro par mélange | #kokoro #tts #voix #style-vector #accent #blend |
 | [LRN-261104_1032-5](learnings/LRN-261104_1032-5.md) | 2026-11-04 | Overpass saturé : spéciale sans ronds-points ni largeurs | #overpass #osm #diagnostic #ronds-points #502 #pipeline |
 | [LRN-261104_1032-6](learnings/LRN-261104_1032-6.md) | 2026-11-04 | MapLibre : sous 3 px, un déplacement de carte est un clic | #maplibre #clic #clicktolerance #popup #carte #ux |
 | [LRN-261104_1032-7](learnings/LRN-261104_1032-7.md) | 2026-11-04 | Poignée sous le pointeur : elle reçoit le clic de dessous | #maplibre #marqueur #clic #insertion #chicane #hover |
@@ -22,6 +20,8 @@ register: learnings
 | [LRN-261104_1546-3](learnings/LRN-261104_1546-3.md) | 2026-11-04 | En ville, un demi-tour BRouter passe sur deux chaussées OSM | #osm #brouter #aller-retour #dual-carriageway #giratoire #detection |
 | [LRN-261104_1546-4](learnings/LRN-261104_1546-4.md) | 2026-11-04 | Reproduire un tracé éditeur : /api/diag puis stageGpx | #editor #debug #diag #localstorage #analyzetrace #reproduction |
 | [LRN-261104_1546-6](learnings/LRN-261104_1546-6.md) | 2026-11-04 | Vérifier l'éditeur dans Chrome modifie le vrai brouillon | #editor #chrome #verification #localstorage #draft #maplibre |
+| [LRN-261104_2034-5](learnings/LRN-261104_2034-5.md) | 2026-11-04 | Kokoro : ponctuation ignorée, mots seuls ratés | #kokoro #tts #voix #prosodie #ponctuation #decoupage |
+| [LRN-261104_2034-6](learnings/LRN-261104_2034-6.md) | 2026-11-04 | Voix masculine française avec Kokoro par mélange | #kokoro #tts #voix #style-vector #accent #blend |
 | [LRN-261104_2153-7](learnings/LRN-261104_2153-7.md) | 2026-11-04 | Agents parallèles : fichiers chauds gardés par l'orchestrateur | #subagents #parallel-edit #orchestration #integration #game-loop #briefs |
 | [LRN-20261101115222-4](learnings/LRN-20261101115222-4.md) | 2026-11-01 | Pièges de l'API altimétrie de l'IGN | #ign #geoplateforme #altimetrie #api #cors #rge-alti |
 | [LRN-20261101115222-5](learnings/LRN-20261101115222-5.md) | 2026-11-01 | Plusieurs itinéraires : BRouter et OSRM diffèrent | #brouter #osrm #routing #itineraires #mapcn #maplibre |

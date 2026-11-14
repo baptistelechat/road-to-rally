@@ -385,7 +385,7 @@ L'étape 18 a pris l'essentiel de la session : une première série de maquettes
 **Entrées clés :**
 
 - [BDR-261105_2313-1](decisions/BDR-261105_2313-1.md) — Redesign retenu : menu B, pause road-book, HUD au choix
-- [BLK-261105_2313-5](blockers/BLK-261105_2313-5.md) — `development` en retard sur la prod epic 4, HUD en conflit
+- [ZBLK-261105_2313-5](archive/blockers/ZBLK-261105_2313-5.md) — `development` en retard sur la prod epic 4, HUD en conflit
 
 ## 2026-11-14
 
@@ -394,3 +394,17 @@ Point d'avancement sur `main` : l'epic 4 (course) est entièrement codé (chrono
 **Entrées clés :**
 
 - [BDR-261114_1646-1](decisions/BDR-261114_1646-1.md) — Fiche d'epic supprimée une fois ses stories détaillées
+
+---
+
+Intégration complète du redesign Nuit facettée, 13 maquettes, en trois vagues de sous-agents parallèles à périmètres de fichiers disjoints. Vague 1 : 6 lots (menus et pause, HUD Cockpit/Broadcast, panneaux de course et notes, arrivée, garage, éditeur) après avoir posé moi-même le réglage partagé `hudStyle`. Vague 2, sur les retours de test : vraies vignettes de tracé, bandeau défilant, écran de départ direct, réglage Commandes, mini-carte rectangulaire, compteurs, enfilades, inversion gauche/droite des chicanes (voix et icône lisaient le côté libre comme le premier virage), `Button` biseauté, moodboard de 6 scrollbars (Trait de nuit retenue). Vague 3 : focus unique en deux traits (`focus-line`), pause compacte, écran « Prêt » à la place du départ automatique, nom de la carte dans l'en-tête de l'arrivée (« PACE NOTES » de la maquette, retiré à tort par un agent).
+
+La navigation manette a demandé trois passes : la cause était qu'une grille de choix comptait pour une seule case, puis que gauche/droite s'arrêtait au bord, puis que l'entrée dans une grille visait le choix en cours. Diagnostiquée par le coordinateur après l'échec de l'agent.
+
+Un `pnpm build` lancé pendant le `pnpm dev` de Baptiste a cassé les chunks de dev (erreur `importScripts` d'un worker) ; ensuite, build seulement après accord. React-doctor à 75/100 sur le diff (faux positifs sur les ancres Base UI, autofocus voulu) ; `isRoundGauge` déplacé dans `gauge.ts`. Commit + push du redesign (`0b50956`) parti sur `main` : la branche avait basculé en cours de session. Baptiste reste sur `main`. Aucun check de déterminisme lancé.
+
+**Entrées clés :**
+
+- [BDR-261114_2039-1](decisions/BDR-261114_2039-1.md) — UI : focus en deux traits, boutons biseautés, scrollbar fine
+- [BDR-261104_2034-3](decisions/BDR-261104_2034-3.md) — chicane : `direction` = côté libre (corrigé)
+- [LRN-20261101202404-2](learnings/LRN-20261101202404-2.md) — vérifier la branche avant commit + push

@@ -18,3 +18,4 @@ register: archive-blockers
 | [ZBLK-20261103205616-7](blockers/ZBLK-20261103205616-7.md) | 2026-11-03 | Barrière d'îlot « dans la route » : c'était le relief | #roundabout #barriere #terrain #feedback #render | résolu le 2026-11-03 |
 | [ZBLK-20261103202354-5](blockers/ZBLK-20261103202354-5.md) | 2026-11-03 | Modèles Kokoro absents : « long » non régénéré | #voix #kokoro #copilote #audio #wav #installation | résolu le 2026-11-05 |
 | [ZBLK-261104_1546-5](blockers/ZBLK-261104_1546-5.md) | 2026-11-04 | Deux chaussées : alerte persistante sur le tracé du Mans | #aller-retour #osm #validation #editor #dual-carriageway | résolu le 2026-11-04 |
+| [ZBLK-261105_2313-5](blockers/ZBLK-261105_2313-5.md) | 2026-11-05 | `development` en retard sur la prod epic 4, HUD en conflit | #git #branches #hud #merge-conflict | résolu le 2026-11-14 |
