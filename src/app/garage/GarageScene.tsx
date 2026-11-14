@@ -11,7 +11,9 @@ import { GarageDecor } from "@/render/garage/GarageDecor";
 import { carConfig } from "@/sim/carConfig";
 import { GaragePadControls } from "./GaragePadControls";
 import { ROTATION_ROW } from "./garageMenu";
+import { GarageHeader } from "./GarageHeader";
 import { LiveryPanel, MENU_FOCUS } from "./LiveryPanel";
+import { FACET_BG, FOCUS_VISIBLE } from "./LiveryPanel/menuStyles";
 import { useGarageMenu } from "./useGarageMenu";
 
 const TURN_SPEED = 0.25;
@@ -101,23 +103,28 @@ export const GarageScene = () => {
           maxPolarAngle={GARAGE_CAMERA.maxPolarAngle}
         />
       </Canvas>
+      <GarageHeader livery={menu.livery} />
       <LiveryPanel menu={menu} dispatch={dispatch} />
-      <div className="absolute right-4 bottom-4 flex flex-col items-end gap-2">
+      <div className="absolute right-6 bottom-6 flex flex-col items-end gap-2">
         {padConnected && (
-          <dl className="grid grid-cols-[auto_auto] gap-x-3 gap-y-0.5 rounded border border-foreground/25 bg-background/70 px-3 py-2 text-xs text-foreground">
+          <dl className="grid grid-cols-[auto_auto] gap-x-3 gap-y-0.5 rounded border border-border bg-background/90 px-3 py-2 text-xs text-foreground">
             {PAD_HELP.map(([control, role]) => (
               <div key={control} className="contents">
-                <dt className="font-mono font-semibold">{control}</dt>
-                <dd>{role}</dd>
+                <dt className="font-mono text-muted-foreground">{control}</dt>
+                <dd className="font-semibold">{role}</dd>
               </div>
             ))}
           </dl>
         )}
         <button
           type="button"
-          className={`rounded border border-foreground/25 bg-background/70 px-3 py-1.5 text-sm font-semibold text-foreground transition-colors hover:bg-background/85 focus-visible:outline-2 focus-visible:outline-brand ${menu.row === ROTATION_ROW ? MENU_FOCUS : ""}`}
+          className={`group relative isolate min-h-11 cursor-pointer px-6.5 text-[13px] font-bold text-foreground ${FOCUS_VISIBLE} ${menu.row === ROTATION_ROW ? MENU_FOCUS : ""}`}
           onClick={() => dispatch({ type: "row", row: ROTATION_ROW })}
         >
+          <span
+            aria-hidden
+            className={`${FACET_BG} bg-background/90 transition-colors group-hover:bg-accent`}
+          />
           {menu.paused
             ? "Reprendre la rotation"
             : "Mettre la rotation en pause"}

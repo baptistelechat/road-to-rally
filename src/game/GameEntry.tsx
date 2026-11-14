@@ -58,7 +58,7 @@ const CustomStage = () => {
         </p>
         <a
           href={EDITOR_URL}
-          className="font-semibold text-brand underline focus-visible:outline-2 focus-visible:outline-brand"
+          className="font-semibold text-brand underline focus-line-visible"
         >
           Retour à l&apos;éditeur
         </a>

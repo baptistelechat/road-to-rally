@@ -14,11 +14,11 @@ import { ElevationChart } from "../ElevationChart";
 import { useChicanes } from "../useChicanes";
 import { useMedians } from "../useMedians";
 import { useSplits } from "../useSplits";
-import { StatsStrip } from "./StatsStrip";
+import { capsLabel } from "../styles";
 
 /** La hauteur est réservée : le graphique arrive sans faire sauter la carte. */
 const placeholder =
-  "grid h-40 place-items-center px-4 text-center text-sm text-muted-foreground";
+  "grid h-36 place-items-center px-4 pb-3 text-center text-sm text-muted-foreground";
 
 const NONE: [] = [];
 
@@ -99,7 +99,16 @@ export const ProfilePanel = () => {
   if (profile)
     return (
       <>
-        <StatsStrip />
+        <div className="flex items-baseline justify-between gap-3 text-xs text-muted-foreground">
+          <span className={capsLabel}>Profil d&apos;altitude</span>
+          <span className="font-mono">
+            D+ {Math.round(profile.ascent)} m ·{" "}
+            {((profile.finishS - profile.startS) / 1000)
+              .toFixed(2)
+              .replace(".", ",")}{" "}
+            km
+          </span>
+        </div>
         <ElevationChart
           abscissas={profile.abscissas}
           altitudes={profile.altitudes}
@@ -110,7 +119,7 @@ export const ProfilePanel = () => {
           markers={markers}
           bands={bands}
           onFocus={handleFocus}
-          className="px-2 py-1"
+          className="pt-1"
         />
       </>
     );

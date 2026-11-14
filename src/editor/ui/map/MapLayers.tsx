@@ -7,7 +7,8 @@ import { InsertHandle } from "./InsertHandle";
 import { MedianLines } from "./MedianLines";
 import { IssueMarkers } from "./IssueMarkers";
 import { MapFocus } from "./MapFocus";
-import { ElementPanels, FirstHint, Legend, RouteStatus } from "./MapPanels";
+import { SidePanel } from "../SidePanel";
+import { FirstHint, Legend, RouteStatus } from "./MapPanels";
 import { ReturnLayer } from "./ReturnLayer";
 import { RoundaboutIslands } from "./RoundaboutIslands";
 import { SplitMarkers } from "./SplitMarkers";
@@ -18,7 +19,7 @@ import { VariantRoutes } from "./VariantRoutes";
 export const MapLayers = () => (
   <>
     <MapFocus />
-    <ElementPanels />
+    <SidePanel />
     <Legend />
     <FirstHint />
     <RouteStatus />

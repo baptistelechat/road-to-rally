@@ -1,86 +1,12 @@
 "use client";
 
-import {
-  ArrowLeftRight,
-  Loader2,
-  Redo2,
-  RotateCw,
-  Route,
-  Trash2,
-  Undo2,
-} from "lucide-react";
+import { Loader2, RotateCw, Route, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatKm } from "@/geo/errors";
-import { canRedo, canUndo } from "../../history";
 import { editorStore, useEditor } from "../../store";
 import { anchorDistances, stageLength } from "../../trace";
+import { mapSurface } from "../styles";
 import { ReturnAction } from "./ReturnAction";
-
-export const Toolbar = () => {
-  const history = useEditor((state) => state.history);
-  const pending = useEditor((state) => state.status.pending);
-  const undo = useEditor((state) => state.undo);
-  const redo = useEditor((state) => state.redo);
-  const reverse = useEditor((state) => state.reverse);
-  const clear = useEditor((state) => state.clear);
-  const empty = history.present.anchors.length === 0;
-  return (
-    <div
-      role="toolbar"
-      aria-label="Actions sur le tracé"
-      className="flex gap-1"
-    >
-      <Button
-        variant="outline"
-        size="icon-sm"
-        aria-label="Annuler (Ctrl+Z)"
-        title="Annuler (Ctrl+Z)"
-        disabled={!canUndo(history)}
-        onClick={undo}
-      >
-        <Undo2 aria-hidden="true" />
-      </Button>
-      <Button
-        variant="outline"
-        size="icon-sm"
-        aria-label="Rétablir (Ctrl+Y)"
-        title="Rétablir (Ctrl+Y)"
-        disabled={!canRedo(history)}
-        onClick={redo}
-      >
-        <Redo2 aria-hidden="true" />
-      </Button>
-      <Button
-        variant="outline"
-        size="icon-sm"
-        aria-label="Inverser le sens du tracé"
-        title={
-          history.present.returnRoute
-            ? "Un aller-retour repart du même endroit : rien à inverser"
-            : "Inverser le sens du tracé"
-        }
-        disabled={empty || pending || history.present.returnRoute !== null}
-        onClick={() => void reverse()}
-      >
-        <ArrowLeftRight aria-hidden="true" />
-      </Button>
-      <Button
-        variant="destructive"
-        size="icon-sm"
-        aria-label="Tout vider"
-        title="Tout vider"
-        disabled={empty}
-        onClick={() => {
-          // ponytail: boîte native, accessible et sans dépendance ; un `Dialog` shadcn si elle détonne.
-          if (window.confirm("Vider tout le tracé ? Ctrl+Z le rétablit."))
-            clear();
-        }}
-      >
-        <Trash2 aria-hidden="true" />
-      </Button>
-    </div>
-  );
-};
 
 export const RouteMessages = () => {
   const status = useEditor((state) => state.status);
@@ -90,7 +16,7 @@ export const RouteMessages = () => {
   return (
     <div
       aria-live="polite"
-      className="space-y-1 rounded-lg border bg-background px-3 py-2 text-xs shadow-md empty:hidden"
+      className={`space-y-1 rounded-lg border px-3 py-2 text-xs shadow-md empty:hidden ${mapSurface}`}
     >
       {status.pending && (
         <p className="flex items-center gap-1 text-muted-foreground">
@@ -139,11 +65,13 @@ export const PointsPanel = () => {
   const distances = anchorDistances(trace);
   const length = stageLength(trace);
 
+  const last = trace.anchors.length - 1;
+
   return (
-    <div className="space-y-2 text-sm">
-      <p>
+    <div className="flex flex-col gap-2 text-sm">
+      <p className="text-xs text-muted-foreground">
         Spéciale :{" "}
-        <strong className="font-semibold tabular-nums">
+        <strong className="font-mono text-foreground">
           {(length / 1000).toFixed(2).replace(".", ",")} km
         </strong>
       </p>
@@ -152,57 +80,86 @@ export const PointsPanel = () => {
           Clique sur une route de la carte pour poser le premier point.
         </p>
       ) : (
-        <ol className="max-h-48 space-y-1 overflow-y-auto">
-          {trace.anchors.map((anchor, i) => (
-            <li key={anchor.id} className="flex items-center gap-2">
-              <button
-                type="button"
-                title="Voir sur la carte"
-                className="flex-1 rounded text-left tabular-nums hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-                onClick={() =>
-                  editorStore.setState({ focus: { position: anchor.position } })
-                }
+        <ol className="flex flex-col gap-1.5">
+          {trace.anchors.map((anchor, i) => {
+            const end = i === 0 || i === last;
+            return (
+              <li
+                key={anchor.id}
+                className="flex min-h-11 items-center gap-1 rounded-lg border bg-card pr-1 font-bold"
               >
-                Point {i + 1}, {formatKm(distances[i])}
-              </button>
-              {((i === 0 && runoffs?.before) ||
-                (i === trace.anchors.length - 1 && runoffs?.after)) && (
-                <Loader2
-                  aria-hidden="true"
-                  className="size-3 animate-spin text-muted-foreground"
-                />
-              )}
-              {i > 0 && (
+                <button
+                  type="button"
+                  title="Voir sur la carte"
+                  aria-label={`Point ${i + 1}, ${formatKm(distances[i])}, voir sur la carte`}
+                  className="flex min-h-11 min-w-0 flex-1 items-center gap-2.5 rounded-lg px-2.5 text-left text-[0.8125rem] hover:bg-accent/60 focus-line-visible"
+                  onClick={() =>
+                    editorStore.setState({
+                      focus: { position: anchor.position },
+                    })
+                  }
+                >
+                  <span
+                    aria-hidden="true"
+                    className={`grid size-7 shrink-0 place-items-center rounded-md font-mono ${
+                      end ? "bg-foreground text-background" : "border border-input"
+                    }`}
+                  >
+                    {i === 0
+                      ? "D"
+                      : i === last
+                        ? "A"
+                        : String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span aria-hidden="true">
+                    {i === 0 ? "Départ" : i === last ? "Arrivée" : "Passage"}
+                  </span>
+                  <span
+                    aria-hidden="true"
+                    className="ml-auto font-mono text-xs font-normal text-muted-foreground"
+                  >
+                    {formatKm(distances[i])}
+                  </span>
+                </button>
+                {((i === 0 && runoffs?.before) ||
+                  (i === last && runoffs?.after)) && (
+                  <Loader2
+                    aria-hidden="true"
+                    className="size-3 animate-spin text-muted-foreground"
+                  />
+                )}
+                {i > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label={`Chercher une autre route jusqu'au point ${i + 1}`}
+                    title={`Chercher une autre route jusqu'au point ${i + 1}`}
+                    disabled={
+                      pending ||
+                      searching ||
+                      trace.returnRoute !== null ||
+                      !trace.segments[i - 1]
+                    }
+                    onClick={() => void searchVariants(i - 1)}
+                  >
+                    <Route aria-hidden="true" />
+                  </Button>
+                )}
                 <Button
                   variant="ghost"
-                  size="icon-xs"
-                  aria-label={`Chercher une autre route jusqu'au point ${i + 1}`}
-                  title={`Chercher une autre route jusqu'au point ${i + 1}`}
-                  disabled={
-                    pending ||
-                    searching ||
-                    trace.returnRoute !== null ||
-                    !trace.segments[i - 1]
-                  }
-                  onClick={() => void searchVariants(i - 1)}
+                  size="icon-sm"
+                  aria-label={`Supprimer le point ${i + 1}`}
+                  disabled={pending}
+                  onClick={() => void removePoint(anchor.id)}
                 >
-                  <Route aria-hidden="true" />
+                  <Trash2 aria-hidden="true" />
                 </Button>
-              )}
-              <Button
-                variant="ghost"
-                size="icon-xs"
-                aria-label={`Supprimer le point ${i + 1}`}
-                disabled={pending}
-                onClick={() => void removePoint(anchor.id)}
-              >
-                <Trash2 aria-hidden="true" />
-              </Button>
-            </li>
-          ))}
+              </li>
+            );
+          })}
         </ol>
       )}
-      <ReturnAction />
+      <ReturnAction className="w-full" />
     </div>
   );
 };

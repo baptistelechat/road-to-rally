@@ -1,6 +1,6 @@
 "use client";
 
-import { label, menuFocus } from "../hudStyles";
+import { fieldLabel } from "./Menu/menuStyles";
 
 interface MenuSliderProps {
   title: string;
@@ -10,16 +10,19 @@ interface MenuSliderProps {
   onChange: (value: number) => void;
 }
 
-/** Curseur natif : flèches au clavier, gauche et droite à la manette par `applyMenuAction`. */
+/**
+ * Curseur natif : flèches au clavier, gauche et droite à la manette par `applyMenuAction`.
+ * Même colonne que les paires de choix de `MenuSelect` (deux boutons `w-28` et leur `gap-1`).
+ */
 export const MenuSlider = ({
   title,
   value,
   step = 10,
   onChange,
 }: MenuSliderProps) => (
-  <label className="flex items-center justify-between gap-3">
-    <span className={label}>{title}</span>
-    <span className="flex w-40 items-center gap-2">
+  <label className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+    <span className={fieldLabel}>{title}</span>
+    <span className="flex w-57 shrink-0 items-center gap-2.5">
       <input
         type="range"
         min={0}
@@ -27,11 +30,12 @@ export const MenuSlider = ({
         step={step}
         value={value}
         aria-valuetext={`${value} %`}
-        className={`h-1.5 min-w-0 flex-1 cursor-pointer accent-brand ${menuFocus}`}
+        // `h-6` : les traits du focus encadrent la piste au lieu de la recouvrir.
+        className="h-6 w-full min-w-0 cursor-pointer accent-brand focus-line"
         onChange={(event) => onChange(Number(event.target.value))}
       />
-      <span className="w-9 text-right text-xs font-semibold tabular-nums">
-        {value} %
+      <span className="w-8 shrink-0 text-right font-mono text-xs tabular-nums">
+        {value}
       </span>
     </span>
   </label>

@@ -9,6 +9,14 @@ import { assembleTrace } from "../../trace";
 const FRAME_ZOOM = 14;
 /** Un point demandé depuis le panneau ou la courbe : assez près pour voir la route et la saisir */
 const FOCUS_ZOOM = 17;
+/** Ce que cachent le panneau latéral (22,5 rem) et le profil d'altitude : le cadrage se fait dans le reste. */
+const COVERED = { top: 0, right: 0, bottom: 240, left: 360 };
+const FRAME_PADDING = {
+  top: 80,
+  right: 80,
+  bottom: COVERED.bottom + 40,
+  left: COVERED.left + 80,
+};
 
 /** Montre le brouillon relu à l'ouverture, puis tout endroit demandé depuis le panneau. Ne dessine rien. */
 export const MapFocus = () => {
@@ -31,7 +39,7 @@ export const MapFocus = () => {
         [Math.min(...lons), Math.min(...lats)],
         [Math.max(...lons), Math.max(...lats)],
       ],
-      { padding: 80, maxZoom: FRAME_ZOOM, duration: 0 },
+      { padding: FRAME_PADDING, maxZoom: FRAME_ZOOM, duration: 0 },
     );
   }, [map, isLoaded]);
 
@@ -41,6 +49,7 @@ export const MapFocus = () => {
     map.flyTo({
       center: [lon, lat],
       zoom: FOCUS_ZOOM,
+      padding: COVERED,
     });
   }, [map, focus]);
 

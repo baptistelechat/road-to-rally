@@ -1,6 +1,7 @@
 // Annonce du copilote → morceaux enregistrés, un par note entière. Pur : tourne aussi dans les vérifications Node.
 import type {
   PaceCall,
+  PaceChicane,
   PaceGrade,
   PaceNote,
   PaceTurn,
@@ -23,6 +24,15 @@ const GRADE_TEXT: Record<PaceGrade, string> = {
 const sideText = (direction: PaceTurn["direction"]): string =>
   direction === "left" ? "gauche" : "droite";
 
+/**
+ * Sens du premier virage d'une chicane, celui annoncé et dessiné par le panneau du décor (`chicaneSignKind`).
+ * `direction` de la note est le côté libre où passer (`passageSide`) : le pilote se déporte d'abord à l'opposé.
+ */
+export const chicaneFirstBend = ({
+  direction,
+}: Pick<PaceChicane, "direction">): PaceChicane["direction"] =>
+  direction === "left" ? "right" : "left";
+
 const turnText = (
   direction: PaceTurn["direction"],
   grade: PaceGrade,
@@ -43,7 +53,7 @@ const noteText = (note: PaceNote, short: boolean): string => {
     case "bump":
       return "attention bosse";
     case "chicane":
-      return `chicane ${sideText(note.direction)}`;
+      return `chicane ${sideText(chicaneFirstBend(note))}`;
     case "finish":
       return "arrivée";
     case "turn":

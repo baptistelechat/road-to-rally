@@ -84,6 +84,11 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Meilleur temps propre à chaque spéciale, avec ses temps de passage
 - Fantôme du meilleur temps : voiture translucide en course et point sur la mini-carte, calé sur le chrono officiel, avec une option pour le masquer. Sans trajectoire enregistrée, il roule à allure constante
 - Pénalité de 5 s par remise en piste, affichée avec sa raison : remise en piste, hors piste ou contresens
+- Deux styles de HUD au choix dans les options : Cockpit, un tableau de bord bas d'un seul tenant, ou Broadcast, un habillage façon télé
+- Option pour afficher ou masquer le panneau des commandes, désormais en haut à gauche
+- Écran « Prêt » après un changement de carte depuis la pause, au lieu de repasser par le menu de départ
+- Accès au garage depuis le menu de départ et la pause, et retour au menu principal depuis la pause
+- Nom de la carte dans l'en-tête de l'écran d'arrivée
 
 ### Changed
 
@@ -129,6 +134,10 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Sur une spéciale, la voiture reste sur la ligne jusqu'au GO au lieu de partir au premier coup de gaz
 - Les panneaux d'annonce de chicane se renversent comme les autres panneaux
 - Message clair quand le service d'itinéraire refuse les demandes, et itinéraires déjà calculés réutilisés pour moins le solliciter
+- Nouvelle interface sur tous les écrans : menu de départ avec bandeau et cartes montrant le vrai tracé de chaque piste, défilant au-delà de quatre, pause en panneau à gauche qu'on ferme d'un clic à côté, décompte sous un hexagone avec ses feux, écran d'arrivée, garage en sections numérotées et éditeur avec ses spéciales en cartes et un panneau latéral à onglets
+- Boutons biseautés et focus en deux traits clairs, en haut et en bas, partout dans le jeu, le garage et l'éditeur, avec une barre de défilement fine qui s'élargit au survol
+- Notes du copilote redessinées : tuile inclinée et badge hexagonal
+- Mini-carte en rectangle plus large, et HUD de course masqué au menu de départ
 
 ### Removed
 
@@ -154,3 +163,5 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Son du moteur absent après un changement de carte tant que le joueur n'avait pas de nouveau cliqué
 - Feux stop allumés en marche arrière et moteur qui sonnait comme au frein moteur en reculant
 - Erreur à l'ajout d'un point quand un nouveau rond-point s'insérait avant les autres sur le tracé
+- Chicanes annoncées à l'envers par la voix et l'icône du copilote : elles disent maintenant le même côté que le panneau au bord de la route
+- Navigation à la manette dans les menus : haut et bas suivent l'écran rangée par rangée, gauche et droite passent d'une grille à l'autre

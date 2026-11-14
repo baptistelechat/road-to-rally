@@ -1,4 +1,5 @@
 import { carConfig } from "@/sim/carConfig";
+import type { SpeedometerStyle } from "@/game/copilotOptions";
 
 const { idleRpm, redlineRpm, upshiftRpm } = carConfig.engine;
 
@@ -8,12 +9,22 @@ export interface GaugeData {
   rpm: number;
   throttle: number;
   brake: number;
+  /** Intégré au tableau de bord Cockpit : LED facettées */
+  dash?: boolean;
 }
 
-export const BRAND = "#ffd23f" // = --brand (.dark), une couleur SVG ne lit pas les variables CSS;
-export const RED = "#ef4444";
-export const GREEN = "#22c55e";
-export const TRACK = "rgba(255,255,255,0.12)";
+// Tokens de globals.css, passés en `style` : un attribut SVG `fill="var(…)"` n'est pas lu partout.
+export const BRAND = "var(--brand)";
+export const BRAND_FOREGROUND = "var(--brand-foreground)";
+export const RED = "var(--destructive)";
+export const GREEN = "var(--chart-4)";
+export const NEEDLE = "var(--chart-3)";
+export const INK = "var(--foreground)";
+export const BASE = "var(--background)";
+export const MUTED = "var(--muted-foreground)";
+export const TRACK = "color-mix(in oklab, var(--foreground) 12%, transparent)";
+export const TICK = "color-mix(in oklab, var(--foreground) 75%, transparent)";
+export const RIM = "color-mix(in oklab, var(--foreground) 30%, transparent)";
 
 export const formatGear = (gear: number): string => {
   if (gear < 0) return "R";
@@ -27,3 +38,7 @@ export const rpmRatio = (rpm: number): number =>
 
 /** Début de la zone rouge : là où la boîte passe le rapport */
 export const RED_ZONE = rpmRatio(upshiftRpm);
+
+/** Cadran et Arc : ronds, au bout du tableau de bord en Cockpit */
+export const isRoundGauge = (style: SpeedometerStyle): boolean =>
+  style === "arc" || style === "dial";

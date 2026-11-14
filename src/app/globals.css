@@ -131,6 +131,26 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* Focus unique de toute l'interface : deux traits clairs en haut et en bas, rien d'autre ne change.
+   Ombres intérieures : elles survivent au clip-path des boutons biseautés, contrairement à outline.
+   `focus-line` réagit à :focus (la manette déplace le focus par script), `focus-line-visible` à :focus-visible (souris + clavier). */
+@utility focus-line {
+  outline: none;
+  &:focus {
+    box-shadow:
+      inset 0 3px 0 var(--foreground),
+      inset 0 -3px 0 var(--foreground);
+  }
+}
+@utility focus-line-visible {
+  outline: none;
+  &:focus-visible {
+    box-shadow:
+      inset 0 3px 0 var(--foreground),
+      inset 0 -3px 0 var(--foreground);
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -155,5 +175,41 @@
   }
   .maplibregl-ctrl-attrib-button {
     @apply bg-transparent! dark:invert;
+  }
+
+  /* Scrollbar « Trait de nuit » (docs/design/scrollbar-moodboard.html, 01).
+     Firefox : scrollbar-width/color. Chromium et Safari les ignorent sauf remise à auto, d'où le @supports. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--input) transparent;
+  }
+  *:hover {
+    scrollbar-color: var(--muted-foreground) transparent;
+  }
+  @supports selector(::-webkit-scrollbar) {
+    *,
+    *:hover {
+      scrollbar-width: auto;
+      scrollbar-color: auto;
+    }
+    ::-webkit-scrollbar {
+      width: 12px;
+      height: 12px;
+    }
+    ::-webkit-scrollbar-track,
+    ::-webkit-scrollbar-corner {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--input);
+      background-clip: padding-box;
+      border: 4px solid transparent;
+      border-radius: 2px;
+    }
+    ::-webkit-scrollbar-thumb:hover,
+    ::-webkit-scrollbar-thumb:active {
+      background-color: var(--muted-foreground);
+      border-width: 2px;
+    }
   }
 }

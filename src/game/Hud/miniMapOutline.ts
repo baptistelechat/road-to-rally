@@ -17,6 +17,9 @@ export interface MiniMapOutline {
   unit: number;
   /** Plus grand côté de `viewBox`, marges comprises */
   size: number;
+  /** Largeur et hauteur de `viewBox`, marges comprises */
+  viewWidth: number;
+  viewHeight: number;
   /** Intermédiaires : position et angle de la route en degrés, pour un trait en travers. Vide sur le circuit. */
   gates: { x: number; z: number; angle: number }[];
   /** Part du tracé dessiné parcourue à l'index `index` de `track.points`, de 0 à 1 */
@@ -81,6 +84,8 @@ export const miniMapOutline = (
     finish: points[to],
     unit,
     size: Math.max(width, height) + 2 * margin,
+    viewWidth: width + 2 * margin,
+    viewHeight: height + 2 * margin,
     gates,
     doneAt,
   };

@@ -66,7 +66,7 @@ const ChicaneRow = ({ chicane }: { chicane: ListedChicane }) => {
       <button
         type="button"
         title="Voir sur la carte"
-        className="flex-1 rounded text-left text-xs tabular-nums hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+        className="flex-1 rounded text-left text-xs tabular-nums hover:underline focus-line-visible"
         onClick={() =>
           editorStore.setState({ focus: { position: chicane.position } })
         }

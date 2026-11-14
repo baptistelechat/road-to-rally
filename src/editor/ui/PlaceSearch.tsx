@@ -10,11 +10,13 @@ import {
 } from "react";
 import { useMap } from "@/components/ui/map";
 import { StageError } from "@/geo/errors";
+import { cn } from "@/lib/utils";
 import {
   GEOCODE_MIN_LENGTH,
   searchPlaces,
   type GeocodeResult,
 } from "@/geo/geocode";
+import { capsLabel, textField } from "./styles";
 
 const SEARCH_DELAY = 300;
 /** Assez près pour lire les petites routes autour du lieu trouvé */
@@ -32,7 +34,7 @@ const cancelSearch = (pending: RefObject<PendingSearch | null>) => {
   pending.current = null;
 };
 
-/** Déplace la carte sans poser de point. À placer dans `Map`. */
+/** Déplace la carte sans poser de point. À placer dans `Map` (ici, dans le panneau latéral). */
 export const PlaceSearch = () => {
   const { map } = useMap();
   const baseId = useId();
@@ -117,8 +119,8 @@ export const PlaceSearch = () => {
   const expanded = open && results.length > 0;
 
   return (
-    <div className="absolute top-2 left-2 z-10 w-72 max-w-[calc(100%-1rem)] rounded-lg border bg-background p-2 text-sm shadow-md">
-      <label htmlFor={baseId} className="mb-1 block text-xs font-medium">
+    <div className="relative text-sm">
+      <label htmlFor={baseId} className={cn(capsLabel, "block")}>
         Rechercher un lieu
       </label>
       <input
@@ -134,7 +136,7 @@ export const PlaceSearch = () => {
         autoComplete="off"
         placeholder="Col de Turini, Gap…"
         value={query}
-        className="w-full rounded-md border border-input bg-transparent px-2 py-1 placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+        className={cn(textField, "mt-1.5 w-full")}
         onChange={(event) => handleChange(event.currentTarget.value)}
         onKeyDown={handleKeyDown}
         onFocus={() => setOpen(true)}
@@ -145,7 +147,7 @@ export const PlaceSearch = () => {
         role="listbox"
         aria-label="Lieux trouvés"
         hidden={!expanded}
-        className="mt-1"
+        className="absolute inset-x-0 z-20 mt-1 rounded-lg border bg-popover p-1 text-popover-foreground shadow-md"
       >
         {results.map((result, index) => (
           <li
@@ -153,7 +155,7 @@ export const PlaceSearch = () => {
             id={`${listId}-${index}`}
             role="option"
             aria-selected={index === active}
-            className={`cursor-pointer rounded px-2 py-1 hover:bg-muted ${index === active ? "bg-muted" : ""}`}
+            className={`cursor-pointer rounded-md px-2 py-1.5 hover:bg-accent ${index === active ? "bg-accent" : ""}`}
             // Garde le focus dans le champ : son `blur` fermerait la liste avant le clic.
             onMouseDown={(event) => event.preventDefault()}
             onClick={() => pick(result)}
@@ -164,7 +166,7 @@ export const PlaceSearch = () => {
       </ul>
       <p
         aria-live="polite"
-        className="mt-1 text-xs text-muted-foreground empty:hidden"
+        className="mt-1.5 text-xs text-muted-foreground empty:hidden"
       >
         {status}
       </p>

@@ -23,7 +23,8 @@ const sectorColor = (
 
 /** Damier de l'arrivée, sans image */
 const CHECKER = {
-  background: "repeating-conic-gradient(#000 0 25%, #fff 0 50%) 0 0 / 50% 50%",
+  background:
+    "repeating-conic-gradient(var(--background) 0 25%, var(--foreground) 0 50%) 0 0 / 50% 50%",
 };
 
 /** Frise verticale façon WRC, départ en bas, arrivée en haut. Les positions changent à ~10 Hz : aucune transition CSS. */
@@ -45,12 +46,13 @@ export const StageStrip = ({
     <div
       role="img"
       aria-label={summary}
-      className="pointer-events-none absolute top-1/2 left-4 h-72 w-5 -translate-y-1/2 drop-shadow-[0_1px_2px_rgb(0_0_0/0.9)]"
+      className="pointer-events-none absolute top-1/2 left-4 h-80 w-[22px] -translate-y-1/2 drop-shadow-[0_1px_2px_var(--color-background)]"
     >
       {bounds.slice(1).map((to, i) => (
+        // Biseau en haut de chaque secteur : la facette de la DA.
         <div
           key={to}
-          className={`absolute left-1/2 w-1 -translate-x-1/2 ${sectorColor(sectorDeltas[i], i === current)}`}
+          className={`absolute left-[7px] w-2 [clip-path:polygon(0_4%,100%_0,100%_100%,0_100%)] ${sectorColor(sectorDeltas[i], i === current)}`}
           style={{
             bottom: percent(bounds[i]),
             height: percent(to - bounds[i]),
@@ -60,23 +62,23 @@ export const StageStrip = ({
       {gates.map((gate) => (
         <div
           key={gate}
-          className="absolute left-1/2 h-0.5 w-3 -translate-x-1/2 translate-y-1/2 bg-foreground"
+          className="absolute left-px h-[3px] w-5 translate-y-1/2 bg-foreground"
           style={{ bottom: percent(gate) }}
         />
       ))}
-      <div className="absolute bottom-0 left-1/2 size-2.5 -translate-x-1/2 translate-y-1/2 rounded-full border border-background bg-chart-4" />
+      <div className="absolute -bottom-2 left-[3px] size-4 bg-chart-4 [clip-path:polygon(50%_0,100%_50%,50%_100%,0_50%)]" />
       <div
-        className="absolute top-0 left-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 border border-background"
+        className="absolute -top-[9px] left-0.5 size-[18px]"
         style={CHECKER}
       />
       {ghostFraction !== null && (
         <div
-          className="absolute left-1/2 size-3 -translate-x-1/2 translate-y-1/2 rounded-full border border-foreground/70 bg-foreground/40"
+          className="absolute left-1 size-3.5 translate-y-1/2 rounded-full border border-foreground bg-foreground/40"
           style={{ bottom: percent(ghostFraction) }}
         />
       )}
       <div
-        className="absolute left-1/2 size-3 -translate-x-1/2 translate-y-1/2 rounded-full border border-background bg-brand"
+        className="absolute left-0 h-4 w-[22px] translate-y-1/2 bg-brand [clip-path:polygon(50%_0,100%_100%,0_100%)]"
         style={{ bottom: percent(carFraction) }}
       />
     </div>

@@ -1,8 +1,11 @@
 import { carConfig } from "@/sim/carConfig";
 import {
   BRAND,
+  BRAND_FOREGROUND,
   formatGear,
   type GaugeData,
+  INK,
+  MUTED,
   RED,
   RED_ZONE,
   rpmRatio,
@@ -13,7 +16,6 @@ const C = 80;
 const R = 66;
 /** Arc de 270°, ouvert en bas */
 const ARC = "M33.33 126.67 A66 66 0 1 1 126.67 126.67";
-const MUTED = "rgba(255,255,255,0.6)";
 const THOUSANDS = Array.from(
   { length: Math.floor(carConfig.engine.redlineRpm / 1000) },
   (_, i) => i + 1,
@@ -30,27 +32,30 @@ export const ArcSpeedometer = ({ speedKmh, gear, rpm }: GaugeData) => {
   const fill = Math.round(ratio * 1000) / 10;
   const red = Math.round(RED_ZONE * 1000) / 10;
   return (
-    <svg viewBox="0 0 160 160" className="size-44" aria-hidden="true">
+    <svg viewBox="0 0 160 160" className="size-44 font-mono" aria-hidden="true">
       <path
         d={ARC}
         fill="none"
-        stroke={TRACK}
+        style={{ stroke: TRACK }}
         strokeWidth={10}
         strokeLinecap="round"
       />
       <path
         d={ARC}
         fill="none"
-        stroke={RED}
+        style={{ stroke: RED }}
         strokeOpacity={0.45}
         strokeWidth={10}
+        strokeLinecap="round"
         pathLength={100}
-        strokeDasharray={`0 ${red} ${100 - red} 0`}
+        // Trou du ralenti au passage du rapport, puis trait jusqu'au bout : l'embout rond rejoint celui du fond.
+        strokeDasharray={`${100 - red} ${red}`}
+        strokeDashoffset={100 - red}
       />
       <path
         d={ARC}
         fill="none"
-        stroke={ratio >= RED_ZONE ? RED : BRAND}
+        style={{ stroke: ratio >= RED_ZONE ? RED : BRAND }}
         strokeWidth={10}
         strokeLinecap="round"
         pathLength={100}
@@ -64,7 +69,7 @@ export const ArcSpeedometer = ({ speedKmh, gear, rpm }: GaugeData) => {
             x={x}
             y={y + 3}
             textAnchor="middle"
-            fill={MUTED}
+            style={{ fill: MUTED }}
             fontSize={8}
           >
             {k}
@@ -75,10 +80,10 @@ export const ArcSpeedometer = ({ speedKmh, gear, rpm }: GaugeData) => {
         x={C}
         y={90}
         textAnchor="middle"
-        fill="#fff"
+        style={{ fill: INK }}
         fontSize={34}
         fontWeight={700}
-        className="font-mono tabular-nums"
+        className="tabular-nums"
       >
         {speedKmh}
       </text>
@@ -86,7 +91,7 @@ export const ArcSpeedometer = ({ speedKmh, gear, rpm }: GaugeData) => {
         x={C}
         y={103}
         textAnchor="middle"
-        fill={MUTED}
+        style={{ fill: MUTED }}
         fontSize={8}
         letterSpacing={2}
       >
@@ -96,21 +101,27 @@ export const ArcSpeedometer = ({ speedKmh, gear, rpm }: GaugeData) => {
         x={C}
         y={155}
         textAnchor="middle"
-        fill={MUTED}
+        style={{ fill: MUTED }}
         fontSize={7}
         letterSpacing={1}
       >
         ×1000 TR/MIN
       </text>
-      <rect x={66} y={116} width={28} height={24} rx={5} fill={BRAND} />
+      <rect
+        x={66}
+        y={116}
+        width={28}
+        height={24}
+        rx={5}
+        style={{ fill: BRAND }}
+      />
       <text
         x={C}
         y={134}
         textAnchor="middle"
-        fill="#0b1018"
+        style={{ fill: BRAND_FOREGROUND }}
         fontSize={17}
         fontWeight={700}
-        className="font-mono"
       >
         {formatGear(gear)}
       </text>

@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import type { LatLon } from "@/geo/gpx";
 import { EditorMap } from "./EditorMap";
+import { mapSurface } from "./styles";
 import { TopBar } from "./TopBar";
 
 interface EditorLayoutProps {
@@ -10,24 +11,26 @@ interface EditorLayoutProps {
   onMapClick?: (position: LatLon) => void;
   /** Rendu dans la carte : `MapMarker`, `MapRoute`, les panneaux flottants et tout ce qui utilise `useMap` */
   mapChildren?: ReactNode;
-  /** Sous la carte. Absent : la carte prend toute la hauteur. */
+  /** Posé sur la carte, en bas. Absent : rien ne masque la carte. */
   profile?: ReactNode;
 }
 
-/** La disposition seulement : la barre en haut, la carte, le profil dessous. Le reste s'ouvre à la demande. */
+/** La disposition seulement : la barre en haut, la carte pleine page, le panneau à gauche et le profil en bas flottent dessus. */
 export const EditorLayout = ({
   onMapClick,
   mapChildren,
   profile,
 }: EditorLayoutProps) => (
-  <div className="dark shadcn-theme flex h-full flex-col">
+  <div className="dark flex h-full flex-col bg-background text-foreground">
     <TopBar />
-    <main className="flex min-h-0 min-w-0 flex-1 flex-col">
-      <div className="relative min-h-0 flex-1">
-        <EditorMap onMapClick={onMapClick}>{mapChildren}</EditorMap>
-      </div>
+    <main className="relative min-h-0 min-w-0 flex-1">
+      <EditorMap onMapClick={onMapClick}>{mapChildren}</EditorMap>
       {profile && (
-        <section aria-label="Profil d'altitude" className="border-t">
+        <section
+          aria-label="Profil d'altitude"
+          // Au-dessus du crédit des tuiles, à droite du panneau, à gauche des boutons de la carte.
+          className={`absolute right-16 bottom-9 left-[23.5rem] z-10 pt-3 pr-4 pl-8 [clip-path:polygon(2%_0,100%_0,100%_100%,0_100%,0_12%)] ${mapSurface}`}
+        >
           {profile}
         </section>
       )}

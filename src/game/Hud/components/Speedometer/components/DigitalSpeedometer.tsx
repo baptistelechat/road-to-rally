@@ -19,23 +19,31 @@ const ledColor = (i: number): string => {
 };
 
 /** Chiffres et barre de LED de régime, qui passe au rouge quand la boîte change de rapport. */
-export const DigitalSpeedometer = ({ speedKmh, gear, rpm }: GaugeData) => {
+export const DigitalSpeedometer = ({
+  speedKmh,
+  gear,
+  rpm,
+  dash,
+}: GaugeData) => {
   const lit = Math.round(rpmRatio(rpm) * LEDS);
   return (
-    <div className="px-4 py-3">
+    <div className={dash ? "w-75" : "px-4 py-3"}>
       <div className="mb-2 flex gap-1" aria-hidden="true">
         {Array.from({ length: LEDS }, (_, i) => (
           <span
             key={i}
-            className="h-1.5 flex-1 rounded-sm"
+            className={
+              dash ? "h-1.75 flex-1 -skew-x-24" : "h-1.5 flex-1 rounded-sm"
+            }
             style={{ background: i < lit ? ledColor(i) : TRACK }}
           />
         ))}
       </div>
-      <div className="flex items-stretch gap-4">
+      <div
+        className={`flex items-stretch gap-4 ${dash ? "justify-center" : ""}`}
+      >
         <div className="flex w-14 flex-col items-center justify-center border-r border-foreground/15 pr-4">
-          <span className={label}>Rapport</span>
-          <span className="font-mono text-4xl font-bold text-brand tabular-nums">
+          <span className="font-mono text-4xl leading-none text-brand tabular-nums">
             {formatGear(gear)}
           </span>
         </div>

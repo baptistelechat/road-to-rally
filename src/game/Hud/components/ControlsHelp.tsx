@@ -29,19 +29,26 @@ const gamepadHelp = (restart: string): Help => [
   ["LB", "Signaler un lag"],
 ];
 
+/** Masqué si le joueur l'a coupé dans les options. */
 export const ControlsHelp = ({ closed }: { closed: boolean }) => {
   const device = useHudStore((s) => s.device);
+  const enabled = useHudStore((s) => s.copilotOptions.controlsHelpEnabled);
+  if (!enabled) return null;
   const restart = closed ? "Relancer le tour" : "Relancer";
   const help =
     device === "gamepad" ? gamepadHelp(restart) : keyboardHelp(restart);
   return (
     <dl
       aria-label="Commandes"
-      className={`${panel} hidden grid-cols-[auto_auto] gap-x-3 gap-y-0.5 px-3 py-2 text-xs sm:grid`}
+      className={`${panel} hidden grid-cols-[auto_auto] items-center gap-x-3 gap-y-1 px-3 py-2 text-xs sm:grid`}
     >
       {help.map(([key, action]) => (
         <div key={key} className="contents">
-          <dt className="font-mono font-semibold text-foreground">{key}</dt>
+          <dt>
+            <kbd className="rounded-sm border border-input bg-secondary px-1 font-mono text-[0.6875rem] text-secondary-foreground">
+              {key}
+            </kbd>
+          </dt>
           <dd className="text-muted-foreground">{action}</dd>
         </div>
       ))}

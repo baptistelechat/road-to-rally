@@ -56,7 +56,7 @@ export interface PaceObstacle {
   endS: number;
 }
 
-/** Chicane : `direction` est le sens du premier virage, celui du panneau du décor. */
+/** Chicane : `direction` est le côté libre par où passer ; le premier virage (panneau du décor) est à l'opposé. */
 export interface PaceChicane {
   kind: "chicane";
   direction: "left" | "right";

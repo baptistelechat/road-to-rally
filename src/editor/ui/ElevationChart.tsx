@@ -104,12 +104,12 @@ export const ElevationChart = ({
       <>
         <path
           d={`${line}L${WIDTH} ${HEIGHT}L0 ${HEIGHT}Z`}
-          className="fill-sky-400/20"
+          className="fill-input/40"
         />
         <path
           d={line}
           vectorEffect="non-scaling-stroke"
-          className="fill-none stroke-sky-300 stroke-2"
+          className="fill-none stroke-foreground stroke-2"
         />
         {/* Zones de dégagement */}
         <rect

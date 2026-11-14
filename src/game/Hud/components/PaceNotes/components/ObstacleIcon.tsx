@@ -9,22 +9,25 @@ import {
   type SignOutline,
 } from "@/render/scenery/chicaneSignArt";
 import type { PaceChicane } from "@/sim/track/paceNotes";
-import { DISC, PILL } from "./shape";
+import { ARROW_SHIFT, HEX, TILE, TILE_BAR } from "./shape";
 
-/** Fond des obstacles : plus sombre que le rouge de la note 1, et en pilule pleine */
+/**
+ * Fond des obstacles, plus sombre que le rouge de la note 1. ponytail: hors tokens comme l'échelle des notes,
+ * `destructive` (#ff6b5e en sombre) ne contraste pas assez sous le « ! » clair.
+ */
 const DANGER_COLOR = "#b91c1c";
 
 /** Crête vue du pilote : la route monte et s'arrête sur le ciel. */
 const CrestIcon = () => (
   <>
-    <clipPath id="pace-crest-disc">
-      <circle cx={DISC.x} cy={DISC.y} r={DISC.r} />
+    <clipPath id="pace-crest-hex">
+      <polygon points={HEX} />
     </clipPath>
-    <g clipPath="url(#pace-crest-disc)">
-      <path d="M0 64V34H64V64Z" fill={DANGER_COLOR} />
-      <path d="M14 64L29 34H35L50 64Z" fill="white" />
+    <g clipPath="url(#pace-crest-hex)">
+      <path d="M0 72V38H72V72Z" fill={DANGER_COLOR} />
+      <path d="M18 72L33 38H39L54 72Z" className="fill-foreground" />
       <path
-        d="M32 62V38"
+        d="M36 70V42"
         stroke={DANGER_COLOR}
         strokeWidth={2.5}
         strokeDasharray="5 4"
@@ -35,7 +38,7 @@ const CrestIcon = () => (
 
 /** Bosse : la voiture décolle d'un dos d'âne. */
 const BumpIcon = () => (
-  <>
+  <g transform={ARROW_SHIFT}>
     <path
       d="M7 46H20Q32 32 44 46H57"
       fill="none"
@@ -55,22 +58,22 @@ const BumpIcon = () => (
       strokeWidth={2.5}
       strokeLinecap="round"
     />
-  </>
+  </g>
 );
 
-/** Pilule rouge pleine et « ! » : un danger posé sur la route */
-const DangerPill = ({ x, children }: { x: number; children: ReactNode }) => (
+/** Tuile rouge pleine, badge clair et « ! » : un danger posé sur la route */
+const DangerTile = ({ children }: { children: ReactNode }) => (
   <>
-    <path d={PILL} fill={DANGER_COLOR} stroke="white" strokeWidth={3} />
+    <polygon points={TILE} fill={DANGER_COLOR} />
+    <polygon points={TILE_BAR} className="fill-foreground" />
+    <polygon points={HEX} className="fill-foreground" />
     {children}
     <text
-      x={x}
-      y={46}
+      x={94}
+      y={50}
       textAnchor="middle"
-      fontSize={36}
-      fontWeight={700}
-      fill="white"
-      className="font-mono"
+      fontSize={40}
+      className="fill-foreground font-mono"
     >
       !
     </text>
@@ -78,44 +81,47 @@ const DangerPill = ({ x, children }: { x: number; children: ReactNode }) => (
 );
 
 export const ObstacleIcon = ({ kind }: { kind: "crest" | "bump" }) => (
-  <DangerPill x={78}>
-    <circle cx={DISC.x} cy={DISC.y} r={DISC.r} fill="white" />
-    {kind === "crest" ? <CrestIcon /> : <BumpIcon />}
-  </DangerPill>
+  <DangerTile>{kind === "crest" ? <CrestIcon /> : <BumpIcon />}</DangerTile>
 );
 
 const toPoints = (outline: SignOutline): string =>
   outline.map(([x, y]) => `${x},${y}`).join(" ");
 
 /**
- * Le panneau triangulaire du bord de route, à taille pleine : décalé à droite pour ne pas toucher l'arrondi.
- * Dessiné pour un premier virage à droite, l'autre sens en est le miroir.
+ * Le panneau triangulaire du bord de route, dans le badge. Rouge et noir du vrai panneau, pas de la DA.
+ * Dessiné pour un premier virage à droite, l'autre sens en est le miroir. `firstBend` : `chicaneFirstBend`, pas le côté libre.
  */
 export const ChicaneIcon = ({
-  direction,
+  firstBend,
 }: {
-  direction: PaceChicane["direction"];
+  firstBend: PaceChicane["direction"];
 }) => (
-  <DangerPill x={86}>
+  <DangerTile>
     <svg
       x={13}
-      y={6}
-      width={58}
-      height={51}
+      y={12}
+      width={46}
+      height={41}
       viewBox={`0 0 ${SIGN_ART_WIDTH} ${SIGN_ART_HEIGHT}`}
     >
       <g
         transform={
-          direction === "left"
+          firstBend === "left"
             ? `translate(${SIGN_ART_WIDTH} 0) scale(-1 1)`
             : undefined
         }
       >
-        <polygon points={toPoints(SIGN_ART_RIM)} fill="white" />
+        <polygon
+          points={toPoints(SIGN_ART_RIM)}
+          className="fill-foreground"
+        />
         <polygon points={toPoints(SIGN_ART_BORDER)} fill="#dc2626" />
-        <polygon points={toPoints(SIGN_ART_FIELD)} fill="white" />
+        <polygon
+          points={toPoints(SIGN_ART_FIELD)}
+          className="fill-foreground"
+        />
         <polygon points={toPoints(SIGN_ART_BENDS)} fill="#111111" />
       </g>
     </svg>
-  </DangerPill>
+  </DangerTile>
 );

@@ -1,10 +1,16 @@
 import {
+  BASE,
   BRAND,
   formatGear,
   type GaugeData,
+  INK,
+  MUTED,
+  NEEDLE,
   RED,
   RED_ZONE,
+  RIM,
   rpmRatio,
+  TICK,
   TRACK,
 } from "../gauge";
 
@@ -16,7 +22,6 @@ const START = 150;
 const SWEEP = 240;
 /** Anneau de régime, le long du bord */
 const RING = "M15.92 117 A74 74 0 1 1 144.08 117";
-const MUTED = "rgba(255,255,255,0.6)";
 const TICKS = Array.from({ length: MAX_KMH / 10 + 1 }, (_, i) => i * 10);
 
 const polar = (kmh: number, radius: number): [number, number] => {
@@ -33,12 +38,12 @@ export const DialSpeedometer = ({ speedKmh, gear, rpm }: GaugeData) => {
   const ratio = rpmRatio(rpm);
   const [nx, ny] = polar(speedKmh, 44);
   return (
-    <svg viewBox="0 0 160 160" className="size-44" aria-hidden="true">
-      <path d={RING} fill="none" stroke={TRACK} strokeWidth={4} />
+    <svg viewBox="0 0 160 160" className="size-44 font-mono" aria-hidden="true">
+      <path d={RING} fill="none" style={{ stroke: TRACK }} strokeWidth={4} />
       <path
         d={RING}
         fill="none"
-        stroke={ratio >= RED_ZONE ? RED : BRAND}
+        style={{ stroke: ratio >= RED_ZONE ? RED : BRAND }}
         strokeWidth={4}
         pathLength={100}
         strokeDasharray={`${Math.round(ratio * 1000) / 10} 100`}
@@ -55,7 +60,7 @@ export const DialSpeedometer = ({ speedKmh, gear, rpm }: GaugeData) => {
               y1={y1}
               x2={x2}
               y2={y2}
-              stroke={kmh >= RED_KMH ? RED : "rgba(255,255,255,0.75)"}
+              style={{ stroke: kmh >= RED_KMH ? RED : TICK }}
               strokeWidth={major ? 2 : 1}
             />
             {kmh % 40 === 0 && (
@@ -63,7 +68,7 @@ export const DialSpeedometer = ({ speedKmh, gear, rpm }: GaugeData) => {
                 x={lx}
                 y={ly + 3}
                 textAnchor="middle"
-                fill={MUTED}
+                style={{ fill: MUTED }}
                 fontSize={8}
               >
                 {kmh}
@@ -77,28 +82,33 @@ export const DialSpeedometer = ({ speedKmh, gear, rpm }: GaugeData) => {
         y1={C}
         x2={nx}
         y2={ny}
-        stroke="#f97316"
+        style={{ stroke: NEEDLE }}
         strokeWidth={3}
         strokeLinecap="round"
       />
-      <circle cx={C} cy={C} r={7} fill="#222" stroke="#fff" strokeWidth={2} />
+      <circle
+        cx={C}
+        cy={C}
+        r={7}
+        style={{ fill: BASE, stroke: INK }}
+        strokeWidth={2}
+      />
       <rect
         x={58}
         y={104}
         width={44}
         height={22}
         rx={3}
-        fill="#000"
-        stroke="rgba(255,255,255,0.3)"
+        style={{ fill: BASE, stroke: RIM }}
       />
       <text
         x={C}
         y={121}
         textAnchor="middle"
-        fill="#fff"
+        style={{ fill: INK }}
         fontSize={16}
         fontWeight={700}
-        className="font-mono tabular-nums"
+        className="tabular-nums"
       >
         {speedKmh}
       </text>
@@ -106,10 +116,9 @@ export const DialSpeedometer = ({ speedKmh, gear, rpm }: GaugeData) => {
         x={C}
         y={146}
         textAnchor="middle"
-        fill={BRAND}
+        style={{ fill: BRAND }}
         fontSize={15}
         fontWeight={700}
-        className="font-mono"
       >
         {formatGear(gear)}
       </text>

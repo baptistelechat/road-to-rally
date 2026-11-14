@@ -1,8 +1,7 @@
 "use client";
 
-import { Info, ListOrdered, TriangleAlert } from "lucide-react";
+import { Info } from "lucide-react";
 import type { ReactNode } from "react";
-import { Button } from "@/components/ui/button";
 import {
   Popover,
   PopoverContent,
@@ -10,9 +9,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useEditor } from "../../store";
-import { ChicanePanel } from "../panel/ChicanePanel";
-import { PointsPanel, RouteMessages } from "../panel/PointsPanel";
-import { VariantPanel } from "../panel/VariantPanel";
+import { RouteMessages } from "../panel/PointsPanel";
+import { mapSurface, segmentButton } from "../styles";
 import { RoadsToggle } from "./BasemapSwitch";
 import {
   ChicaneSymbol,
@@ -22,7 +20,6 @@ import {
   SplitSymbol,
   StraightSymbol,
 } from "../symbols";
-import { useChicanes } from "../useChicanes";
 
 interface MapPopoverProps {
   label: string;
@@ -46,7 +43,7 @@ const MapPopover = ({
     <PopoverTrigger
       openOnHover={openOnHover}
       delay={150}
-      render={<Button variant="ghost" size="sm" />}
+      render={<button type="button" className={segmentButton(false)} />}
     >
       {icon}
       {label}
@@ -62,31 +59,6 @@ const MapPopover = ({
     </PopoverContent>
   </Popover>
 );
-
-/** Points et chicanes, au clavier comme à la souris : la carte seule ne suffit pas. */
-export const ElementPanels = () => {
-  const points = useEditor((state) => state.history.present.anchors.length);
-  const chicanes = useChicanes().length;
-  return (
-    <div className="absolute top-2 left-1/2 z-10 flex -translate-x-1/2 gap-1 rounded-lg border bg-background p-1 shadow-md">
-      <MapPopover
-        label={`Points (${points})`}
-        icon={<ListOrdered aria-hidden="true" />}
-        title="Points"
-      >
-        <PointsPanel />
-        <VariantPanel />
-      </MapPopover>
-      <MapPopover
-        label={`Chicanes (${chicanes})`}
-        icon={<TriangleAlert aria-hidden="true" />}
-        title="Chicanes"
-      >
-        <ChicanePanel />
-      </MapPopover>
-    </div>
-  );
-};
 
 const Line = ({ color, dashed }: { color: string; dashed?: boolean }) => (
   <span
@@ -111,7 +83,9 @@ const Entry = ({
 
 /** Ce que veut dire chaque trait, et ce que fait chaque geste : à la demande, plus en permanence dans le panneau. */
 export const Legend = () => (
-  <div className="absolute top-14 right-2 z-10 flex gap-1 rounded-lg border bg-background p-1 shadow-md">
+  <div
+    className={`absolute top-[4.25rem] right-4 z-10 flex gap-0.5 rounded-lg p-1 shadow-md ${mapSurface}`}
+  >
     <RoadsToggle />
     <MapPopover
       label="Légende"
@@ -171,12 +145,22 @@ export const Legend = () => (
   </div>
 );
 
-/** Calcul en cours, refus ou brouillon perdu : sur la carte, là où le regard se trouve. */
-export const RouteStatus = () => (
-  <div className="absolute bottom-10 left-1/2 z-10 w-max max-w-[calc(100%-6rem)] -translate-x-1/2">
-    <RouteMessages />
-  </div>
-);
+/** Le centre de la carte visible : à droite du panneau latéral. */
+const MAP_CENTER = "left-[calc(50%+11.25rem)] -translate-x-1/2";
+
+/** Calcul en cours, refus ou brouillon perdu : sur la carte, là où le regard se trouve, au-dessus du profil. */
+export const RouteStatus = () => {
+  const hasProfile = useEditor(
+    (state) => state.history.present.segments.length > 0,
+  );
+  return (
+    <div
+      className={`absolute z-10 w-max max-w-[calc(100%-30rem)] ${MAP_CENTER} ${hasProfile ? "bottom-60" : "bottom-10"}`}
+    >
+      <RouteMessages />
+    </div>
+  );
+};
 
 /** Tant que rien n'est posé : le premier geste, sans lire la légende. */
 export const FirstHint = () => {
@@ -185,7 +169,9 @@ export const FirstHint = () => {
   );
   if (!empty) return null;
   return (
-    <p className="pointer-events-none absolute top-16 left-1/2 z-10 -translate-x-1/2 rounded-lg border bg-background px-3 py-2 text-sm shadow-md">
+    <p
+      className={`pointer-events-none absolute top-4 z-10 rounded-lg border px-3 py-2 text-sm shadow-md ${MAP_CENTER} ${mapSurface}`}
+    >
       Clique sur une route pour poser le départ.
     </p>
   );

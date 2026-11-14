@@ -155,7 +155,7 @@ export const Game = ({ initialStage }: GameProps) => {
           <p>Impossible de charger la carte « {map.label} ».</p>
           <a
             href={mapSearch("track")}
-            className="font-semibold text-brand underline focus-visible:outline-2 focus-visible:outline-brand"
+            className="font-semibold text-brand underline focus-line-visible"
           >
             Revenir au circuit
           </a>

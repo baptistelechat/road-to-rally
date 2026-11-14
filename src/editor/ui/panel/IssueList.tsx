@@ -20,7 +20,7 @@ export const IssueList = () => {
         <button
           type="button"
           title="Voir sur la carte"
-          className="mb-1 rounded text-left text-xs text-destructive hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+          className="mb-1 rounded text-left text-xs text-destructive hover:underline focus-line-visible"
           onClick={() =>
             editorStore.setState({ focus: { position: missing.position } })
           }
@@ -47,7 +47,7 @@ export const IssueList = () => {
                   <button
                     type="button"
                     title="Voir sur la carte"
-                    className={`rounded text-left hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none ${tone}`}
+                    className={`rounded text-left hover:underline focus-line-visible ${tone}`}
                     onClick={() =>
                       editorStore.setState({ focus: { position } })
                     }

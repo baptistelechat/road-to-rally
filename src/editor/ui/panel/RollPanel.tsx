@@ -3,6 +3,7 @@
 import { Play } from "lucide-react";
 import { useCallback, useEffect, useId, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { customStageUrl } from "@/game/maps";
 import { StageProgress } from "@/game/Hud/components/StageProgress";
 import { deleteStoredStage, storeCustomStage } from "@/game/stageCache";
@@ -17,6 +18,7 @@ import { chicaneRequests } from "../../chicanes";
 import { readDraftStage, writeDraftStage } from "../../draft";
 import { editorStore, rollBlocker, stageGpx, useEditor } from "../../store";
 import type { EditorTrace } from "../../types";
+import { mapSurface, textField } from "../styles";
 import { useChicanes } from "../useChicanes";
 import { RemovedChicanes } from "./RemovedChicanes";
 
@@ -149,7 +151,7 @@ export const RollPanel = () => {
         value={name}
         placeholder={placeDefault}
         maxLength={80}
-        className="w-56 min-w-0 rounded-md border border-input bg-transparent px-2 py-1 text-sm placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+        className={cn(textField, "w-64 min-w-0 font-bold")}
         onChange={(event) => setName(event.currentTarget.value)}
       />
 
@@ -170,7 +172,8 @@ export const RollPanel = () => {
       ) : (
         !degraded && (
           <Button
-            size="sm"
+            size="xl"
+            font="display"
             disabled={blocker !== null}
             aria-describedby={blocker ? `${id}-reason` : undefined}
             onClick={roll}
@@ -182,7 +185,9 @@ export const RollPanel = () => {
       )}
 
       {hasDetails && (
-        <div className="absolute top-full right-0 z-20 mt-2 w-80 space-y-2 rounded-lg border bg-background p-3 shadow-md">
+        <div
+          className={`absolute top-full right-0 z-20 mt-2 w-80 space-y-2 rounded-lg border p-3 shadow-md ${mapSurface}`}
+        >
           <StageProgress status={shownStatus} />
           {degraded && (
             <div role="alert" className="space-y-2 text-xs">

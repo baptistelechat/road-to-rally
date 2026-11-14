@@ -29,12 +29,12 @@ export const MiniMapPreview = ({
 }) => (
   <svg
     viewBox="0 0 48 48"
-    className="absolute top-1/2 left-1/2 size-20 -translate-1/2 rounded-sm bg-background/70"
+    className="absolute top-1/2 left-1/2 size-16 -translate-1/2 bg-background/70"
   >
     {style === "off" && (
       <path
         d="M14 14L34 34M34 14L14 34"
-        stroke="rgba(255,255,255,0.4)"
+        style={{ stroke: "var(--muted-foreground)" }}
         strokeWidth={3}
         strokeLinecap="round"
       />
@@ -44,9 +44,19 @@ export const MiniMapPreview = ({
       <>
         <Zoomed rotation={40} />
         <g transform="translate(40 8)">
-          <circle r={5} fill="black" stroke="white" strokeOpacity={0.3} />
-          <path d="M0 -4L1.5 0L-1.5 0Z" fill="#ef4444" />
-          <path d="M0 4L1.5 0L-1.5 0Z" fill="#e5e7eb" />
+          <circle
+            r={5}
+            style={{ fill: "var(--background)", stroke: "var(--foreground)" }}
+            strokeOpacity={0.3}
+          />
+          <path
+            d="M0 -4L1.5 0L-1.5 0Z"
+            style={{ fill: "var(--destructive)" }}
+          />
+          <path
+            d="M0 4L1.5 0L-1.5 0Z"
+            style={{ fill: "var(--foreground)" }}
+          />
         </g>
       </>
     )}
@@ -57,8 +67,7 @@ export const MiniMapPreview = ({
           width={48}
           height={48}
           rx={3}
-          fill="black"
-          stroke="white"
+          style={{ fill: "var(--background)", stroke: "var(--foreground)" }}
           strokeOpacity={0.3}
           strokeWidth={2}
         />

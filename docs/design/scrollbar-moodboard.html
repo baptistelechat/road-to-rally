@@ -1,0 +1,646 @@
+<!doctype html>
+<html lang="fr" class="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Scrollbar · moodboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Michroma&family=Share+Tech+Mono&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* Tokens du thème sombre, copiés de src/app/globals.css (.dark). Aucune autre couleur dans ce fichier. */
+      :root {
+        --brand: oklch(0.8789 0.1617 90.9445); /* #ffd23f */
+        --background: oklch(0.1719 0.0186 259.6617); /* #0b1018 */
+        --foreground: oklch(0.9448 0.0092 258.3361); /* #e9edf3 */
+        --card: oklch(0.216 0.0266 258.3106); /* #121a26 */
+        --secondary: oklch(0.2582 0.0318 258.3106); /* #1a2433 */
+        --muted: oklch(0.243 0.0335 261.5674); /* #172030 */
+        --muted-foreground: oklch(0.7021 0.0329 258.9406); /* #93a0b4 */
+        --accent: oklch(0.2827 0.0373 258.3015); /* #1e2a3c */
+        --border: oklch(0.2913 0.0387 259.3831); /* #202c3f */
+        --input: oklch(0.5035 0.0426 259.7264); /* #56657d */
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 40px 32px 64px;
+        background: var(--card);
+        color: var(--foreground);
+        font:
+          500 14px/1.5 Manrope,
+          system-ui,
+          sans-serif;
+      }
+      header {
+        max-width: 1180px;
+        margin: 0 auto 32px;
+      }
+      h1 {
+        margin: 0 0 6px;
+        font:
+          400 22px/1.2 Michroma,
+          sans-serif;
+        letter-spacing: 0.04em;
+      }
+      header p {
+        margin: 4px 0;
+        color: var(--muted-foreground);
+        max-width: 820px;
+      }
+      code {
+        font-family: "Share Tech Mono", monospace;
+        color: var(--foreground);
+      }
+      pre {
+        margin: 12px 0 0;
+        padding: 12px 14px;
+        overflow-x: auto;
+        background: var(--background);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        font:
+          13px/1.5 "Share Tech Mono",
+          monospace;
+        color: var(--muted-foreground);
+      }
+
+      .grid {
+        max-width: 1180px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+        gap: 28px;
+      }
+      .dir {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .dir header {
+        margin: 0;
+      }
+      .num {
+        font:
+          400 10px/1.4 Michroma,
+          sans-serif;
+        letter-spacing: 0.18em;
+        color: var(--muted-foreground);
+      }
+      .dir h2 {
+        margin: 2px 0 0;
+        font:
+          400 15px/1.3 Michroma,
+          sans-serif;
+        letter-spacing: 0.04em;
+      }
+      .dir header p {
+        margin: 4px 0 0;
+      }
+      .meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .tag {
+        padding: 2px 8px;
+        border: 1px solid var(--border);
+        border-radius: 3px;
+        font:
+          13px/1.5 "Share Tech Mono",
+          monospace;
+        color: var(--muted-foreground);
+      }
+      .tag b {
+        color: var(--foreground);
+        font-weight: 400;
+      }
+      .note {
+        margin: 0;
+        color: var(--muted-foreground);
+        font-size: 13px;
+      }
+      .note strong {
+        color: var(--foreground);
+      }
+
+      /* Le drawer factice : la seule chose qui défile. */
+      .drawer {
+        width: 340px;
+        height: 360px;
+        overflow-y: auto;
+        background: var(--background);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 18px 16px;
+      }
+      .drawer h3 {
+        margin: 0 0 12px;
+        font:
+          400 16px/1.2 Michroma,
+          sans-serif;
+      }
+      .drawer h4 {
+        margin: 16px 0 6px;
+        font:
+          400 10px/1.4 Michroma,
+          sans-serif;
+        letter-spacing: 0.18em;
+        color: var(--muted-foreground);
+      }
+      .row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        min-height: 40px;
+        padding: 0 10px;
+        border-radius: 4px;
+      }
+      .row:hover {
+        background: var(--accent);
+      }
+      .row span:last-child {
+        font-family: "Share Tech Mono", monospace;
+        color: var(--muted-foreground);
+      }
+
+      /*
+        Technique commune, intégrable telle quelle dans globals.css :
+        1. scrollbar-width / scrollbar-color pour Firefox.
+        2. Dans @supports selector(::-webkit-scrollbar) (Chromium, Safari), on remet les deux
+           propriétés standard à auto : depuis Chrome 121, dès qu'elles sont définies,
+           Chromium ignore ::-webkit-scrollbar. Firefox ne connaît pas ce sélecteur et garde l'étape 1.
+      */
+
+      /* 01 · Trait de nuit */
+      .d1 {
+        scrollbar-width: thin;
+        scrollbar-color: var(--input) transparent;
+      }
+      .d1:hover {
+        scrollbar-color: var(--muted-foreground) transparent;
+      }
+      @supports selector(::-webkit-scrollbar) {
+        .d1,
+        .d1:hover {
+          scrollbar-width: auto;
+          scrollbar-color: auto;
+        }
+        .d1::-webkit-scrollbar {
+          width: 12px;
+        }
+        .d1::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .d1::-webkit-scrollbar-thumb {
+          background: var(--input);
+          background-clip: padding-box;
+          border: 4px solid transparent;
+          border-radius: 2px; /* 4 px visibles */
+        }
+        .d1::-webkit-scrollbar-thumb:hover,
+        .d1::-webkit-scrollbar-thumb:active {
+          background-color: var(--muted-foreground);
+          border-width: 2px; /* s'élargit à 8 px */
+        }
+      }
+
+      /* 02 · Facette */
+      .d2 {
+        scrollbar-width: thin;
+        scrollbar-color: var(--muted-foreground) var(--secondary);
+      }
+      @supports selector(::-webkit-scrollbar) {
+        .d2 {
+          scrollbar-width: auto;
+          scrollbar-color: auto;
+        }
+        .d2::-webkit-scrollbar {
+          width: 10px;
+        }
+        .d2::-webkit-scrollbar-track {
+          background: var(--secondary);
+        }
+        /* clip-path n'a pas d'effet sur les pseudo-éléments de scrollbar : les biseaux sont deux dégradés. */
+        .d2::-webkit-scrollbar-thumb {
+          --c: var(--muted-foreground);
+          background:
+            linear-gradient(135deg, transparent 5px, var(--c) 0) top / 100% 51%
+              no-repeat,
+            linear-gradient(315deg, transparent 5px, var(--c) 0) bottom / 100%
+              51% no-repeat;
+        }
+        .d2::-webkit-scrollbar-thumb:hover,
+        .d2::-webkit-scrollbar-thumb:active {
+          --c: var(--foreground);
+        }
+      }
+
+      /* 03 · Road-book cranté */
+      .d3 {
+        scrollbar-width: thin;
+        scrollbar-color: var(--muted-foreground) var(--muted);
+      }
+      @supports selector(::-webkit-scrollbar) {
+        .d3 {
+          scrollbar-width: auto;
+          scrollbar-color: auto;
+        }
+        .d3::-webkit-scrollbar {
+          width: 14px;
+        }
+        .d3::-webkit-scrollbar-track {
+          background:
+            repeating-linear-gradient(
+                to bottom,
+                var(--input) 0 1px,
+                transparent 1px 50px
+              )
+              center / 12px 100% no-repeat,
+            repeating-linear-gradient(
+                to bottom,
+                var(--input) 0 1px,
+                transparent 1px 10px
+              )
+              center / 6px 100% no-repeat,
+            var(--muted);
+        }
+        .d3::-webkit-scrollbar-thumb {
+          --c: var(--muted-foreground);
+          /* trait central = l'aiguille de la jauge */
+          background: linear-gradient(
+              to bottom,
+              var(--c) 0 calc(50% - 1px),
+              var(--foreground) 0 calc(50% + 1px),
+              var(--c) 0
+            )
+            padding-box;
+          border: 0 solid transparent;
+          border-width: 0 4px;
+        }
+        .d3::-webkit-scrollbar-thumb:hover,
+        .d3::-webkit-scrollbar-thumb:active {
+          border-width: 0 2px;
+        }
+      }
+
+      /* 04 · Phare */
+      .d4 {
+        scrollbar-width: thin;
+        scrollbar-color: var(--brand) var(--secondary);
+      }
+      @supports selector(::-webkit-scrollbar) {
+        .d4 {
+          scrollbar-width: auto;
+          scrollbar-color: auto;
+        }
+        .d4::-webkit-scrollbar {
+          width: 8px;
+        }
+        .d4::-webkit-scrollbar-track {
+          background: var(--secondary);
+        }
+        .d4::-webkit-scrollbar-thumb {
+          background: var(--brand);
+          border-radius: 1px;
+        }
+        .d4::-webkit-scrollbar-thumb:hover {
+          background: var(--foreground);
+        }
+      }
+
+      /* 05 · Afficheur à flèches */
+      .d5 {
+        scrollbar-width: auto;
+        scrollbar-color: var(--muted-foreground) var(--card);
+      }
+      @supports selector(::-webkit-scrollbar) {
+        .d5 {
+          scrollbar-width: auto;
+          scrollbar-color: auto;
+        }
+        .d5::-webkit-scrollbar {
+          width: 14px;
+        }
+        .d5::-webkit-scrollbar-track {
+          background: var(--card);
+          border-left: 1px solid var(--border);
+        }
+        .d5::-webkit-scrollbar-thumb {
+          background: var(--muted-foreground) padding-box;
+          border: 3px solid transparent;
+          border-radius: 1px;
+        }
+        .d5::-webkit-scrollbar-thumb:hover {
+          background-color: var(--foreground);
+        }
+        .d5::-webkit-scrollbar-button:single-button {
+          display: block;
+          height: 14px;
+          background-color: var(--accent);
+        }
+        .d5::-webkit-scrollbar-button:vertical:start:increment,
+        .d5::-webkit-scrollbar-button:vertical:end:decrement {
+          display: none;
+        }
+        /* triangles en dégradés : deux demi-carrés de 4 px */
+        .d5::-webkit-scrollbar-button:vertical:start:decrement {
+          background:
+            linear-gradient(
+                to bottom right,
+                transparent 49%,
+                var(--muted-foreground) 51%
+              )
+              3px 5px / 4px 4px no-repeat,
+            linear-gradient(
+                to bottom left,
+                transparent 49%,
+                var(--muted-foreground) 51%
+              )
+              7px 5px / 4px 4px no-repeat,
+            var(--accent);
+        }
+        .d5::-webkit-scrollbar-button:vertical:end:increment {
+          background:
+            linear-gradient(
+                to top right,
+                transparent 49%,
+                var(--muted-foreground) 51%
+              )
+              3px 5px / 4px 4px no-repeat,
+            linear-gradient(
+                to top left,
+                transparent 49%,
+                var(--muted-foreground) 51%
+              )
+              7px 5px / 4px 4px no-repeat,
+            var(--accent);
+        }
+      }
+
+      /* 06 · Fantôme */
+      .d6 {
+        scrollbar-gutter: stable;
+        scrollbar-width: thin;
+        scrollbar-color: transparent transparent;
+      }
+      .d6:hover,
+      .d6:focus-within {
+        scrollbar-color: var(--input) transparent;
+      }
+      @supports selector(::-webkit-scrollbar) {
+        .d6,
+        .d6:hover,
+        .d6:focus-within {
+          scrollbar-width: auto;
+          scrollbar-color: auto;
+        }
+        .d6::-webkit-scrollbar {
+          width: 8px;
+        }
+        .d6::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .d6::-webkit-scrollbar-thumb {
+          background: transparent;
+          border-radius: 1px;
+        }
+        .d6:hover::-webkit-scrollbar-thumb,
+        .d6:focus-within::-webkit-scrollbar-thumb {
+          background: var(--input);
+        }
+        .d6::-webkit-scrollbar-thumb:hover {
+          background: var(--muted-foreground);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Scrollbar · 6 directions</h1>
+      <p>
+        Chaque colonne est un drawer sombre factice qui défile vraiment :
+        survole et fais défiler pour juger. Les couleurs sont toutes des tokens
+        de <code>globals.css</code> (thème sombre). Contraste pouce / rail
+        mesuré en WCAG 2.x sur les hex des tokens ; un rail transparent est
+        mesuré contre le fond du drawer (<code>background</code>).
+      </p>
+      <p>
+        Firefox ne voit que <code>scrollbar-width</code> et
+        <code>scrollbar-color</code> (couleur unie, largeur <code>thin</code> ou
+        <code>auto</code>, ni forme ni flèches). Tout le reste vient de
+        <code>::-webkit-scrollbar*</code>, donc Chromium (Chrome, Edge) et
+        Safari. Motif commun, à reprendre tel quel :
+      </p>
+      <pre>
+.zone { scrollbar-width: thin; scrollbar-color: &lt;pouce&gt; &lt;rail&gt;; }      /* Firefox */
+@supports selector(::-webkit-scrollbar) {                              /* Chromium, Safari */
+  .zone { scrollbar-width: auto; scrollbar-color: auto; }   /* sinon Chrome 121+ ignore ::-webkit-scrollbar */
+  .zone::-webkit-scrollbar { … }  .zone::-webkit-scrollbar-thumb { … }
+}</pre>
+    </header>
+
+    <main class="grid">
+      <article class="dir">
+        <header>
+          <div class="num">01</div>
+          <h2>Trait de nuit</h2>
+          <p>
+            Un fil de 4 px qui se fait oublier et s'épaissit à 8 px quand la
+            main s'en approche.
+          </p>
+        </header>
+        <div
+          class="drawer d1"
+          tabindex="0"
+          aria-label="Exemple 01, Trait de nuit"
+        ></div>
+        <div class="meta">
+          <span class="tag">repos <b>input</b> / fond · <b>3.23:1</b></span>
+          <span class="tag">survol <b>muted-fg</b> · <b>7.20:1</b></span>
+        </div>
+        <p class="note">
+          <strong>Chromium seul :</strong> l'élargissement au survol du pouce
+          (bordure transparente + <code>background-clip</code>). Firefox : fil
+          <code>thin</code> qui s'éclaircit au survol du drawer, sans élargir.
+        </p>
+      </article>
+
+      <article class="dir">
+        <header>
+          <div class="num">02</div>
+          <h2>Facette</h2>
+          <p>
+            Le pouce taillé comme les montagnes : deux coins coupés en
+            diagonale, sur un rail plein.
+          </p>
+        </header>
+        <div
+          class="drawer d2"
+          tabindex="0"
+          aria-label="Exemple 02, Facette"
+        ></div>
+        <div class="meta">
+          <span class="tag"
+            >repos <b>muted-fg</b> / <b>secondary</b> · <b>5.90:1</b></span
+          >
+          <span class="tag">survol <b>foreground</b> · <b>13.30:1</b></span>
+        </div>
+        <p class="note">
+          <strong>Chromium seul :</strong> les biseaux (deux dégradés,
+          <code>clip-path</code> est sans effet sur une scrollbar) et le passage
+          au clair au survol. Firefox : pouce rectangulaire mêmes couleurs.
+        </p>
+      </article>
+
+      <article class="dir">
+        <header>
+          <div class="num">03</div>
+          <h2>Road-book cranté</h2>
+          <p>
+            Le rail devient une jauge graduée, petit cran tous les 10 px et
+            grand tous les 50, le pouce porte l'aiguille.
+          </p>
+        </header>
+        <div
+          class="drawer d3"
+          tabindex="0"
+          aria-label="Exemple 03, Road-book cranté"
+        ></div>
+        <div class="meta">
+          <span class="tag"
+            >pouce <b>muted-fg</b> / <b>muted</b> · <b>6.17:1</b></span
+          >
+          <span class="tag">crans <b>input</b> · déco 2.76:1</span>
+        </div>
+        <p class="note">
+          <strong>Chromium seul :</strong> les crans, l'aiguille et
+          l'élargissement au survol. Firefox : rail <code>muted</code> uni. Les
+          crans sont décoratifs, le contraste utile reste celui du pouce.
+        </p>
+      </article>
+
+      <article class="dir">
+        <header>
+          <div class="num">04</div>
+          <h2>Phare</h2>
+          <p>
+            Le pouce jaune des phares, on sait toujours où l'on est. À réserver
+            aux écrans sans autre zone jaune.
+          </p>
+        </header>
+        <div
+          class="drawer d4"
+          tabindex="0"
+          aria-label="Exemple 04, Phare"
+        ></div>
+        <div class="meta">
+          <span class="tag"
+            >pouce <b>brand</b> / <b>secondary</b> · <b>10.82:1</b></span
+          >
+        </div>
+        <p class="note">
+          <strong>Chromium seul :</strong> largeur 8 px et passage au clair au
+          survol. Firefox : pouce jaune en <code>thin</code>. ⚠ Concurrence le
+          bouton « Reprendre » : enfreint « une seule zone jaune par écran »
+          dans le drawer de pause.
+        </p>
+      </article>
+
+      <article class="dir">
+        <header>
+          <div class="num">05</div>
+          <h2>Afficheur à flèches</h2>
+          <p>
+            Une vraie colonne d'instrument : rail encadré, flèches triangulaires
+            en haut et en bas, pouce plein.
+          </p>
+        </header>
+        <div
+          class="drawer d5"
+          tabindex="0"
+          aria-label="Exemple 05, Afficheur à flèches"
+        ></div>
+        <div class="meta">
+          <span class="tag"
+            >pouce <b>muted-fg</b> / <b>card</b> · <b>6.60:1</b></span
+          >
+          <span class="tag"
+            >flèches <b>muted-fg</b> / <b>accent</b> · <b>5.46:1</b></span
+          >
+        </div>
+        <p class="note">
+          <strong>Chromium seul :</strong> les flèches
+          (<code>::-webkit-scrollbar-button</code>), le liseré et la forme.
+          Firefox : barre <code>auto</code> recolorée, flèches natives selon
+          l'OS. La plus lourde visuellement.
+        </p>
+      </article>
+
+      <article class="dir">
+        <header>
+          <div class="num">06</div>
+          <h2>Fantôme</h2>
+          <p>
+            Ni rail ni pouce au repos ; ils apparaissent au survol ou au focus
+            clavier du panneau. Place réservée, rien ne bouge.
+          </p>
+        </header>
+        <div
+          class="drawer d6"
+          tabindex="0"
+          aria-label="Exemple 06, Fantôme"
+        ></div>
+        <div class="meta">
+          <span class="tag">visible <b>input</b> / fond · <b>3.23:1</b></span>
+          <span class="tag">survol pouce <b>muted-fg</b> · <b>7.20:1</b></span>
+        </div>
+        <p class="note">
+          <strong>Chromium seul :</strong> le changement de teinte au survol du
+          pouce. Fonctionne aussi sur Firefox (couleur transparente puis
+          <code>input</code>). Rien n'indique qu'on peut défiler tant qu'on n'a
+          pas survolé : risqué au tactile.
+        </p>
+      </article>
+    </main>
+
+    <template id="content">
+      <h3>Pause</h3>
+      <h4>ROAD-BOOK · CARTE</h4>
+      <div class="row"><span>Mountain</span><span>01</span></div>
+      <div class="row"><span>Forêt de Lure</span><span>02</span></div>
+      <div class="row"><span>Col de Turini</span><span>03</span></div>
+      <h4>COPILOTE</h4>
+      <div class="row"><span>Voix</span><span>Annie</span></div>
+      <div class="row"><span>Anticipation</span><span>180 m</span></div>
+      <div class="row"><span>Notes à l'écran</span><span>Oui</span></div>
+      <div class="row"><span>Volume</span><span>72 %</span></div>
+      <h4>HUD</h4>
+      <div class="row"><span>Compteur</span><span>Arc</span></div>
+      <div class="row"><span>Minimap</span><span>Zoom</span></div>
+      <div class="row"><span>Chrono</span><span>Écart</span></div>
+      <h4>COMMANDES</h4>
+      <div class="row"><span>Accélérer</span><span>Z</span></div>
+      <div class="row"><span>Freiner</span><span>S</span></div>
+      <div class="row"><span>Frein à main</span><span>Espace</span></div>
+      <div class="row"><span>Caméra</span><span>C</span></div>
+      <div class="row"><span>Pause</span><span>Échap</span></div>
+      <h4>AUDIO</h4>
+      <div class="row"><span>Moteur</span><span>80 %</span></div>
+      <div class="row"><span>Ambiance</span><span>40 %</span></div>
+    </template>
+    <script>
+      // ponytail: un seul contenu factice, cloné dans les 6 drawers.
+      const tpl = document.getElementById("content");
+      document
+        .querySelectorAll(".drawer")
+        .forEach((d) => d.append(tpl.content.cloneNode(true)));
+    </script>
+  </body>
+</html>

@@ -14,7 +14,6 @@ import {
   type BasemapId,
 } from "./map/basemaps";
 import { MapClickHandler } from "./MapClickHandler";
-import { PlaceSearch } from "./PlaceSearch";
 
 /** La France entière à l'ouverture, en [longitude, latitude] */
 const FRANCE_CENTER: [number, number] = [2.5, 46.6];
@@ -46,7 +45,6 @@ export const EditorMap = ({ onMapClick, children }: EditorMapProps) => {
       clickTolerance={8}
     >
       <BasemapTuning basemap={basemap} showRoads={showRoads} />
-      <PlaceSearch />
       <BasemapSwitch
         value={basemap}
         onChange={(id) => {

@@ -1,17 +1,21 @@
 "use client";
 
 import { requestRestart, setHudScreen, useHudStore } from "@/game/hudStore";
-import { label, panel } from "../hudStyles";
 import { formatSignedLap } from "../formatTime";
 import { Countdown } from "./Countdown";
 import { SplitDelta } from "./SplitDelta";
 import { StageResult } from "./StageResult";
 import { StageStrip } from "./StageStrip";
 
-/** Toujours monté : sinon la zone annoncée se tait, et un démontage en pause relancerait le GO. */
+/** Toujours monté : sinon la zone annoncée se tait, et un démontage en pause relancerait le GO. Masqué derrière le menu de départ. */
 export const StageCountdown = () => {
   const countdown = useHudStore((s) => s.countdown);
-  return <Countdown seconds={countdown} />;
+  const screen = useHudStore((s) => s.screen);
+  return (
+    <div hidden={screen === "start"}>
+      <Countdown seconds={countdown} />
+    </div>
+  );
 };
 
 export const StageSplit = () => {
@@ -25,13 +29,14 @@ export const StageSplit = () => {
   );
 };
 
-export const StageResultScreen = () => {
+export const StageResultScreen = ({ mapLabel }: { mapLabel: string }) => {
   const screen = useHudStore((s) => s.screen);
   const result = useHudStore((s) => s.result);
   if (screen !== "result" || !result) return null;
   return (
     <StageResult
       {...result}
+      mapLabel={mapLabel}
       onRestart={() => {
         requestRestart();
         setHudScreen("race");
@@ -44,7 +49,7 @@ export const StageResultScreen = () => {
   );
 };
 
-/** « Hors piste +00:05.000 », sous l'écart d'intermédiaire. La zone reste montée pour être annoncée. */
+/** « +00:05.000 Hors piste », sous l'écart d'intermédiaire. La zone reste montée pour être annoncée. */
 export const PenaltyToast = () => {
   const penalty = useHudStore((s) => s.penalty);
   return (
@@ -55,11 +60,13 @@ export const PenaltyToast = () => {
       {penalty && (
         <div
           key={penalty.id}
-          className={`${panel} flex items-baseline gap-3 px-5 py-2`}
+          className="flex h-11 items-stretch bg-background/90 [clip-path:polygon(4%_0,100%_0,96%_100%,0_100%)]"
         >
-          <span className={label}>{penalty.reason}</span>
-          <span className="font-mono text-xl font-bold text-destructive tabular-nums">
+          <span className="flex items-center bg-destructive pr-4 pl-[22px] font-mono text-[22px] text-background tabular-nums">
             {formatSignedLap(penalty.ms)}
+          </span>
+          <span className="flex items-center pr-[26px] pl-3.5 font-display text-[11px] tracking-[0.14em] uppercase">
+            {penalty.reason}
           </span>
         </div>
       )}

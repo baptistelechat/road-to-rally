@@ -1,27 +1,20 @@
 "use client";
 
-import { useState } from "react";
-import { readDraftStage } from "@/editor/draft";
-import {
-  CUSTOM_MAP_ID,
-  EDITOR_OPTION,
-  EDITOR_TRACE_URL,
-  EDITOR_URL,
-  IMPORT_OPTION,
-  IMPORTED_MAP_ID,
-  MAPS,
-  mapSearch,
-} from "@/game/maps";
+import { useId, useState } from "react";
+import { CUSTOM_MAP_ID } from "@/game/maps";
 import type { ImportedStage } from "@/game/useStageImport";
-import { hudButton, menuFocus } from "../hudStyles";
-import { MenuSelect } from "./MenuSelect";
+import { label } from "../hudStyles";
+import {
+  chooseMap,
+  leaveFor,
+  mapChoices,
+  returnToEditor,
+} from "./Menu/mapChoices";
+import { drawerButton, facetSlant } from "./Menu/menuStyles";
 import { StageImportPanel } from "./StageImportPanel";
 
-/** Retour sur la carte si le brouillon est bien le tracé de cette spéciale, sinon à l'accueil de l'éditeur. */
-const editorReturnUrl = (): string =>
-  new URLSearchParams(window.location.search).get("stage") === readDraftStage()
-    ? EDITOR_TRACE_URL
-    : EDITOR_URL;
+/** Import et éditeur : gris, le texte en retrait des cartes */
+const sideButton = `${drawerButton} flex w-full items-center text-left text-muted-foreground hover:text-foreground`;
 
 interface MapSelectProps {
   map: string;
@@ -31,58 +24,76 @@ interface MapSelectProps {
 }
 
 /**
- * Changer de carte recharge la page : l'ancien monde Rapier et l'audio sont libérés sans code de plus.
- * Seule une spéciale importée remplace la carte sur place : son tracé n'a pas d'URL.
+ * Road-book de la pause : les cartes numérotées, l'import GPX et l'éditeur.
+ * Seule une spéciale importée remplace la carte sur place : les autres choix rechargent la page sur l'écran « Prêt ».
  */
 export const MapSelect = ({ map, mapLabel, onImported }: MapSelectProps) => {
+  const id = useId();
   const [importing, setImporting] = useState(false);
 
-  const options = [
-    ...MAPS.map(({ id, label: name }) => ({ id, name })),
-    ...(map === IMPORTED_MAP_ID || map === CUSTOM_MAP_ID
-      ? [{ id: map, name: mapLabel }]
-      : []),
-    { id: IMPORT_OPTION, name: "Import GPX" },
-    { id: EDITOR_OPTION, name: "Editor" },
-  ];
-
   return (
-    <>
-      <MenuSelect
-        title="Carte"
-        groupLabel="Choix de la carte"
-        value={map}
-        options={options}
-        onChoose={(id, close) => {
-          if (id === IMPORT_OPTION) {
-            // Le champ du panneau d'import prend ensuite le focus.
-            close();
-            setImporting(true);
-          }
-          // Une vraie navigation : la scène 3D et son contexte WebGL sont libérés avant la carte de l'éditeur.
-          else if (id === EDITOR_OPTION)
-            window.location.assign(`${window.location.origin}/editor`);
-          else window.location.assign(mapSearch(id));
-        }}
-      />
-      {map === CUSTOM_MAP_ID && (
-        <button
-          type="button"
-          className={`${hudButton} ${menuFocus} w-full`}
-          // Une vraie navigation : la scène 3D est libérée avant la carte, et le brouillon attend dans `localStorage`.
-          onClick={() => {
-            window.location.href = editorReturnUrl();
-          }}
-        >
-          Retour à l&apos;éditeur
-        </button>
-      )}
+    <section aria-labelledby={`${id}-title`}>
+      <h2 id={`${id}-title`} className={`${label} mb-2`}>
+        Road-book · Carte
+      </h2>
+      <ol className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">
+        {mapChoices(map, mapLabel).map(({ id: choiceId, name }, index) => {
+          const current = choiceId === map;
+          return (
+            <li key={choiceId}>
+              <button
+                type="button"
+                aria-current={current ? "true" : undefined}
+                className={`flex min-h-9 w-full items-center gap-2 px-4 text-left text-xs transition-colors focus-line ${facetSlant} ${current ? "bg-brand/20 font-extrabold text-brand" : "bg-secondary font-bold text-secondary-foreground hover:bg-accent"}`}
+                onClick={() => chooseMap(map, choiceId, true)}
+              >
+                <span
+                  aria-hidden="true"
+                  className={`grid size-6 shrink-0 place-items-center rounded-sm font-mono text-[0.8125rem] tabular-nums ${current ? "bg-brand text-brand-foreground" : "bg-background/60"}`}
+                >
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                <span className="truncate">{name}</span>
+              </button>
+            </li>
+          );
+        })}
+        <li>
+          <button
+            type="button"
+            className={sideButton}
+            onClick={() => setImporting(true)}
+          >
+            + Importer un GPX
+          </button>
+        </li>
+        <li>
+          <button
+            type="button"
+            className={sideButton}
+            onClick={() => leaveFor("/editor")}
+          >
+            Ouvrir l&apos;éditeur
+          </button>
+        </li>
+        {map === CUSTOM_MAP_ID && (
+          <li>
+            <button
+              type="button"
+              className={sideButton}
+              onClick={returnToEditor}
+            >
+              Retour à l&apos;éditeur
+            </button>
+          </li>
+        )}
+      </ol>
       {importing && (
         <StageImportPanel
           onClose={() => setImporting(false)}
           onReady={onImported}
         />
       )}
-    </>
+    </section>
   );
 };

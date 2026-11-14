@@ -11,8 +11,9 @@ interface GlobalMapProps {
   ghost: Pick<CarSource, "getPose"> | null;
   /** Épaisseur de route à l'écran, plus fine dans la vignette */
   roadWidth: number;
-  /** Côté dessiné en pixels, padding déduit : l'épaisseur de route en dépend */
-  pixels: number;
+  /** Zone dessinée en pixels, padding déduit : l'épaisseur de route en dépend */
+  width: number;
+  height: number;
   className: string;
 }
 
@@ -21,16 +22,24 @@ export const GlobalMap = ({
   sim,
   ghost,
   roadWidth,
-  pixels,
+  width,
+  height,
   className,
 }: GlobalMapProps) => {
   const done = useRef<SVGPathElement>(null);
   const arrow = useRef<SVGPathElement>(null);
   const ghostDot = useRef<SVGCircleElement>(null);
-  const { path, viewBox, start, finish, unit, size, gates, doneAt } = useMemo(
-    () => miniMapOutline(sim.track),
-    [sim],
-  );
+  const {
+    path,
+    viewBox,
+    start,
+    finish,
+    unit,
+    viewWidth,
+    viewHeight,
+    gates,
+    doneAt,
+  } = useMemo(() => miniMapOutline(sim.track), [sim]);
 
   const onTick = useCallback(
     (tick: CarTick) => {
@@ -51,7 +60,8 @@ export const GlobalMap = ({
       <Road
         path={path}
         width={roadWidth}
-        scale={size / pixels}
+        // Le tracé tient dans la zone sans déformation : le côté le plus serré fixe l'échelle.
+        scale={Math.max(viewWidth / width, viewHeight / height)}
         doneRef={done}
       />
       <Gates gates={gates} unit={unit} />

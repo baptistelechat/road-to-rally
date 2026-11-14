@@ -2,11 +2,14 @@
 
 import { useState } from "react";
 import type { Copilot } from "@/game/copilot";
-import { requestRestart, setHudScreen, useHudStore } from "@/game/hudStore";
+import { useHudStore } from "@/game/hudStore";
 import type { ImportedStage } from "@/game/useStageImport";
-import { hudButton, menuFocus, panel } from "../hudStyles";
 import { CopilotOptionsPanel } from "./CopilotOptionsPanel";
-import { MapSelect } from "./MapSelect";
+import { MenuDrawer } from "./Menu/MenuDrawer";
+import { readyRequested } from "./Menu/mapChoices";
+import { PauseDrawer } from "./Menu/PauseDrawer";
+import { ReadyScreen } from "./Menu/ReadyScreen";
+import { StartMenu } from "./Menu/StartMenu";
 
 interface GameMenuProps {
   map: string;
@@ -19,92 +22,46 @@ interface GameMenuProps {
 }
 
 /** Démonté en course : le menu rouvre toujours sur sa première page. */
-const MenuDialog = ({
-  map,
-  mapLabel,
-  closed,
-  copilot,
-  onImported,
-  onToggleMute,
+const MenuScreens = ({
   paused,
+  ...props
 }: GameMenuProps & { paused: boolean }) => {
-  const muted = useHudStore((s) => s.muted);
-  // `returned` : retour des options, le focus revient sur leur bouton.
-  const [view, setView] = useState<"menu" | "options" | "returned">("menu");
-  const inOptions = view === "options";
-  let title = paused ? "Pause" : "Rally";
-  if (inOptions) title = "Options";
+  // `returned` : retour des options, le focus revient sur leur bouton. `ready` : carte changée depuis la pause.
+  const [view, setView] = useState<"menu" | "options" | "returned" | "ready">(
+    () => (readyRequested() ? "ready" : "menu"),
+  );
+  if (paused) return <PauseDrawer {...props} />;
+  if (view === "ready")
+    return (
+      <ReadyScreen mapLabel={props.mapLabel} onBack={() => setView("menu")} />
+    );
+  if (view === "options")
+    return (
+      <MenuDrawer title="Options" onDismiss={() => setView("returned")}>
+        <CopilotOptionsPanel
+          copilot={props.copilot}
+          autoFocus
+          onBack={() => setView("returned")}
+        />
+      </MenuDrawer>
+    );
   return (
-    <dialog
-      open
-      aria-labelledby="menu-title"
-      className="pointer-events-auto absolute inset-0 z-20 m-0 grid size-full max-h-none max-w-none place-items-center border-0 bg-background/45 p-0 text-inherit opacity-100 transition-opacity duration-200 starting:opacity-0"
-    >
-      <div
-        className={`${panel} ${inOptions ? "max-h-[95vh] w-[34rem] overflow-y-auto" : "w-80"} space-y-4 p-6 text-center`}
-      >
-        <h1 id="menu-title" className="text-2xl font-bold">
-          {title}
-        </h1>
-        {inOptions ? (
-          <CopilotOptionsPanel
-            copilot={copilot}
-            onBack={() => setView("returned")}
-          />
-        ) : (
-          <>
-            <MapSelect map={map} mapLabel={mapLabel} onImported={onImported} />
-            <button
-              type="button"
-              autoFocus={view === "menu"}
-              data-needs-sound={paused ? undefined : ""}
-              className={`w-full rounded bg-brand px-4 py-3 font-bold text-brand-foreground hover:bg-brand/85 ${menuFocus}`}
-              onClick={() => setHudScreen("race")}
-            >
-              {paused ? "Reprendre" : "Prendre le départ"}
-            </button>
-            {paused && (
-              <button
-                type="button"
-                className={`${hudButton} ${menuFocus} w-full`}
-                onClick={() => {
-                  requestRestart();
-                  setHudScreen("race");
-                }}
-              >
-                {closed ? "Relancer le tour" : "Relancer"}
-              </button>
-            )}
-            <button
-              type="button"
-              autoFocus={view === "returned"}
-              className={`${hudButton} ${menuFocus} w-full`}
-              onClick={() => setView("options")}
-            >
-              Options
-            </button>
-            {paused && (
-              <button
-                type="button"
-                className={`${hudButton} ${menuFocus} w-full`}
-                onClick={onToggleMute}
-              >
-                {muted ? "Remettre le son" : "Couper le son"}
-              </button>
-            )}
-          </>
-        )}
-      </div>
-    </dialog>
+    <StartMenu
+      map={props.map}
+      mapLabel={props.mapLabel}
+      returned={view === "returned"}
+      onImported={props.onImported}
+      onOptions={() => setView("options")}
+    />
   );
 };
 
 /**
- * Menu de départ et de pause : choix de la carte et lancement de la course, gelée derrière.
+ * Menu de départ et drawer de pause : choix de la carte, options et lancement de la course, gelée derrière.
  * Le premier geste sur ce menu débloque aussi le son : `useGameSession` écoute toute la page.
  */
 export const GameMenu = (props: GameMenuProps) => {
   const screen = useHudStore((s) => s.screen);
   if (screen === "race" || screen === "result") return null;
-  return <MenuDialog {...props} paused={screen === "pause"} />;
+  return <MenuScreens {...props} paused={screen === "pause"} />;
 };

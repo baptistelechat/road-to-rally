@@ -5,13 +5,19 @@ import { miniMapOutline, ZOOM_MAX_POINTS } from "../../../miniMapOutline";
 import { type CarTick, placeGhost, useCarTick } from "./carTick";
 import { CarArrow, Gates, GhostDot, Markers, Road } from "./Road";
 
-/** Demi-largeur de la vue, en mètres : 800 m de côté */
+/** Panneau en pixels (`w-60 h-32.5` de la mini-carte) */
+const ZOOM_WIDTH = 240;
+const ZOOM_HEIGHT = 130;
+/** Demi-largeur de la vue, en mètres : 800 m de large */
 const RADIUS = 400;
-const UNIT = RADIUS / 60;
-/** Cap en haut : voiture aux trois quarts du bas, pour voir plus loin devant que derrière */
-const AHEAD = 0.5;
-/** Côté du panneau en pixels (`size-40`) */
-const PIXELS = 160;
+/** Hauteur de la vue en mètres, au ratio du panneau */
+const SPAN = (RADIUS * 2 * ZOOM_HEIGHT) / ZOOM_WIDTH;
+/** Mètres par pixel */
+const SCALE = (RADIUS * 2) / ZOOM_WIDTH;
+/** Taille des marqueurs : 4/3 de pixel, comme sur l'ancien panneau carré */
+const UNIT = (SCALE * 4) / 3;
+/** Cap en haut : voiture au quart du bas, pour voir plus loin devant que derrière */
+const AHEAD = 0.75;
 
 interface ZoomMapProps {
   sim: Simulation;
@@ -54,10 +60,10 @@ export const ZoomMap = ({
   );
   useCarTick(sim, ghost, onTick);
 
-  const top = headingUp ? -RADIUS * (1 + AHEAD) : -RADIUS;
+  const top = -SPAN * (headingUp ? AHEAD : 0.5);
   return (
     <svg
-      viewBox={`${-RADIUS} ${top} ${RADIUS * 2} ${RADIUS * 2}`}
+      viewBox={`${-RADIUS} ${top} ${RADIUS * 2} ${SPAN}`}
       aria-hidden
       className={className}
     >
@@ -65,7 +71,7 @@ export const ZoomMap = ({
         <Road
           path={path}
           width={6}
-          scale={(RADIUS * 2) / PIXELS}
+          scale={SCALE}
           doneRef={done}
         />
         <Gates gates={gates} unit={UNIT} />
@@ -81,17 +87,22 @@ export const ZoomMap = ({
       {!headingUp && (
         // Aiguille de boussole, rouge au nord : la carte ne tourne pas, elle non plus.
         <g
-          transform={`translate(${RADIUS - UNIT * 15} ${-RADIUS + UNIT * 15}) scale(${UNIT})`}
+          transform={`translate(${RADIUS - UNIT * 15} ${top + UNIT * 15}) scale(${UNIT})`}
         >
           <circle
             r={11}
-            fill="black"
-            stroke="white"
+            style={{ fill: "var(--background)", stroke: "var(--foreground)" }}
             strokeOpacity={0.3}
             vectorEffect="non-scaling-stroke"
           />
-          <path d="M0 -8.5L3.2 0L-3.2 0Z" fill="#ef4444" />
-          <path d="M0 8.5L3.2 0L-3.2 0Z" fill="#e5e7eb" />
+          <path
+            d="M0 -8.5L3.2 0L-3.2 0Z"
+            style={{ fill: "var(--destructive)" }}
+          />
+          <path
+            d="M0 8.5L3.2 0L-3.2 0Z"
+            style={{ fill: "var(--foreground)" }}
+          />
         </g>
       )}
     </svg>

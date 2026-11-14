@@ -87,7 +87,7 @@ export const StylePicker = ({
           aria-label={label}
           aria-pressed={livery[row.key] === id}
           tabIndex={-1}
-          className={`cursor-pointer rounded-[2px] bg-neutral-500 p-0.5 ${livery[row.key] === id ? "outline-2 outline-foreground" : ""}`}
+          className={`cursor-pointer rounded-[2px] bg-input p-0.5 ${livery[row.key] === id ? "outline-2 outline-offset-2 outline-ring" : ""}`}
           onMouseDown={(event) => event.preventDefault()}
           onClick={() => dispatch({ type: "style", row: rowIndex, style })}
         >
@@ -113,7 +113,7 @@ interface SlotEditorProps {
 }
 
 const ARROW_BUTTON =
-  "flex-1 cursor-pointer rounded border border-foreground/25 py-0.5 hover:bg-foreground/15";
+  "min-h-9 flex-1 cursor-pointer rounded border border-border bg-card transition-colors hover:bg-accent";
 
 export const SlotEditor = ({ row, text, value, dispatch }: SlotEditorProps) => (
   <div className="flex flex-col gap-1.5">
@@ -128,7 +128,7 @@ export const SlotEditor = ({ row, text, value, dispatch }: SlotEditorProps) => (
           tabIndex={-1}
           aria-label={`Caractère ${slot + 1} : ${char === " " ? "vide" : char}`}
           aria-pressed={text.slot === slot}
-          className={`h-7 cursor-pointer rounded-[2px] bg-foreground/10 ${text.slot === slot ? "outline-2 outline-foreground" : ""}`}
+          className={`h-9 cursor-pointer rounded-[2px] border border-border bg-card text-base ${text.slot === slot ? "outline-2 outline-ring" : ""}`}
           // Sans le focus sur la case, Entrée continue de valider toute la saisie.
           onMouseDown={(event) => event.preventDefault()}
           onClick={() => dispatch({ type: "slot", slot })}

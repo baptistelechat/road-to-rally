@@ -28,10 +28,10 @@ export const EnginePicker = ({
         type="button"
         aria-pressed={selected === id}
         tabIndex={-1}
-        className={`flex cursor-pointer items-center justify-between gap-2 rounded border px-2 py-1.5 text-left transition-colors ${
+        className={`flex min-h-11 cursor-pointer items-center justify-between gap-2 rounded border px-3 text-left text-xs transition-colors ${
           selected === id
-            ? "border-foreground bg-foreground/20 font-semibold"
-            : "border-foreground/25 hover:bg-foreground/15"
+            ? "border-ring bg-accent font-extrabold"
+            : "border-border bg-card font-bold hover:bg-accent"
         }`}
         onMouseDown={(event) => event.preventDefault()}
         onClick={() => dispatch({ type: "style", row: rowIndex, style })}
@@ -40,7 +40,7 @@ export const EnginePicker = ({
         {validated === id && (
           <span
             aria-hidden
-            className={`size-2 shrink-0 rounded-full bg-brand ${playing === id ? "motion-safe:animate-pulse" : ""}`}
+            className={`size-2 shrink-0 rounded-full bg-ring ${playing === id ? "motion-safe:animate-pulse" : ""}`}
           />
         )}
       </button>

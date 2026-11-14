@@ -1,5 +1,6 @@
 "use client";
 
+import { chicaneFirstBend } from "@/audio/paceNoteWords";
 import { useHudStore } from "@/game/hudStore";
 import type { PaceNote } from "@/sim/track/paceNotes";
 import { ChainFrame } from "./components/ChainFrame";
@@ -11,7 +12,7 @@ const sideLabel = (direction: "left" | "right"): string =>
   direction === "left" ? "Gauche" : "Droite";
 
 const noteLabel = (note: PaceNote): string => {
-  if (note.kind === "chicane") return `Chicane ${sideLabel(note.direction)}`;
+  if (note.kind === "chicane") return `Chicane ${sideLabel(chicaneFirstBend(note))}`;
   if (note.kind === "finish") return "Arrivée";
   if (note.kind !== "turn") return note.kind === "crest" ? "Crête" : "Bosse";
   return [
@@ -23,15 +24,15 @@ const noteLabel = (note: PaceNote): string => {
 
 const NoteIcon = ({ note }: { note: PaceNote }) => (
   <svg
-    viewBox="-1 -1 112 66"
+    viewBox="-1 -1 138 74"
     role="img"
     aria-label={noteLabel(note)}
-    className="h-16"
+    className="h-18"
   >
     {note.kind === "turn" ? (
       <TurnIcon note={note} />
     ) : note.kind === "chicane" ? (
-      <ChicaneIcon direction={note.direction} />
+      <ChicaneIcon firstBend={chicaneFirstBend(note)} />
     ) : note.kind === "finish" ? (
       <FinishIcon />
     ) : (

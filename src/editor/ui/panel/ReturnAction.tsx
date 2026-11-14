@@ -1,11 +1,12 @@
 "use client";
 
 import { Undo, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { useEditor } from "../../store";
+import { dashedButton } from "../styles";
 
 /** Depuis le dernier point : le retour recopie l'aller. Dans le panneau et dans la bulle du point. */
-export const ReturnAction = () => {
+export const ReturnAction = ({ className }: { className?: string }) => {
   const hasRoute = useEditor(
     (state) => state.history.present.segments.length > 0,
   );
@@ -17,25 +18,25 @@ export const ReturnAction = () => {
   const cancelReturn = useEditor((state) => state.cancelReturn);
   if (!hasRoute) return null;
   return active ? (
-    <Button
-      variant="outline"
-      size="sm"
+    <button
+      type="button"
+      className={cn(dashedButton, className)}
       disabled={pending}
       onClick={() => void cancelReturn()}
     >
       <X aria-hidden="true" />
       Retirer le retour
-    </Button>
+    </button>
   ) : (
-    <Button
-      variant="outline"
-      size="sm"
+    <button
+      type="button"
+      className={cn(dashedButton, className)}
       disabled={pending}
       title="Faire le tour au dernier point, puis repartir par l'aller"
       onClick={() => void returnByRoad()}
     >
       <Undo aria-hidden="true" />
       Revenir par la même route
-    </Button>
+    </button>
   );
 };

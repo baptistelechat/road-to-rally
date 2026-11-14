@@ -106,7 +106,7 @@ export const ElevationMarks = ({
     altitudes.push(a);
 
   const markerButton =
-    "pointer-events-auto absolute -translate-x-1/2 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none";
+    "pointer-events-auto absolute -translate-x-1/2 focus-line-visible";
 
   return (
     <>
@@ -141,7 +141,7 @@ export const ElevationMarks = ({
           title={`${band.label}, ${km(Math.round(band.fromS - startS))}`}
           aria-label={`${band.label} à ${km(Math.round(band.fromS - startS))}, voir sur la carte`}
           onClick={() => onFocus(band.position)}
-          className={`pointer-events-auto absolute inset-y-0 min-w-1 ${BAND_COLORS[band.kind]} focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none`}
+          className={`pointer-events-auto absolute inset-y-0 min-w-1 ${BAND_COLORS[band.kind]} focus-line-visible`}
           style={{
             left: `${xPercent(band.fromS)}%`,
             width: `${xPercent(band.toS) - xPercent(band.fromS)}%`,

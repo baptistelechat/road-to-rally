@@ -1,7 +1,18 @@
 import type { PaceGrade, PaceTurn } from "@/sim/track/paceNotes";
-import { DISC, INK, PILL } from "./shape";
+import {
+  ARROW_SHIFT,
+  DISC,
+  HEX,
+  HEX_HALF,
+  MIRROR,
+  TILE,
+  TILE_BAR,
+} from "./shape";
 
-/** Du rouge au vert : la forme et le chiffre portent l'information, la couleur ne fait que la renforcer. */
+/**
+ * Du rouge au vert : la forme et le chiffre portent l'information, la couleur ne fait que la renforcer.
+ * ponytail: échelle de données hors tokens (6 crans, la DA n'en a pas), reprise telle quelle des maquettes.
+ */
 const GRADE_COLOR: Record<PaceGrade, string> = {
   1: "#ef4444",
   2: "#f97316",
@@ -90,47 +101,38 @@ export const TurnIcon = ({ note }: { note: PaceTurn }) => {
   const subscript = note.tightens && note.grade !== note.entryGrade;
   return (
     <>
-      <path d={PILL} fill="rgb(0 0 0 / 0.82)" stroke={exit} strokeWidth={2} />
-      <g
-        transform={
-          note.direction === "left" ? "translate(64 0) scale(-1 1)" : undefined
-        }
-      >
-        <circle
-          cx={DISC.x}
-          cy={DISC.y}
-          r={DISC.r}
-          fill={GRADE_COLOR[note.entryGrade]}
-        />
+      <polygon points={TILE} className="fill-background/90" />
+      <polygon points={TILE_BAR} fill={exit} />
+      <g transform={note.direction === "left" ? MIRROR : undefined}>
+        <polygon points={HEX} fill={GRADE_COLOR[note.entryGrade]} />
         {/* Moitié de sortie, du côté où tourne le virage */}
-        {note.tightens && <path d="M32 7A25 25 0 0 1 32 57Z" fill={exit} />}
-        <path
-          d={shaft}
-          fill="none"
-          stroke={INK}
-          strokeWidth={5}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path d={head} fill={INK} />
+        {note.tightens && <polygon points={HEX_HALF} fill={exit} />}
+        <g transform={ARROW_SHIFT}>
+          <path
+            d={shaft}
+            fill="none"
+            strokeWidth={5}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="stroke-background"
+          />
+          <path d={head} className="fill-background" />
+        </g>
       </g>
       <text
-        x={subscript ? 74 : 76}
-        y={note.long ? 36 : 44}
+        x={subscript ? 88 : 92}
+        y={note.long ? 40 : 47}
         textAnchor="middle"
-        fontSize={note.long ? 26 : 30}
-        fontWeight={700}
-        fill="white"
-        className="font-mono"
+        fontSize={note.long ? 32 : 38}
+        className="fill-foreground font-mono"
       >
         {note.entryGrade}
       </text>
       {subscript && (
         <text
-          x={86}
-          y={note.long ? 38 : 46}
-          fontSize={note.long ? 14 : 16}
-          fontWeight={700}
+          x={106}
+          y={note.long ? 42 : 49}
+          fontSize={18}
           fill={exit}
           className="font-mono"
         >
@@ -139,15 +141,17 @@ export const TurnIcon = ({ note }: { note: PaceTurn }) => {
       )}
       {note.long && (
         <>
-          <rect x={61} y={42} width={30} height={13} rx={3} fill="white" />
+          <polygon
+            points="74,48 114,48 111,60 71,60"
+            className="fill-foreground"
+          />
           <text
-            x={76}
-            y={52}
+            x={92}
+            y={57.5}
             textAnchor="middle"
-            fontSize={9}
-            fontWeight={700}
-            fill={INK}
-            className="font-mono"
+            fontSize={7.5}
+            letterSpacing={0.6}
+            className="fill-background font-display"
           >
             LONG
           </text>

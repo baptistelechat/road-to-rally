@@ -25,6 +25,8 @@ const CHANGED: CopilotOptions = {
   miniMapEnabled: false,
   miniMapStyle: "hybrid",
   speedometerStyle: "arc",
+  hudStyle: "broadcast",
+  controlsHelpEnabled: false,
   ghostEnabled: false,
 };
 

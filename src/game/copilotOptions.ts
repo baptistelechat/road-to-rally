@@ -26,6 +26,10 @@ export const SPEEDOMETER_STYLES = [
 ] as const;
 export type SpeedometerStyle = (typeof SPEEDOMETER_STYLES)[number];
 
+/** Tableau de bord bas d'un seul tenant, ou habillage télé */
+export const HUD_STYLES = ["cockpit", "broadcast"] as const;
+export type HudStyle = (typeof HUD_STYLES)[number];
+
 export interface CopilotOptions {
   voiceEnabled: boolean;
   voice: CopilotVoiceId;
@@ -39,6 +43,9 @@ export interface CopilotOptions {
   miniMapEnabled: boolean;
   miniMapStyle: MiniMapStyle;
   speedometerStyle: SpeedometerStyle;
+  hudStyle: HudStyle;
+  /** Panneau des commandes affiché en course */
+  controlsHelpEnabled: boolean;
   /** Voiture translucide du meilleur temps local */
   ghostEnabled: boolean;
 }
@@ -53,6 +60,8 @@ export const defaultCopilotOptions: CopilotOptions = {
   miniMapEnabled: true,
   miniMapStyle: "global",
   speedometerStyle: "digital",
+  hudStyle: "cockpit",
+  controlsHelpEnabled: true,
   ghostEnabled: true,
 };
 
@@ -70,6 +79,7 @@ export const parseCopilotOptions = (raw: string | null): CopilotOptions => {
       "paceIconsEnabled",
       "miniMapEnabled",
       "ghostEnabled",
+      "controlsHelpEnabled",
     ] as const) {
       const value = stored?.[key];
       if (typeof value === "boolean") options[key] = value;
@@ -90,6 +100,8 @@ export const parseCopilotOptions = (raw: string | null): CopilotOptions => {
       (id) => id === stored?.speedometerStyle,
     );
     if (speedometer) options.speedometerStyle = speedometer;
+    const hudStyle = HUD_STYLES.find((id) => id === stored?.hudStyle);
+    if (hudStyle) options.hudStyle = hudStyle;
   } catch {
     // JSON illisible : on garde les réglages d'origine.
   }

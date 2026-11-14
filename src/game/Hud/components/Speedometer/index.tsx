@@ -1,14 +1,14 @@
 "use client";
 
 import type { ReactNode } from "react";
-import type { SpeedometerStyle } from "@/game/copilotOptions";
+import type { HudStyle, SpeedometerStyle } from "@/game/copilotOptions";
 import { useHudStore } from "@/game/hudStore";
 import { panel } from "../../hudStyles";
 import { ArcSpeedometer } from "./components/ArcSpeedometer";
 import { DialSpeedometer } from "./components/DialSpeedometer";
 import { DigitalSpeedometer } from "./components/DigitalSpeedometer";
 import { TelemetrySpeedometer } from "./components/TelemetrySpeedometer";
-import { formatGear, type GaugeData } from "./gauge";
+import { formatGear, type GaugeData, isRoundGauge } from "./gauge";
 
 const GAUGES: Record<SpeedometerStyle, (data: GaugeData) => ReactNode> = {
   digital: DigitalSpeedometer,
@@ -25,22 +25,30 @@ const PREVIEW_DATA: GaugeData = {
   brake: 0,
 };
 
+/** Habillage du compteur selon le HUD : rond, intégré au tableau de bord, ou bloc télé. */
+const frameClass = (style: SpeedometerStyle, hud: HudStyle): string => {
+  if (isRoundGauge(style))
+    return "rounded-full border-2 border-foreground/20 bg-background p-2";
+  if (hud === "cockpit") return "";
+  return "border-t-3 border-foreground bg-background";
+};
+
 /** Vignette du menu des options, en réduction du vrai compteur. */
 export const SpeedometerPreview = ({ style }: { style: SpeedometerStyle }) => {
   const Gauge = GAUGES[style];
-  const round = style === "arc" || style === "dial";
   return (
     <span
-      className={`${panel} ${round ? "rounded-full p-1" : ""} absolute top-1/2 left-1/2 -translate-1/2 scale-[0.45]`}
+      className={`${panel} ${isRoundGauge(style) ? "rounded-full p-1" : ""} absolute top-1/2 left-1/2 -translate-1/2 scale-[0.42]`}
     >
       <Gauge {...PREVIEW_DATA} />
     </span>
   );
 };
 
-/** En bas à droite. Le style se choisit dans les options. */
+/** Le style se choisit dans les options ; la place dépend du HUD (tableau de bord ou coin bas droit). */
 export const Speedometer = () => {
   const style = useHudStore((s) => s.copilotOptions.speedometerStyle);
+  const hud = useHudStore((s) => s.copilotOptions.hudStyle);
   const speedKmh = useHudStore((s) => s.speedKmh);
   const gear = useHudStore((s) => s.gear);
   const rpm = useHudStore((s) => s.rpm);
@@ -50,7 +58,7 @@ export const Speedometer = () => {
   return (
     <section
       aria-label={`Compteur : ${speedKmh} km/h, rapport ${formatGear(gear)}`}
-      className={`${panel} ${style === "arc" || style === "dial" ? "rounded-full p-1" : ""}`}
+      className={frameClass(style, hud)}
     >
       <Gauge
         speedKmh={speedKmh}
@@ -58,6 +66,7 @@ export const Speedometer = () => {
         rpm={rpm}
         throttle={throttle}
         brake={brake}
+        dash={hud === "cockpit"}
       />
     </section>
   );

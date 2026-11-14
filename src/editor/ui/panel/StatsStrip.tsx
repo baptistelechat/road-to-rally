@@ -8,43 +8,63 @@ const decimal = (value: number, digits: number): string =>
 const showStraight = (highlightStraight: boolean): void =>
   editorStore.setState({ highlightStraight });
 
-/** Tout le score au-dessus de la courbe ; le dénivelé arrive après l'IGN. */
+const row =
+  "flex min-h-9 items-baseline justify-between gap-3 border-b py-1.5 text-[0.8125rem]";
+const value = "font-mono text-foreground";
+
+/** Tout le score du tracé, dans l'onglet « Score » ; le dénivelé arrive après l'IGN. */
 export const StatsStrip = () => {
   const stats = useEditor((state) => state.stats);
   const profile = useEditor((state) => state.profile);
   const analyzing = useEditor((state) => state.analyzing);
-  const items = [
-    stats && `${decimal(stats.length / 1000, 2)} km`,
-    stats && `${decimal(stats.turnsPerKm, 1)} virages/km`,
-    stats && `${stats.hairpins} épingle${stats.hairpins > 1 ? "s" : ""}`,
-    profile && `↑ ${Math.round(profile.ascent)} m`,
-    profile && `↓ ${Math.round(profile.descent)} m`,
-    profile && `pente max ${Math.round(profile.maxSlope * 100)} %`,
-  ].filter((item): item is string => Boolean(item));
+  const items: [string, string][] = [
+    ...(stats
+      ? ([
+          ["Longueur", `${decimal(stats.length / 1000, 2)} km`],
+          ["Virages", `${decimal(stats.turnsPerKm, 1)} /km`],
+          [stats.hairpins > 1 ? "Épingles" : "Épingle", String(stats.hairpins)],
+        ] satisfies [string, string][])
+      : []),
+    ...(profile
+      ? ([
+          ["Montée", `↑ ${Math.round(profile.ascent)} m`],
+          ["Descente", `↓ ${Math.round(profile.descent)} m`],
+          ["Pente max", `${Math.round(profile.maxSlope * 100)} %`],
+        ] satisfies [string, string][])
+      : []),
+  ];
+
+  if (items.length === 0)
+    return (
+      <p aria-busy={analyzing} className="text-sm text-muted-foreground">
+        {analyzing ? "Calcul du score…" : "Aucun tracé"}
+      </p>
+    );
 
   return (
-    <div
-      aria-busy={analyzing}
-      className="flex flex-wrap items-center gap-x-3 gap-y-1 px-3 pt-2 text-xs"
-    >
-      {items.map((item) => (
-        <span key={item} className="text-muted-foreground tabular-nums">
-          {item}
-        </span>
+    <dl aria-busy={analyzing} className="flex flex-col text-muted-foreground">
+      {items.map(([label, text]) => (
+        <div key={label} className={row}>
+          <dt>{label}</dt>
+          <dd className={value}>{text}</dd>
+        </div>
       ))}
       {stats && (
-        <span
+        <div
           // Focusable : le repère de la carte doit aussi s'afficher au clavier.
           tabIndex={0}
-          className="rounded text-muted-foreground tabular-nums hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+          className={`${row} rounded-md hover:bg-accent/60 focus-line-visible`}
           onMouseEnter={() => showStraight(true)}
           onMouseLeave={() => showStraight(false)}
           onFocus={() => showStraight(true)}
           onBlur={() => showStraight(false)}
         >
-          ligne droite max {Math.round(stats.longestStraight.length)} m
-        </span>
+          <dt>Ligne droite max</dt>
+          <dd className={value}>
+            {Math.round(stats.longestStraight.length)} m
+          </dd>
+        </div>
       )}
-    </div>
+    </dl>
   );
 };

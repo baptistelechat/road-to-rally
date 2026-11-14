@@ -1,7 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { label, menuFocus } from "../hudStyles";
+import { choice, fieldLabel } from "./Menu/menuStyles";
 
 export interface MenuOption<T extends string | number | boolean> {
   id: T;
@@ -10,91 +9,49 @@ export interface MenuOption<T extends string | number | boolean> {
 
 interface MenuSelectProps<T extends string | number | boolean> {
   title: string;
-  /** Nom du groupe pour un lecteur d'écran, le titre par défaut */
-  groupLabel?: string;
   value: T;
   options: readonly MenuOption<T>[];
   autoFocus?: boolean;
-  /** Jamais appelé pour la valeur en cours. `close` referme la liste et rend le focus à la ligne. */
-  onChoose: (id: T, close: () => void) => void;
+  /** Jamais appelé pour la valeur en cours */
+  onChoose: (id: T) => void;
 }
 
 /**
- * Liste maison plutôt qu'un `select` natif : celui-ci ne s'ouvre pas depuis une manette.
- * `applyMenuAction` la pilote par ses rôles : A ouvre et choisit, haut et bas s'y déplacent, B la referme.
+ * Choix court en boutons biseautés côte à côte, tous visibles d'emblée (maquette R-Pause). Largeur fixe : les colonnes s'alignent.
+ * `applyMenuAction` le traite comme une rangée de cartes : haut et bas entrent sur le choix en cours, gauche et droite parcourent, A choisit.
  */
 export const MenuSelect = <T extends string | number | boolean>({
   title,
-  groupLabel = title,
   value,
   options,
   autoFocus,
   onChoose,
-}: MenuSelectProps<T>) => {
-  const [open, setOpen] = useState(false);
-  const toggle = useRef<HTMLButtonElement>(null);
-  const current = options.find(({ id }) => id === value)?.name ?? "";
-
-  const close = (): void => {
-    setOpen(false);
-    toggle.current?.focus();
-  };
-
-  return (
-    <div className="flex items-center justify-between gap-3">
-      <span className={label}>{title}</span>
-      <div
-        role="group"
-        aria-label={groupLabel}
-        className="relative"
-        // Garde le focus pendant le clic : Safari ne le donne pas aux boutons, et le blur fermerait la liste.
-        onMouseDown={(event) => event.preventDefault()}
-        onBlur={(event) => {
-          if (!event.currentTarget.contains(event.relatedTarget))
-            setOpen(false);
-        }}
-        onKeyDown={(event) => {
-          if (event.key !== "Escape" || !open) return;
-          // Sinon Échap fermerait aussi le menu.
-          event.stopPropagation();
-          close();
-        }}
-      >
+}: MenuSelectProps<T>) => (
+  // Le groupe couvre toute la rangée, libellé compris : à la manette, descendre d'ici part de toute la largeur.
+  <div
+    role="radiogroup"
+    aria-label={title}
+    className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1"
+  >
+    <span aria-hidden="true" className={fieldLabel}>
+      {title}
+    </span>
+    <div className="flex gap-1">
+      {options.map(({ id, name }) => (
         <button
-          ref={toggle}
+          key={String(id)}
           type="button"
-          autoFocus={autoFocus}
-          aria-label={`${title} : ${current}`}
-          aria-haspopup="listbox"
-          aria-expanded={open}
-          className={`flex max-w-40 items-center gap-2 rounded border border-foreground/25 bg-background px-2 py-0.5 text-xs font-semibold ${menuFocus}`}
-          onClick={() => (open ? close() : setOpen(true))}
+          role="radio"
+          aria-checked={id === value}
+          autoFocus={autoFocus && id === value}
+          className={choice(id === value)}
+          onClick={() => {
+            if (id !== value) onChoose(id);
+          }}
         >
-          <span className="truncate">{current}</span>
-          <span aria-hidden="true">▾</span>
+          {name}
         </button>
-        {open && (
-          <div
-            role="listbox"
-            aria-label={title}
-            className="absolute top-full right-0 z-10 mt-1 flex w-40 flex-col gap-1 rounded border border-foreground/25 bg-background p-1"
-          >
-            {options.map(({ id, name }) => (
-              <button
-                key={String(id)}
-                type="button"
-                role="option"
-                aria-selected={id === value}
-                autoFocus={id === value}
-                className={`truncate rounded px-2 py-1 text-left text-xs font-semibold hover:bg-foreground/15 ${id === value ? "text-brand" : ""} ${menuFocus}`}
-                onClick={() => (id === value ? close() : onChoose(id, close))}
-              >
-                {name}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
+      ))}
     </div>
-  );
-};
+  </div>
+);

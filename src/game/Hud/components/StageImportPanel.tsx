@@ -2,7 +2,8 @@
 
 import { useId } from "react";
 import { useStageImport, type ImportedStage } from "@/game/useStageImport";
-import { hudButton, label, panel } from "../hudStyles";
+import { label } from "../hudStyles";
+import { drawerButton } from "./Menu/menuStyles";
 import { StageProgress } from "./StageProgress";
 
 interface StageImportPanelProps {
@@ -23,9 +24,9 @@ export const StageImportPanel = ({
     <dialog
       open
       aria-labelledby={`${id}-title`}
-      className={`${panel} pointer-events-auto absolute top-1/4 left-1/2 m-0 w-96 max-w-[calc(100%-2rem)] -translate-x-1/2 space-y-3 p-4 select-text`}
+      className="pointer-events-auto fixed top-1/4 left-1/2 z-30 m-0 w-96 max-w-[calc(100%-2rem)] -translate-x-1/2 space-y-3 rounded border border-border bg-card p-5 text-card-foreground select-text"
     >
-      <h2 id={`${id}-title`} className="text-base font-semibold">
+      <h2 id={`${id}-title`} className="font-display text-base">
         Importer un GPX
       </h2>
       <div className="flex flex-col gap-1">
@@ -38,7 +39,7 @@ export const StageImportPanel = ({
           accept=".gpx,application/gpx+xml"
           autoFocus
           disabled={running}
-          className="text-xs file:mr-3 file:rounded file:border file:border-foreground/25 file:bg-transparent file:px-2 file:py-1 file:font-semibold file:text-foreground disabled:opacity-50"
+          className="focus-line text-xs file:mr-3 file:rounded file:border file:border-input file:bg-transparent file:px-2 file:py-1 file:font-semibold file:text-foreground disabled:opacity-50"
           onChange={(event) => {
             const file = event.currentTarget.files?.[0];
             // Vidé tout de suite : rechoisir le même fichier doit relancer un chargement.
@@ -52,17 +53,17 @@ export const StageImportPanel = ({
 
       <div className="flex justify-end gap-2">
         {running ? (
-          <button type="button" className={hudButton} onClick={cancel}>
+          <button type="button" className={drawerButton} onClick={cancel}>
             Annuler
           </button>
         ) : (
           <>
             {status.kind === "failed" && (
-              <button type="button" className={hudButton} onClick={retry}>
+              <button type="button" className={drawerButton} onClick={retry}>
                 Réessayer
               </button>
             )}
-            <button type="button" className={hudButton} onClick={onClose}>
+            <button type="button" className={drawerButton} onClick={onClose}>
               Fermer
             </button>
           </>

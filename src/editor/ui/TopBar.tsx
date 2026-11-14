@@ -1,67 +1,24 @@
 "use client";
 
-import { ArrowLeft, TriangleAlert } from "lucide-react";
-import { Button, buttonVariants } from "@/components/ui/button";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { ArrowLeft } from "lucide-react";
 import { EDITOR_URL } from "@/game/maps";
-import { useEditor } from "../store";
-import { missingRunoff } from "../trace";
-import { IssueList } from "./panel/IssueList";
-import { Toolbar } from "./panel/PointsPanel";
+import { Toolbar } from "./panel/Toolbar";
 import { RollPanel } from "./panel/RollPanel";
+import { backLink, mapSurface } from "./styles";
 
-/** Le nombre de problèmes, et leur liste au clic : bloquants en rouge, à savoir en ambre. */
-const IssuesButton = () => {
-  const issues = useEditor((state) => state.issues);
-  const analysisError = useEditor((state) => state.analysisError);
-  const trace = useEditor((state) => state.history.present);
-  const count =
-    issues.length + (missingRunoff(trace) ? 1 : 0) + (analysisError ? 1 : 0);
-  if (count === 0) return null;
-  const blocking =
-    analysisError !== null ||
-    missingRunoff(trace) !== null ||
-    issues.some((issue) => issue.blocking);
-  return (
-    <Popover>
-      <PopoverTrigger
-        render={
-          <Button
-            variant={blocking ? "destructive" : "outline"}
-            size="sm"
-            aria-label={`${count} problème${count > 1 ? "s" : ""} sur le tracé`}
-          />
-        }
-      >
-        <TriangleAlert aria-hidden="true" />
-        {count}
-      </PopoverTrigger>
-      <PopoverContent align="end" className="dark w-80">
-        <IssueList />
-      </PopoverContent>
-    </Popover>
-  );
-};
-
-/** Tout ce qui agit sur la spéciale entière, au-dessus de la carte. */
+/** Tout ce qui agit sur la spéciale entière, au-dessus de la carte. Les problèmes du tracé sont dans le panneau. */
 export const TopBar = () => (
-  <header className="flex flex-wrap items-center gap-2 border-b px-2 py-2">
+  <header
+    className={`relative z-20 flex min-h-15 flex-wrap items-center gap-3 border-b px-4 py-2 ${mapSurface}`}
+  >
     {/* Une vraie navigation : la carte et son contexte WebGL sont libérés. */}
-    <a
-      href={EDITOR_URL}
-      className={buttonVariants({ variant: "ghost", size: "sm" })}
-    >
+    <a href={EDITOR_URL} className={backLink}>
       <ArrowLeft aria-hidden="true" />
       Mes spéciales
     </a>
     <h1 className="sr-only">Éditeur de spéciale</h1>
     <Toolbar />
-    <div className="ml-auto flex min-w-0 items-center gap-2">
-      <IssuesButton />
+    <div className="ml-auto flex min-w-0 items-center gap-3">
       <RollPanel />
     </div>
   </header>
