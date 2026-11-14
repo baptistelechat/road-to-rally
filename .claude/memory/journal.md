@@ -337,3 +337,11 @@ Le React Compiler a refusé l'écriture dans une ref passée au hook de boucle ;
 - [BDR-261104_2153-2](decisions/BDR-261104_2153-2.md) — trois secteurs et arches avec collider
 - [BLK-261104_2153-6](blockers/BLK-261104_2153-6.md) — 403 de BRouter non reproduit
 - [LRN-261104_2153-7](learnings/LRN-261104_2153-7.md) — fichiers chauds gardés par l'orchestrateur
+
+## 2026-11-14
+
+Point d'avancement sur `main` : l'epic 4 (course) est entièrement codé (chrono, intermédiaires, pénalités, record, fantôme, copilote) mais rien n'est encore validé au volant. La doc était en retard sur le code : 4.6 à 4.11 restaient « à faire » dans la roadmap et leurs fiches, et les sections « Reste à faire » de 4.2 et 4.4 décrivaient un branchement déjà fait (vérifié dans `useGameLoop.ts`). Statuts passés en 🟡, sections périmées retirées, fiche `epic-4-course.md` supprimée au profit du dossier, epic 4 marqué « Au volant » dans la roadmap. Commit 209e7b8 poussé. Reste le playtest de passage de l'epic 4, puis les checks `splits`, `start-finish` et `ghost` sur accord de Baptiste.
+
+**Entrées clés :**
+
+- [BDR-261114_1646-1](decisions/BDR-261114_1646-1.md) — Fiche d'epic supprimée une fois ses stories détaillées
