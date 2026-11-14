@@ -41,8 +41,8 @@ export const ControlsHelp = ({ closed }: { closed: boolean }) => {
     >
       {help.map(([key, action]) => (
         <div key={key} className="contents">
-          <dt className="font-mono font-semibold text-white">{key}</dt>
-          <dd className="text-white/70">{action}</dd>
+          <dt className="font-mono font-semibold text-foreground">{key}</dt>
+          <dd className="text-muted-foreground">{action}</dd>
         </div>
       ))}
     </dl>

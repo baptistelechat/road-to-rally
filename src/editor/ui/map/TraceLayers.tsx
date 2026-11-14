@@ -74,10 +74,10 @@ const LineFlag = ({ position, label }: { position: LatLon; label: string }) => (
     className="pointer-events-none"
   >
     <MarkerContent className="cursor-default">
-      <span className="grid size-6 place-items-center rounded-full border border-white bg-neutral-900 text-white shadow-md">
+      <span className="grid size-6 place-items-center rounded-full border border-foreground bg-background text-foreground shadow-md">
         <Flag aria-hidden="true" className="size-3.5" />
       </span>
-      <MarkerLabel className="rounded bg-neutral-900 px-1 text-white">
+      <MarkerLabel className="rounded bg-background px-1 text-foreground">
         {label}
       </MarkerLabel>
     </MarkerContent>

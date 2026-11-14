@@ -23,7 +23,7 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Numéro personnalisable au garage, sur les portières et le capot : 3 chiffres et 6 styles
 - Drapeau de 255 pays sur les flancs arrière, redessiné en style low-poly, avec une option sans drapeau
 - Décor de tente d'assistance autour de la voiture au garage : bannière, drapeau et numéro aux couleurs de la livrée, écran avec l'heure réelle, plaques de rallye, trophées, étagères et armoires à outils
-- Emplacement réservé au logo du jeu dans le garage
+- Logo du jeu dans le garage : logotype facetté sur la bannière et icône encadrée au mur
 - Sélecteur de carte avec deux vraies routes de France, Road et Mountain, et un record par carte
 - Vrai relief low-poly autour de la route, largeur de route selon OpenStreetMap
 - Spéciales du départ à l'arrivée : la voiture attend le premier coup de gaz, puis s'arrête seule après la ligne
@@ -60,10 +60,14 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Crissement de pneus sur l'asphalte, en plus du souffle du dérapage, réglable dans une section dédiée de `/labo-son`
 - Copilote en course : tous les virages sont notés de 1 à 6 et annoncés par une voix française, assez tôt pour préparer le virage selon la vitesse, avec crêtes, bosses et enfilades
 - Icônes des prochains virages à l'écran et mini-carte de la spéciale
-- Options du copilote dans le menu : voix, vitesse de diction, volume, icônes et mini-carte, à la souris, au clavier et à la manette, conservées d'une session à l'autre
+- Options du copilote dans le menu : voix féminine ou masculine, volume, icônes et mini-carte, à la souris, au clavier et à la manette, conservées d'une session à l'autre
 - Carte d'essai « Pace notes » avec un virage de chaque note, et écoute de la voix dans `/labo-son`
 - Quatre styles de mini-carte au choix dans les options : globale, zoom nord en haut avec boussole, zoom cap en haut, et zoom avec vue globale en vignette
 - Balance du son dans les options : curseurs à crans de 10 % pour la voix, le moteur et les effets (pneus, herbe, vent, chocs)
+- Quatre compteurs au choix dans les options : chiffres avec LED de régime, cadran rond à aiguille avec anneau de régime, arc de régime gradué, et télémétrie avec accélérateur et frein
+- Le copilote annonce les chicanes (« Chicane droite », dans le sens du panneau) et l'arrivée des spéciales, avec leur icône
+- Aperçu de partage aux couleurs du jeu quand on colle un lien : scène low-poly, icône et logotype, avec le nom de la spéciale et le temps pour un tracé ou un défi partagé
+- Icône de Road to Rally dans l'onglet du navigateur
 - Profil d'altitude de l'éditeur gradué en distance et en altitude, avec les points, les chicanes et leur zone, les ronds-points, les rochers et la plus longue ligne droite, cliquables pour centrer la carte
 - Barre du haut dans l'éditeur : nom de la spéciale, annuler et rétablir, liste des problèmes du tracé et bouton « Rouler »
 - Légende de l'éditeur, au survol : traits, symboles et gestes, avec les mêmes symboles sur la carte et sur le profil
@@ -83,6 +87,8 @@ project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- Le jeu s'appelle désormais « Road to Rally » dans l'onglet du navigateur et les aperçus de lien
+- Voix du copilote plus fluide et plus forte : chaque note est dite d'un seul tenant au lieu de mots recollés
 - Son du moteur plus réaliste en course : résonance d'échappement, admission, mécanique, saturation, frein moteur et pétarades, plus sifflement et « pschitt » sur les moteurs turbo
 
 - Au garage, le bouton A de la manette valide la ligne sélectionnée : la rotation se met en pause depuis son bouton
@@ -103,6 +109,9 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Pointillés selon le nombre de voies d'OpenStreetMap : aucun sur une voie unique, une ligne sur deux voies, deux sur trois
 - Le sélecteur de carte passe du HUD au menu de départ et de pause
 - Le choix de la carte devient une liste qui s'ouvre, à la souris comme à la manette, où A valide et B referme
+- Les styles de mini-carte et de compteur se choisissent sur des cartes avec aperçu, et la mini-carte se désactive depuis la carte « Aucune »
+- Le compteur garde la même largeur quelle que soit la vitesse
+- Les compteurs de performance passent sous la mini-carte, empilés
 - En pause, A à la manette active la ligne sélectionnée au lieu de reprendre directement la course
 - Le menu de départ se parcourt à la manette comme le menu pause, ce qui permet d'y choisir la carte
 - Nouvelles icônes du copilote : pilule colorée selon la note, badge « LONG », pastille bicolore et flèche qui se referme quand le virage se resserre, crêtes et bosses en rouge, et cadre autour des enfilades
@@ -110,6 +119,7 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Seuls les vrais sommets sont annoncés comme des crêtes : les petites ondulations de la route ne le sont plus
 - La mini-carte montre le parcouru en ambre et la route à venir en gris, avec une flèche orientée selon le cap, un départ vert et un damier à l'arrivée, et suit la voiture à chaque image
 - Le volume de la voix se règle par un curseur, sans phrase de test
+- Nouvelle charte « Nuit facettée » sur le jeu, le garage et l'éditeur : fond bleu nuit, jaune des phares pour le rapport, les actions principales et la sélection, titres en Michroma, texte en Manrope, chiffres en Share Tech Mono, coins plus anguleux
 - Un seul mode sur la carte de l'éditeur : un clic pose un point, les points et les chicanes se glissent toujours, et un clic près d'un élément ou pour fermer un menu ne crée rien. Déplacer la carte ne pose plus de point par erreur
 - Le panneau latéral de l'éditeur laisse la place à la carte : points et chicanes s'ouvrent dans des fenêtres, tout le score se lit au-dessus du profil, épingles et plus longue ligne droite compris
 - Une spéciale peut faire 500 m au lieu de 2 km minimum
@@ -127,6 +137,7 @@ project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- Dans les options, bas à la manette passe de la mini-carte au compteur au lieu de faire défiler leurs cartes
 - Bavettes qui traversaient la route : elles sont plus courtes et restent au-dessus du sol à l'assiette de repos
 - Caméra du garage qui s'inversait à la manette en passant au-dessus de la voiture : elle se bloque au sommet, comme à la souris
 - Décompte hors piste qui continuait une fois revenu sur la route après une sortie à grande vitesse

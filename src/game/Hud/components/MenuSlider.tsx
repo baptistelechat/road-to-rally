@@ -27,7 +27,7 @@ export const MenuSlider = ({
         step={step}
         value={value}
         aria-valuetext={`${value} %`}
-        className={`h-1.5 min-w-0 flex-1 cursor-pointer accent-amber-400 ${menuFocus}`}
+        className={`h-1.5 min-w-0 flex-1 cursor-pointer accent-brand ${menuFocus}`}
         onChange={(event) => onChange(Number(event.target.value))}
       />
       <span className="w-9 text-right text-xs font-semibold tabular-nums">

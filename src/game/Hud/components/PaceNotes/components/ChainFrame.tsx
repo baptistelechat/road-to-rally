@@ -34,7 +34,7 @@ interface ChainFrameProps {
 export const ChainFrame = ({ open, children }: ChainFrameProps) => (
   <li
     aria-label={open ? "Enfilade, la suite arrive" : "Enfilade"}
-    className={`flex items-center gap-1 border-3 border-white bg-black/35 py-1 pl-2 ${open ? "rounded-l-full border-r-0" : "rounded-full pr-1"}`}
+    className={`flex items-center gap-1 border-3 border-foreground bg-background/35 py-1 pl-2 ${open ? "rounded-l-full border-r-0" : "rounded-full pr-1"}`}
   >
     <ChainLogo />
     <ol className="flex gap-1">{children}</ol>

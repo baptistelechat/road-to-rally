@@ -1,20 +1,25 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { SPEECH_RATES } from "@/audio/copilotVoice";
+import type { CopilotVoiceId } from "@/audio/copilotVoice";
 import { createVoicePreview, type VoicePreview } from "@/audio/voicePreview";
 import type { Copilot } from "@/game/copilot";
 import {
   applyAudioOptions,
   type CopilotOptions,
+  MINI_MAP_STYLES,
   type MiniMapStyle,
-  type SpeechRate,
+  SPEEDOMETER_STYLES,
+  type SpeedometerStyle,
   type Volume,
 } from "@/game/copilotOptions";
 import { setCopilotOptions, useHudStore } from "@/game/hudStore";
 import { hudButton, menuFocus } from "../hudStyles";
+import { type MenuCard, MenuCards } from "./MenuCards";
+import { MiniMapPreview } from "./MiniMap/components/MiniMapPreview";
 import { type MenuOption, MenuSelect } from "./MenuSelect";
 import { MenuSlider } from "./MenuSlider";
+import { SpeedometerPreview } from "./Speedometer";
 
 const enabledOptions = (suffix: string): readonly MenuOption<boolean>[] => [
   { id: true, name: `Activée${suffix}` },
@@ -22,17 +27,38 @@ const enabledOptions = (suffix: string): readonly MenuOption<boolean>[] => [
 ];
 const ENABLED = enabledOptions("");
 const ENABLED_PLURAL = enabledOptions("s");
-const RATES: readonly MenuOption<SpeechRate>[] = [
-  { id: "lent", name: "Lent" },
-  { id: "normal", name: "Normal" },
-  { id: "rapide", name: "Rapide" },
+const VOICES: readonly MenuOption<CopilotVoiceId>[] = [
+  { id: "siwis", name: "Féminine" },
+  { id: "siwis-nicola", name: "Masculine" },
 ];
-const MAP_STYLES: readonly MenuOption<MiniMapStyle>[] = [
-  { id: "global", name: "Globale" },
-  { id: "north", name: "Zoom, nord en haut" },
-  { id: "heading", name: "Zoom, cap en haut" },
-  { id: "hybrid", name: "Zoom et vue globale" },
+const MAP_STYLE_NAMES: Record<MiniMapStyle, string> = {
+  global: "Globale",
+  north: "Zoom, nord en haut",
+  heading: "Zoom, cap en haut",
+  hybrid: "Zoom et vue globale",
+};
+/** `off` : mini-carte désactivée, le style choisi est gardé pour la suivante */
+type MiniMapChoice = MiniMapStyle | "off";
+const MAP_STYLES: readonly MenuCard<MiniMapChoice>[] = [
+  { id: "off", name: "Aucune", preview: <MiniMapPreview style="off" /> },
+  ...MINI_MAP_STYLES.map((id) => ({
+    id,
+    name: MAP_STYLE_NAMES[id],
+    preview: <MiniMapPreview style={id} />,
+  })),
 ];
+const SPEEDOMETER_NAMES: Record<SpeedometerStyle, string> = {
+  digital: "Chiffres et LED",
+  dial: "Cadran à aiguille",
+  arc: "Arc de régime",
+  telemetry: "Télémétrie",
+};
+const SPEEDOMETERS: readonly MenuCard<SpeedometerStyle>[] =
+  SPEEDOMETER_STYLES.map((id) => ({
+    id,
+    name: SPEEDOMETER_NAMES[id],
+    preview: <SpeedometerPreview style={id} />,
+  }));
 
 interface CopilotOptionsPanelProps {
   copilot: Copilot;
@@ -67,10 +93,10 @@ export const CopilotOptionsPanel = ({
   };
 
   const updateAndListen = (patch: Partial<CopilotOptions>): void => {
-    const { speechRate, voiceVolume } = update(patch);
+    const { voice, voiceVolume } = update(patch);
     if (muted) return;
     preview.current ??= createVoicePreview();
-    preview.current.say(SPEECH_RATES[speechRate], voiceVolume / 100);
+    preview.current.say(voice, voiceVolume / 100);
   };
 
   return (
@@ -86,11 +112,11 @@ export const CopilotOptionsPanel = ({
         }}
       />
       <MenuSelect
-        title="Vitesse de diction"
-        value={options.speechRate}
-        options={RATES}
-        onChoose={(speechRate, close) => {
-          updateAndListen({ speechRate });
+        title="Voix"
+        value={options.voice}
+        options={VOICES}
+        onChoose={(voice, close) => {
+          updateAndListen({ voice });
           close();
         }}
       />
@@ -118,23 +144,23 @@ export const CopilotOptionsPanel = ({
           close();
         }}
       />
-      <MenuSelect
+      <MenuCards
         title="Mini-carte"
-        value={options.miniMapEnabled}
-        options={ENABLED}
-        onChoose={(miniMapEnabled, close) => {
-          update({ miniMapEnabled });
-          close();
-        }}
+        value={options.miniMapEnabled ? options.miniMapStyle : "off"}
+        cards={MAP_STYLES}
+        onChoose={(choice) =>
+          update(
+            choice === "off"
+              ? { miniMapEnabled: false }
+              : { miniMapEnabled: true, miniMapStyle: choice },
+          )
+        }
       />
-      <MenuSelect
-        title="Style de mini-carte"
-        value={options.miniMapStyle}
-        options={MAP_STYLES}
-        onChoose={(miniMapStyle, close) => {
-          update({ miniMapStyle });
-          close();
-        }}
+      <MenuCards
+        title="Compteur"
+        value={options.speedometerStyle}
+        cards={SPEEDOMETERS}
+        onChoose={(speedometerStyle) => update({ speedometerStyle })}
       />
       <MenuSelect
         title="Fantôme"

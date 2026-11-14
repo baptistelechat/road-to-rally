@@ -1,0 +1,718 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Retenu — Garage</title>
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Michroma&amp;family=Share+Tech+Mono&amp;display=swap"
+          rel="stylesheet"
+        />
+        <style>
+          body {
+            margin: 0;
+            background: #0b1018;
+          }
+          a {
+            color: #ffd23f;
+          }
+          a:hover {
+            color: #ffe27a;
+          }
+        </style>
+      </helmet>
+      <main
+        style="
+          position: relative;
+          width: 100%;
+          height: 900px;
+          overflow: hidden;
+          background: #0b1018;
+          color: #e9edf3;
+          font-family: Manrope, system-ui, sans-serif;
+        "
+      >
+        <img
+          src="/_blob/205abedfaaa23167dfa7ddd73ae8f236"
+          alt=""
+          style="
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          "
+        />
+        <div
+          style="
+            position: absolute;
+            top: 236px;
+            left: 760px;
+            width: 560px;
+            height: 92px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #1e2a3c;
+            clip-path: polygon(4% 0, 100% 0, 96% 100%, 0 100%);
+          "
+        >
+          <img
+            src="/_blob/4860449a7e6f25772b9446f146a42b7d"
+            alt="Road to Rally"
+            style="width: 420px; height: auto"
+          />
+        </div>
+        <img
+          src="/_blob/d070a4889de521396016d3a8b2b8940a"
+          alt=""
+          style="
+            position: absolute;
+            top: 236px;
+            left: 560px;
+            width: 120px;
+            height: 120px;
+            border: 6px solid #0b1018;
+          "
+        />
+
+        <header
+          style="
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            box-sizing: border-box;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: rgba(11, 16, 24, 0.9);
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+          "
+        >
+          <a
+            href="R-Menu.dc.html"
+            style="
+              min-height: 44px;
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              color: #e9edf3;
+              font-size: 14px;
+              font-weight: 700;
+              text-decoration: none;
+            "
+            >← Retour au jeu</a
+          >
+          <h1
+            style="
+              margin: 0 0 0 8px;
+              font-family: Michroma, sans-serif;
+              font-size: 16px;
+              font-weight: 400;
+              letter-spacing: 0.08em;
+            "
+          >
+            GARAGE
+          </h1>
+          <span
+            style="
+              margin-left: auto;
+              font-family: &quot;Share Tech Mono&quot;, monospace;
+              font-size: 14px;
+              color: #93a0b4;
+            "
+            >Voiture 03 · GT-033-TG</span
+          >
+          <a
+            href="R-HUD-Cockpit.dc.html"
+            style="
+              min-height: 44px;
+              padding: 0 32px;
+              display: grid;
+              place-items: center;
+              background: #ffd23f;
+              color: #0b1018;
+              clip-path: polygon(8% 0, 100% 0, 92% 100%, 0 100%);
+              font-family: Michroma, sans-serif;
+              font-size: 12px;
+              letter-spacing: 0.06em;
+              text-decoration: none;
+            "
+            >PRENDRE LE DÉPART</a
+          >
+        </header>
+
+        <aside
+          aria-label="Livrée"
+          style="
+            position: absolute;
+            top: 64px;
+            bottom: 0;
+            left: 0;
+            width: 400px;
+            box-sizing: border-box;
+            padding: 20px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            background: #0b1018;
+            border-right: 1px solid #202c3f;
+            overflow-y: auto;
+          "
+        >
+          <section
+            aria-labelledby="g-couleurs"
+            style="display: flex; flex-direction: column; gap: 8px"
+          >
+            <h2
+              id="g-couleurs"
+              style="
+                margin: 0;
+                font-family: Michroma, sans-serif;
+                font-size: 10px;
+                letter-spacing: 0.18em;
+                color: #93a0b4;
+                font-weight: 400;
+              "
+            >
+              01 · COULEURS
+            </h2>
+            <div
+              style="
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 8px;
+              "
+            >
+              <label
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 10px;
+                  min-height: 44px;
+                  padding: 0 10px;
+                  background: #121a26;
+                  border: 1px solid #202c3f;
+                  border-radius: 4px;
+                  font-size: 13px;
+                  font-weight: 700;
+                "
+                ><input
+                  type="color"
+                  value="#8fa6c6"
+                  aria-label="Carrosserie"
+                  style="
+                    width: 28px;
+                    height: 28px;
+                    padding: 0;
+                    border: 0;
+                    background: transparent;
+                    clip-path: polygon(20% 0, 100% 0, 80% 100%, 0 100%);
+                  "
+                />Carrosserie</label
+              >
+              <label
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 10px;
+                  min-height: 44px;
+                  padding: 0 10px;
+                  background: #121a26;
+                  border: 1px solid #202c3f;
+                  border-radius: 4px;
+                  font-size: 13px;
+                  font-weight: 700;
+                "
+                ><input
+                  type="color"
+                  value="#1f3a66"
+                  aria-label="Bas de caisse"
+                  style="
+                    width: 28px;
+                    height: 28px;
+                    padding: 0;
+                    border: 0;
+                    background: transparent;
+                    clip-path: polygon(20% 0, 100% 0, 80% 100%, 0 100%);
+                  "
+                />Bas de caisse</label
+              >
+              <label
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 10px;
+                  min-height: 44px;
+                  padding: 0 10px;
+                  background: #121a26;
+                  border: 1px solid #202c3f;
+                  border-radius: 4px;
+                  font-size: 13px;
+                  font-weight: 700;
+                "
+                ><input
+                  type="color"
+                  value="#00a35c"
+                  aria-label="Accents"
+                  style="
+                    width: 28px;
+                    height: 28px;
+                    padding: 0;
+                    border: 0;
+                    background: transparent;
+                    clip-path: polygon(20% 0, 100% 0, 80% 100%, 0 100%);
+                  "
+                />Accents</label
+              >
+              <label
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 10px;
+                  min-height: 44px;
+                  padding: 0 10px;
+                  background: #121a26;
+                  border: 1px solid #202c3f;
+                  border-radius: 4px;
+                  font-size: 13px;
+                  font-weight: 700;
+                "
+                ><input
+                  type="color"
+                  value="#e0a73a"
+                  aria-label="Jantes"
+                  style="
+                    width: 28px;
+                    height: 28px;
+                    padding: 0;
+                    border: 0;
+                    background: transparent;
+                    clip-path: polygon(20% 0, 100% 0, 80% 100%, 0 100%);
+                  "
+                />Jantes</label
+              >
+            </div>
+          </section>
+
+          <section
+            aria-labelledby="g-plaque"
+            style="display: flex; flex-direction: column; gap: 8px"
+          >
+            <h2
+              id="g-plaque"
+              style="
+                margin: 0;
+                font-family: Michroma, sans-serif;
+                font-size: 10px;
+                letter-spacing: 0.18em;
+                color: #93a0b4;
+                font-weight: 400;
+              "
+            >
+              02 · PLAQUE
+            </h2>
+            <input
+              aria-label="Plaque"
+              value="GT-033-TG"
+              style="
+                min-height: 40px;
+                padding: 0 12px;
+                background: #121a26;
+                color: #e9edf3;
+                border: 1px solid #56657d;
+                border-radius: 4px;
+                font-family: &quot;Share Tech Mono&quot;, monospace;
+                font-size: 16px;
+                letter-spacing: 0.08em;
+              "
+            />
+            <div
+              role="group"
+              aria-label="Style de plaque"
+              style="
+                display: grid;
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                gap: 6px;
+              "
+            >
+              <button
+                type="button"
+                aria-pressed="false"
+                aria-label="Plaque européenne"
+                style="
+                  min-height: 34px;
+                  background: #ffffff;
+                  color: #111114;
+                  border: 0;
+                  border-left: 6px solid #1d4fa0;
+                  border-radius: 2px;
+                  font-family: &quot;Share Tech Mono&quot;, monospace;
+                  font-size: 11px;
+                "
+              >
+                GT-033
+              </button>
+              <button
+                type="button"
+                aria-pressed="false"
+                aria-label="Plaque noire"
+                style="
+                  min-height: 34px;
+                  background: #111114;
+                  color: #ffffff;
+                  border: 1px solid #56657d;
+                  border-radius: 2px;
+                  font-family: &quot;Share Tech Mono&quot;, monospace;
+                  font-size: 11px;
+                "
+              >
+                GT-033
+              </button>
+              <button
+                type="button"
+                aria-pressed="false"
+                aria-label="Plaque jaune"
+                style="
+                  min-height: 34px;
+                  background: #f5c400;
+                  color: #111114;
+                  border: 0;
+                  border-radius: 2px;
+                  font-family: &quot;Share Tech Mono&quot;, monospace;
+                  font-size: 11px;
+                "
+              >
+                GT-033
+              </button>
+              <button
+                type="button"
+                aria-pressed="true"
+                aria-label="Plaque de rallye"
+                style="
+                  min-height: 34px;
+                  background: #ffffff;
+                  color: #c8201c;
+                  border: 1px solid #c8201c;
+                  border-radius: 2px;
+                  font-family: &quot;Share Tech Mono&quot;, monospace;
+                  font-size: 11px;
+                  outline: 2px solid #ffd23f;
+                  outline-offset: 2px;
+                "
+              >
+                GT-033
+              </button>
+            </div>
+          </section>
+
+          <section
+            aria-labelledby="g-numero"
+            style="display: flex; flex-direction: column; gap: 8px"
+          >
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+              "
+            >
+              <h2
+                id="g-numero"
+                style="
+                  margin: 0;
+                  font-family: Michroma, sans-serif;
+                  font-size: 10px;
+                  letter-spacing: 0.18em;
+                  color: #93a0b4;
+                  font-weight: 400;
+                "
+              >
+                03 · NUMÉRO ET DRAPEAU
+              </h2>
+              <input
+                aria-label="Numéro"
+                value="03"
+                style="
+                  width: 56px;
+                  min-height: 36px;
+                  padding: 0 8px;
+                  background: #121a26;
+                  color: #e9edf3;
+                  border: 1px solid #56657d;
+                  border-radius: 4px;
+                  font-family: &quot;Share Tech Mono&quot;, monospace;
+                  font-size: 16px;
+                  text-align: center;
+                "
+              />
+            </div>
+            <div
+              role="group"
+              aria-label="Style de numéro"
+              style="
+                display: grid;
+                grid-template-columns: repeat(6, minmax(0, 1fr));
+                gap: 6px;
+              "
+            >
+              <button
+                type="button"
+                aria-pressed="false"
+                style="
+                  min-height: 40px;
+                  background: #ffffff;
+                  color: #111114;
+                  border: 0;
+                  border-radius: 2px;
+                  font-family: &quot;Share Tech Mono&quot;, monospace;
+                  font-size: 18px;
+                "
+              >
+                03
+              </button>
+              <button
+                type="button"
+                aria-pressed="false"
+                style="
+                  min-height: 40px;
+                  background: #d4d8de;
+                  color: #111114;
+                  border: 0;
+                  border-radius: 2px;
+                  font-family: &quot;Share Tech Mono&quot;, monospace;
+                  font-size: 18px;
+                "
+              >
+                03
+              </button>
+              <button
+                type="button"
+                aria-pressed="false"
+                style="
+                  min-height: 40px;
+                  background: #111114;
+                  color: #ffd23f;
+                  border: 0;
+                  border-radius: 2px;
+                  font-family: &quot;Share Tech Mono&quot;, monospace;
+                  font-size: 18px;
+                "
+              >
+                03
+              </button>
+              <button
+                type="button"
+                aria-pressed="false"
+                style="
+                  min-height: 40px;
+                  background: #00a35c;
+                  color: #ffffff;
+                  border: 0;
+                  border-radius: 2px;
+                  font-family: &quot;Share Tech Mono&quot;, monospace;
+                  font-size: 18px;
+                  font-style: italic;
+                "
+              >
+                03
+              </button>
+              <button
+                type="button"
+                aria-pressed="true"
+                style="
+                  min-height: 40px;
+                  background: #ffffff;
+                  color: #111114;
+                  border: 2px dotted #111114;
+                  border-radius: 2px;
+                  font-family: &quot;Share Tech Mono&quot;, monospace;
+                  font-size: 18px;
+                  outline: 2px solid #ffd23f;
+                  outline-offset: 2px;
+                "
+              >
+                03
+              </button>
+              <button
+                type="button"
+                aria-pressed="false"
+                style="
+                  min-height: 40px;
+                  background: #3a4150;
+                  color: #ffffff;
+                  border: 0;
+                  border-radius: 2px;
+                  font-family: &quot;Share Tech Mono&quot;, monospace;
+                  font-size: 18px;
+                "
+              >
+                03
+              </button>
+            </div>
+            <button
+              type="button"
+              style="
+                min-height: 44px;
+                padding: 0 12px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                background: #121a26;
+                color: #e9edf3;
+                border: 1px solid #202c3f;
+                border-radius: 4px;
+                font-family: Manrope, sans-serif;
+                font-size: 13px;
+                font-weight: 700;
+              "
+            >
+              <span
+                aria-hidden="true"
+                style="display: flex; width: 36px; height: 24px"
+                ><span style="flex: 1; background: #1d4fa0"></span
+                ><span style="flex: 1; background: #ffffff"></span
+                ><span style="flex: 1; background: #e1000f"></span
+              ></span>
+              Drapeau : France<span style="margin-left: auto; color: #93a0b4"
+                >Changer</span
+              >
+            </button>
+          </section>
+
+          <section
+            aria-labelledby="g-moteur"
+            style="display: flex; flex-direction: column; gap: 8px"
+          >
+            <h2
+              id="g-moteur"
+              style="
+                margin: 0;
+                font-family: Michroma, sans-serif;
+                font-size: 10px;
+                letter-spacing: 0.18em;
+                color: #93a0b4;
+                font-weight: 400;
+              "
+            >
+              04 · MOTEUR
+            </h2>
+            <div
+              role="group"
+              aria-label="Moteur"
+              style="
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 6px;
+              "
+            >
+              <button
+                type="button"
+                aria-pressed="false"
+                style="
+                  min-height: 56px;
+                  padding: 0 8px;
+                  background: #121a26;
+                  color: #e9edf3;
+                  border: 1px solid #202c3f;
+                  border-radius: 4px;
+                  font-family: Manrope, sans-serif;
+                  font-size: 12px;
+                  font-weight: 700;
+                "
+              >
+                4 cylindres atmo
+              </button>
+              <button
+                type="button"
+                aria-pressed="true"
+                style="
+                  min-height: 56px;
+                  padding: 0 8px;
+                  background: #1e2a3c;
+                  color: #ffd23f;
+                  border: 1px solid #ffd23f;
+                  border-radius: 4px;
+                  font-family: Manrope, sans-serif;
+                  font-size: 12px;
+                  font-weight: 800;
+                "
+              >
+                4 cylindres turbo ♪
+              </button>
+              <button
+                type="button"
+                aria-pressed="false"
+                style="
+                  min-height: 56px;
+                  padding: 0 8px;
+                  background: #121a26;
+                  color: #e9edf3;
+                  border: 1px solid #202c3f;
+                  border-radius: 4px;
+                  font-family: Manrope, sans-serif;
+                  font-size: 12px;
+                  font-weight: 700;
+                "
+              >
+                5 cylindres
+              </button>
+            </div>
+          </section>
+          <div style="flex: 1"></div>
+          <button
+            type="button"
+            style="
+              min-height: 44px;
+              background: transparent;
+              color: #e9edf3;
+              border: 1px solid rgba(233, 237, 243, 0.25);
+              border-radius: 4px;
+              font-family: Manrope, sans-serif;
+              font-size: 13px;
+              font-weight: 700;
+            "
+          >
+            Couleurs d'origine
+          </button>
+        </aside>
+
+        <button
+          type="button"
+          style="
+            position: absolute;
+            right: 24px;
+            bottom: 24px;
+            min-height: 44px;
+            padding: 0 26px;
+            background: rgba(11, 16, 24, 0.9);
+            color: #e9edf3;
+            border: 0;
+            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+            font-family: Manrope, sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+          "
+        >
+          Reprendre la rotation
+        </button>
+      </main>
+    </x-dc>
+    <script
+      type="text/x-dc"
+      data-dc-script
+      data-props='{"$preview":{"width":1440,"height":900}}'
+    >
+      class Component extends DCLogic {
+        renderVals() { return {}; }
+      }
+    </script>
+  </body>
+</html>

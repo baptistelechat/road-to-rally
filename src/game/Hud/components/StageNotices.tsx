@@ -17,7 +17,7 @@ export const StageNotices = ({ notices }: { notices: readonly string[] }) => {
           ))}
           <button
             type="button"
-            className="rounded border border-white/25 px-2 py-0.5 font-semibold transition-colors hover:bg-white/15 focus-visible:outline-2 focus-visible:outline-amber-400"
+            className="rounded border border-foreground/25 px-2 py-0.5 font-semibold transition-colors hover:bg-foreground/15 focus-visible:outline-2 focus-visible:outline-brand"
             onClick={() => setDismissed(true)}
           >
             Compris

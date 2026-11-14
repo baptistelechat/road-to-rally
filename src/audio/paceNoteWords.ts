@@ -1,4 +1,4 @@
-// Annonce du copilote → liste de mots enregistrés. Pur : tourne aussi dans les vérifications Node.
+// Annonce du copilote → morceaux enregistrés, un par note entière. Pur : tourne aussi dans les vérifications Node.
 import type {
   PaceCall,
   PaceGrade,
@@ -6,33 +6,12 @@ import type {
   PaceTurn,
 } from "@/sim/track/paceNotes";
 
-/** Un fichier `public/audio/copilot/<mot>.wav` par entrée */
-export const PACE_WORDS = [
-  "gauche",
-  "droite",
-  "un",
-  "deux",
-  "trois",
-  "quatre",
-  "cinq",
-  "six",
-  "longue",
-  "se-resserre",
-  "crete",
-  "bosse",
-  "attention",
-  "puis",
-  "enfilade",
-] as const;
-
-export type PaceWord = (typeof PACE_WORDS)[number];
-
 export interface CallWordsOptions {
-  /** Retire « longue », « se resserre » et « enfilade » : la phrase tient dans moins de temps */
+  /** Retire « long », « se resserre » et « enfilade » : la phrase tient dans moins de temps */
   short?: boolean;
 }
 
-const GRADE_WORDS: Record<PaceGrade, PaceWord> = {
+const GRADE_TEXT: Record<PaceGrade, string> = {
   1: "un",
   2: "deux",
   3: "trois",
@@ -41,36 +20,87 @@ const GRADE_WORDS: Record<PaceGrade, PaceWord> = {
   6: "six",
 };
 
-const turnStart = ({ direction, grade }: PaceTurn): PaceWord[] => [
-  direction === "left" ? "gauche" : "droite",
-  GRADE_WORDS[grade],
-];
+const sideText = (direction: PaceTurn["direction"]): string =>
+  direction === "left" ? "gauche" : "droite";
 
-const noteWords = (note: PaceNote, short: boolean): PaceWord[] => {
-  if (note.kind !== "turn")
-    return ["attention", note.kind === "crest" ? "crete" : "bosse"];
-  const precisions: PaceWord[] = [];
-  if (!short && note.long) precisions.push("longue");
-  if (!short && note.tightens) precisions.push("se-resserre");
-  // « Quatre se resserre » : la note annoncée est celle de l'entrée.
-  return [...turnStart({ ...note, grade: note.entryGrade }), ...precisions];
+const turnText = (
+  direction: PaceTurn["direction"],
+  grade: PaceGrade,
+  long: boolean,
+  tightens: boolean,
+): string =>
+  [
+    sideText(direction),
+    GRADE_TEXT[grade],
+    ...(long ? ["long"] : []),
+    ...(tightens ? ["se resserre"] : []),
+  ].join(" ");
+
+const noteText = (note: PaceNote, short: boolean): string => {
+  switch (note.kind) {
+    case "crest":
+      return "attention crête";
+    case "bump":
+      return "attention bosse";
+    case "chicane":
+      return `chicane ${sideText(note.direction)}`;
+    case "finish":
+      return "arrivée";
+    case "turn":
+      // « Quatre se resserre » : la note annoncée est celle de l'entrée.
+      return turnText(
+        note.direction,
+        note.entryGrade,
+        !short && note.long,
+        !short && note.tightens,
+      );
+  }
 };
 
-export const callToWords = (
+/**
+ * Morceaux d'une annonce, dans l'ordre. Le seul raccord tombe avant « puis », où un copilote marque déjà une pause.
+ * Enfilade : chaque virage, sans précisions. En retard, le mot « enfilade » saute : le cadre des icônes le montre.
+ */
+export const callToClips = (
   { type, notes }: PaceCall,
   { short = false }: CallWordsOptions = {},
-): PaceWord[] => {
-  // Chaque virage est annoncé, sans précisions. En retard, le mot « enfilade » saute : le cadre des icônes le montre.
+): string[] => {
   if (type === "chain")
     return [
-      ...(short ? [] : (["enfilade"] as const)),
+      ...(short ? [] : ["enfilade"]),
       ...notes.flatMap((note) =>
-        note.kind === "turn"
-          ? turnStart({ ...note, grade: note.entryGrade })
-          : [],
+        note.kind === "turn" ? [noteText(note, true)] : [],
       ),
     ];
-  return notes.flatMap((note, i): PaceWord[] =>
-    i === 0 ? noteWords(note, short) : ["puis", ...noteWords(note, short)],
+  return notes.map((note, i) =>
+    i === 0 ? noteText(note, short) : `puis ${noteText(note, short)}`,
   );
 };
+
+/** « puis chicane droite » → `puis-chicane-droite` : nom du fichier, sans accent. */
+export const clipFile = (clip: string): string =>
+  clip.normalize("NFD").replace(/[̀-ͯ]/g, "").replaceAll(" ", "-");
+
+const NOTE_CLIPS: string[] = [
+  ...(["left", "right"] as const).flatMap((direction) =>
+    ([1, 2, 3, 4, 5, 6] as const).flatMap((grade) =>
+      [false, true].flatMap((long) =>
+        [false, true].map((tightens) =>
+          turnText(direction, grade, long, tightens),
+        ),
+      ),
+    ),
+  ),
+  "attention crête",
+  "attention bosse",
+  "chicane gauche",
+  "chicane droite",
+  "arrivée",
+];
+
+/** Tout ce que la voix sait dire. `scripts/generate-copilot-words.py` génère la même liste. */
+export const PACE_CLIPS: readonly string[] = [
+  ...NOTE_CLIPS,
+  ...NOTE_CLIPS.map((clip) => `puis ${clip}`),
+  "enfilade",
+];

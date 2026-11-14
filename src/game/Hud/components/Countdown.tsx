@@ -40,7 +40,7 @@ export const Countdown = ({ seconds }: CountdownProps) => {
       {text && (
         <div
           key={text}
-          className={`${panel} min-w-28 px-6 py-3 text-center font-mono text-7xl font-bold tabular-nums transition-opacity duration-200 starting:opacity-0 ${text === "GO" ? "text-emerald-400" : "text-amber-400"}`}
+          className={`${panel} min-w-28 px-6 py-3 text-center font-mono text-7xl font-bold tabular-nums transition-opacity duration-200 starting:opacity-0 ${text === "GO" ? "text-chart-4" : "text-brand"}`}
         >
           {text}
         </div>

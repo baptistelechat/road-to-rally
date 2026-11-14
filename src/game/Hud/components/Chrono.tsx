@@ -25,7 +25,7 @@ export const Chrono = ({ closed }: { closed: boolean }) => {
       </div>
       <dl
         aria-live="polite"
-        className="mt-2 space-y-0.5 border-t border-white/15 pt-2"
+        className="mt-2 space-y-0.5 border-t border-foreground/15 pt-2"
       >
         {closed && <LapRow name="Dernier" value={formatLap(lastLapMs)} />}
         <LapRow name="Meilleur" value={formatLap(bestLapMs)} />

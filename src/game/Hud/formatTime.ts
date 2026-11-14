@@ -15,4 +15,4 @@ export const formatSignedLap = (ms: number): string =>
 
 /** Vert devant, rouge derrière */
 export const deltaColor = (ms: number): string =>
-  ms < 0 ? "text-emerald-400" : ms > 0 ? "text-red-500" : "";
+  ms < 0 ? "text-chart-4" : ms > 0 ? "text-destructive" : "";

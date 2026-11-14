@@ -1,37 +1,36 @@
 // Exemple de phrase des options. Son propre contexte : celui du jeu est suspendu en pause, et le relancer ferait repartir le moteur.
-import { createCopilotVoice } from "./copilotVoice";
+import { createCopilotVoice, type CopilotVoiceId } from "./copilotVoice";
 import { resolveContext } from "./engineAudio";
-import type { PaceWord } from "./paceNoteWords";
 
-const EXAMPLE: readonly PaceWord[] = [
-  "gauche",
-  "trois",
-  "puis",
-  "droite",
-  "cinq",
-];
+const EXAMPLE: readonly string[] = ["gauche trois", "puis droite cinq"];
 
 export interface VoicePreview {
   /** Fichier manquant ou son bloqué par le navigateur : silence, sans erreur. */
-  say: (rate: number, volume: number) => void;
+  say: (voice: CopilotVoiceId, volume: number) => void;
   stop: () => void;
   dispose: () => void;
 }
 
 export const createVoicePreview = (): VoicePreview => {
   let context: AudioContext | null = null;
-  const voice = createCopilotVoice(() =>
-    context ? { context, output: context.destination } : null,
-  );
-  const loaded = voice.load();
+  let output: AudioNode | null = null;
+  // Même compresseur en sortie que le jeu : il tient les pics du gain de la voix.
+  const voice = createCopilotVoice(() => {
+    if (!context) return null;
+    if (!output) {
+      output = context.createDynamicsCompressor();
+      output.connect(context.destination);
+    }
+    return { context, output };
+  });
   return {
-    say: (rate, volume) => {
-      voice.setRate(rate);
+    say: (id, volume) => {
+      voice.setVoice(id);
       voice.setVolume(volume);
       context ??= resolveContext();
-      // Un contexte neuf naît suspendu : `playWords` n'accepte qu'un contexte qui tourne.
-      Promise.all([loaded, context?.resume()])
-        .then(() => voice.playWords(EXAMPLE))
+      // Un contexte neuf naît suspendu : `playClips` n'accepte qu'un contexte qui tourne.
+      Promise.all([voice.load(), context?.resume()])
+        .then(() => voice.playClips(EXAMPLE))
         .catch(() => undefined);
     },
     stop: voice.stop,
@@ -39,6 +38,7 @@ export const createVoicePreview = (): VoicePreview => {
       voice.stop();
       context?.close().catch(() => undefined);
       context = null;
+      output = null;
     },
   };
 };

@@ -114,10 +114,10 @@ export const ElevationMarks = ({
         <div
           key={`alt-${a}`}
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 border-t border-dashed border-neutral-100/15"
+          className="pointer-events-none absolute inset-x-0 border-t border-dashed border-foreground/15"
           style={{ top: `${yPercent(a)}%` }}
         >
-          <span className="absolute -top-2 left-1 text-[10px] text-neutral-400 tabular-nums">
+          <span className="absolute -top-2 left-1 text-[10px] text-muted-foreground tabular-nums">
             {a} m
           </span>
         </div>
@@ -126,10 +126,10 @@ export const ElevationMarks = ({
         <div
           key={`km-${d}`}
           aria-hidden="true"
-          className="pointer-events-none absolute inset-y-0 border-l border-neutral-100/15"
+          className="pointer-events-none absolute inset-y-0 border-l border-foreground/15"
           style={{ left: `${xPercent(startS + d)}%` }}
         >
-          <span className="absolute top-full mt-0.5 -translate-x-1/2 text-[10px] whitespace-nowrap text-neutral-400 tabular-nums">
+          <span className="absolute top-full mt-0.5 -translate-x-1/2 text-[10px] whitespace-nowrap text-muted-foreground tabular-nums">
             {km(d)}
           </span>
         </div>
@@ -165,8 +165,8 @@ export const ElevationMarks = ({
               style={{ left: `${xPercent(marker.s)}%` }}
             >
               {/* Le trait traverse déjà le profil comme la route sur la carte : seul le numéro s'y ajoute. */}
-              <span className="absolute inset-y-0 left-1/2 border-l-2 border-dashed border-white/80" />
-              <span className="absolute top-4 left-1/2 ml-1 text-xs font-bold text-white [text-shadow:0_0_3px_black]">
+              <span className="absolute inset-y-0 left-1/2 border-l-2 border-dashed border-foreground/80" />
+              <span className="absolute top-4 left-1/2 ml-1 text-xs font-bold text-foreground [text-shadow:0_0_3px_black]">
                 {marker.label.replace("Intermédiaire ", "")}
               </span>
             </button>

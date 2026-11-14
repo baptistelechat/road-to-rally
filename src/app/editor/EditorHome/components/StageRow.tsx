@@ -51,7 +51,7 @@ export const StageRow = ({
       <h3 className="truncate text-sm font-medium">{stage.name}</h3>
       <p className="text-xs text-muted-foreground">{describe(stage)}</p>
       {hasUnrolledChanges && (
-        <p className="text-xs text-amber-400">
+        <p className="text-xs text-brand">
           Des modifications attendent d&apos;être roulées.
         </p>
       )}

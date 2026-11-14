@@ -11,6 +11,8 @@ register: learnings
 | [LRN-003](learnings/LRN-003.md) | 2026-11-01 | Lag : comparer dev et production, une variable par test | #performance #diagnostic #nextjs #dev-mode #production #methode |
 | [LRN-004](learnings/LRN-004.md) | 2026-11-01 | Worker témoin et calcul fixe pour localiser un lag | #performance #diagnostic #web-worker #gamepad #web-audio #mesure |
 | [LRN-005](learnings/LRN-005.md) | 2026-11-01 | Sur AZERTY, la touche M a le code Semicolon | #clavier #azerty #keyboard-event #code #input |
+| [LRN-261104_2034-5](learnings/LRN-261104_2034-5.md) | 2026-11-04 | Kokoro : ponctuation ignorée, mots seuls ratés | #kokoro #tts #voix #prosodie #ponctuation #decoupage |
+| [LRN-261104_2034-6](learnings/LRN-261104_2034-6.md) | 2026-11-04 | Voix masculine française avec Kokoro par mélange | #kokoro #tts #voix #style-vector #accent #blend |
 | [LRN-261104_1032-5](learnings/LRN-261104_1032-5.md) | 2026-11-04 | Overpass saturé : spéciale sans ronds-points ni largeurs | #overpass #osm #diagnostic #ronds-points #502 #pipeline |
 | [LRN-261104_1032-6](learnings/LRN-261104_1032-6.md) | 2026-11-04 | MapLibre : sous 3 px, un déplacement de carte est un clic | #maplibre #clic #clicktolerance #popup #carte #ux |
 | [LRN-261104_1032-7](learnings/LRN-261104_1032-7.md) | 2026-11-04 | Poignée sous le pointeur : elle reçoit le clic de dessous | #maplibre #marqueur #clic #insertion #chicane #hover |

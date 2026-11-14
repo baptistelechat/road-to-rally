@@ -13,7 +13,7 @@ export const menuCancelTarget = (
 };
 
 /**
- * Manette : haut et bas déplacent le focus, A clique sur le bouton qui l'a, gauche et droite règlent un curseur.
+ * Manette : haut et bas déplacent le focus, A clique sur le bouton qui l'a, gauche et droite règlent un curseur ou parcourent une rangée de cartes.
  * Son bloqué : A n'active pas les boutons `data-needs-sound`, un clic de manette ne débloquerait rien.
  */
 export const applyMenuAction = (
@@ -53,9 +53,34 @@ export const applyMenuAction = (
     focused.dispatchEvent(new Event("input", { bubbles: true }));
     return;
   }
+  const radioGroup = focused instanceof HTMLElement
+    ? focused.closest('[role="radiogroup"]')
+    : null;
+  if ((action === "left" || action === "right") && radioGroup) {
+    const radios = [
+      ...radioGroup.querySelectorAll<HTMLElement>('[role="radio"]'),
+    ];
+    radios[radios.indexOf(focused as HTMLElement) + (action === "right" ? 1 : -1)]?.focus();
+    return;
+  }
   if (action === "confirm") {
     const target = items[current] ?? items[0];
     if (!(soundBlocked && target?.dataset.needsSound !== undefined))
       target?.click();
-  } else items[stepMenuIndex(current, items.length, action)]?.focus();
+    return;
+  }
+  // Une rangée de cartes est une seule ligne : haut et bas la traversent, en entrant sur la carte choisie.
+  const stops = items.filter((item) => {
+    const group = item.closest('[role="radiogroup"]');
+    if (!group) return true;
+    const anchor =
+      group === radioGroup
+        ? focused
+        : (group.querySelector('[aria-checked="true"]') ??
+          group.querySelector('[role="radio"]'));
+    return item === anchor;
+  });
+  stops[
+    stepMenuIndex(stops.indexOf(focused as HTMLElement), stops.length, action)
+  ]?.focus();
 };

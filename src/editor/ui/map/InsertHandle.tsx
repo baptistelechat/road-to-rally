@@ -132,7 +132,7 @@ export const InsertHandle = () => {
           <MarkerContent>
             <span
               title="Glisser pour ajouter un passage"
-              className="block size-4 rounded-full border-2 border-sky-600 bg-white shadow-md"
+              className="block size-4 rounded-full border-2 border-sky-600 bg-foreground shadow-md"
             />
           </MarkerContent>
         </MapMarker>

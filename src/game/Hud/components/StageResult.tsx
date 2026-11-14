@@ -35,18 +35,18 @@ export const StageResult = ({
     <dialog
       open
       aria-labelledby="result-title"
-      className="pointer-events-auto absolute inset-0 z-20 m-0 grid size-full max-h-none max-w-none place-items-center border-0 bg-black/45 p-0 text-inherit opacity-100 transition-opacity duration-200 starting:opacity-0"
+      className="pointer-events-auto absolute inset-0 z-20 m-0 grid size-full max-h-none max-w-none place-items-center border-0 bg-background/45 p-0 text-inherit opacity-100 transition-opacity duration-200 starting:opacity-0"
     >
       <div className={`${panel} w-96 space-y-4 p-6 text-center`}>
         <h1 id="result-title" className="text-2xl font-bold">
           Arrivée
         </h1>
         <div>
-          <div className="font-mono text-4xl font-bold text-amber-400 tabular-nums">
+          <div className="font-mono text-4xl font-bold text-brand tabular-nums">
             {formatLap(totalMs)}
           </div>
           {isBest && (
-            <div className="mt-1 text-sm font-semibold text-emerald-400">
+            <div className="mt-1 text-sm font-semibold text-chart-4">
               Meilleur temps
             </div>
           )}
@@ -60,7 +60,7 @@ export const StageResult = ({
         <button
           type="button"
           autoFocus
-          className={`w-full rounded bg-amber-400 px-4 py-3 font-bold text-black hover:bg-amber-300 ${menuFocus}`}
+          className={`w-full rounded bg-brand px-4 py-3 font-bold text-brand-foreground hover:bg-brand/90 ${menuFocus}`}
           onClick={onRestart}
         >
           Recommencer

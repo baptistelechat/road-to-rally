@@ -6,7 +6,7 @@ import type { LatLon } from "@/geo/gpx";
 import { toCoordinates } from "../../hover";
 import { overlappingZones, zoneSpan, type AxisZone } from "../../zones";
 
-const FREE_COLOR = "#fbbf24";
+const FREE_COLOR = "#ffd23f";
 const OVERLAP_COLOR = "#ef4444";
 
 /** Préfixe des calques de zone : un clic dessus vise l'élément, il ne pose pas de point. */

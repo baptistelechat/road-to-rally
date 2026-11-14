@@ -1,0 +1,1006 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rally — directions de design</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800&family=Barlow:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700;800&family=Big+Shoulders+Display:wght@400;500;600;700;800&family=Work+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500;600;700;800&family=Saira+Condensed:wght@400;500;600;700;800&family=Source+Sans+3:wght@400;500;600;700;800&family=Source+Code+Pro:wght@400;500;600;700;800&family=Chakra+Petch:wght@400;500;600;700;800&family=Rubik:wght@400;500;600;700;800&family=Azeret+Mono:wght@400;500;600;700;800&family=Michroma&family=Manrope:wght@400;500;600;700;800&family=Share+Tech+Mono&family=Archivo+Black&family=Archivo:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#d9d9d9;color:#1f1f1f;font:15px/1.5 system-ui,sans-serif}
+.page-head{max-width:1180px;margin:0 auto;padding:2rem 1rem 1rem}
+.page-head h1{margin:0 0 .25rem;font-size:1.6rem}
+.page-head p{margin:0;max-width:70ch}
+main{max-width:1180px;margin:0 auto;padding:0 1rem 3rem;display:grid;gap:2rem}
+
+/* ---- tokens par direction ---- */
+.direction-roadbook{
+  --font-display: "Barlow Condensed", sans-serif;
+  --font-body: "Barlow", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  --radius: 0.25rem;
+  --background: #eef0ee;
+  --foreground: #1a2238;
+  --card: #f9faf8;
+  --card-foreground: #1a2238;
+  --popover: #f9faf8;
+  --popover-foreground: #1a2238;
+  --primary: #1a2238;
+  --primary-foreground: #f9faf8;
+  --secondary: #e2e6e3;
+  --secondary-foreground: #1a2238;
+  --muted: #e6e9e6;
+  --muted-foreground: #565e6e;
+  --accent: #dfe4ea;
+  --accent-foreground: #1a2238;
+  --destructive: #b3261e;
+  --border: #cfd5d1;
+  --input: #7f8790;
+  --ring: #d0202e;
+  --chart-1: #d0202e;
+  --chart-2: #1a2238;
+  --chart-3: #3f7d5a;
+  --chart-4: #b07a12;
+  --chart-5: #6b5ca5;
+  --sidebar: #f9faf8;
+  --sidebar-foreground: #1a2238;
+  --sidebar-primary: #1a2238;
+  --sidebar-primary-foreground: #f9faf8;
+  --sidebar-accent: #dfe4ea;
+  --sidebar-accent-foreground: #1a2238;
+  --sidebar-border: #cfd5d1;
+  --sidebar-ring: #d0202e;
+  --brand: #d0202e;
+  --brand-foreground: #ffffff;
+}
+.direction-roadbook.dark{
+  --background: #141a2b;
+  --foreground: #e8ebe6;
+  --card: #1c2338;
+  --card-foreground: #e8ebe6;
+  --popover: #1c2338;
+  --popover-foreground: #e8ebe6;
+  --primary: #e8ebe6;
+  --primary-foreground: #141a2b;
+  --secondary: #262e46;
+  --secondary-foreground: #e8ebe6;
+  --muted: #232b42;
+  --muted-foreground: #a3abbd;
+  --accent: #2a3350;
+  --accent-foreground: #e8ebe6;
+  --destructive: #ff6b61;
+  --border: #2f3852;
+  --input: #68718c;
+  --ring: #ff5a5f;
+  --chart-1: #ff5a5f;
+  --chart-2: #9fb4ff;
+  --chart-3: #6cc497;
+  --chart-4: #f0b54a;
+  --chart-5: #b9a6ff;
+  --sidebar: #1c2338;
+  --sidebar-foreground: #e8ebe6;
+  --sidebar-primary: #e8ebe6;
+  --sidebar-primary-foreground: #141a2b;
+  --sidebar-accent: #2a3350;
+  --sidebar-accent-foreground: #e8ebe6;
+  --sidebar-border: #2f3852;
+  --sidebar-ring: #ff5a5f;
+  --brand: #ff5a5f;
+  --brand-foreground: #141a2b;
+}
+.direction-roadbook .brand-title{font-weight:700;letter-spacing:.01em}
+.direction-roadbook .card{border-width:1.5px}
+.rb-cells{display:grid;grid-template-columns:repeat(4,1fr);border:1.5px solid var(--foreground);background:var(--card)}
+.rb-cell{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;gap:.15rem .6rem;padding:.6rem .75rem;border-right:1.5px solid var(--foreground);align-items:center}
+.rb-cell:last-child{border-right:0}
+.rb-cell svg{grid-row:1/3;width:40px;height:40px}
+.rb-num{font-family:var(--font-mono);font-size:.8rem;color:var(--brand);font-weight:700}
+.rb-km{font-family:var(--font-mono);font-size:.85rem;color:var(--foreground)}
+.rb-note{grid-column:1/3;font-family:var(--font-display);font-weight:600;font-size:1rem;color:var(--foreground)}
+.rb-route{fill:none;stroke:var(--foreground);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.rb-side{fill:none;stroke:var(--muted-foreground);stroke-width:2;stroke-linecap:round}
+.rb-dot{fill:var(--brand)}
+
+.direction-livree{
+  --font-display: "Big Shoulders Display", sans-serif;
+  --font-body: "Work Sans", sans-serif;
+  --font-mono: "DM Mono", monospace;
+  --radius: 0.75rem;
+  --background: #f4f6fb;
+  --foreground: #0a1a3a;
+  --card: #ffffff;
+  --card-foreground: #0a1a3a;
+  --popover: #ffffff;
+  --popover-foreground: #0a1a3a;
+  --primary: #0a1a3a;
+  --primary-foreground: #ffffff;
+  --secondary: #e3e9f6;
+  --secondary-foreground: #0a1a3a;
+  --muted: #e9edf6;
+  --muted-foreground: #4d5a78;
+  --accent: #dde6f8;
+  --accent-foreground: #0a1a3a;
+  --destructive: #c8102e;
+  --border: #d3dbec;
+  --input: #828da4;
+  --ring: #1450c8;
+  --chart-1: #1450c8;
+  --chart-2: #e4002b;
+  --chart-3: #0a1a3a;
+  --chart-4: #b98100;
+  --chart-5: #1f8a7f;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0a1a3a;
+  --sidebar-primary: #0a1a3a;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #dde6f8;
+  --sidebar-accent-foreground: #0a1a3a;
+  --sidebar-border: #d3dbec;
+  --sidebar-ring: #1450c8;
+  --brand: #1450c8;
+  --brand-foreground: #ffffff;
+}
+.direction-livree.dark{
+  --background: #08142e;
+  --foreground: #eef2fb;
+  --card: #0f1f42;
+  --card-foreground: #eef2fb;
+  --popover: #0f1f42;
+  --popover-foreground: #eef2fb;
+  --primary: #eef2fb;
+  --primary-foreground: #08142e;
+  --secondary: #172a55;
+  --secondary-foreground: #eef2fb;
+  --muted: #14264d;
+  --muted-foreground: #a6b3d1;
+  --accent: #1b3163;
+  --accent-foreground: #eef2fb;
+  --destructive: #ff6b78;
+  --border: #1f3466;
+  --input: #56689a;
+  --ring: #5b8cf2;
+  --chart-1: #5b8cf2;
+  --chart-2: #ff6b78;
+  --chart-3: #eef2fb;
+  --chart-4: #f2c14e;
+  --chart-5: #4fd1c5;
+  --sidebar: #0f1f42;
+  --sidebar-foreground: #eef2fb;
+  --sidebar-primary: #eef2fb;
+  --sidebar-primary-foreground: #08142e;
+  --sidebar-accent: #1b3163;
+  --sidebar-accent-foreground: #eef2fb;
+  --sidebar-border: #1f3466;
+  --sidebar-ring: #5b8cf2;
+  --brand: #5b8cf2;
+  --brand-foreground: #08142e;
+}
+.direction-livree .brand-title{font-weight:800;font-size:2.2rem;line-height:.9}
+.direction-livree .big-time{font-family:var(--font-display);font-weight:800;font-size:3.4rem}
+.lv-band{position:relative;height:64px;border-radius:var(--radius);background:linear-gradient(104deg,var(--brand) 0 54%,var(--card) 54% 58%,var(--chart-2) 58% 70%,var(--card) 70% 73%,var(--brand) 73%)}
+.lv-plate{position:absolute;left:1.25rem;top:50%;transform:translateY(-50%);width:46px;height:46px;border-radius:50%;background:var(--card);color:var(--card-foreground);display:grid;place-items:center;font-family:var(--font-display);font-weight:800;font-size:1.5rem}
+
+.direction-carte{
+  --font-display: "Saira Condensed", sans-serif;
+  --font-body: "Source Sans 3", sans-serif;
+  --font-mono: "Source Code Pro", monospace;
+  --radius: 0.375rem;
+  --background: #f1f3ea;
+  --foreground: #24301f;
+  --card: #fbfcf6;
+  --card-foreground: #24301f;
+  --popover: #fbfcf6;
+  --popover-foreground: #24301f;
+  --primary: #2f5d34;
+  --primary-foreground: #fbfcf6;
+  --secondary: #e3e9d6;
+  --secondary-foreground: #24301f;
+  --muted: #e7ebdd;
+  --muted-foreground: #57624f;
+  --accent: #dfe7d0;
+  --accent-foreground: #24301f;
+  --destructive: #b3261e;
+  --border: #cfd6c0;
+  --input: #878f7b;
+  --ring: #2f5d34;
+  --chart-1: #c7650f;
+  --chart-2: #2f5d34;
+  --chart-3: #8a5a2b;
+  --chart-4: #2f6f99;
+  --chart-5: #7d7a1f;
+  --sidebar: #fbfcf6;
+  --sidebar-foreground: #24301f;
+  --sidebar-primary: #2f5d34;
+  --sidebar-primary-foreground: #fbfcf6;
+  --sidebar-accent: #dfe7d0;
+  --sidebar-accent-foreground: #24301f;
+  --sidebar-border: #cfd6c0;
+  --sidebar-ring: #2f5d34;
+  --brand: #c7650f;
+  --brand-foreground: #171717;
+}
+.direction-carte.dark{
+  --background: #161c15;
+  --foreground: #e9eddf;
+  --card: #1e261c;
+  --card-foreground: #e9eddf;
+  --popover: #1e261c;
+  --popover-foreground: #e9eddf;
+  --primary: #8fc28a;
+  --primary-foreground: #161c15;
+  --secondary: #283226;
+  --secondary-foreground: #e9eddf;
+  --muted: #252e22;
+  --muted-foreground: #a6b09a;
+  --accent: #2c3729;
+  --accent-foreground: #e9eddf;
+  --destructive: #ff7a6b;
+  --border: #313d2d;
+  --input: #66755f;
+  --ring: #8fc28a;
+  --chart-1: #f0913d;
+  --chart-2: #8fc28a;
+  --chart-3: #d2a06a;
+  --chart-4: #79b8e0;
+  --chart-5: #d4cf6a;
+  --sidebar: #1e261c;
+  --sidebar-foreground: #e9eddf;
+  --sidebar-primary: #8fc28a;
+  --sidebar-primary-foreground: #161c15;
+  --sidebar-accent: #2c3729;
+  --sidebar-accent-foreground: #e9eddf;
+  --sidebar-border: #313d2d;
+  --sidebar-ring: #8fc28a;
+  --brand: #f0913d;
+  --brand-foreground: #161c15;
+}
+.direction-carte .brand-title{font-weight:700;letter-spacing:.02em}
+.ct-map{display:block;width:100%;height:90px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius)}
+.ct-contour{fill:none;stroke:var(--chart-3);stroke-width:.8;opacity:.55}
+.ct-major{stroke-width:1.6;opacity:.8}
+.ct-road{fill:none;stroke:var(--brand);stroke-width:5;stroke-linecap:round}
+.ct-start{fill:var(--primary)}.ct-end{fill:var(--destructive)}
+
+.direction-facettes{
+  --font-display: "Chakra Petch", sans-serif;
+  --font-body: "Rubik", sans-serif;
+  --font-mono: "Azeret Mono", monospace;
+  --radius: 0.5rem;
+  --background: #f3eff7;
+  --foreground: #2a1d3d;
+  --card: #fbf9fd;
+  --card-foreground: #2a1d3d;
+  --popover: #fbf9fd;
+  --popover-foreground: #2a1d3d;
+  --primary: #3b2667;
+  --primary-foreground: #fbf9fd;
+  --secondary: #e6dff0;
+  --secondary-foreground: #2a1d3d;
+  --muted: #ebe5f3;
+  --muted-foreground: #5f5272;
+  --accent: #e3daf0;
+  --accent-foreground: #2a1d3d;
+  --destructive: #c4223b;
+  --border: #d9cfe6;
+  --input: #89839e;
+  --ring: #6b4bb3;
+  --chart-1: #e8642a;
+  --chart-2: #6b4bb3;
+  --chart-3: #1f8a83;
+  --chart-4: #b8860b;
+  --chart-5: #c23d7c;
+  --sidebar: #fbf9fd;
+  --sidebar-foreground: #2a1d3d;
+  --sidebar-primary: #3b2667;
+  --sidebar-primary-foreground: #fbf9fd;
+  --sidebar-accent: #e3daf0;
+  --sidebar-accent-foreground: #2a1d3d;
+  --sidebar-border: #d9cfe6;
+  --sidebar-ring: #6b4bb3;
+  --brand: #dc5f28;
+  --brand-foreground: #1d1d1d;
+}
+.direction-facettes.dark{
+  --background: #1a1230;
+  --foreground: #f1ebfa;
+  --card: #241a40;
+  --card-foreground: #f1ebfa;
+  --popover: #241a40;
+  --popover-foreground: #f1ebfa;
+  --primary: #b59cff;
+  --primary-foreground: #1a1230;
+  --secondary: #2f2450;
+  --secondary-foreground: #f1ebfa;
+  --muted: #2b2149;
+  --muted-foreground: #b3a6cc;
+  --accent: #33285a;
+  --accent-foreground: #f1ebfa;
+  --destructive: #ff6b81;
+  --border: #3a2e5e;
+  --input: #71639a;
+  --ring: #b59cff;
+  --chart-1: #ff8a52;
+  --chart-2: #b59cff;
+  --chart-3: #4fd1c5;
+  --chart-4: #f2c94c;
+  --chart-5: #ff7ab6;
+  --sidebar: #241a40;
+  --sidebar-foreground: #f1ebfa;
+  --sidebar-primary: #b59cff;
+  --sidebar-primary-foreground: #1a1230;
+  --sidebar-accent: #33285a;
+  --sidebar-accent-foreground: #f1ebfa;
+  --sidebar-border: #3a2e5e;
+  --sidebar-ring: #b59cff;
+  --brand: #ff8a52;
+  --brand-foreground: #1a1230;
+}
+.direction-facettes .brand-title{font-weight:700}
+.direction-facettes .card{clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,0 100%)}
+.fc-strip{display:block;width:100%;height:70px;border-radius:var(--radius)}
+
+.direction-nuit{
+  --font-display: "Michroma", sans-serif;
+  --font-body: "Manrope", sans-serif;
+  --font-mono: "Share Tech Mono", monospace;
+  --radius: 0.25rem;
+  --background: #eef1f5;
+  --foreground: #10161f;
+  --card: #ffffff;
+  --card-foreground: #10161f;
+  --popover: #ffffff;
+  --popover-foreground: #10161f;
+  --primary: #10161f;
+  --primary-foreground: #f5f7fa;
+  --secondary: #e1e6ee;
+  --secondary-foreground: #10161f;
+  --muted: #e5e9ef;
+  --muted-foreground: #4f5a6a;
+  --accent: #dde3ec;
+  --accent-foreground: #10161f;
+  --destructive: #c62828;
+  --border: #cfd6e0;
+  --input: #7c8592;
+  --ring: #10161f;
+  --chart-1: #b98500;
+  --chart-2: #2f6fd1;
+  --chart-3: #d4572a;
+  --chart-4: #2e8a55;
+  --chart-5: #8a4fd1;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #10161f;
+  --sidebar-primary: #10161f;
+  --sidebar-primary-foreground: #f5f7fa;
+  --sidebar-accent: #dde3ec;
+  --sidebar-accent-foreground: #10161f;
+  --sidebar-border: #cfd6e0;
+  --sidebar-ring: #10161f;
+  --brand: #b07e00;
+  --brand-foreground: #10161f;
+}
+.direction-nuit.dark{
+  --background: #0b1018;
+  --foreground: #e9edf3;
+  --card: #121a26;
+  --card-foreground: #e9edf3;
+  --popover: #121a26;
+  --popover-foreground: #e9edf3;
+  --primary: #ffd23f;
+  --primary-foreground: #0b1018;
+  --secondary: #1a2433;
+  --secondary-foreground: #e9edf3;
+  --muted: #172030;
+  --muted-foreground: #93a0b4;
+  --accent: #1e2a3c;
+  --accent-foreground: #e9edf3;
+  --destructive: #ff6b5e;
+  --border: #202c3f;
+  --input: #56657d;
+  --ring: #ffd23f;
+  --chart-1: #ffd23f;
+  --chart-2: #5fb3ff;
+  --chart-3: #ff8f5a;
+  --chart-4: #7ee0a1;
+  --chart-5: #c792ff;
+  --sidebar: #121a26;
+  --sidebar-foreground: #e9edf3;
+  --sidebar-primary: #ffd23f;
+  --sidebar-primary-foreground: #0b1018;
+  --sidebar-accent: #1e2a3c;
+  --sidebar-accent-foreground: #e9edf3;
+  --sidebar-border: #202c3f;
+  --sidebar-ring: #ffd23f;
+  --brand: #ffd23f;
+  --brand-foreground: #0b1018;
+}
+.direction-nuit .brand-title{font-size:1.25rem;letter-spacing:.06em}
+.direction-nuit .big-time{font-family:var(--font-mono);letter-spacing:.02em}
+.nt-beam{border-radius:var(--radius);padding:1.1rem 1.25rem;background:radial-gradient(ellipse 60% 140% at 50% -20%,color-mix(in srgb,var(--brand) 40%,transparent),transparent 70%),var(--card);border:1px solid var(--border)}
+.nt-splits{display:flex;flex-wrap:wrap;gap:1.75rem;font-size:.9rem;color:var(--muted-foreground)}
+.nt-splits b{font-family:var(--font-mono);font-weight:400;color:var(--foreground);margin-left:.35rem}
+.nt-splits i{font-style:normal;font-family:var(--font-mono);margin-left:.35rem;padding:0 .3rem;border-radius:2px}
+.nt-good{background:var(--brand);color:var(--brand-foreground)}
+.nt-bad{color:var(--destructive);border:1px solid var(--destructive)}
+
+.direction-terre{
+  --font-display: "Archivo Black", sans-serif;
+  --font-body: "Archivo", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+  --radius: 0.125rem;
+  --background: #e6e4e0;
+  --foreground: #2b231c;
+  --card: #f4f2ee;
+  --card-foreground: #2b231c;
+  --popover: #f4f2ee;
+  --popover-foreground: #2b231c;
+  --primary: #2b231c;
+  --primary-foreground: #f4f2ee;
+  --secondary: #dcd8d1;
+  --secondary-foreground: #2b231c;
+  --muted: #dfdbd4;
+  --muted-foreground: #5e554b;
+  --accent: #d8d3cb;
+  --accent-foreground: #2b231c;
+  --destructive: #b42318;
+  --border: #cbc5bb;
+  --input: #857d72;
+  --ring: #a8720a;
+  --chart-1: #a8720a;
+  --chart-2: #2b231c;
+  --chart-3: #b42318;
+  --chart-4: #5a7a2a;
+  --chart-5: #3f6a91;
+  --sidebar: #f4f2ee;
+  --sidebar-foreground: #2b231c;
+  --sidebar-primary: #2b231c;
+  --sidebar-primary-foreground: #f4f2ee;
+  --sidebar-accent: #d8d3cb;
+  --sidebar-accent-foreground: #2b231c;
+  --sidebar-border: #cbc5bb;
+  --sidebar-ring: #a8720a;
+  --brand: #a8720a;
+  --brand-foreground: #121212;
+}
+.direction-terre.dark{
+  --background: #1c1814;
+  --foreground: #efe9df;
+  --card: #26211b;
+  --card-foreground: #efe9df;
+  --popover: #26211b;
+  --popover-foreground: #efe9df;
+  --primary: #e8b23a;
+  --primary-foreground: #1c1814;
+  --secondary: #322b23;
+  --secondary-foreground: #efe9df;
+  --muted: #2e2820;
+  --muted-foreground: #b2a796;
+  --accent: #372f26;
+  --accent-foreground: #efe9df;
+  --destructive: #ff7059;
+  --border: #3b3329;
+  --input: #74695a;
+  --ring: #e8b23a;
+  --chart-1: #e8b23a;
+  --chart-2: #efe9df;
+  --chart-3: #ff7059;
+  --chart-4: #9bc25a;
+  --chart-5: #7fb0dc;
+  --sidebar: #26211b;
+  --sidebar-foreground: #efe9df;
+  --sidebar-primary: #e8b23a;
+  --sidebar-primary-foreground: #1c1814;
+  --sidebar-accent: #372f26;
+  --sidebar-accent-foreground: #efe9df;
+  --sidebar-border: #3b3329;
+  --sidebar-ring: #e8b23a;
+  --brand: #e8b23a;
+  --brand-foreground: #1c1814;
+}
+.direction-terre .brand-title{font-size:1.6rem}
+.direction-terre .card{border-width:2px}
+.tr-tape{position:relative;height:30px;background:repeating-linear-gradient(-45deg,var(--destructive) 0 16px,var(--card) 16px 32px);border-radius:var(--radius)}
+.tr-chip{position:absolute;right:1rem;top:50%;transform:translateY(-50%);background:var(--brand);color:var(--brand-foreground);font-weight:600;font-size:.8rem;padding:.15rem .6rem;border-radius:var(--radius)}
+
+/* ---- mockup commun : uniquement des variables ---- */
+.direction{background:var(--background);color:var(--foreground);font-family:var(--font-body);border-radius:calc(var(--radius) * 2);overflow:hidden;border:1px solid var(--border)}
+.dir-head{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;padding:1.25rem 1.5rem;border-bottom:1px solid var(--border)}
+.dir-head h2{margin:0;font-family:var(--font-display);font-size:1.6rem;line-height:1.1}
+.dir-head p{margin:.25rem 0 0;color:var(--muted-foreground);max-width:65ch}
+.theme-toggle{font:inherit;font-size:.85rem;padding:.4rem .8rem;border-radius:var(--radius);border:1px solid var(--input);background:var(--card);color:var(--card-foreground);cursor:pointer;white-space:nowrap}
+.mock{padding:1.25rem 1.5rem;display:grid;gap:1rem}
+.app-nav{display:flex;align-items:center;gap:1.25rem;flex-wrap:wrap}
+.brand-title{font-family:var(--font-display);font-size:1.7rem;color:var(--foreground)}
+.app-nav ul{list-style:none;display:flex;gap:.25rem;margin:0;padding:0;flex:1;flex-wrap:wrap}
+.app-nav a{display:block;padding:.4rem .7rem;border-radius:var(--radius);color:var(--foreground);text-decoration:none}
+.app-nav a.is-hover,.app-nav a:hover{background:var(--accent);color:var(--accent-foreground)}
+.btn{font:inherit;font-weight:600;padding:.55rem 1rem;border-radius:var(--radius);border:1px solid transparent;cursor:pointer}
+.btn-primary{background:var(--primary);color:var(--primary-foreground)}
+.btn-secondary{background:var(--secondary);color:var(--secondary-foreground);border-color:var(--border);width:100%}
+.btn:focus-visible,.theme-toggle:focus-visible,.app-nav a:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+.mock-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem}
+.card{background:var(--card);color:var(--card-foreground);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.1rem;display:grid;gap:.6rem;align-content:start}
+.card h3{margin:0;font-family:var(--font-display);font-size:1.3rem;line-height:1.15}
+.desc{margin:0;color:var(--muted-foreground);font-size:.9rem}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin:0}
+.stats div{background:var(--muted);border-radius:var(--radius);padding:.45rem .55rem}
+.stats dt{font-size:.75rem;color:var(--muted-foreground);line-height:1.2}
+.stats dd{margin:0;font-family:var(--font-mono);font-size:1rem;color:var(--foreground)}
+.profile{width:100%;height:70px}
+.profile .p1{fill:none;stroke:var(--chart-1);stroke-width:3;stroke-linejoin:round}
+.profile .p2{stroke:var(--chart-2);stroke-width:2;stroke-dasharray:4 4}
+.profile .p3{stroke:var(--chart-3);stroke-width:2;stroke-dasharray:4 4}
+.notes{margin:0;padding-left:1.4rem;display:grid;gap:.35rem}
+.notes li{padding:.3rem .4rem;border-radius:var(--radius)}
+.notes li::marker{font-family:var(--font-mono);color:var(--muted-foreground)}
+.notes .is-current{background:var(--muted);font-weight:600}
+.badge{display:inline-block;font-size:.75rem;font-weight:600;padding:.1rem .45rem;border-radius:var(--radius);margin:0}
+.badge-brand{background:var(--brand);color:var(--brand-foreground);margin-right:.35rem}
+.badge-destructive{color:var(--destructive);border:1px solid var(--destructive);background:transparent;justify-self:start}
+.big-time{margin:0;font-family:var(--font-mono);font-size:2.6rem;line-height:1;color:var(--foreground)}
+.targets{list-style:none;margin:0;padding:0;display:grid;gap:.2rem;font-size:.9rem}
+.targets li{display:flex;align-items:center;gap:.5rem}
+.targets b{margin-left:auto;font-family:var(--font-mono);font-weight:400}
+.dot{width:.7rem;height:.7rem;border-radius:50%}
+.d1{background:var(--chart-4)}.d2{background:var(--chart-5)}.d3{background:var(--chart-3)}
+.field{display:grid;gap:.3rem;max-width:360px}
+.field label{font-size:.85rem;font-weight:600}
+.field input{font:inherit;padding:.5rem .7rem;border-radius:var(--radius);border:1px solid var(--input);background:var(--background);color:var(--foreground)}
+.field input.is-focus,.field input:focus{outline:none;border-color:var(--ring);box-shadow:0 0 0 3px color-mix(in srgb,var(--ring) 35%,transparent)}
+.tokens{padding:1rem 1.5rem 1.4rem;border-top:1px solid var(--border);background:var(--muted);color:var(--foreground)}
+.tokens code{font-family:var(--font-mono);font-size:.72rem}
+.fonts{list-style:none;margin:0 0 .8rem;padding:0;display:flex;flex-wrap:wrap;gap:.4rem 1.5rem}
+.fonts span{font-size:1.05rem;margin-left:.3rem}
+.swatches{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:.25rem .9rem}
+.swatches li{display:flex;align-items:center;gap:.45rem}
+.sw{width:1.1rem;height:1.1rem;border-radius:3px;border:1px solid var(--border);flex:none}
+.hx{color:var(--muted-foreground);margin-left:auto}
+.hx-d{display:none}
+.direction.dark .hx-l{display:none}
+.direction.dark .hx-d{display:inline}
+@media (max-width:640px){.rb-cells{grid-template-columns:repeat(2,1fr)}.rb-cell:nth-child(2){border-right:0}.stats{grid-template-columns:1fr}.dir-head{flex-direction:column}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header class="page-head">
+  <h1>Rally : six directions de design</h1>
+  <p>Chaque direction est un mockup de l’app avec ses propres tokens shadcn (clair et sombre, bouton en haut à droite de chaque carte). Les contrastes WCAG AA sont calculés et vérifiés dans les deux thèmes.</p>
+</header>
+<main>
+
+<section class="direction direction-roadbook" aria-labelledby="t-roadbook">
+  <header class="dir-head">
+    <div>
+      <h2 id="t-roadbook">Road-book</h2>
+      <p>Le carnet du copilote : cases numérotées, tulipes dessinées à la main, corrections au stylo rouge.</p>
+    </div>
+    <button type="button" class="theme-toggle" aria-pressed="false" onclick="const s=this.closest('section');s.classList.toggle('dark');this.setAttribute('aria-pressed',s.classList.contains('dark'));this.textContent=s.classList.contains('dark')?'Voir en clair':'Voir en sombre'">Voir en sombre</button>
+  </header>
+  <div class="mock">
+    <nav class="app-nav" aria-label="Navigation de l’app">
+      <span class="brand-title">Rally</span>
+      <ul>
+        <li><a href="#" class="is-hover">Tracer une spéciale</a></li>
+        <li><a href="#">Mes spéciales</a></li>
+        <li><a href="#">Garage</a></li>
+      </ul>
+      <button type="button" class="btn btn-primary">Prendre le départ</button>
+    </nav>
+    <div class="rb-cells" aria-label="Extrait du road-book"><div class="rb-cell"><span class="rb-num">1</span><svg viewBox="0 0 40 40" aria-hidden="true"><path class="rb-side" d="M20 20 H8"/><path class="rb-route" d="M20 35 V6"/><circle class="rb-dot" cx="20" cy="35" r="3"/></svg><span class="rb-km">0,00</span><span class="rb-note">Départ</span></div><div class="rb-cell"><span class="rb-num">2</span><svg viewBox="0 0 40 40" aria-hidden="true"><path class="rb-side" d="M20 20 L32 10"/><path class="rb-route" d="M20 35 V20 L8 8"/><circle class="rb-dot" cx="20" cy="35" r="3"/></svg><span class="rb-km">0,48</span><span class="rb-note">Gauche 4</span></div><div class="rb-cell"><span class="rb-num">3</span><svg viewBox="0 0 40 40" aria-hidden="true"><path class="rb-side" d="M20 22 L8 22"/><path class="rb-route" d="M20 35 V22 Q32 22 30 8"/><circle class="rb-dot" cx="20" cy="35" r="3"/></svg><span class="rb-km">1,12</span><span class="rb-note">Droite 2 serre</span></div><div class="rb-cell"><span class="rb-num">4</span><svg viewBox="0 0 40 40" aria-hidden="true"><path class="rb-side" d="M14 18 Q20 12 26 18"/><path class="rb-route" d="M20 35 V6"/><circle class="rb-dot" cx="20" cy="35" r="3"/></svg><span class="rb-km">1,95</span><span class="rb-note">Crête</span></div></div>
+    <div class="mock-grid">
+      <article class="card">
+        <h3>Col de la Croix-Fry</h3>
+        <p class="desc">Manigod vers La Clusaz, 7,4 km, tracé par Baptiste</p>
+        <dl class="stats">
+          <div><dt>Virages par km</dt><dd>9,2</dd></div>
+          <div><dt>Dénivelé</dt><dd>+486 m</dd></div>
+          <div><dt>Plus longue ligne droite</dt><dd>380 m</dd></div>
+        </dl>
+        <svg class="profile" viewBox="0 0 300 70" preserveAspectRatio="none" role="img" aria-label="Profil d’altitude de la spéciale">
+          <polyline class="p1" points="0,62 30,58 60,50 90,52 120,40 150,34 180,30 210,22 240,24 270,14 300,10"/>
+          <line class="p2" x1="110" y1="0" x2="110" y2="70"/>
+          <line class="p3" x1="205" y1="0" x2="205" y2="70"/>
+        </svg>
+      </article>
+      <article class="card">
+        <h3>Notes du copilote</h3>
+        <p class="desc">Dictées à la vitesse de la voiture</p>
+        <ol class="notes">
+          <li class="is-current"><span class="badge badge-brand">Maintenant</span> Gauche 4 longue</li>
+          <li>Droite 2 se resserre</li>
+          <li>Crête, ne coupe pas</li>
+          <li>Chicane dans 150</li>
+        </ol>
+      </article>
+      <article class="card">
+        <h3>Chrono</h3>
+        <p class="big-time">4:51.37</p>
+        <ul class="targets">
+          <li><span class="dot d1"></span>Or<b>4:38.00</b></li>
+          <li><span class="dot d2"></span>Argent<b>4:52.00</b></li>
+          <li><span class="dot d3"></span>Bronze<b>5:10.00</b></li>
+        </ul>
+        <p class="badge badge-destructive">Sortie de route au km 3,1 : +5 s</p>
+        <button type="button" class="btn btn-secondary">Copier le lien du défi</button>
+      </article>
+    </div>
+    <div class="field">
+      <label for="f-roadbook">Point de départ</label>
+      <input id="f-roadbook" class="is-focus" value="Manigod, Haute-Savoie">
+    </div>
+  </div>
+  <footer class="tokens">
+    <ul class="fonts">
+      <li><code>--font-display</code> <span style="font-family:var(--font-display)">Barlow Condensed</span></li>
+      <li><code>--font-body</code> <span style="font-family:var(--font-body)">Barlow</span></li>
+      <li><code>--font-mono</code> <span style="font-family:var(--font-mono)">JetBrains Mono</span></li>
+      <li><code>--radius</code> <span>0.25rem</span></li>
+    </ul>
+    <ul class="swatches"><li><span class="sw" style="background:var(--background)"></span><code>--background</code><code class="hx hx-l">#eef0ee</code><code class="hx hx-d">#141a2b</code></li><li><span class="sw" style="background:var(--foreground)"></span><code>--foreground</code><code class="hx hx-l">#1a2238</code><code class="hx hx-d">#e8ebe6</code></li><li><span class="sw" style="background:var(--card)"></span><code>--card</code><code class="hx hx-l">#f9faf8</code><code class="hx hx-d">#1c2338</code></li><li><span class="sw" style="background:var(--card-foreground)"></span><code>--card-foreground</code><code class="hx hx-l">#1a2238</code><code class="hx hx-d">#e8ebe6</code></li><li><span class="sw" style="background:var(--popover)"></span><code>--popover</code><code class="hx hx-l">#f9faf8</code><code class="hx hx-d">#1c2338</code></li><li><span class="sw" style="background:var(--popover-foreground)"></span><code>--popover-foreground</code><code class="hx hx-l">#1a2238</code><code class="hx hx-d">#e8ebe6</code></li><li><span class="sw" style="background:var(--primary)"></span><code>--primary</code><code class="hx hx-l">#1a2238</code><code class="hx hx-d">#e8ebe6</code></li><li><span class="sw" style="background:var(--primary-foreground)"></span><code>--primary-foreground</code><code class="hx hx-l">#f9faf8</code><code class="hx hx-d">#141a2b</code></li><li><span class="sw" style="background:var(--secondary)"></span><code>--secondary</code><code class="hx hx-l">#e2e6e3</code><code class="hx hx-d">#262e46</code></li><li><span class="sw" style="background:var(--secondary-foreground)"></span><code>--secondary-foreground</code><code class="hx hx-l">#1a2238</code><code class="hx hx-d">#e8ebe6</code></li><li><span class="sw" style="background:var(--muted)"></span><code>--muted</code><code class="hx hx-l">#e6e9e6</code><code class="hx hx-d">#232b42</code></li><li><span class="sw" style="background:var(--muted-foreground)"></span><code>--muted-foreground</code><code class="hx hx-l">#565e6e</code><code class="hx hx-d">#a3abbd</code></li><li><span class="sw" style="background:var(--accent)"></span><code>--accent</code><code class="hx hx-l">#dfe4ea</code><code class="hx hx-d">#2a3350</code></li><li><span class="sw" style="background:var(--accent-foreground)"></span><code>--accent-foreground</code><code class="hx hx-l">#1a2238</code><code class="hx hx-d">#e8ebe6</code></li><li><span class="sw" style="background:var(--destructive)"></span><code>--destructive</code><code class="hx hx-l">#b3261e</code><code class="hx hx-d">#ff6b61</code></li><li><span class="sw" style="background:var(--border)"></span><code>--border</code><code class="hx hx-l">#cfd5d1</code><code class="hx hx-d">#2f3852</code></li><li><span class="sw" style="background:var(--input)"></span><code>--input</code><code class="hx hx-l">#7f8790</code><code class="hx hx-d">#68718c</code></li><li><span class="sw" style="background:var(--ring)"></span><code>--ring</code><code class="hx hx-l">#d0202e</code><code class="hx hx-d">#ff5a5f</code></li><li><span class="sw" style="background:var(--chart-1)"></span><code>--chart-1</code><code class="hx hx-l">#d0202e</code><code class="hx hx-d">#ff5a5f</code></li><li><span class="sw" style="background:var(--chart-2)"></span><code>--chart-2</code><code class="hx hx-l">#1a2238</code><code class="hx hx-d">#9fb4ff</code></li><li><span class="sw" style="background:var(--chart-3)"></span><code>--chart-3</code><code class="hx hx-l">#3f7d5a</code><code class="hx hx-d">#6cc497</code></li><li><span class="sw" style="background:var(--chart-4)"></span><code>--chart-4</code><code class="hx hx-l">#b07a12</code><code class="hx hx-d">#f0b54a</code></li><li><span class="sw" style="background:var(--chart-5)"></span><code>--chart-5</code><code class="hx hx-l">#6b5ca5</code><code class="hx hx-d">#b9a6ff</code></li><li><span class="sw" style="background:var(--sidebar)"></span><code>--sidebar</code><code class="hx hx-l">#f9faf8</code><code class="hx hx-d">#1c2338</code></li><li><span class="sw" style="background:var(--sidebar-foreground)"></span><code>--sidebar-foreground</code><code class="hx hx-l">#1a2238</code><code class="hx hx-d">#e8ebe6</code></li><li><span class="sw" style="background:var(--sidebar-primary)"></span><code>--sidebar-primary</code><code class="hx hx-l">#1a2238</code><code class="hx hx-d">#e8ebe6</code></li><li><span class="sw" style="background:var(--sidebar-primary-foreground)"></span><code>--sidebar-primary-foreground</code><code class="hx hx-l">#f9faf8</code><code class="hx hx-d">#141a2b</code></li><li><span class="sw" style="background:var(--sidebar-accent)"></span><code>--sidebar-accent</code><code class="hx hx-l">#dfe4ea</code><code class="hx hx-d">#2a3350</code></li><li><span class="sw" style="background:var(--sidebar-accent-foreground)"></span><code>--sidebar-accent-foreground</code><code class="hx hx-l">#1a2238</code><code class="hx hx-d">#e8ebe6</code></li><li><span class="sw" style="background:var(--sidebar-border)"></span><code>--sidebar-border</code><code class="hx hx-l">#cfd5d1</code><code class="hx hx-d">#2f3852</code></li><li><span class="sw" style="background:var(--sidebar-ring)"></span><code>--sidebar-ring</code><code class="hx hx-l">#d0202e</code><code class="hx hx-d">#ff5a5f</code></li><li><span class="sw" style="background:var(--brand)"></span><code>--brand</code><code class="hx hx-l">#d0202e</code><code class="hx hx-d">#ff5a5f</code></li><li><span class="sw" style="background:var(--brand-foreground)"></span><code>--brand-foreground</code><code class="hx hx-l">#ffffff</code><code class="hx hx-d">#141a2b</code></li></ul>
+  </footer>
+</section>
+
+<section class="direction direction-livree" aria-labelledby="t-livree">
+  <header class="dir-head">
+    <div>
+      <h2 id="t-livree">Livrée tricolore</h2>
+      <p>La carrosserie d’une berlinette de course : bleu profond, bandes rouges, plaque de numéro blanche.</p>
+    </div>
+    <button type="button" class="theme-toggle" aria-pressed="false" onclick="const s=this.closest('section');s.classList.toggle('dark');this.setAttribute('aria-pressed',s.classList.contains('dark'));this.textContent=s.classList.contains('dark')?'Voir en clair':'Voir en sombre'">Voir en sombre</button>
+  </header>
+  <div class="mock">
+    <nav class="app-nav" aria-label="Navigation de l’app">
+      <span class="brand-title">Rally</span>
+      <ul>
+        <li><a href="#" class="is-hover">Tracer une spéciale</a></li>
+        <li><a href="#">Mes spéciales</a></li>
+        <li><a href="#">Garage</a></li>
+      </ul>
+      <button type="button" class="btn btn-primary">Prendre le départ</button>
+    </nav>
+    <div class="lv-band" aria-hidden="true"><span class="lv-plate">07</span></div>
+    <div class="mock-grid">
+      <article class="card">
+        <h3>Col de la Croix-Fry</h3>
+        <p class="desc">Manigod vers La Clusaz, 7,4 km, tracé par Baptiste</p>
+        <dl class="stats">
+          <div><dt>Virages par km</dt><dd>9,2</dd></div>
+          <div><dt>Dénivelé</dt><dd>+486 m</dd></div>
+          <div><dt>Plus longue ligne droite</dt><dd>380 m</dd></div>
+        </dl>
+        <svg class="profile" viewBox="0 0 300 70" preserveAspectRatio="none" role="img" aria-label="Profil d’altitude de la spéciale">
+          <polyline class="p1" points="0,62 30,58 60,50 90,52 120,40 150,34 180,30 210,22 240,24 270,14 300,10"/>
+          <line class="p2" x1="110" y1="0" x2="110" y2="70"/>
+          <line class="p3" x1="205" y1="0" x2="205" y2="70"/>
+        </svg>
+      </article>
+      <article class="card">
+        <h3>Notes du copilote</h3>
+        <p class="desc">Dictées à la vitesse de la voiture</p>
+        <ol class="notes">
+          <li class="is-current"><span class="badge badge-brand">Maintenant</span> Gauche 4 longue</li>
+          <li>Droite 2 se resserre</li>
+          <li>Crête, ne coupe pas</li>
+          <li>Chicane dans 150</li>
+        </ol>
+      </article>
+      <article class="card">
+        <h3>Chrono</h3>
+        <p class="big-time">4:51.37</p>
+        <ul class="targets">
+          <li><span class="dot d1"></span>Or<b>4:38.00</b></li>
+          <li><span class="dot d2"></span>Argent<b>4:52.00</b></li>
+          <li><span class="dot d3"></span>Bronze<b>5:10.00</b></li>
+        </ul>
+        <p class="badge badge-destructive">Sortie de route au km 3,1 : +5 s</p>
+        <button type="button" class="btn btn-secondary">Copier le lien du défi</button>
+      </article>
+    </div>
+    <div class="field">
+      <label for="f-livree">Point de départ</label>
+      <input id="f-livree" class="is-focus" value="Manigod, Haute-Savoie">
+    </div>
+  </div>
+  <footer class="tokens">
+    <ul class="fonts">
+      <li><code>--font-display</code> <span style="font-family:var(--font-display)">Big Shoulders Display</span></li>
+      <li><code>--font-body</code> <span style="font-family:var(--font-body)">Work Sans</span></li>
+      <li><code>--font-mono</code> <span style="font-family:var(--font-mono)">DM Mono</span></li>
+      <li><code>--radius</code> <span>0.75rem</span></li>
+    </ul>
+    <ul class="swatches"><li><span class="sw" style="background:var(--background)"></span><code>--background</code><code class="hx hx-l">#f4f6fb</code><code class="hx hx-d">#08142e</code></li><li><span class="sw" style="background:var(--foreground)"></span><code>--foreground</code><code class="hx hx-l">#0a1a3a</code><code class="hx hx-d">#eef2fb</code></li><li><span class="sw" style="background:var(--card)"></span><code>--card</code><code class="hx hx-l">#ffffff</code><code class="hx hx-d">#0f1f42</code></li><li><span class="sw" style="background:var(--card-foreground)"></span><code>--card-foreground</code><code class="hx hx-l">#0a1a3a</code><code class="hx hx-d">#eef2fb</code></li><li><span class="sw" style="background:var(--popover)"></span><code>--popover</code><code class="hx hx-l">#ffffff</code><code class="hx hx-d">#0f1f42</code></li><li><span class="sw" style="background:var(--popover-foreground)"></span><code>--popover-foreground</code><code class="hx hx-l">#0a1a3a</code><code class="hx hx-d">#eef2fb</code></li><li><span class="sw" style="background:var(--primary)"></span><code>--primary</code><code class="hx hx-l">#0a1a3a</code><code class="hx hx-d">#eef2fb</code></li><li><span class="sw" style="background:var(--primary-foreground)"></span><code>--primary-foreground</code><code class="hx hx-l">#ffffff</code><code class="hx hx-d">#08142e</code></li><li><span class="sw" style="background:var(--secondary)"></span><code>--secondary</code><code class="hx hx-l">#e3e9f6</code><code class="hx hx-d">#172a55</code></li><li><span class="sw" style="background:var(--secondary-foreground)"></span><code>--secondary-foreground</code><code class="hx hx-l">#0a1a3a</code><code class="hx hx-d">#eef2fb</code></li><li><span class="sw" style="background:var(--muted)"></span><code>--muted</code><code class="hx hx-l">#e9edf6</code><code class="hx hx-d">#14264d</code></li><li><span class="sw" style="background:var(--muted-foreground)"></span><code>--muted-foreground</code><code class="hx hx-l">#4d5a78</code><code class="hx hx-d">#a6b3d1</code></li><li><span class="sw" style="background:var(--accent)"></span><code>--accent</code><code class="hx hx-l">#dde6f8</code><code class="hx hx-d">#1b3163</code></li><li><span class="sw" style="background:var(--accent-foreground)"></span><code>--accent-foreground</code><code class="hx hx-l">#0a1a3a</code><code class="hx hx-d">#eef2fb</code></li><li><span class="sw" style="background:var(--destructive)"></span><code>--destructive</code><code class="hx hx-l">#c8102e</code><code class="hx hx-d">#ff6b78</code></li><li><span class="sw" style="background:var(--border)"></span><code>--border</code><code class="hx hx-l">#d3dbec</code><code class="hx hx-d">#1f3466</code></li><li><span class="sw" style="background:var(--input)"></span><code>--input</code><code class="hx hx-l">#828da4</code><code class="hx hx-d">#56689a</code></li><li><span class="sw" style="background:var(--ring)"></span><code>--ring</code><code class="hx hx-l">#1450c8</code><code class="hx hx-d">#5b8cf2</code></li><li><span class="sw" style="background:var(--chart-1)"></span><code>--chart-1</code><code class="hx hx-l">#1450c8</code><code class="hx hx-d">#5b8cf2</code></li><li><span class="sw" style="background:var(--chart-2)"></span><code>--chart-2</code><code class="hx hx-l">#e4002b</code><code class="hx hx-d">#ff6b78</code></li><li><span class="sw" style="background:var(--chart-3)"></span><code>--chart-3</code><code class="hx hx-l">#0a1a3a</code><code class="hx hx-d">#eef2fb</code></li><li><span class="sw" style="background:var(--chart-4)"></span><code>--chart-4</code><code class="hx hx-l">#b98100</code><code class="hx hx-d">#f2c14e</code></li><li><span class="sw" style="background:var(--chart-5)"></span><code>--chart-5</code><code class="hx hx-l">#1f8a7f</code><code class="hx hx-d">#4fd1c5</code></li><li><span class="sw" style="background:var(--sidebar)"></span><code>--sidebar</code><code class="hx hx-l">#ffffff</code><code class="hx hx-d">#0f1f42</code></li><li><span class="sw" style="background:var(--sidebar-foreground)"></span><code>--sidebar-foreground</code><code class="hx hx-l">#0a1a3a</code><code class="hx hx-d">#eef2fb</code></li><li><span class="sw" style="background:var(--sidebar-primary)"></span><code>--sidebar-primary</code><code class="hx hx-l">#0a1a3a</code><code class="hx hx-d">#eef2fb</code></li><li><span class="sw" style="background:var(--sidebar-primary-foreground)"></span><code>--sidebar-primary-foreground</code><code class="hx hx-l">#ffffff</code><code class="hx hx-d">#08142e</code></li><li><span class="sw" style="background:var(--sidebar-accent)"></span><code>--sidebar-accent</code><code class="hx hx-l">#dde6f8</code><code class="hx hx-d">#1b3163</code></li><li><span class="sw" style="background:var(--sidebar-accent-foreground)"></span><code>--sidebar-accent-foreground</code><code class="hx hx-l">#0a1a3a</code><code class="hx hx-d">#eef2fb</code></li><li><span class="sw" style="background:var(--sidebar-border)"></span><code>--sidebar-border</code><code class="hx hx-l">#d3dbec</code><code class="hx hx-d">#1f3466</code></li><li><span class="sw" style="background:var(--sidebar-ring)"></span><code>--sidebar-ring</code><code class="hx hx-l">#1450c8</code><code class="hx hx-d">#5b8cf2</code></li><li><span class="sw" style="background:var(--brand)"></span><code>--brand</code><code class="hx hx-l">#1450c8</code><code class="hx hx-d">#5b8cf2</code></li><li><span class="sw" style="background:var(--brand-foreground)"></span><code>--brand-foreground</code><code class="hx hx-l">#ffffff</code><code class="hx hx-d">#08142e</code></li></ul>
+  </footer>
+</section>
+
+<section class="direction direction-carte" aria-labelledby="t-carte">
+  <header class="dir-head">
+    <div>
+      <h2 id="t-carte">Carte d’état-major</h2>
+      <p>La carte topographique sur laquelle on trace : courbes de niveau, forêts en vert, routes en orange.</p>
+    </div>
+    <button type="button" class="theme-toggle" aria-pressed="false" onclick="const s=this.closest('section');s.classList.toggle('dark');this.setAttribute('aria-pressed',s.classList.contains('dark'));this.textContent=s.classList.contains('dark')?'Voir en clair':'Voir en sombre'">Voir en sombre</button>
+  </header>
+  <div class="mock">
+    <nav class="app-nav" aria-label="Navigation de l’app">
+      <span class="brand-title">Rally</span>
+      <ul>
+        <li><a href="#" class="is-hover">Tracer une spéciale</a></li>
+        <li><a href="#">Mes spéciales</a></li>
+        <li><a href="#">Garage</a></li>
+      </ul>
+      <button type="button" class="btn btn-primary">Prendre le départ</button>
+    </nav>
+    <svg class="ct-map" viewBox="0 0 600 90" preserveAspectRatio="none" aria-hidden="true"><path class="ct-contour ct-major" d="M0 8 C150 -6 330 28 600 4"/><path class="ct-contour" d="M0 20 C150 6 330 40 600 15"/><path class="ct-contour" d="M0 32 C150 18 330 52 600 26"/><path class="ct-contour ct-major" d="M0 44 C150 30 330 64 600 37"/><path class="ct-contour" d="M0 56 C150 42 330 76 600 48"/><path class="ct-contour" d="M0 68 C150 54 330 88 600 59"/><path class="ct-contour ct-major" d="M0 80 C150 66 330 100 600 70"/><path class="ct-road" d="M10 78 C110 18 190 80 300 42 S470 6 590 58"/><circle class="ct-start" cx="10" cy="78" r="5"/><circle class="ct-end" cx="590" cy="58" r="5"/></svg>
+    <div class="mock-grid">
+      <article class="card">
+        <h3>Col de la Croix-Fry</h3>
+        <p class="desc">Manigod vers La Clusaz, 7,4 km, tracé par Baptiste</p>
+        <dl class="stats">
+          <div><dt>Virages par km</dt><dd>9,2</dd></div>
+          <div><dt>Dénivelé</dt><dd>+486 m</dd></div>
+          <div><dt>Plus longue ligne droite</dt><dd>380 m</dd></div>
+        </dl>
+        <svg class="profile" viewBox="0 0 300 70" preserveAspectRatio="none" role="img" aria-label="Profil d’altitude de la spéciale">
+          <polyline class="p1" points="0,62 30,58 60,50 90,52 120,40 150,34 180,30 210,22 240,24 270,14 300,10"/>
+          <line class="p2" x1="110" y1="0" x2="110" y2="70"/>
+          <line class="p3" x1="205" y1="0" x2="205" y2="70"/>
+        </svg>
+      </article>
+      <article class="card">
+        <h3>Notes du copilote</h3>
+        <p class="desc">Dictées à la vitesse de la voiture</p>
+        <ol class="notes">
+          <li class="is-current"><span class="badge badge-brand">Maintenant</span> Gauche 4 longue</li>
+          <li>Droite 2 se resserre</li>
+          <li>Crête, ne coupe pas</li>
+          <li>Chicane dans 150</li>
+        </ol>
+      </article>
+      <article class="card">
+        <h3>Chrono</h3>
+        <p class="big-time">4:51.37</p>
+        <ul class="targets">
+          <li><span class="dot d1"></span>Or<b>4:38.00</b></li>
+          <li><span class="dot d2"></span>Argent<b>4:52.00</b></li>
+          <li><span class="dot d3"></span>Bronze<b>5:10.00</b></li>
+        </ul>
+        <p class="badge badge-destructive">Sortie de route au km 3,1 : +5 s</p>
+        <button type="button" class="btn btn-secondary">Copier le lien du défi</button>
+      </article>
+    </div>
+    <div class="field">
+      <label for="f-carte">Point de départ</label>
+      <input id="f-carte" class="is-focus" value="Manigod, Haute-Savoie">
+    </div>
+  </div>
+  <footer class="tokens">
+    <ul class="fonts">
+      <li><code>--font-display</code> <span style="font-family:var(--font-display)">Saira Condensed</span></li>
+      <li><code>--font-body</code> <span style="font-family:var(--font-body)">Source Sans 3</span></li>
+      <li><code>--font-mono</code> <span style="font-family:var(--font-mono)">Source Code Pro</span></li>
+      <li><code>--radius</code> <span>0.375rem</span></li>
+    </ul>
+    <ul class="swatches"><li><span class="sw" style="background:var(--background)"></span><code>--background</code><code class="hx hx-l">#f1f3ea</code><code class="hx hx-d">#161c15</code></li><li><span class="sw" style="background:var(--foreground)"></span><code>--foreground</code><code class="hx hx-l">#24301f</code><code class="hx hx-d">#e9eddf</code></li><li><span class="sw" style="background:var(--card)"></span><code>--card</code><code class="hx hx-l">#fbfcf6</code><code class="hx hx-d">#1e261c</code></li><li><span class="sw" style="background:var(--card-foreground)"></span><code>--card-foreground</code><code class="hx hx-l">#24301f</code><code class="hx hx-d">#e9eddf</code></li><li><span class="sw" style="background:var(--popover)"></span><code>--popover</code><code class="hx hx-l">#fbfcf6</code><code class="hx hx-d">#1e261c</code></li><li><span class="sw" style="background:var(--popover-foreground)"></span><code>--popover-foreground</code><code class="hx hx-l">#24301f</code><code class="hx hx-d">#e9eddf</code></li><li><span class="sw" style="background:var(--primary)"></span><code>--primary</code><code class="hx hx-l">#2f5d34</code><code class="hx hx-d">#8fc28a</code></li><li><span class="sw" style="background:var(--primary-foreground)"></span><code>--primary-foreground</code><code class="hx hx-l">#fbfcf6</code><code class="hx hx-d">#161c15</code></li><li><span class="sw" style="background:var(--secondary)"></span><code>--secondary</code><code class="hx hx-l">#e3e9d6</code><code class="hx hx-d">#283226</code></li><li><span class="sw" style="background:var(--secondary-foreground)"></span><code>--secondary-foreground</code><code class="hx hx-l">#24301f</code><code class="hx hx-d">#e9eddf</code></li><li><span class="sw" style="background:var(--muted)"></span><code>--muted</code><code class="hx hx-l">#e7ebdd</code><code class="hx hx-d">#252e22</code></li><li><span class="sw" style="background:var(--muted-foreground)"></span><code>--muted-foreground</code><code class="hx hx-l">#57624f</code><code class="hx hx-d">#a6b09a</code></li><li><span class="sw" style="background:var(--accent)"></span><code>--accent</code><code class="hx hx-l">#dfe7d0</code><code class="hx hx-d">#2c3729</code></li><li><span class="sw" style="background:var(--accent-foreground)"></span><code>--accent-foreground</code><code class="hx hx-l">#24301f</code><code class="hx hx-d">#e9eddf</code></li><li><span class="sw" style="background:var(--destructive)"></span><code>--destructive</code><code class="hx hx-l">#b3261e</code><code class="hx hx-d">#ff7a6b</code></li><li><span class="sw" style="background:var(--border)"></span><code>--border</code><code class="hx hx-l">#cfd6c0</code><code class="hx hx-d">#313d2d</code></li><li><span class="sw" style="background:var(--input)"></span><code>--input</code><code class="hx hx-l">#878f7b</code><code class="hx hx-d">#66755f</code></li><li><span class="sw" style="background:var(--ring)"></span><code>--ring</code><code class="hx hx-l">#2f5d34</code><code class="hx hx-d">#8fc28a</code></li><li><span class="sw" style="background:var(--chart-1)"></span><code>--chart-1</code><code class="hx hx-l">#c7650f</code><code class="hx hx-d">#f0913d</code></li><li><span class="sw" style="background:var(--chart-2)"></span><code>--chart-2</code><code class="hx hx-l">#2f5d34</code><code class="hx hx-d">#8fc28a</code></li><li><span class="sw" style="background:var(--chart-3)"></span><code>--chart-3</code><code class="hx hx-l">#8a5a2b</code><code class="hx hx-d">#d2a06a</code></li><li><span class="sw" style="background:var(--chart-4)"></span><code>--chart-4</code><code class="hx hx-l">#2f6f99</code><code class="hx hx-d">#79b8e0</code></li><li><span class="sw" style="background:var(--chart-5)"></span><code>--chart-5</code><code class="hx hx-l">#7d7a1f</code><code class="hx hx-d">#d4cf6a</code></li><li><span class="sw" style="background:var(--sidebar)"></span><code>--sidebar</code><code class="hx hx-l">#fbfcf6</code><code class="hx hx-d">#1e261c</code></li><li><span class="sw" style="background:var(--sidebar-foreground)"></span><code>--sidebar-foreground</code><code class="hx hx-l">#24301f</code><code class="hx hx-d">#e9eddf</code></li><li><span class="sw" style="background:var(--sidebar-primary)"></span><code>--sidebar-primary</code><code class="hx hx-l">#2f5d34</code><code class="hx hx-d">#8fc28a</code></li><li><span class="sw" style="background:var(--sidebar-primary-foreground)"></span><code>--sidebar-primary-foreground</code><code class="hx hx-l">#fbfcf6</code><code class="hx hx-d">#161c15</code></li><li><span class="sw" style="background:var(--sidebar-accent)"></span><code>--sidebar-accent</code><code class="hx hx-l">#dfe7d0</code><code class="hx hx-d">#2c3729</code></li><li><span class="sw" style="background:var(--sidebar-accent-foreground)"></span><code>--sidebar-accent-foreground</code><code class="hx hx-l">#24301f</code><code class="hx hx-d">#e9eddf</code></li><li><span class="sw" style="background:var(--sidebar-border)"></span><code>--sidebar-border</code><code class="hx hx-l">#cfd6c0</code><code class="hx hx-d">#313d2d</code></li><li><span class="sw" style="background:var(--sidebar-ring)"></span><code>--sidebar-ring</code><code class="hx hx-l">#2f5d34</code><code class="hx hx-d">#8fc28a</code></li><li><span class="sw" style="background:var(--brand)"></span><code>--brand</code><code class="hx hx-l">#c7650f</code><code class="hx hx-d">#f0913d</code></li><li><span class="sw" style="background:var(--brand-foreground)"></span><code>--brand-foreground</code><code class="hx hx-l">#171717</code><code class="hx hx-d">#161c15</code></li></ul>
+  </footer>
+</section>
+
+<section class="direction direction-facettes" aria-labelledby="t-facettes">
+  <header class="dir-head">
+    <div>
+      <h2 id="t-facettes">Facettes</h2>
+      <p>Le monde du jeu tel qu’il est rendu : polygones à plat, ciel de fin de journée, ombres taillées au couteau.</p>
+    </div>
+    <button type="button" class="theme-toggle" aria-pressed="false" onclick="const s=this.closest('section');s.classList.toggle('dark');this.setAttribute('aria-pressed',s.classList.contains('dark'));this.textContent=s.classList.contains('dark')?'Voir en clair':'Voir en sombre'">Voir en sombre</button>
+  </header>
+  <div class="mock">
+    <nav class="app-nav" aria-label="Navigation de l’app">
+      <span class="brand-title">Rally</span>
+      <ul>
+        <li><a href="#" class="is-hover">Tracer une spéciale</a></li>
+        <li><a href="#">Mes spéciales</a></li>
+        <li><a href="#">Garage</a></li>
+      </ul>
+      <button type="button" class="btn btn-primary">Prendre le départ</button>
+    </nav>
+    <svg class="fc-strip" viewBox="0 0 640 70" preserveAspectRatio="none" aria-hidden="true"><polygon points="0,0 32,70 64,0" style="fill:var(--primary);opacity:0.55"/><polygon points="32,70 64,0 96,70" style="fill:var(--brand);opacity:0.85"/><polygon points="64,0 96,70 128,0" style="fill:var(--chart-2);opacity:0.65"/><polygon points="96,70 128,0 160,70" style="fill:var(--chart-5);opacity:0.95"/><polygon points="128,0 160,70 192,0" style="fill:var(--chart-4);opacity:0.75"/><polygon points="160,70 192,0 224,70" style="fill:var(--chart-3);opacity:0.55"/><polygon points="192,0 224,70 256,0" style="fill:var(--primary);opacity:0.85"/><polygon points="224,70 256,0 288,70" style="fill:var(--brand);opacity:0.65"/><polygon points="256,0 288,70 320,0" style="fill:var(--chart-2);opacity:0.95"/><polygon points="288,70 320,0 352,70" style="fill:var(--chart-5);opacity:0.75"/><polygon points="320,0 352,70 384,0" style="fill:var(--chart-4);opacity:0.55"/><polygon points="352,70 384,0 416,70" style="fill:var(--chart-3);opacity:0.85"/><polygon points="384,0 416,70 448,0" style="fill:var(--primary);opacity:0.65"/><polygon points="416,70 448,0 480,70" style="fill:var(--brand);opacity:0.95"/><polygon points="448,0 480,70 512,0" style="fill:var(--chart-2);opacity:0.75"/><polygon points="480,70 512,0 544,70" style="fill:var(--chart-5);opacity:0.55"/><polygon points="512,0 544,70 576,0" style="fill:var(--chart-4);opacity:0.85"/><polygon points="544,70 576,0 608,70" style="fill:var(--chart-3);opacity:0.65"/><polygon points="576,0 608,70 640,0" style="fill:var(--primary);opacity:0.95"/><polygon points="608,70 640,0 672,70" style="fill:var(--brand);opacity:0.75"/></svg>
+    <div class="mock-grid">
+      <article class="card">
+        <h3>Col de la Croix-Fry</h3>
+        <p class="desc">Manigod vers La Clusaz, 7,4 km, tracé par Baptiste</p>
+        <dl class="stats">
+          <div><dt>Virages par km</dt><dd>9,2</dd></div>
+          <div><dt>Dénivelé</dt><dd>+486 m</dd></div>
+          <div><dt>Plus longue ligne droite</dt><dd>380 m</dd></div>
+        </dl>
+        <svg class="profile" viewBox="0 0 300 70" preserveAspectRatio="none" role="img" aria-label="Profil d’altitude de la spéciale">
+          <polyline class="p1" points="0,62 30,58 60,50 90,52 120,40 150,34 180,30 210,22 240,24 270,14 300,10"/>
+          <line class="p2" x1="110" y1="0" x2="110" y2="70"/>
+          <line class="p3" x1="205" y1="0" x2="205" y2="70"/>
+        </svg>
+      </article>
+      <article class="card">
+        <h3>Notes du copilote</h3>
+        <p class="desc">Dictées à la vitesse de la voiture</p>
+        <ol class="notes">
+          <li class="is-current"><span class="badge badge-brand">Maintenant</span> Gauche 4 longue</li>
+          <li>Droite 2 se resserre</li>
+          <li>Crête, ne coupe pas</li>
+          <li>Chicane dans 150</li>
+        </ol>
+      </article>
+      <article class="card">
+        <h3>Chrono</h3>
+        <p class="big-time">4:51.37</p>
+        <ul class="targets">
+          <li><span class="dot d1"></span>Or<b>4:38.00</b></li>
+          <li><span class="dot d2"></span>Argent<b>4:52.00</b></li>
+          <li><span class="dot d3"></span>Bronze<b>5:10.00</b></li>
+        </ul>
+        <p class="badge badge-destructive">Sortie de route au km 3,1 : +5 s</p>
+        <button type="button" class="btn btn-secondary">Copier le lien du défi</button>
+      </article>
+    </div>
+    <div class="field">
+      <label for="f-facettes">Point de départ</label>
+      <input id="f-facettes" class="is-focus" value="Manigod, Haute-Savoie">
+    </div>
+  </div>
+  <footer class="tokens">
+    <ul class="fonts">
+      <li><code>--font-display</code> <span style="font-family:var(--font-display)">Chakra Petch</span></li>
+      <li><code>--font-body</code> <span style="font-family:var(--font-body)">Rubik</span></li>
+      <li><code>--font-mono</code> <span style="font-family:var(--font-mono)">Azeret Mono</span></li>
+      <li><code>--radius</code> <span>0.5rem</span></li>
+    </ul>
+    <ul class="swatches"><li><span class="sw" style="background:var(--background)"></span><code>--background</code><code class="hx hx-l">#f3eff7</code><code class="hx hx-d">#1a1230</code></li><li><span class="sw" style="background:var(--foreground)"></span><code>--foreground</code><code class="hx hx-l">#2a1d3d</code><code class="hx hx-d">#f1ebfa</code></li><li><span class="sw" style="background:var(--card)"></span><code>--card</code><code class="hx hx-l">#fbf9fd</code><code class="hx hx-d">#241a40</code></li><li><span class="sw" style="background:var(--card-foreground)"></span><code>--card-foreground</code><code class="hx hx-l">#2a1d3d</code><code class="hx hx-d">#f1ebfa</code></li><li><span class="sw" style="background:var(--popover)"></span><code>--popover</code><code class="hx hx-l">#fbf9fd</code><code class="hx hx-d">#241a40</code></li><li><span class="sw" style="background:var(--popover-foreground)"></span><code>--popover-foreground</code><code class="hx hx-l">#2a1d3d</code><code class="hx hx-d">#f1ebfa</code></li><li><span class="sw" style="background:var(--primary)"></span><code>--primary</code><code class="hx hx-l">#3b2667</code><code class="hx hx-d">#b59cff</code></li><li><span class="sw" style="background:var(--primary-foreground)"></span><code>--primary-foreground</code><code class="hx hx-l">#fbf9fd</code><code class="hx hx-d">#1a1230</code></li><li><span class="sw" style="background:var(--secondary)"></span><code>--secondary</code><code class="hx hx-l">#e6dff0</code><code class="hx hx-d">#2f2450</code></li><li><span class="sw" style="background:var(--secondary-foreground)"></span><code>--secondary-foreground</code><code class="hx hx-l">#2a1d3d</code><code class="hx hx-d">#f1ebfa</code></li><li><span class="sw" style="background:var(--muted)"></span><code>--muted</code><code class="hx hx-l">#ebe5f3</code><code class="hx hx-d">#2b2149</code></li><li><span class="sw" style="background:var(--muted-foreground)"></span><code>--muted-foreground</code><code class="hx hx-l">#5f5272</code><code class="hx hx-d">#b3a6cc</code></li><li><span class="sw" style="background:var(--accent)"></span><code>--accent</code><code class="hx hx-l">#e3daf0</code><code class="hx hx-d">#33285a</code></li><li><span class="sw" style="background:var(--accent-foreground)"></span><code>--accent-foreground</code><code class="hx hx-l">#2a1d3d</code><code class="hx hx-d">#f1ebfa</code></li><li><span class="sw" style="background:var(--destructive)"></span><code>--destructive</code><code class="hx hx-l">#c4223b</code><code class="hx hx-d">#ff6b81</code></li><li><span class="sw" style="background:var(--border)"></span><code>--border</code><code class="hx hx-l">#d9cfe6</code><code class="hx hx-d">#3a2e5e</code></li><li><span class="sw" style="background:var(--input)"></span><code>--input</code><code class="hx hx-l">#89839e</code><code class="hx hx-d">#71639a</code></li><li><span class="sw" style="background:var(--ring)"></span><code>--ring</code><code class="hx hx-l">#6b4bb3</code><code class="hx hx-d">#b59cff</code></li><li><span class="sw" style="background:var(--chart-1)"></span><code>--chart-1</code><code class="hx hx-l">#e8642a</code><code class="hx hx-d">#ff8a52</code></li><li><span class="sw" style="background:var(--chart-2)"></span><code>--chart-2</code><code class="hx hx-l">#6b4bb3</code><code class="hx hx-d">#b59cff</code></li><li><span class="sw" style="background:var(--chart-3)"></span><code>--chart-3</code><code class="hx hx-l">#1f8a83</code><code class="hx hx-d">#4fd1c5</code></li><li><span class="sw" style="background:var(--chart-4)"></span><code>--chart-4</code><code class="hx hx-l">#b8860b</code><code class="hx hx-d">#f2c94c</code></li><li><span class="sw" style="background:var(--chart-5)"></span><code>--chart-5</code><code class="hx hx-l">#c23d7c</code><code class="hx hx-d">#ff7ab6</code></li><li><span class="sw" style="background:var(--sidebar)"></span><code>--sidebar</code><code class="hx hx-l">#fbf9fd</code><code class="hx hx-d">#241a40</code></li><li><span class="sw" style="background:var(--sidebar-foreground)"></span><code>--sidebar-foreground</code><code class="hx hx-l">#2a1d3d</code><code class="hx hx-d">#f1ebfa</code></li><li><span class="sw" style="background:var(--sidebar-primary)"></span><code>--sidebar-primary</code><code class="hx hx-l">#3b2667</code><code class="hx hx-d">#b59cff</code></li><li><span class="sw" style="background:var(--sidebar-primary-foreground)"></span><code>--sidebar-primary-foreground</code><code class="hx hx-l">#fbf9fd</code><code class="hx hx-d">#1a1230</code></li><li><span class="sw" style="background:var(--sidebar-accent)"></span><code>--sidebar-accent</code><code class="hx hx-l">#e3daf0</code><code class="hx hx-d">#33285a</code></li><li><span class="sw" style="background:var(--sidebar-accent-foreground)"></span><code>--sidebar-accent-foreground</code><code class="hx hx-l">#2a1d3d</code><code class="hx hx-d">#f1ebfa</code></li><li><span class="sw" style="background:var(--sidebar-border)"></span><code>--sidebar-border</code><code class="hx hx-l">#d9cfe6</code><code class="hx hx-d">#3a2e5e</code></li><li><span class="sw" style="background:var(--sidebar-ring)"></span><code>--sidebar-ring</code><code class="hx hx-l">#6b4bb3</code><code class="hx hx-d">#b59cff</code></li><li><span class="sw" style="background:var(--brand)"></span><code>--brand</code><code class="hx hx-l">#dc5f28</code><code class="hx hx-d">#ff8a52</code></li><li><span class="sw" style="background:var(--brand-foreground)"></span><code>--brand-foreground</code><code class="hx hx-l">#1d1d1d</code><code class="hx hx-d">#1a1230</code></li></ul>
+  </footer>
+</section>
+
+<section class="direction direction-nuit" aria-labelledby="t-nuit">
+  <header class="dir-head">
+    <div>
+      <h2 id="t-nuit">Spéciale de nuit</h2>
+      <p>Une spéciale courue phares allumés : bitume bleu nuit, rampe de projecteurs jaune, temps intermédiaires.</p>
+    </div>
+    <button type="button" class="theme-toggle" aria-pressed="false" onclick="const s=this.closest('section');s.classList.toggle('dark');this.setAttribute('aria-pressed',s.classList.contains('dark'));this.textContent=s.classList.contains('dark')?'Voir en clair':'Voir en sombre'">Voir en sombre</button>
+  </header>
+  <div class="mock">
+    <nav class="app-nav" aria-label="Navigation de l’app">
+      <span class="brand-title">Rally</span>
+      <ul>
+        <li><a href="#" class="is-hover">Tracer une spéciale</a></li>
+        <li><a href="#">Mes spéciales</a></li>
+        <li><a href="#">Garage</a></li>
+      </ul>
+      <button type="button" class="btn btn-primary">Prendre le départ</button>
+    </nav>
+    <div class="nt-beam"><div class="nt-splits" aria-label="Temps intermédiaires"><span>Inter 1 <b>1:12.40</b> <i class="nt-good">−0,42</i></span><span>Inter 2 <b>2:31.05</b> <i class="nt-bad">+1,08</i></span><span>Inter 3 <b>—</b></span></div></div>
+    <div class="mock-grid">
+      <article class="card">
+        <h3>Col de la Croix-Fry</h3>
+        <p class="desc">Manigod vers La Clusaz, 7,4 km, tracé par Baptiste</p>
+        <dl class="stats">
+          <div><dt>Virages par km</dt><dd>9,2</dd></div>
+          <div><dt>Dénivelé</dt><dd>+486 m</dd></div>
+          <div><dt>Plus longue ligne droite</dt><dd>380 m</dd></div>
+        </dl>
+        <svg class="profile" viewBox="0 0 300 70" preserveAspectRatio="none" role="img" aria-label="Profil d’altitude de la spéciale">
+          <polyline class="p1" points="0,62 30,58 60,50 90,52 120,40 150,34 180,30 210,22 240,24 270,14 300,10"/>
+          <line class="p2" x1="110" y1="0" x2="110" y2="70"/>
+          <line class="p3" x1="205" y1="0" x2="205" y2="70"/>
+        </svg>
+      </article>
+      <article class="card">
+        <h3>Notes du copilote</h3>
+        <p class="desc">Dictées à la vitesse de la voiture</p>
+        <ol class="notes">
+          <li class="is-current"><span class="badge badge-brand">Maintenant</span> Gauche 4 longue</li>
+          <li>Droite 2 se resserre</li>
+          <li>Crête, ne coupe pas</li>
+          <li>Chicane dans 150</li>
+        </ol>
+      </article>
+      <article class="card">
+        <h3>Chrono</h3>
+        <p class="big-time">4:51.37</p>
+        <ul class="targets">
+          <li><span class="dot d1"></span>Or<b>4:38.00</b></li>
+          <li><span class="dot d2"></span>Argent<b>4:52.00</b></li>
+          <li><span class="dot d3"></span>Bronze<b>5:10.00</b></li>
+        </ul>
+        <p class="badge badge-destructive">Sortie de route au km 3,1 : +5 s</p>
+        <button type="button" class="btn btn-secondary">Copier le lien du défi</button>
+      </article>
+    </div>
+    <div class="field">
+      <label for="f-nuit">Point de départ</label>
+      <input id="f-nuit" class="is-focus" value="Manigod, Haute-Savoie">
+    </div>
+  </div>
+  <footer class="tokens">
+    <ul class="fonts">
+      <li><code>--font-display</code> <span style="font-family:var(--font-display)">Michroma</span></li>
+      <li><code>--font-body</code> <span style="font-family:var(--font-body)">Manrope</span></li>
+      <li><code>--font-mono</code> <span style="font-family:var(--font-mono)">Share Tech Mono</span></li>
+      <li><code>--radius</code> <span>0.25rem</span></li>
+    </ul>
+    <ul class="swatches"><li><span class="sw" style="background:var(--background)"></span><code>--background</code><code class="hx hx-l">#eef1f5</code><code class="hx hx-d">#0b1018</code></li><li><span class="sw" style="background:var(--foreground)"></span><code>--foreground</code><code class="hx hx-l">#10161f</code><code class="hx hx-d">#e9edf3</code></li><li><span class="sw" style="background:var(--card)"></span><code>--card</code><code class="hx hx-l">#ffffff</code><code class="hx hx-d">#121a26</code></li><li><span class="sw" style="background:var(--card-foreground)"></span><code>--card-foreground</code><code class="hx hx-l">#10161f</code><code class="hx hx-d">#e9edf3</code></li><li><span class="sw" style="background:var(--popover)"></span><code>--popover</code><code class="hx hx-l">#ffffff</code><code class="hx hx-d">#121a26</code></li><li><span class="sw" style="background:var(--popover-foreground)"></span><code>--popover-foreground</code><code class="hx hx-l">#10161f</code><code class="hx hx-d">#e9edf3</code></li><li><span class="sw" style="background:var(--primary)"></span><code>--primary</code><code class="hx hx-l">#10161f</code><code class="hx hx-d">#ffd23f</code></li><li><span class="sw" style="background:var(--primary-foreground)"></span><code>--primary-foreground</code><code class="hx hx-l">#f5f7fa</code><code class="hx hx-d">#0b1018</code></li><li><span class="sw" style="background:var(--secondary)"></span><code>--secondary</code><code class="hx hx-l">#e1e6ee</code><code class="hx hx-d">#1a2433</code></li><li><span class="sw" style="background:var(--secondary-foreground)"></span><code>--secondary-foreground</code><code class="hx hx-l">#10161f</code><code class="hx hx-d">#e9edf3</code></li><li><span class="sw" style="background:var(--muted)"></span><code>--muted</code><code class="hx hx-l">#e5e9ef</code><code class="hx hx-d">#172030</code></li><li><span class="sw" style="background:var(--muted-foreground)"></span><code>--muted-foreground</code><code class="hx hx-l">#4f5a6a</code><code class="hx hx-d">#93a0b4</code></li><li><span class="sw" style="background:var(--accent)"></span><code>--accent</code><code class="hx hx-l">#dde3ec</code><code class="hx hx-d">#1e2a3c</code></li><li><span class="sw" style="background:var(--accent-foreground)"></span><code>--accent-foreground</code><code class="hx hx-l">#10161f</code><code class="hx hx-d">#e9edf3</code></li><li><span class="sw" style="background:var(--destructive)"></span><code>--destructive</code><code class="hx hx-l">#c62828</code><code class="hx hx-d">#ff6b5e</code></li><li><span class="sw" style="background:var(--border)"></span><code>--border</code><code class="hx hx-l">#cfd6e0</code><code class="hx hx-d">#202c3f</code></li><li><span class="sw" style="background:var(--input)"></span><code>--input</code><code class="hx hx-l">#7c8592</code><code class="hx hx-d">#56657d</code></li><li><span class="sw" style="background:var(--ring)"></span><code>--ring</code><code class="hx hx-l">#10161f</code><code class="hx hx-d">#ffd23f</code></li><li><span class="sw" style="background:var(--chart-1)"></span><code>--chart-1</code><code class="hx hx-l">#b98500</code><code class="hx hx-d">#ffd23f</code></li><li><span class="sw" style="background:var(--chart-2)"></span><code>--chart-2</code><code class="hx hx-l">#2f6fd1</code><code class="hx hx-d">#5fb3ff</code></li><li><span class="sw" style="background:var(--chart-3)"></span><code>--chart-3</code><code class="hx hx-l">#d4572a</code><code class="hx hx-d">#ff8f5a</code></li><li><span class="sw" style="background:var(--chart-4)"></span><code>--chart-4</code><code class="hx hx-l">#2e8a55</code><code class="hx hx-d">#7ee0a1</code></li><li><span class="sw" style="background:var(--chart-5)"></span><code>--chart-5</code><code class="hx hx-l">#8a4fd1</code><code class="hx hx-d">#c792ff</code></li><li><span class="sw" style="background:var(--sidebar)"></span><code>--sidebar</code><code class="hx hx-l">#ffffff</code><code class="hx hx-d">#121a26</code></li><li><span class="sw" style="background:var(--sidebar-foreground)"></span><code>--sidebar-foreground</code><code class="hx hx-l">#10161f</code><code class="hx hx-d">#e9edf3</code></li><li><span class="sw" style="background:var(--sidebar-primary)"></span><code>--sidebar-primary</code><code class="hx hx-l">#10161f</code><code class="hx hx-d">#ffd23f</code></li><li><span class="sw" style="background:var(--sidebar-primary-foreground)"></span><code>--sidebar-primary-foreground</code><code class="hx hx-l">#f5f7fa</code><code class="hx hx-d">#0b1018</code></li><li><span class="sw" style="background:var(--sidebar-accent)"></span><code>--sidebar-accent</code><code class="hx hx-l">#dde3ec</code><code class="hx hx-d">#1e2a3c</code></li><li><span class="sw" style="background:var(--sidebar-accent-foreground)"></span><code>--sidebar-accent-foreground</code><code class="hx hx-l">#10161f</code><code class="hx hx-d">#e9edf3</code></li><li><span class="sw" style="background:var(--sidebar-border)"></span><code>--sidebar-border</code><code class="hx hx-l">#cfd6e0</code><code class="hx hx-d">#202c3f</code></li><li><span class="sw" style="background:var(--sidebar-ring)"></span><code>--sidebar-ring</code><code class="hx hx-l">#10161f</code><code class="hx hx-d">#ffd23f</code></li><li><span class="sw" style="background:var(--brand)"></span><code>--brand</code><code class="hx hx-l">#b07e00</code><code class="hx hx-d">#ffd23f</code></li><li><span class="sw" style="background:var(--brand-foreground)"></span><code>--brand-foreground</code><code class="hx hx-l">#10161f</code><code class="hx hx-d">#0b1018</code></li></ul>
+  </footer>
+</section>
+
+<section class="direction direction-terre" aria-labelledby="t-terre">
+  <header class="dir-head">
+    <div>
+      <h2 id="t-terre">Terre et paille</h2>
+      <p>Une spéciale sur terre : gravier gris, poussière, bottes de paille et rubalise rouge et blanche aux chicanes.</p>
+    </div>
+    <button type="button" class="theme-toggle" aria-pressed="false" onclick="const s=this.closest('section');s.classList.toggle('dark');this.setAttribute('aria-pressed',s.classList.contains('dark'));this.textContent=s.classList.contains('dark')?'Voir en clair':'Voir en sombre'">Voir en sombre</button>
+  </header>
+  <div class="mock">
+    <nav class="app-nav" aria-label="Navigation de l’app">
+      <span class="brand-title">Rally</span>
+      <ul>
+        <li><a href="#" class="is-hover">Tracer une spéciale</a></li>
+        <li><a href="#">Mes spéciales</a></li>
+        <li><a href="#">Garage</a></li>
+      </ul>
+      <button type="button" class="btn btn-primary">Prendre le départ</button>
+    </nav>
+    <div class="tr-tape" aria-hidden="true"><span class="tr-chip">Chicane 2, 620 m</span></div>
+    <div class="mock-grid">
+      <article class="card">
+        <h3>Col de la Croix-Fry</h3>
+        <p class="desc">Manigod vers La Clusaz, 7,4 km, tracé par Baptiste</p>
+        <dl class="stats">
+          <div><dt>Virages par km</dt><dd>9,2</dd></div>
+          <div><dt>Dénivelé</dt><dd>+486 m</dd></div>
+          <div><dt>Plus longue ligne droite</dt><dd>380 m</dd></div>
+        </dl>
+        <svg class="profile" viewBox="0 0 300 70" preserveAspectRatio="none" role="img" aria-label="Profil d’altitude de la spéciale">
+          <polyline class="p1" points="0,62 30,58 60,50 90,52 120,40 150,34 180,30 210,22 240,24 270,14 300,10"/>
+          <line class="p2" x1="110" y1="0" x2="110" y2="70"/>
+          <line class="p3" x1="205" y1="0" x2="205" y2="70"/>
+        </svg>
+      </article>
+      <article class="card">
+        <h3>Notes du copilote</h3>
+        <p class="desc">Dictées à la vitesse de la voiture</p>
+        <ol class="notes">
+          <li class="is-current"><span class="badge badge-brand">Maintenant</span> Gauche 4 longue</li>
+          <li>Droite 2 se resserre</li>
+          <li>Crête, ne coupe pas</li>
+          <li>Chicane dans 150</li>
+        </ol>
+      </article>
+      <article class="card">
+        <h3>Chrono</h3>
+        <p class="big-time">4:51.37</p>
+        <ul class="targets">
+          <li><span class="dot d1"></span>Or<b>4:38.00</b></li>
+          <li><span class="dot d2"></span>Argent<b>4:52.00</b></li>
+          <li><span class="dot d3"></span>Bronze<b>5:10.00</b></li>
+        </ul>
+        <p class="badge badge-destructive">Sortie de route au km 3,1 : +5 s</p>
+        <button type="button" class="btn btn-secondary">Copier le lien du défi</button>
+      </article>
+    </div>
+    <div class="field">
+      <label for="f-terre">Point de départ</label>
+      <input id="f-terre" class="is-focus" value="Manigod, Haute-Savoie">
+    </div>
+  </div>
+  <footer class="tokens">
+    <ul class="fonts">
+      <li><code>--font-display</code> <span style="font-family:var(--font-display)">Archivo Black</span></li>
+      <li><code>--font-body</code> <span style="font-family:var(--font-body)">Archivo</span></li>
+      <li><code>--font-mono</code> <span style="font-family:var(--font-mono)">IBM Plex Mono</span></li>
+      <li><code>--radius</code> <span>0.125rem</span></li>
+    </ul>
+    <ul class="swatches"><li><span class="sw" style="background:var(--background)"></span><code>--background</code><code class="hx hx-l">#e6e4e0</code><code class="hx hx-d">#1c1814</code></li><li><span class="sw" style="background:var(--foreground)"></span><code>--foreground</code><code class="hx hx-l">#2b231c</code><code class="hx hx-d">#efe9df</code></li><li><span class="sw" style="background:var(--card)"></span><code>--card</code><code class="hx hx-l">#f4f2ee</code><code class="hx hx-d">#26211b</code></li><li><span class="sw" style="background:var(--card-foreground)"></span><code>--card-foreground</code><code class="hx hx-l">#2b231c</code><code class="hx hx-d">#efe9df</code></li><li><span class="sw" style="background:var(--popover)"></span><code>--popover</code><code class="hx hx-l">#f4f2ee</code><code class="hx hx-d">#26211b</code></li><li><span class="sw" style="background:var(--popover-foreground)"></span><code>--popover-foreground</code><code class="hx hx-l">#2b231c</code><code class="hx hx-d">#efe9df</code></li><li><span class="sw" style="background:var(--primary)"></span><code>--primary</code><code class="hx hx-l">#2b231c</code><code class="hx hx-d">#e8b23a</code></li><li><span class="sw" style="background:var(--primary-foreground)"></span><code>--primary-foreground</code><code class="hx hx-l">#f4f2ee</code><code class="hx hx-d">#1c1814</code></li><li><span class="sw" style="background:var(--secondary)"></span><code>--secondary</code><code class="hx hx-l">#dcd8d1</code><code class="hx hx-d">#322b23</code></li><li><span class="sw" style="background:var(--secondary-foreground)"></span><code>--secondary-foreground</code><code class="hx hx-l">#2b231c</code><code class="hx hx-d">#efe9df</code></li><li><span class="sw" style="background:var(--muted)"></span><code>--muted</code><code class="hx hx-l">#dfdbd4</code><code class="hx hx-d">#2e2820</code></li><li><span class="sw" style="background:var(--muted-foreground)"></span><code>--muted-foreground</code><code class="hx hx-l">#5e554b</code><code class="hx hx-d">#b2a796</code></li><li><span class="sw" style="background:var(--accent)"></span><code>--accent</code><code class="hx hx-l">#d8d3cb</code><code class="hx hx-d">#372f26</code></li><li><span class="sw" style="background:var(--accent-foreground)"></span><code>--accent-foreground</code><code class="hx hx-l">#2b231c</code><code class="hx hx-d">#efe9df</code></li><li><span class="sw" style="background:var(--destructive)"></span><code>--destructive</code><code class="hx hx-l">#b42318</code><code class="hx hx-d">#ff7059</code></li><li><span class="sw" style="background:var(--border)"></span><code>--border</code><code class="hx hx-l">#cbc5bb</code><code class="hx hx-d">#3b3329</code></li><li><span class="sw" style="background:var(--input)"></span><code>--input</code><code class="hx hx-l">#857d72</code><code class="hx hx-d">#74695a</code></li><li><span class="sw" style="background:var(--ring)"></span><code>--ring</code><code class="hx hx-l">#a8720a</code><code class="hx hx-d">#e8b23a</code></li><li><span class="sw" style="background:var(--chart-1)"></span><code>--chart-1</code><code class="hx hx-l">#a8720a</code><code class="hx hx-d">#e8b23a</code></li><li><span class="sw" style="background:var(--chart-2)"></span><code>--chart-2</code><code class="hx hx-l">#2b231c</code><code class="hx hx-d">#efe9df</code></li><li><span class="sw" style="background:var(--chart-3)"></span><code>--chart-3</code><code class="hx hx-l">#b42318</code><code class="hx hx-d">#ff7059</code></li><li><span class="sw" style="background:var(--chart-4)"></span><code>--chart-4</code><code class="hx hx-l">#5a7a2a</code><code class="hx hx-d">#9bc25a</code></li><li><span class="sw" style="background:var(--chart-5)"></span><code>--chart-5</code><code class="hx hx-l">#3f6a91</code><code class="hx hx-d">#7fb0dc</code></li><li><span class="sw" style="background:var(--sidebar)"></span><code>--sidebar</code><code class="hx hx-l">#f4f2ee</code><code class="hx hx-d">#26211b</code></li><li><span class="sw" style="background:var(--sidebar-foreground)"></span><code>--sidebar-foreground</code><code class="hx hx-l">#2b231c</code><code class="hx hx-d">#efe9df</code></li><li><span class="sw" style="background:var(--sidebar-primary)"></span><code>--sidebar-primary</code><code class="hx hx-l">#2b231c</code><code class="hx hx-d">#e8b23a</code></li><li><span class="sw" style="background:var(--sidebar-primary-foreground)"></span><code>--sidebar-primary-foreground</code><code class="hx hx-l">#f4f2ee</code><code class="hx hx-d">#1c1814</code></li><li><span class="sw" style="background:var(--sidebar-accent)"></span><code>--sidebar-accent</code><code class="hx hx-l">#d8d3cb</code><code class="hx hx-d">#372f26</code></li><li><span class="sw" style="background:var(--sidebar-accent-foreground)"></span><code>--sidebar-accent-foreground</code><code class="hx hx-l">#2b231c</code><code class="hx hx-d">#efe9df</code></li><li><span class="sw" style="background:var(--sidebar-border)"></span><code>--sidebar-border</code><code class="hx hx-l">#cbc5bb</code><code class="hx hx-d">#3b3329</code></li><li><span class="sw" style="background:var(--sidebar-ring)"></span><code>--sidebar-ring</code><code class="hx hx-l">#a8720a</code><code class="hx hx-d">#e8b23a</code></li><li><span class="sw" style="background:var(--brand)"></span><code>--brand</code><code class="hx hx-l">#a8720a</code><code class="hx hx-d">#e8b23a</code></li><li><span class="sw" style="background:var(--brand-foreground)"></span><code>--brand-foreground</code><code class="hx hx-l">#121212</code><code class="hx hx-d">#1c1814</code></li></ul>
+  </footer>
+</section>
+</main>
+</body>
+</html>

@@ -1,3 +1,14 @@
+import type { ReactNode } from "react";
+import {
+  SIGN_ART_BENDS,
+  SIGN_ART_BORDER,
+  SIGN_ART_FIELD,
+  SIGN_ART_HEIGHT,
+  SIGN_ART_RIM,
+  SIGN_ART_WIDTH,
+  type SignOutline,
+} from "@/render/scenery/chicaneSignArt";
+import type { PaceChicane } from "@/sim/track/paceNotes";
 import { DISC, PILL } from "./shape";
 
 /** Fond des obstacles : plus sombre que le rouge de la note 1, et en pilule pleine */
@@ -47,13 +58,13 @@ const BumpIcon = () => (
   </>
 );
 
-export const ObstacleIcon = ({ kind }: { kind: "crest" | "bump" }) => (
+/** Pilule rouge pleine et « ! » : un danger posé sur la route */
+const DangerPill = ({ x, children }: { x: number; children: ReactNode }) => (
   <>
     <path d={PILL} fill={DANGER_COLOR} stroke="white" strokeWidth={3} />
-    <circle cx={DISC.x} cy={DISC.y} r={DISC.r} fill="white" />
-    {kind === "crest" ? <CrestIcon /> : <BumpIcon />}
+    {children}
     <text
-      x={78}
+      x={x}
       y={46}
       textAnchor="middle"
       fontSize={36}
@@ -64,4 +75,47 @@ export const ObstacleIcon = ({ kind }: { kind: "crest" | "bump" }) => (
       !
     </text>
   </>
+);
+
+export const ObstacleIcon = ({ kind }: { kind: "crest" | "bump" }) => (
+  <DangerPill x={78}>
+    <circle cx={DISC.x} cy={DISC.y} r={DISC.r} fill="white" />
+    {kind === "crest" ? <CrestIcon /> : <BumpIcon />}
+  </DangerPill>
+);
+
+const toPoints = (outline: SignOutline): string =>
+  outline.map(([x, y]) => `${x},${y}`).join(" ");
+
+/**
+ * Le panneau triangulaire du bord de route, à taille pleine : décalé à droite pour ne pas toucher l'arrondi.
+ * Dessiné pour un premier virage à droite, l'autre sens en est le miroir.
+ */
+export const ChicaneIcon = ({
+  direction,
+}: {
+  direction: PaceChicane["direction"];
+}) => (
+  <DangerPill x={86}>
+    <svg
+      x={13}
+      y={6}
+      width={58}
+      height={51}
+      viewBox={`0 0 ${SIGN_ART_WIDTH} ${SIGN_ART_HEIGHT}`}
+    >
+      <g
+        transform={
+          direction === "left"
+            ? `translate(${SIGN_ART_WIDTH} 0) scale(-1 1)`
+            : undefined
+        }
+      >
+        <polygon points={toPoints(SIGN_ART_RIM)} fill="white" />
+        <polygon points={toPoints(SIGN_ART_BORDER)} fill="#dc2626" />
+        <polygon points={toPoints(SIGN_ART_FIELD)} fill="white" />
+        <polygon points={toPoints(SIGN_ART_BENDS)} fill="#111111" />
+      </g>
+    </svg>
+  </DangerPill>
 );

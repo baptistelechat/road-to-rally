@@ -56,7 +56,25 @@ export interface PaceObstacle {
   endS: number;
 }
 
-export type PaceNote = PaceTurn | PaceObstacle;
+/** Chicane : `direction` est le sens du premier virage, celui du panneau du décor. */
+export interface PaceChicane {
+  kind: "chicane";
+  direction: "left" | "right";
+  startS: number;
+  endS: number;
+}
+
+/** Ligne d'arrivée d'une spéciale. Le circuit boucle et n'en a pas. */
+export interface PaceFinish {
+  kind: "finish";
+  startS: number;
+  endS: number;
+}
+
+/** Ce qui s'annonce comme un virage : seul, en paire. Seuls les virages forment une enfilade. */
+type RoadNote = PaceTurn | PaceChicane | PaceFinish;
+
+export type PaceNote = RoadNote | PaceObstacle;
 
 export interface PaceCall {
   type: "single" | "pair" | "chain";
@@ -254,10 +272,47 @@ const callOf = (type: PaceCall["type"], notes: PaceNote[]): PaceCall => ({
   endS: notes.reduce((end, note) => Math.max(end, note.endS), -Infinity),
 });
 
-/** Enfilades d'abord, puis paires, puis virages seuls. Le tour n'est pas relié à lui-même : la voix repart de la ligne. */
-const groupTurns = (turns: PaceTurn[]): PaceCall[] => {
+/**
+ * Une chicane par paire de blocs (`stageCodec` le valide). Le panneau du décor (`approachSigns`) suit la même règle de sens.
+ * Aller-retour : une chicane du bras se repasse au retour, deuxième bloc d'abord, et son sens change de nom.
+ */
+const findChicanes = (
+  track: Track,
+  sOf: (i: number) => number,
+): PaceChicane[] => {
+  const { obstacles, shared } = track;
+  // Le retour recopie le bras à l'envers, mêmes écarts : une abscisse s'y retrouve en miroir.
+  const armEndS = shared ? sOf(shared.armEnd) : -Infinity;
+  const returnStartS = shared ? sOf(shared.returnStart) : 0;
+  const mirror = (s: number): number => returnStartS + armEndS - s;
+  const chicanes: PaceChicane[] = [];
+  for (let i = 0; i + 1 < obstacles.length; i += 2) {
+    const first = obstacles[i];
+    const second = obstacles[i + 1];
+    chicanes.push({
+      kind: "chicane",
+      direction: first.side === "left" ? "right" : "left",
+      startS: first.s,
+      endS: second.s,
+    });
+    if (second.s < armEndS)
+      chicanes.push({
+        kind: "chicane",
+        direction: second.side,
+        startS: mirror(second.s),
+        endS: mirror(first.s),
+      });
+  }
+  return chicanes;
+};
+
+/** Enfilades d'abord, puis paires, puis notes seules. Le tour n'est pas relié à lui-même : la voix repart de la ligne. */
+const groupTurns = (turns: RoadNote[]): PaceCall[] => {
   const calls: PaceCall[] = [];
-  const isChainable = (i: number): boolean => turns[i].grade <= CHAIN_MAX_GRADE;
+  const isChainable = (i: number): boolean => {
+    const note = turns[i];
+    return note.kind === "turn" && note.grade <= CHAIN_MAX_GRADE;
+  };
   let i = 0;
   while (i < turns.length) {
     let end = i;
@@ -291,14 +346,21 @@ const groupTurns = (turns: PaceTurn[]): PaceCall[] => {
  */
 export const computePaceNotes = (track: Track): PaceNotes => {
   const sOf = abscissae(track);
-  const turns = findTurns(track, sOf);
-  const obstacles = findObstacles(track, sOf);
   const byStart = (a: { startS: number }, b: { startS: number }): number =>
     a.startS - b.startS;
+  const finish: PaceFinish[] = track.closed
+    ? []
+    : [{ kind: "finish", startS: track.finishS, endS: track.finishS }];
+  const road: RoadNote[] = [
+    ...findTurns(track, sOf),
+    ...findChicanes(track, sOf),
+    ...finish,
+  ].sort(byStart);
+  const obstacles = findObstacles(track, sOf);
   return {
-    notes: [...turns, ...obstacles].sort(byStart),
+    notes: [...road, ...obstacles].sort(byStart),
     calls: [
-      ...groupTurns(turns),
+      ...groupTurns(road),
       ...obstacles.map((obstacle) => callOf("single", [obstacle])),
     ].sort(byStart),
   };

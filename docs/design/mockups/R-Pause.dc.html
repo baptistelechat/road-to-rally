@@ -1,0 +1,857 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Retenu — Pause</title>
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Michroma&amp;family=Share+Tech+Mono&amp;display=swap"
+          rel="stylesheet"
+        />
+        <style>
+          body {
+            margin: 0;
+            background: #0b1018;
+          }
+          a {
+            color: #ffd23f;
+          }
+          a:hover {
+            color: #ffe27a;
+          }
+          input[type="range"] {
+            accent-color: #ffd23f;
+          }
+        </style>
+      </helmet>
+      <main
+        style="
+          position: relative;
+          width: 100%;
+          height: 900px;
+          overflow: hidden;
+          background: #0b1018;
+          color: #e9edf3;
+          font-family: Manrope, system-ui, sans-serif;
+        "
+      >
+        <img
+          src="/_blob/5c840cca25c32621cb8c69df16f16860"
+          alt=""
+          style="
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          "
+        />
+        <div
+          aria-hidden="true"
+          style="
+            position: absolute;
+            inset: 0;
+            background: rgba(11, 16, 24, 0.45);
+          "
+        ></div>
+
+        <aside
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="pause-title"
+          style="
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            width: 760px;
+            box-sizing: border-box;
+            padding: 32px 36px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            background: #0b1018;
+            border-right: 1px solid #202c3f;
+            overflow-y: auto;
+          "
+        >
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: baseline;
+            "
+          >
+            <h1
+              id="pause-title"
+              style="
+                margin: 0;
+                font-family: Michroma, sans-serif;
+                font-size: 22px;
+                font-weight: 400;
+              "
+            >
+              Pause
+            </h1>
+            <span
+              style="
+                font-family: &quot;Share Tech Mono&quot;, monospace;
+                font-size: 16px;
+                color: #93a0b4;
+              "
+              >Mountain · 02:31.050</span
+            >
+          </div>
+
+          <div
+            style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 8px"
+          >
+            <button
+              type="button"
+              style="
+                min-height: 52px;
+                background: #ffd23f;
+                color: #0b1018;
+                border: 0;
+                border-radius: 4px;
+                font-family: Manrope, sans-serif;
+                font-size: 17px;
+                font-weight: 800;
+              "
+            >
+              Reprendre
+            </button>
+            <button
+              type="button"
+              style="
+                min-height: 52px;
+                background: transparent;
+                color: #e9edf3;
+                border: 1px solid rgba(233, 237, 243, 0.25);
+                border-radius: 4px;
+                font-family: Manrope, sans-serif;
+                font-size: 14px;
+                font-weight: 600;
+              "
+            >
+              Relancer
+            </button>
+            <button
+              type="button"
+              style="
+                min-height: 52px;
+                background: transparent;
+                color: #e9edf3;
+                border: 1px solid rgba(233, 237, 243, 0.25);
+                border-radius: 4px;
+                font-family: Manrope, sans-serif;
+                font-size: 14px;
+                font-weight: 600;
+              "
+            >
+              Couper le son
+            </button>
+          </div>
+
+          <section aria-labelledby="p-carte">
+            <h2
+              id="p-carte"
+              style="
+                margin: 0 0 8px;
+                font-family: Michroma, sans-serif;
+                font-size: 10px;
+                letter-spacing: 0.18em;
+                color: #93a0b4;
+                font-weight: 400;
+              "
+            >
+              ROAD-BOOK · CARTE
+            </h2>
+            <ol
+              style="
+                margin: 0;
+                padding: 0;
+                list-style: none;
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 6px;
+              "
+            >
+              <li>
+                <button
+                  type="button"
+                  aria-pressed="true"
+                  style="
+                    width: 100%;
+                    min-height: 44px;
+                    padding: 0 10px;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    background: #1e2a3c;
+                    color: #e9edf3;
+                    border: 1px solid #ffd23f;
+                    border-radius: 4px;
+                    font-family: Manrope, sans-serif;
+                    font-size: 14px;
+                    font-weight: 800;
+                    text-align: left;
+                  "
+                >
+                  <span
+                    style="
+                      width: 28px;
+                      height: 28px;
+                      display: grid;
+                      place-items: center;
+                      background: #ffd23f;
+                      color: #0b1018;
+                      border-radius: 3px;
+                      font-family: &quot;Share Tech Mono&quot;, monospace;
+                      font-size: 15px;
+                    "
+                    >01</span
+                  >Mountain
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  aria-pressed="false"
+                  style="
+                    width: 100%;
+                    min-height: 44px;
+                    padding: 0 10px;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    background: transparent;
+                    color: #e9edf3;
+                    border: 1px solid #202c3f;
+                    border-radius: 4px;
+                    font-family: Manrope, sans-serif;
+                    font-size: 14px;
+                    font-weight: 700;
+                    text-align: left;
+                  "
+                >
+                  <span
+                    style="
+                      width: 28px;
+                      height: 28px;
+                      display: grid;
+                      place-items: center;
+                      border: 1px solid #56657d;
+                      border-radius: 3px;
+                      font-family: &quot;Share Tech Mono&quot;, monospace;
+                      font-size: 15px;
+                    "
+                    >02</span
+                  >Road
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  aria-pressed="false"
+                  style="
+                    width: 100%;
+                    min-height: 44px;
+                    padding: 0 10px;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    background: transparent;
+                    color: #e9edf3;
+                    border: 1px solid #202c3f;
+                    border-radius: 4px;
+                    font-family: Manrope, sans-serif;
+                    font-size: 14px;
+                    font-weight: 700;
+                    text-align: left;
+                  "
+                >
+                  <span
+                    style="
+                      width: 28px;
+                      height: 28px;
+                      display: grid;
+                      place-items: center;
+                      border: 1px solid #56657d;
+                      border-radius: 3px;
+                      font-family: &quot;Share Tech Mono&quot;, monospace;
+                      font-size: 15px;
+                    "
+                    >03</span
+                  >Pace notes
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  aria-pressed="false"
+                  style="
+                    width: 100%;
+                    min-height: 44px;
+                    padding: 0 10px;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    background: transparent;
+                    color: #e9edf3;
+                    border: 1px solid #202c3f;
+                    border-radius: 4px;
+                    font-family: Manrope, sans-serif;
+                    font-size: 14px;
+                    font-weight: 700;
+                    text-align: left;
+                  "
+                >
+                  <span
+                    style="
+                      width: 28px;
+                      height: 28px;
+                      display: grid;
+                      place-items: center;
+                      border: 1px solid #56657d;
+                      border-radius: 3px;
+                      font-family: &quot;Share Tech Mono&quot;, monospace;
+                      font-size: 15px;
+                    "
+                    >04</span
+                  >Track
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  style="
+                    width: 100%;
+                    min-height: 44px;
+                    padding: 0 10px;
+                    background: transparent;
+                    color: #93a0b4;
+                    border: 1px dashed #56657d;
+                    border-radius: 4px;
+                    font-family: Manrope, sans-serif;
+                    font-size: 13px;
+                    font-weight: 600;
+                    text-align: left;
+                  "
+                >
+                  + Importer un GPX
+                </button>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  style="
+                    width: 100%;
+                    min-height: 44px;
+                    box-sizing: border-box;
+                    padding: 0 10px;
+                    display: flex;
+                    align-items: center;
+                    color: #93a0b4;
+                    border: 1px dashed #56657d;
+                    border-radius: 4px;
+                    font-size: 13px;
+                    font-weight: 600;
+                    text-decoration: none;
+                  "
+                  >Ouvrir l'éditeur</a
+                >
+              </li>
+            </ol>
+          </section>
+
+          <div
+            style="
+              display: grid;
+              grid-template-columns: repeat(2, minmax(0, 1fr));
+              gap: 28px;
+            "
+          >
+            <section
+              aria-labelledby="p-affichage"
+              style="display: flex; flex-direction: column; gap: 12px"
+            >
+              <h2
+                id="p-affichage"
+                style="
+                  margin: 0;
+                  font-family: Michroma, sans-serif;
+                  font-size: 10px;
+                  letter-spacing: 0.18em;
+                  color: #93a0b4;
+                  font-weight: 400;
+                "
+              >
+                AFFICHAGE
+              </h2>
+              <div
+                role="group"
+                aria-label="Style du HUD"
+                style="display: flex; flex-direction: column; gap: 6px"
+              >
+                <span style="font-size: 13px; font-weight: 700"
+                  >Style du HUD</span
+                >
+                <div
+                  style="
+                    display: grid;
+                    grid-template-columns: repeat(2, minmax(0, 1fr));
+                    gap: 6px;
+                  "
+                >
+                  <button
+                    type="button"
+                    aria-pressed="true"
+                    style="
+                      min-height: 40px;
+                      background: #1e2a3c;
+                      color: #ffd23f;
+                      border: 1px solid #ffd23f;
+                      border-radius: 4px;
+                      font-family: Manrope, sans-serif;
+                      font-size: 13px;
+                      font-weight: 800;
+                    "
+                  >
+                    Cockpit
+                  </button>
+                  <button
+                    type="button"
+                    aria-pressed="false"
+                    style="
+                      min-height: 40px;
+                      background: transparent;
+                      color: #e9edf3;
+                      border: 1px solid #202c3f;
+                      border-radius: 4px;
+                      font-family: Manrope, sans-serif;
+                      font-size: 13px;
+                      font-weight: 600;
+                    "
+                  >
+                    Broadcast
+                  </button>
+                </div>
+              </div>
+              <div
+                role="group"
+                aria-label="Compteur"
+                style="display: flex; flex-direction: column; gap: 6px"
+              >
+                <span style="font-size: 13px; font-weight: 700">Compteur</span>
+                <div
+                  style="
+                    display: grid;
+                    grid-template-columns: repeat(2, minmax(0, 1fr));
+                    gap: 6px;
+                  "
+                >
+                  <button
+                    type="button"
+                    aria-pressed="true"
+                    style="
+                      min-height: 40px;
+                      background: #1e2a3c;
+                      color: #ffd23f;
+                      border: 1px solid #ffd23f;
+                      border-radius: 4px;
+                      font-family: Manrope, sans-serif;
+                      font-size: 12px;
+                      font-weight: 800;
+                    "
+                  >
+                    Chiffres et LED
+                  </button>
+                  <button
+                    type="button"
+                    aria-pressed="false"
+                    style="
+                      min-height: 40px;
+                      background: transparent;
+                      color: #e9edf3;
+                      border: 1px solid #202c3f;
+                      border-radius: 4px;
+                      font-family: Manrope, sans-serif;
+                      font-size: 12px;
+                      font-weight: 600;
+                    "
+                  >
+                    Cadran à aiguille
+                  </button>
+                  <button
+                    type="button"
+                    aria-pressed="false"
+                    style="
+                      min-height: 40px;
+                      background: transparent;
+                      color: #e9edf3;
+                      border: 1px solid #202c3f;
+                      border-radius: 4px;
+                      font-family: Manrope, sans-serif;
+                      font-size: 12px;
+                      font-weight: 600;
+                    "
+                  >
+                    Arc de régime
+                  </button>
+                  <button
+                    type="button"
+                    aria-pressed="false"
+                    style="
+                      min-height: 40px;
+                      background: transparent;
+                      color: #e9edf3;
+                      border: 1px solid #202c3f;
+                      border-radius: 4px;
+                      font-family: Manrope, sans-serif;
+                      font-size: 12px;
+                      font-weight: 600;
+                    "
+                  >
+                    Télémétrie
+                  </button>
+                </div>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 6px">
+                <label for="p-minimap" style="font-size: 13px; font-weight: 700"
+                  >Mini-carte</label
+                >
+                <select
+                  id="p-minimap"
+                  style="
+                    min-height: 40px;
+                    padding: 0 10px;
+                    background: #121a26;
+                    color: #e9edf3;
+                    border: 1px solid #56657d;
+                    border-radius: 4px;
+                    font-family: Manrope, sans-serif;
+                    font-size: 13px;
+                    font-weight: 600;
+                  "
+                >
+                  <option>Zoom, cap en haut</option>
+                  <option>Aucune</option>
+                  <option>Globale</option>
+                  <option>Zoom, nord en haut</option>
+                  <option>Zoom et vue globale</option>
+                </select>
+              </div>
+              <div
+                role="group"
+                aria-label="Icônes de virage"
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                "
+              >
+                <span style="font-size: 13px; font-weight: 700"
+                  >Icônes de virage</span
+                >
+                <span style="display: flex; gap: 4px">
+                  <button
+                    type="button"
+                    aria-pressed="true"
+                    style="
+                      min-height: 36px;
+                      padding: 0 12px;
+                      background: #1e2a3c;
+                      color: #ffd23f;
+                      border: 1px solid #ffd23f;
+                      border-radius: 4px;
+                      font-family: Manrope, sans-serif;
+                      font-size: 12px;
+                      font-weight: 800;
+                    "
+                  >
+                    Activées
+                  </button>
+                  <button
+                    type="button"
+                    aria-pressed="false"
+                    style="
+                      min-height: 36px;
+                      padding: 0 12px;
+                      background: transparent;
+                      color: #e9edf3;
+                      border: 1px solid #202c3f;
+                      border-radius: 4px;
+                      font-family: Manrope, sans-serif;
+                      font-size: 12px;
+                      font-weight: 600;
+                    "
+                  >
+                    Désactivées
+                  </button>
+                </span>
+              </div>
+            </section>
+
+            <section
+              aria-labelledby="p-audio"
+              style="display: flex; flex-direction: column; gap: 12px"
+            >
+              <h2
+                id="p-audio"
+                style="
+                  margin: 0;
+                  font-family: Michroma, sans-serif;
+                  font-size: 10px;
+                  letter-spacing: 0.18em;
+                  color: #93a0b4;
+                  font-weight: 400;
+                "
+              >
+                AUDIO ET COPILOTE
+              </h2>
+              <div
+                role="group"
+                aria-label="Voix du copilote"
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                "
+              >
+                <span style="font-size: 13px; font-weight: 700"
+                  >Voix du copilote</span
+                >
+                <span style="display: flex; gap: 4px">
+                  <button
+                    type="button"
+                    aria-pressed="true"
+                    style="
+                      min-height: 36px;
+                      padding: 0 12px;
+                      background: #1e2a3c;
+                      color: #ffd23f;
+                      border: 1px solid #ffd23f;
+                      border-radius: 4px;
+                      font-family: Manrope, sans-serif;
+                      font-size: 12px;
+                      font-weight: 800;
+                    "
+                  >
+                    Activée
+                  </button>
+                  <button
+                    type="button"
+                    aria-pressed="false"
+                    style="
+                      min-height: 36px;
+                      padding: 0 12px;
+                      background: transparent;
+                      color: #e9edf3;
+                      border: 1px solid #202c3f;
+                      border-radius: 4px;
+                      font-family: Manrope, sans-serif;
+                      font-size: 12px;
+                      font-weight: 600;
+                    "
+                  >
+                    Désactivée
+                  </button>
+                </span>
+              </div>
+              <div
+                role="group"
+                aria-label="Voix"
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                "
+              >
+                <span style="font-size: 13px; font-weight: 700">Voix</span>
+                <span style="display: flex; gap: 4px">
+                  <button
+                    type="button"
+                    aria-pressed="true"
+                    style="
+                      min-height: 36px;
+                      padding: 0 12px;
+                      background: #1e2a3c;
+                      color: #ffd23f;
+                      border: 1px solid #ffd23f;
+                      border-radius: 4px;
+                      font-family: Manrope, sans-serif;
+                      font-size: 12px;
+                      font-weight: 800;
+                    "
+                  >
+                    Féminine
+                  </button>
+                  <button
+                    type="button"
+                    aria-pressed="false"
+                    style="
+                      min-height: 36px;
+                      padding: 0 12px;
+                      background: transparent;
+                      color: #e9edf3;
+                      border: 1px solid #202c3f;
+                      border-radius: 4px;
+                      font-family: Manrope, sans-serif;
+                      font-size: 12px;
+                      font-weight: 600;
+                    "
+                  >
+                    Masculine
+                  </button>
+                </span>
+              </div>
+              <div
+                style="
+                  display: grid;
+                  grid-template-columns: 1fr 40px;
+                  align-items: center;
+                  row-gap: 2px;
+                  column-gap: 10px;
+                "
+              >
+                <label
+                  for="p-vvoix"
+                  style="grid-column: 1 / -1; font-size: 13px; font-weight: 700"
+                  >Volume de la voix</label
+                >
+                <input
+                  id="p-vvoix"
+                  type="range"
+                  min="0"
+                  max="100"
+                  value="80"
+                  style="width: 100%"
+                />
+                <span
+                  style="
+                    font-family: &quot;Share Tech Mono&quot;, monospace;
+                    font-size: 14px;
+                    text-align: right;
+                  "
+                  >80</span
+                >
+              </div>
+              <div
+                style="
+                  display: grid;
+                  grid-template-columns: 1fr 40px;
+                  align-items: center;
+                  row-gap: 2px;
+                  column-gap: 10px;
+                "
+              >
+                <label
+                  for="p-vmoteur"
+                  style="grid-column: 1 / -1; font-size: 13px; font-weight: 700"
+                  >Volume du moteur</label
+                >
+                <input
+                  id="p-vmoteur"
+                  type="range"
+                  min="0"
+                  max="100"
+                  value="60"
+                  style="width: 100%"
+                />
+                <span
+                  style="
+                    font-family: &quot;Share Tech Mono&quot;, monospace;
+                    font-size: 14px;
+                    text-align: right;
+                  "
+                  >60</span
+                >
+              </div>
+              <div
+                style="
+                  display: grid;
+                  grid-template-columns: 1fr 40px;
+                  align-items: center;
+                  row-gap: 2px;
+                  column-gap: 10px;
+                "
+              >
+                <label
+                  for="p-veffets"
+                  style="grid-column: 1 / -1; font-size: 13px; font-weight: 700"
+                  >Volume des effets</label
+                >
+                <input
+                  id="p-veffets"
+                  type="range"
+                  min="0"
+                  max="100"
+                  value="70"
+                  style="width: 100%"
+                />
+                <span
+                  style="
+                    font-family: &quot;Share Tech Mono&quot;, monospace;
+                    font-size: 14px;
+                    text-align: right;
+                  "
+                  >70</span
+                >
+              </div>
+            </section>
+          </div>
+
+          <div style="flex: 1"></div>
+          <nav aria-label="Quitter la course" style="display: flex; gap: 8px">
+            <a
+              href="Garage.dc.html"
+              style="
+                flex: 1;
+                min-height: 44px;
+                display: grid;
+                place-items: center;
+                color: #e9edf3;
+                border: 1px solid rgba(233, 237, 243, 0.25);
+                border-radius: 4px;
+                font-size: 14px;
+                font-weight: 600;
+                text-decoration: none;
+              "
+              >Garage</a
+            >
+            <a
+              href="R-Menu.dc.html"
+              style="
+                flex: 1;
+                min-height: 44px;
+                display: grid;
+                place-items: center;
+                color: #e9edf3;
+                border: 1px solid rgba(233, 237, 243, 0.25);
+                border-radius: 4px;
+                font-size: 14px;
+                font-weight: 600;
+                text-decoration: none;
+              "
+              >Menu principal</a
+            >
+          </nav>
+        </aside>
+      </main>
+    </x-dc>
+    <script
+      type="text/x-dc"
+      data-dc-script
+      data-props='{"$preview":{"width":1440,"height":900}}'
+    >
+      class Component extends DCLogic {
+        renderVals() { return {}; }
+      }
+    </script>
+  </body>
+</html>

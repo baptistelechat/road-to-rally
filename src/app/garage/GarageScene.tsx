@@ -16,7 +16,7 @@ import { useGarageMenu } from "./useGarageMenu";
 
 const TURN_SPEED = 0.25;
 const PLATE_HEIGHT = 0.04;
-const NIGHT = "#0b0e14";
+const NIGHT = "#0b1018"; // = --background (.dark)
 
 const PAD_HELP: readonly (readonly [string, string])[] = [
   ["Croix / Stick gauche", "Naviguer"],
@@ -57,7 +57,7 @@ export const GarageScene = () => {
   const [menu, dispatch] = useGarageMenu();
 
   return (
-    <div className="fixed inset-0 bg-[#0b0e14]">
+    <div className="fixed inset-0 bg-background">
       <Canvas
         shadows="percentage"
         camera={{ position: [-4.4, 2, -5.2], fov: 44, near: 0.1, far: 60 }}
@@ -104,7 +104,7 @@ export const GarageScene = () => {
       <LiveryPanel menu={menu} dispatch={dispatch} />
       <div className="absolute right-4 bottom-4 flex flex-col items-end gap-2">
         {padConnected && (
-          <dl className="grid grid-cols-[auto_auto] gap-x-3 gap-y-0.5 rounded border border-white/25 bg-black/70 px-3 py-2 text-xs text-white">
+          <dl className="grid grid-cols-[auto_auto] gap-x-3 gap-y-0.5 rounded border border-foreground/25 bg-background/70 px-3 py-2 text-xs text-foreground">
             {PAD_HELP.map(([control, role]) => (
               <div key={control} className="contents">
                 <dt className="font-mono font-semibold">{control}</dt>
@@ -115,7 +115,7 @@ export const GarageScene = () => {
         )}
         <button
           type="button"
-          className={`rounded border border-white/25 bg-black/70 px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-black/85 focus-visible:outline-2 focus-visible:outline-amber-400 ${menu.row === ROTATION_ROW ? MENU_FOCUS : ""}`}
+          className={`rounded border border-foreground/25 bg-background/70 px-3 py-1.5 text-sm font-semibold text-foreground transition-colors hover:bg-background/85 focus-visible:outline-2 focus-visible:outline-brand ${menu.row === ROTATION_ROW ? MENU_FOCUS : ""}`}
           onClick={() => dispatch({ type: "row", row: ROTATION_ROW })}
         >
           {menu.paused

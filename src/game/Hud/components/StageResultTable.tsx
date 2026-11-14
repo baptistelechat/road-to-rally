@@ -12,7 +12,7 @@ interface StageResultTableProps {
 
 const Delta = ({ ms }: { ms: number | null }) =>
   ms === null ? (
-    <span className="text-white/40">—</span>
+    <span className="text-foreground/40">—</span>
   ) : (
     <span className={deltaColor(ms)}>{formatSignedLap(ms)}</span>
   );
@@ -29,7 +29,7 @@ export const StageResultTable = ({
   deltaMs,
   penaltyMs,
 }: StageResultTableProps) => (
-  <table className="w-full border-t border-white/15 text-sm">
+  <table className="w-full border-t border-foreground/15 text-sm">
     <caption className="sr-only">Temps par secteur et écart au record</caption>
     <thead>
       <tr>
@@ -57,7 +57,7 @@ export const StageResultTable = ({
         </tr>
       ))}
     </tbody>
-    <tfoot className="border-t border-white/30">
+    <tfoot className="border-t border-foreground/30">
       <tr className="text-base font-bold">
         <th scope="row" className="py-1 text-left">
           Total
@@ -68,10 +68,10 @@ export const StageResultTable = ({
         </td>
       </tr>
       <tr className="text-xs">
-        <th scope="row" className="py-1 text-left font-normal text-white/70">
+        <th scope="row" className="py-1 text-left font-normal text-foreground/70">
           Dont pénalités
         </th>
-        <td className={`${cell} ${penaltyMs > 0 ? "text-red-500" : ""}`}>
+        <td className={`${cell} ${penaltyMs > 0 ? "text-destructive" : ""}`}>
           {penaltyMs > 0 ? formatSignedLap(penaltyMs) : "Aucune"}
         </td>
         <td />

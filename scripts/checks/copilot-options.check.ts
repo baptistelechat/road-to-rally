@@ -7,7 +7,6 @@ import {
   loadCopilotOptions,
   parseCopilotOptions,
   saveCopilotOptions,
-  type SpeechRate,
 } from "../../src/game/copilotOptions";
 import { menuCancelTarget } from "../../src/game/Hud/applyMenuAction";
 import { setCopilotOptions, useHudStore } from "../../src/game/hudStore";
@@ -18,13 +17,14 @@ import { createStageTrack } from "../../src/sim/track/stage";
 
 const CHANGED: CopilotOptions = {
   voiceEnabled: false,
-  speechRate: "rapide",
+  voice: "siwis-nicola",
   voiceVolume: 30,
   engineVolume: 70,
   effectsVolume: 0,
   paceIconsEnabled: false,
   miniMapEnabled: false,
   miniMapStyle: "hybrid",
+  speedometerStyle: "arc",
   ghostEnabled: false,
 };
 
@@ -54,21 +54,22 @@ const checkUnreadable = (): void => {
     parseCopilotOptions(
       JSON.stringify({
         voiceEnabled: "non",
-        speechRate: "toString",
+        voice: "toString",
         voiceVolume: 33,
         engineVolume: "100",
         effectsVolume: 101,
         paceIconsEnabled: 0,
         miniMapEnabled: null,
         miniMapStyle: "rotation",
+        speedometerStyle: "toString",
       }),
     ),
     defaultCopilotOptions,
     "valeurs de mauvais type",
   );
   assert.deepEqual(
-    parseCopilotOptions('{"voiceVolume":0,"speechRate":"lent","x":1}'),
-    { ...defaultCopilotOptions, voiceVolume: 0, speechRate: "lent" },
+    parseCopilotOptions('{"voiceVolume":0,"voice":"siwis-nicola","x":1}'),
+    { ...defaultCopilotOptions, voiceVolume: 0, voice: "siwis-nicola" },
     "les valeurs valides restent, 0 % compris",
   );
 };
@@ -127,12 +128,12 @@ const DT = 1 / 60;
 const SPEED = 15;
 
 /** Toutes les annonces d'une spéciale à vitesse constante, avec l'abscisse de la fin de chaque phrase. */
-const driveCues = (speechRate: SpeechRate) => {
+const driveCues = (choice: CopilotOptions["voice"]) => {
   const track = createStageTrack(createNotesBenchStage());
   const voice = createCopilotVoice(() => null);
   applyAudioOptions(
     { voice, setVoiceEnabled: () => undefined, setMix: () => undefined },
-    { ...defaultCopilotOptions, speechRate },
+    { ...defaultCopilotOptions, voice: choice },
   );
   const cue = createPaceNoteCue(track, computePaceNotes(track).calls, {
     durationOf: (call, short) => voice.durationOf(call, { short }),
@@ -160,19 +161,14 @@ const driveCues = (speechRate: SpeechRate) => {
   return cues;
 };
 
-const checkRateMovesCues = (): void => {
-  const slow = driveCues("lent");
-  const fast = driveCues("rapide");
-  assert.ok(slow.length > 0);
-  for (const cues of [slow, fast])
+/** Sans fichier dans Node, chaque voix prend la durée de repli : les phrases finissent quand même avant la note. */
+const checkCuesEndInTime = (): void => {
+  for (const choice of ["siwis", "siwis-nicola"] as const) {
+    const cues = driveCues(choice);
+    assert.ok(cues.length > 0);
     for (const { startS, endsAt } of cues)
       assert.ok(endsAt <= startS, `phrase finie après le virage (${startS})`);
-  const earlier = slow.filter((cue) =>
-    fast.some(
-      ({ index, firedAt }) => index === cue.index && cue.firedAt < firedAt,
-    ),
-  );
-  assert.ok(earlier.length > 0, "plus lent : annonce plus tôt");
+  }
 };
 
 const checkMix = (): void => {
@@ -193,6 +189,6 @@ export default async function check(): Promise<void> {
   checkBlocked();
   checkRoundTrip();
   checkCancel();
-  checkRateMovesCues();
+  checkCuesEndInTime();
   checkMix();
 }

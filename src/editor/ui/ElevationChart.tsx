@@ -117,14 +117,14 @@ export const ElevationChart = ({
           y={0}
           width={startX}
           height={HEIGHT}
-          className="fill-neutral-900/60"
+          className="fill-background/60"
         />
         <rect
           x={finishX}
           y={0}
           width={WIDTH - finishX}
           height={HEIGHT}
-          className="fill-neutral-900/60"
+          className="fill-background/60"
         />
         {[startX, finishX].map((x) => (
           <line
@@ -134,7 +134,7 @@ export const ElevationChart = ({
             y1={0}
             y2={HEIGHT}
             vectorEffect="non-scaling-stroke"
-            className="stroke-neutral-100"
+            className="stroke-foreground"
           />
         ))}
       </>
@@ -185,14 +185,14 @@ export const ElevationChart = ({
         />
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute top-0 pl-1 text-xs text-neutral-100"
+          className="pointer-events-none absolute top-0 pl-1 text-xs text-foreground"
           style={{ left: `${(xOf(startS) / WIDTH) * 100}%` }}
         >
           Départ
         </span>
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute top-0 -translate-x-full pr-1 text-xs text-neutral-100"
+          className="pointer-events-none absolute top-0 -translate-x-full pr-1 text-xs text-foreground"
           style={{ left: `${(xOf(finishS) / WIDTH) * 100}%` }}
         >
           Arrivée
@@ -201,11 +201,11 @@ export const ElevationChart = ({
           <div
             aria-hidden="true"
             data-testid="elevation-cursor"
-            className="pointer-events-none absolute inset-y-0 w-px bg-amber-300"
+            className="pointer-events-none absolute inset-y-0 w-px bg-brand"
             style={{ left: `${(xOf(abscissas[cursorIndex]) / WIDTH) * 100}%` }}
           >
             <span
-              className="absolute size-2 -translate-1/2 rounded-full bg-amber-300"
+              className="absolute size-2 -translate-1/2 rounded-full bg-brand"
               style={{
                 top: `${(yOf(altitudes[cursorIndex]) / HEIGHT) * 100}%`,
               }}

@@ -192,7 +192,7 @@ export const RollPanel = () => {
                     !removals.some(({ message }) => message === warning),
                 )
                 .map((warning) => (
-                  <p key={warning} className="text-amber-400">
+                  <p key={warning} className="text-brand">
                     {warning}
                   </p>
                 ))}

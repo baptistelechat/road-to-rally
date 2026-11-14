@@ -112,8 +112,8 @@ const Scene = ({
       <StartLights track={sim.track} getCountdown={sim.countdown} />
       <SceneryView items={staticScenery} />
       <LightPropsView props={sim.props} />
-      {/* Les trois panneaux à la fois : FPS, ms et mémoire. */}
-      <Stats className="!top-auto !bottom-4 !left-1/2 !flex -translate-x-1/2 gap-px [&>canvas]:!block" />
+      {/* Les trois panneaux à la fois : FPS, ms et mémoire. Sous la mini-carte (`top-16`, `size-40`), aligné sur son bord droit. */}
+      <Stats className="!top-58 !right-4 !left-auto !flex flex-col gap-px [&>canvas]:!block" />
       <CarModel source={source} livery={livery} />
       <GhostCar source={ghostSource} />
       <DustParticles source={source} pool={dust} />
@@ -126,7 +126,7 @@ const Scene = ({
 };
 
 const screen =
-  "fixed inset-0 grid place-items-center bg-neutral-900 p-8 text-center text-neutral-400";
+  "fixed inset-0 grid place-items-center bg-background p-8 text-center text-muted-foreground";
 
 interface GameProps {
   /** Spéciale de l'éditeur, déjà relue depuis le cache par `GameEntry` */
@@ -155,7 +155,7 @@ export const Game = ({ initialStage }: GameProps) => {
           <p>Impossible de charger la carte « {map.label} ».</p>
           <a
             href={mapSearch("track")}
-            className="font-semibold text-amber-400 underline focus-visible:outline-2 focus-visible:outline-amber-400"
+            className="font-semibold text-brand underline focus-visible:outline-2 focus-visible:outline-brand"
           >
             Revenir au circuit
           </a>
@@ -173,7 +173,7 @@ export const Game = ({ initialStage }: GameProps) => {
     );
 
   return (
-    <div className="fixed inset-0 bg-neutral-900">
+    <div className="fixed inset-0 bg-background">
       <Canvas
         shadows="percentage"
         dpr={[1, 1.75]}

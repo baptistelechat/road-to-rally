@@ -44,10 +44,10 @@ export const StageProgress = ({ status }: { status: ImportStatus }) => {
             aria-label={`Génération de ${status.fileName}`}
             max={STEPS.length}
             value={stepIndex + 1}
-            className="h-2 w-full accent-amber-400"
+            className="h-2 w-full accent-brand"
           />
           {status.step === "routes" && (
-            <p className="text-xs text-white/80">
+            <p className="text-xs text-muted-foreground">
               Cette étape dure souvent près de 2 minutes : le service des routes
               OpenStreetMap est lent. Rien n&apos;a planté.
             </p>
@@ -56,10 +56,10 @@ export const StageProgress = ({ status }: { status: ImportStatus }) => {
       )}
       {status.kind === "failed" && (
         <div role="alert">
-          <p className="font-semibold text-amber-400">
+          <p className="font-semibold text-brand">
             {ERROR_TITLES[status.code]}
           </p>
-          <p className="text-white/80">{status.message}</p>
+          <p className="text-muted-foreground">{status.message}</p>
         </div>
       )}
     </div>

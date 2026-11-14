@@ -17,9 +17,9 @@ export const SplitMarkers = () =>
       rotationAlignment="map"
     >
       <MarkerContent className="cursor-help">
-        <span className="block h-1.5 w-7 rounded-full border border-black/70 bg-white shadow" />
+        <span className="block h-1.5 w-7 rounded-full border border-background/70 bg-foreground shadow" />
         <span
-          className="absolute top-1/2 left-full ml-1 text-xs font-bold text-white [text-shadow:0_0_3px_black]"
+          className="absolute top-1/2 left-full ml-1 text-xs font-bold text-foreground [text-shadow:0_0_3px_black]"
           style={{ transform: `translateY(-50%) rotate(${-bearing}deg)` }}
         >
           {i + 1}

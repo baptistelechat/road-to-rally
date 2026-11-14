@@ -1,0 +1,109 @@
+<!-- @dsCard height=288 -->
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Michroma&family=Manrope:wght@500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 288px;
+        background: var(--background);
+        overflow: hidden;
+      }
+      .cover {
+        position: relative;
+        width: 960px;
+        height: 288px;
+      }
+      .cover svg {
+        position: absolute;
+        inset: 0;
+      }
+      .sky {
+        fill: var(--scene-sky-horizon);
+      }
+      .shadow {
+        fill: var(--scene-mountain-shadow);
+      }
+      .mid {
+        fill: var(--scene-mountain-mid);
+      }
+      .light {
+        fill: var(--scene-mountain-light);
+      }
+      .road {
+        fill: var(--scene-road);
+      }
+      .brand {
+        fill: var(--brand);
+      }
+      .tile {
+        rx: var(--radius-lg);
+      }
+      .name {
+        position: absolute;
+        left: 40px;
+        bottom: 56px;
+        max-width: 440px;
+        margin: 0;
+        font-family: "Michroma", sans-serif;
+        font-weight: 400;
+        font-size: 64px;
+        line-height: 0.96;
+        letter-spacing: 0;
+        color: var(--foreground);
+      }
+      .tagline {
+        position: absolute;
+        left: 40px;
+        bottom: 28px;
+        max-width: 440px;
+        margin: 0;
+        font-family: "Manrope", system-ui, sans-serif;
+        font-weight: 500;
+        font-size: 13px;
+        line-height: 18px;
+        color: var(--muted-foreground);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="cover">
+      <svg viewBox="0 0 960 288" width="960" height="288" aria-hidden="true">
+        <!--
+      Blocs : scene-sky-horizon 400×288 (dalle), scene-mountain-shadow 160×96, scene-road 112×96, brand 128×56 (faisceau des phares).
+      Disposition : une dalle haute qui déborde à droite, les satellites empilés en bas à gauche de la zone (x ≥ 480), comme le sol et la route sous le ciel.
+      Motif : facettes triangulaires (ligne « un motif littéral → sa silhouette ») : le monde low-poly est taillé en triangles plats, c'est ce qui le distingue d'un autre jeu de nuit.
+      Échelles : pas de 16 px (space-panel-x), triangles sur une grille de 48 px, coins radius-lg (4 px).
+    -->
+        <rect class="sky tile" x="560" y="0" width="400" height="288" />
+        <rect class="shadow tile" x="480" y="192" width="160" height="96" />
+        <rect class="road tile" x="656" y="192" width="112" height="96" />
+        <rect class="brand tile" x="480" y="120" width="128" height="56" />
+        <polygon class="light" points="608,192 704,48 752,192" />
+        <polygon class="mid" points="704,48 752,192 800,96" />
+        <polygon class="shadow" points="752,192 800,96 848,192" />
+        <polygon class="light" points="800,96 896,0 896,144" />
+        <polygon class="mid" points="800,96 848,192 896,144" />
+        <polygon class="shadow" points="896,0 960,48 896,144" />
+        <polygon class="mid" points="896,144 960,48 960,192" />
+        <polygon class="shadow" points="848,192 896,144 960,192" />
+        <polygon class="light" points="784,240 832,192 880,240" />
+        <polygon class="mid" points="832,192 880,240 928,192" />
+        <polygon class="brand" points="880,240 928,192 960,240" />
+        <polygon class="shadow" points="784,240 880,240 832,288" />
+        <polygon class="mid" points="880,240 960,240 928,288" />
+      </svg>
+      <h1 class="name">Road to<br />Rally</h1>
+      <p class="tagline">La spéciale de nuit dans un monde low-poly.</p>
+    </div>
+  </body>
+</html>

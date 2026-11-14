@@ -1,35 +1,29 @@
-"""Génère les mots du copilote avec Kokoro. Voir public/audio/copilot/CREDITS.md pour l'installation.
+"""Génère les notes du copilote avec Kokoro, une par note entière. Voir public/audio/copilot/CREDITS.md pour l'installation.
 
-Usage : python scripts/generate-copilot-words.py kokoro-v1.0.int8.onnx voices-v1.0.bin public/audio/copilot [vitesse]
+Usage : python -X utf8 scripts/generate-copilot-words.py kokoro-v1.0.int8.onnx voices-v1.0.bin public/audio/copilot
 
-Un nouveau mot s'ajoute ici et dans `PACE_WORDS` (src/audio/paceNoteWords.ts).
+Même liste que `PACE_CLIPS` (src/audio/paceNoteWords.ts) : une note ajoutée l'est aux deux endroits.
 """
 import sys
+import unicodedata
 import wave
 from pathlib import Path
 
 import numpy as np
 from kokoro_onnx import Kokoro
 
-# Nom du fichier -> texte dit. Le point final garde une intonation posée.
-WORDS = {
-    "gauche": "Gauche.",
-    "droite": "Droite.",
-    "un": "Un.",
-    "deux": "Deux.",
-    "trois": "Trois.",
-    "quatre": "Quatre.",
-    "cinq": "Cinq.",
-    "six": "Six.",
-    "longue": "Longue.",
-    "se-resserre": "Se resserre.",
-    "crete": "Crête.",
-    "bosse": "Bosse.",
-    "attention": "Attention.",
-    "puis": "Puis.",
-    "enfilade": "Enfilade.",
-}
-VOICE = "ff_siwis"
+GRADES = ["un", "deux", "trois", "quatre", "cinq", "six"]
+NOTES = [
+    " ".join([side, grade] + (["long"] if long else []) + (["se resserre"] if tightens else []))
+    for side in ["gauche", "droite"]
+    for grade in GRADES
+    for long in [False, True]
+    for tightens in [False, True]
+] + ["attention crête", "attention bosse", "chicane gauche", "chicane droite", "arrivée"]
+CLIPS = NOTES + [f"puis {note}" for note in NOTES] + ["enfilade"]
+# Dossier -> vecteurs de style mélangés. Kokoro n'a qu'une voix française, féminine : un mélange avec une voix d'homme latine
+# garde l'accent et donne un timbre masculin.
+VOICES = {"siwis": {"ff_siwis": 1.0}, "siwis-nicola": {"ff_siwis": 0.5, "im_nicola": 0.5}}
 TRIM_DB = -35
 ACTIVE_DB = -20
 TARGET_RMS_DB = -16
@@ -61,30 +55,40 @@ def active_rms(audio, rate):
     return float(np.sqrt(np.mean(active**2)))
 
 
-def main():
-    kokoro = Kokoro(sys.argv[1], sys.argv[2])
-    out = Path(sys.argv[3])
-    out.mkdir(parents=True, exist_ok=True)
-    speed = float(sys.argv[4]) if len(sys.argv) > 4 else 1.0
+def file_name(clip):
+    plain = unicodedata.normalize("NFD", clip)
+    return "".join(c for c in plain if unicodedata.category(c) != "Mn").replace(" ", "-")
+
+
+def generate(kokoro, folder, blend):
+    style = sum(kokoro.get_voice_style(name) * weight for name, weight in blend.items())
+    folder.mkdir(parents=True, exist_ok=True)
     clips = {}
-    for name, text in WORDS.items():
-        audio, rate = kokoro.create(text, voice=VOICE, speed=speed, lang="fr-fr")
-        clips[name] = trim(np.asarray(audio, np.float32), rate)
+    for text in CLIPS:
+        # Kokoro ignore la ponctuation : la phrase seule, sans point.
+        audio, rate = kokoro.create(text, voice=style, speed=1.0, lang="fr-fr")
+        clips[text] = trim(np.asarray(audio, np.float32), rate)
     gains = {n: 10 ** (TARGET_RMS_DB / 20) / active_rms(c, rate) for n, c in clips.items()}
-    # Un seul plafond pour tous : le niveau reste le même d'un mot à l'autre.
+    # Un seul plafond pour tous : le niveau reste le même d'une note à l'autre.
     top = max(np.abs(c).max() * gains[n] for n, c in clips.items())
     scale = min(1.0, MAX_PEAK / top)
     durations = []
-    for name, clip in clips.items():
-        pcm = np.round(np.clip(clip * gains[name] * scale, -1, 1) * 32767).astype("<i2")
-        with wave.open(str(out / f"{name}.wav"), "wb") as handle:
+    for text, clip in clips.items():
+        pcm = np.round(np.clip(clip * gains[text] * scale, -1, 1) * 32767).astype("<i2")
+        with wave.open(str(folder / f"{file_name(text)}.wav"), "wb") as handle:
             handle.setnchannels(1)
             handle.setsampwidth(2)
             handle.setframerate(rate)
             handle.writeframes(pcm.tobytes())
         durations.append(len(pcm) / rate)
-        print(f"{name:12} {len(pcm) / rate * 1000:5.0f} ms")
-    print(f"moyenne {np.mean(durations) * 1000:.0f} ms, min {min(durations) * 1000:.0f}, max {max(durations) * 1000:.0f}")
+    print(f"{folder.name}: {len(durations)} fichiers, moyenne {np.mean(durations) * 1000:.0f} ms, max {max(durations) * 1000:.0f}")
+
+
+def main():
+    kokoro = Kokoro(sys.argv[1], sys.argv[2])
+    out = Path(sys.argv[3])
+    for folder, blend in VOICES.items():
+        generate(kokoro, out / folder, blend)
 
 
 main()

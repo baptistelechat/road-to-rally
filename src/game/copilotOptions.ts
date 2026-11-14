@@ -1,8 +1,6 @@
 // Réglages du copilote, lus par le HUD et la voix. La simulation n'en dépend jamais.
-import { SPEECH_RATES } from "@/audio/copilotVoice";
+import { COPILOT_VOICES, type CopilotVoiceId } from "@/audio/copilotVoice";
 import type { Copilot } from "./copilot";
-
-export type SpeechRate = keyof typeof SPEECH_RATES;
 
 /** Crans des curseurs de volume, en pourcentage */
 export const VOLUME_STEPS = [
@@ -19,9 +17,18 @@ export const MINI_MAP_STYLES = [
 ] as const;
 export type MiniMapStyle = (typeof MINI_MAP_STYLES)[number];
 
+/** Chiffres et LED de régime, cadran à aiguille, arc de régime, télémétrie */
+export const SPEEDOMETER_STYLES = [
+  "digital",
+  "dial",
+  "arc",
+  "telemetry",
+] as const;
+export type SpeedometerStyle = (typeof SPEEDOMETER_STYLES)[number];
+
 export interface CopilotOptions {
   voiceEnabled: boolean;
-  speechRate: SpeechRate;
+  voice: CopilotVoiceId;
   /** En pourcentage */
   voiceVolume: Volume;
   /** Balance avec la voix, en pourcentage */
@@ -31,24 +38,25 @@ export interface CopilotOptions {
   paceIconsEnabled: boolean;
   miniMapEnabled: boolean;
   miniMapStyle: MiniMapStyle;
+  speedometerStyle: SpeedometerStyle;
   /** Voiture translucide du meilleur temps local */
   ghostEnabled: boolean;
 }
 
 export const defaultCopilotOptions: CopilotOptions = {
   voiceEnabled: true,
-  speechRate: "normal",
+  voice: "siwis",
   voiceVolume: 100,
   engineVolume: 100,
   effectsVolume: 100,
   paceIconsEnabled: true,
   miniMapEnabled: true,
   miniMapStyle: "global",
+  speedometerStyle: "digital",
   ghostEnabled: true,
 };
 
 const OPTIONS_KEY = "rally:copilot-options";
-const SPEECH_RATE_IDS = Object.keys(SPEECH_RATES) as SpeechRate[];
 
 /** Une valeur absente ou invalide reprend celle d'origine. */
 export const parseCopilotOptions = (raw: string | null): CopilotOptions => {
@@ -66,8 +74,8 @@ export const parseCopilotOptions = (raw: string | null): CopilotOptions => {
       const value = stored?.[key];
       if (typeof value === "boolean") options[key] = value;
     }
-    const rate = SPEECH_RATE_IDS.find((id) => id === stored?.speechRate);
-    if (rate) options.speechRate = rate;
+    const voice = COPILOT_VOICES.find((id) => id === stored?.voice);
+    if (voice) options.voice = voice;
     for (const key of [
       "voiceVolume",
       "engineVolume",
@@ -78,6 +86,10 @@ export const parseCopilotOptions = (raw: string | null): CopilotOptions => {
     }
     const style = MINI_MAP_STYLES.find((id) => id === stored?.miniMapStyle);
     if (style) options.miniMapStyle = style;
+    const speedometer = SPEEDOMETER_STYLES.find(
+      (id) => id === stored?.speedometerStyle,
+    );
+    if (speedometer) options.speedometerStyle = speedometer;
   } catch {
     // JSON illisible : on garde les réglages d'origine.
   }
@@ -100,12 +112,12 @@ export const saveCopilotOptions = (options: CopilotOptions): void => {
   }
 };
 
-/** Vitesse de diction comprise : le moment des annonces la lit à travers `durationOf`. */
+/** Voix comprise : le moment des annonces lit la durée de ses fichiers à travers `durationOf`. */
 export const applyAudioOptions = (
   copilot: Pick<Copilot, "voice" | "setVoiceEnabled" | "setMix">,
   {
     voiceEnabled,
-    speechRate,
+    voice,
     voiceVolume,
     engineVolume,
     effectsVolume,
@@ -113,6 +125,6 @@ export const applyAudioOptions = (
 ): void => {
   copilot.setMix(engineVolume / 100, effectsVolume / 100);
   copilot.setVoiceEnabled(voiceEnabled);
-  copilot.voice.setRate(SPEECH_RATES[speechRate]);
+  copilot.voice.setVoice(voice);
   copilot.voice.setVolume(voiceVolume / 100);
 };

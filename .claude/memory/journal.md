@@ -266,7 +266,7 @@ La voix (Kokoro, « long » au lieu de « longue ») est reportée à une sessio
 - [BDR-20261103202354-1](decisions/BDR-20261103202354-1.md) — Panneaux du copilote en pilule colorée
 - [BDR-20261103202354-2](decisions/BDR-20261103202354-2.md) — Resserrement annoncé avec la note d'entrée
 - [BDR-20261103202354-3](decisions/BDR-20261103202354-3.md) — Crête : rayon vertical sous 100 m
-- [BLK-20261103202354-5](blockers/BLK-20261103202354-5.md) — Modèles Kokoro absents : « long » non régénéré
+- [ZBLK-20261103202354-5](archive/blockers/ZBLK-20261103202354-5.md) — Modèles Kokoro absents : « long » non régénéré
 
 ---
 
@@ -280,6 +280,32 @@ Ajout d'une balance audio : bus moteur et effets devant le master, voix à part,
 - [BDR-20261103211134-3](decisions/BDR-20261103211134-3.md) — Balance audio : bus moteur et effets, voix à part
 
 ## 2026-11-04
+
+Refonte des compteurs de vitesse. Quatre maquettes proposées (chiffres et LED de régime, cadran à aiguille, arc de régime, télémétrie) ; Baptiste a gardé les quatre, au choix dans les options comme la mini-carte. Le HUD reçoit désormais régime, accélérateur et frein. Corrections demandées : largeur fixe du compteur chiffré, suppression des valeurs de tr/min, et cadran refait en mélangeant un cadran rond Jaeger et un anneau de régime parce que l'aiguille passait sur les chiffres. Les choix de style passent ensuite de vignettes dans un menu déroulant à de grandes cartes avec aperçu, avec une carte « Aucune » pour la mini-carte ; les compteurs de performance passent sous la mini-carte, empilés. react-doctor sans problème sur les fichiers modifiés, commit poussé sur `development`.
+
+**Entrées clés :**
+
+- [BDR-261104_1151-1](decisions/BDR-261104_1151-1.md) — Quatre compteurs au choix, régime sans chiffres
+- [BDR-261104_1151-2](decisions/BDR-261104_1151-2.md) — Choix visuels des options en cartes avec aperçu
+---
+
+Session voix du copilote, sans une ligne de code du jeu : tout a été décidé sur maquettes et à l'écoute. Baptiste trouvait la voix Kokoro robotique et saccadée, entendait « dans » au lieu de « un », et un effet chipmunk en vitesse rapide. Diagnostic : mots générés seuls (Kokoro rate les énoncés courts) et `playbackRate` qui change la hauteur. Avec son accord, Kokoro a été réinstallé dans `.venv-voice/`, puis une page d'audition servie en local a comparé 13 voix (voix d'homme d'autres langues, mélanges de vecteurs de style). Choix : `ff_siwis` et un mélange 50/50 siwis + nicola, au choix dans les options, vitesse x1 seulement. Kokoro ignorant la ponctuation, le découpage retenu est un fichier par note entière plus sa variante « puis … », validé en version recollée. Pocket TTS de Kyutai a été évalué puis écarté pour rester sur Kokoro. Les chicanes et l'arrivée, jusqu'ici muettes, auront leur annonce et leur icône (triangle du panneau de bord de route dans une pilule rouge, arche d'arrivée panoramique). L'intégration est prévue pour une prochaine session ; les maquettes et extraits restent dans `public/_tmp/voix-audition/`, non suivi par git.
+
+**Entrées clés :**
+
+- [BDR-261104_2034-1](decisions/BDR-261104_2034-1.md) — Voix : Kokoro, deux voix au choix, vitesse x1
+- [BDR-261104_2034-2](decisions/BDR-261104_2034-2.md) — Un fichier par note entière, plus « puis note »
+- [BDR-261104_2034-3](decisions/BDR-261104_2034-3.md) — Chicane annoncée, sens du panneau de bord de route
+- [BDR-261104_2034-4](decisions/BDR-261104_2034-4.md) — Arrivée annoncée : « Arrivée », icône A3b
+
+---
+
+Intégration des voix du copilote. La voix ne recolle plus des mots : chaque note est un fichier entier (« gauche trois long se resserre »), avec une variante « puis … » pour le second élément d'une paire et « enfilade » à part. Kokoro a régénéré 107 fichiers pour chacune des deux voix (siwis seule, et le mélange siwis/nicola pour la voix masculine). Le réglage de vitesse de diction est remplacé par un choix Féminine / Masculine dans les options. La simulation annonce maintenant les chicanes (aussi au retour d'un aller-retour) et l'arrivée des spéciales, avec les icônes T3 et A3b dans le HUD. Les checks copilote ont été réécrits pour compiler, sans être lancés. Retours de Baptiste en jeu : la voix était trop faible, d'où un gain fixe de +6 dB à la lecture ; et bas à la manette faisait défiler les cartes mini-carte et compteur au lieu de descendre, corrigé en traitant une rangée de cartes comme une seule ligne. React-doctor ne signale rien sur le changement. Commit d32c60d poussé sur development.
+
+**Entrées clés :**
+
+- [BDR-261104_2127-1](decisions/BDR-261104_2127-1.md) — Fichiers voix : un dossier par voix, nom tiré du texte
+- [ZBLK-20261103202354-5](archive/blockers/ZBLK-20261103202354-5.md) — Modèles Kokoro absents : « long » régénéré, résolu
 
 Session éditeur, partie en mode Rodin. Baptiste trouvait l'éditeur peu intuitif. Le profil d'altitude a reçu des graduations en distance et en altitude, puis les points, les chicanes et leur zone jaune, les ronds-points, les rochers et la plus longue ligne droite (désormais toujours en vert sur la carte), tous cliquables pour centrer la carte, zoom porté à 17. La limite de 2 km, sans raison technique, est passée à 500 m.
 
@@ -337,6 +363,29 @@ Le React Compiler a refusé l'écriture dans une ref passée au hook de boucle ;
 - [BDR-261104_2153-2](decisions/BDR-261104_2153-2.md) — trois secteurs et arches avec collider
 - [BLK-261104_2153-6](blockers/BLK-261104_2153-6.md) — 403 de BRouter non reproduit
 - [LRN-261104_2153-7](learnings/LRN-261104_2153-7.md) — fichiers chauds gardés par l'orchestrateur
+
+## 2026-11-05
+
+Session d'identité visuelle avec le skill brand-creator. Une première série de six directions de design, pensées comme des sites, a été écartée : Baptiste a gardé la typo de la Spéciale de nuit (Michroma, Manrope, Share Tech Mono) et demandé des variations autour du low-poly, maquettées comme des écrans de jeu (HUD en course, pause, arrivée). La direction Nuit facettée a été retenue. Le nom du jeu est fixé à « Road to Rally ».
+
+Logo : 18 propositions (Lucide et trois concepts dessinés à la main, Python étant absent du poste pour les scripts de logo-design), puis un logotype facetté construit sur la grille du R. Les coupes des lettres ne traversaient pas : corrigées en deux passes, avec des masques et des lignes prolongées de peu. L'icône d'app est l'Épingle, agrandie et posée sur un fond low-poly ; l'écran titre mêle la version empilée et la scène facettée.
+
+og:image : six templates ogimagecn proposés, puis une carte unique retenue après deux tests rendus hors projet : même scène et même grand logo pour le jeu, un tracé ou un temps, seule la ligne du bas change. Intégré en Next.js (`opengraph-image.tsx`, route `/og/stage`, helper `stageShareMetadata` pour l'epic 6), avec un avertissement de traçage Turbopack corrigé et deux remarques React Doctor traitées. Commit 03ef903 poussé sur development. Pause du workflow à l'étape 15 (tokens shadcn et favicon).
+
+**Entrées clés :**
+
+- [BDR-261105_1736-1](decisions/BDR-261105_1736-1.md) — Identité Road to Rally : Nuit facettée, Épingle, carte og unique
+
+---
+
+Reprise de brand-creator à l'étape 15. Les tokens Nuit facettée sont appliqués partout (globals.css en oklch, polices next/font, `<html class="dark">`) et ~50 composants du jeu, du HUD, du garage et de l'éditeur passent des couleurs en dur aux tokens. L'icône Épingle sert de favicon, à angles droits ; l'écran titre et l'og:image gardent leur arrondi. Le garage affiche enfin le logotype sur sa bannière et l'icône dans son cadre. DESIGN.md est écrit et linté (le lint passe par `node`, `npx` ouvrant Visual Studio sous Windows). Le Design System Claude est publié avec tous les visuels de marque, et le skill est mis à jour pour les inclure.
+
+L'étape 18 a pris l'essentiel de la session : une première série de maquettes trop fidèle à l'existant a été rejetée, puis trois directions (Road-book, Cockpit facetté, Broadcast) ont mené à une direction retenue, déclinée sur le menu, la pause, deux HUD au choix, les compteurs, les notes du copilote, le garage, l'éditeur, le départ, l'arrivée et les panneaux de course. Plusieurs retours venaient d'éléments oubliés qui n'existaient que dans le code ou sur `origin/main` (epic 4). Les 13 écrans retenus et l'export HTML du canevas sont rapatriés dans `docs/design/mockups/`, et le skill demande désormais l'export à chaque étape 18. Commit `cbc7838` sur `development`, sans push.
+
+**Entrées clés :**
+
+- [BDR-261105_2313-1](decisions/BDR-261105_2313-1.md) — Redesign retenu : menu B, pause road-book, HUD au choix
+- [BLK-261105_2313-5](blockers/BLK-261105_2313-5.md) — `development` en retard sur la prod epic 4, HUD en conflit
 
 ## 2026-11-14
 

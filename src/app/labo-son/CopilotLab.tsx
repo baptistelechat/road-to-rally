@@ -2,23 +2,20 @@
 
 import { useEffect, useState } from "react";
 import {
+  COPILOT_VOICES,
   createCopilotVoice,
-  SPEECH_RATES,
   type CopilotVoice,
+  type CopilotVoiceId,
   type VoiceBus,
 } from "@/audio/copilotVoice";
 import { resolveContext } from "@/audio/engineAudio";
-import { callToWords, PACE_WORDS } from "@/audio/paceNoteWords";
+import { callToClips, PACE_CLIPS } from "@/audio/paceNoteWords";
 import type { PaceCall, PaceTurn } from "@/sim/track/paceNotes";
 
 const FOCUS_RING =
   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400";
 const BUTTON = `rounded-lg border border-neutral-600 px-3 py-2 text-sm font-semibold transition-colors hover:border-neutral-400 ${FOCUS_RING}`;
 
-const RATES = Object.entries(SPEECH_RATES).map(([label, rate]) => ({
-  label,
-  rate,
-}));
 
 const turn = (
   direction: PaceTurn["direction"],
@@ -53,6 +50,11 @@ const SAMPLE_CALLS: PaceCall[] = [
   call("chain", [turn("left", 3), turn("right", 1), turn("left", 2)]),
   call("single", [{ kind: "crest", startS: 0, endS: 0 }]),
   call("single", [{ kind: "bump", startS: 0, endS: 0 }]),
+  call("pair", [
+    { kind: "chicane", direction: "right", startS: 0, endS: 0 },
+    turn("left", 3),
+  ]),
+  call("pair", [turn("right", 2), { kind: "finish", startS: 0, endS: 0 }]),
 ];
 
 interface LabVoice {
@@ -92,14 +94,14 @@ const createLabVoice = (): LabVoice => {
 export const CopilotLab = () => {
   const [lab] = useState(createLabVoice);
   const [loaded, setLoaded] = useState(false);
-  const [rate, setRate] = useState<number>(SPEECH_RATES.normal);
+  const [voice, setVoice] = useState<CopilotVoiceId>(COPILOT_VOICES[0]);
+
+  useEffect(() => lab.dispose, [lab]);
 
   useEffect(() => {
+    lab.voice.setVoice(voice);
     void lab.voice.load().then(() => setLoaded(true));
-    return lab.dispose;
-  }, [lab]);
-
-  useEffect(() => lab.voice.setRate(rate), [lab, rate]);
+  }, [lab, voice]);
 
   const speak = (say: () => void): void => {
     void lab.wake().then(say);
@@ -114,41 +116,41 @@ export const CopilotLab = () => {
         Copilote
       </h2>
 
-      <div className="grid gap-3 sm:grid-cols-3">
-        {RATES.map(({ label, rate: value }) => (
+      <div className="grid gap-3 sm:grid-cols-2">
+        {COPILOT_VOICES.map((value) => (
           <button
-            key={label}
+            key={value}
             type="button"
-            aria-pressed={rate === value}
-            onClick={() => setRate(value)}
-            className={`rounded-lg border px-4 py-3 text-left font-semibold capitalize transition-colors ${FOCUS_RING} ${
-              rate === value
+            aria-pressed={voice === value}
+            onClick={() => setVoice(value)}
+            className={`rounded-lg border px-4 py-3 text-left font-semibold transition-colors ${FOCUS_RING} ${
+              voice === value
                 ? "border-amber-400 bg-amber-400 text-neutral-950"
                 : "border-neutral-700 bg-neutral-800 hover:border-neutral-500"
             }`}
           >
-            {label}
+            {value}
           </button>
         ))}
       </div>
 
       <div className="flex flex-wrap gap-2">
-        {PACE_WORDS.map((word) => (
+        {PACE_CLIPS.map((clip) => (
           <button
-            key={word}
+            key={clip}
             type="button"
             disabled={!loaded}
-            onClick={() => speak(() => lab.voice.playWords([word]))}
+            onClick={() => speak(() => lab.voice.playClips([clip]))}
             className={`${BUTTON} disabled:opacity-40`}
           >
-            {word}
+            {clip}
           </button>
         ))}
       </div>
 
       <div className="grid gap-2 sm:grid-cols-2">
         {SAMPLE_CALLS.map((sample) => {
-          const text = callToWords(sample).join(" ");
+          const text = callToClips(sample).join(" ");
           return (
             <button
               key={text}

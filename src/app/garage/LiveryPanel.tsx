@@ -14,9 +14,9 @@ import {
 } from "./garageMenu";
 
 /** Contour de la ligne sélectionnée, quel que soit le périphérique */
-export const MENU_FOCUS = "outline-2 outline-offset-2 outline-amber-400";
+export const MENU_FOCUS = "outline-2 outline-offset-2 outline-brand";
 
-const FOCUS_VISIBLE = "focus-visible:outline-2 focus-visible:outline-amber-400";
+const FOCUS_VISIBLE = "focus-visible:outline-2 focus-visible:outline-brand";
 
 /** La ligne sélectionnée reste visible quand la manette fait défiler le panneau. */
 const scrollIfSelected = (selected: boolean) =>
@@ -50,7 +50,7 @@ const Palette = ({ menu, dispatch }: LiveryPanelProps) => (
             aria-pressed={selected}
             // Le pointeur sur une case de la palette la sélectionne, comme la croix.
             ref={scrollIfSelected(selected)}
-            className={`aspect-square cursor-pointer rounded-[2px] ${selected ? "relative z-10 outline-2 outline-white" : ""}`}
+            className={`aspect-square cursor-pointer rounded-[2px] ${selected ? "relative z-10 outline-2 outline-foreground" : ""}`}
             style={{ backgroundColor: hex }}
             onMouseEnter={() => dispatch({ type: "hover", swatch })}
             onClick={() => dispatch({ type: "pick", swatch })}
@@ -58,7 +58,7 @@ const Palette = ({ menu, dispatch }: LiveryPanelProps) => (
         );
       })}
     </div>
-    <p className="text-xs text-white/70">
+    <p className="text-xs text-muted-foreground">
       Valider : clic, Entrée ou A
       <br />
       Annuler : Échap ou B
@@ -87,7 +87,7 @@ const ColorRowView = ({
       >
         {row.label}
         <span
-          className="h-7 w-12 rounded border border-white/25"
+          className="h-7 w-12 rounded border border-foreground/25"
           style={{ backgroundColor: menu.livery[row.key] }}
         />
       </button>
@@ -97,7 +97,7 @@ const ColorRowView = ({
 };
 
 export const LiveryPanel = ({ menu, dispatch }: LiveryPanelProps) => (
-  <div className="absolute top-4 left-4 flex max-h-[calc(100%-2rem)] w-60 flex-col gap-2 overflow-y-auto rounded border border-white/25 bg-black/70 p-3 text-sm text-white">
+  <div className="absolute top-4 left-4 flex max-h-[calc(100%-2rem)] w-60 flex-col gap-2 overflow-y-auto rounded border border-foreground/25 bg-background/70 p-3 text-sm text-foreground">
     {GARAGE_ROWS.map((row, index) => {
       const selected = menu.row === index;
       switch (row.kind) {
@@ -200,7 +200,7 @@ export const LiveryPanel = ({ menu, dispatch }: LiveryPanelProps) => (
               key="reset"
               type="button"
               ref={scrollIfSelected(selected)}
-              className={`mt-1 cursor-pointer rounded border border-white/25 px-2 py-1 font-semibold transition-colors hover:bg-white/15 ${FOCUS_VISIBLE} ${menu.row === RESET_ROW ? MENU_FOCUS : ""}`}
+              className={`mt-1 cursor-pointer rounded border border-foreground/25 px-2 py-1 font-semibold transition-colors hover:bg-foreground/15 ${FOCUS_VISIBLE} ${menu.row === RESET_ROW ? MENU_FOCUS : ""}`}
               onClick={() => dispatch({ type: "row", row: RESET_ROW })}
             >
               Couleurs d&apos;origine

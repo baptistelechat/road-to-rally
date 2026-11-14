@@ -3,13 +3,19 @@
 import { useHudStore } from "@/game/hudStore";
 import type { PaceNote } from "@/sim/track/paceNotes";
 import { ChainFrame } from "./components/ChainFrame";
-import { ObstacleIcon } from "./components/ObstacleIcon";
+import { FinishIcon } from "./components/FinishIcon";
+import { ChicaneIcon, ObstacleIcon } from "./components/ObstacleIcon";
 import { TurnIcon } from "./components/TurnIcon";
 
+const sideLabel = (direction: "left" | "right"): string =>
+  direction === "left" ? "Gauche" : "Droite";
+
 const noteLabel = (note: PaceNote): string => {
+  if (note.kind === "chicane") return `Chicane ${sideLabel(note.direction)}`;
+  if (note.kind === "finish") return "Arrivée";
   if (note.kind !== "turn") return note.kind === "crest" ? "Crête" : "Bosse";
   return [
-    `${note.direction === "left" ? "Gauche" : "Droite"} ${note.entryGrade}`,
+    `${sideLabel(note.direction)} ${note.entryGrade}`,
     ...(note.long ? ["long"] : []),
     ...(note.tightens ? [`se resserre en ${note.grade}`] : []),
   ].join(", ");
@@ -24,6 +30,10 @@ const NoteIcon = ({ note }: { note: PaceNote }) => (
   >
     {note.kind === "turn" ? (
       <TurnIcon note={note} />
+    ) : note.kind === "chicane" ? (
+      <ChicaneIcon direction={note.direction} />
+    ) : note.kind === "finish" ? (
+      <FinishIcon />
     ) : (
       <ObstacleIcon kind={note.kind} />
     )}

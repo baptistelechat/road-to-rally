@@ -44,7 +44,7 @@ export const MiniMap = ({ sim, ghost }: MiniMapProps) => {
           ghost={ghost}
           roadWidth={2}
           pixels={48}
-          className="absolute top-1 right-1 size-14 rounded-sm border border-white/15 bg-black/70 p-1"
+          className="absolute top-1 right-1 size-14 rounded-sm border border-foreground/15 bg-background/70 p-1"
         />
       )}
     </div>

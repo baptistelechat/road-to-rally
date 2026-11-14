@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { SPEECH_RATES } from "../../src/audio/copilotVoice";
-import { callToWords } from "../../src/audio/paceNoteWords";
+import {
+  COPILOT_VOICES,
+  type CopilotVoiceId,
+} from "../../src/audio/copilotVoice";
+import { callToClips, clipFile } from "../../src/audio/paceNoteWords";
 import { botInput } from "../../src/sim/bot";
 import { FIXED_DT } from "../../src/sim/fixedStep";
 import {
@@ -21,7 +24,7 @@ import { createStageTrack } from "../../src/sim/track/stage";
 import { parseStage } from "../../src/sim/track/stageCodec";
 import type { StageData, Track } from "../../src/sim/types";
 
-/** Écart entre deux mots, comme dans `copilotVoice.ts` */
+/** Écart entre deux morceaux, comme dans `copilotVoice.ts` */
 const WORD_GAP_S = 0.03;
 /** Constantes du bot, pour le parcours cinématique */
 const LATERAL_ACCEL = 6;
@@ -38,24 +41,25 @@ const CHAIN_TOLERANCE = 2 * FIXED_DT;
 
 const wordCache = new Map<string, number>();
 
-/** Durée réelle du fichier d'un mot : en-tête WAV de 44 octets, PCM mono 16 bits. */
-const wordSeconds = (word: string): number => {
-  const known = wordCache.get(word);
+/** Voix du contrôle en cours */
+let voice: CopilotVoiceId = COPILOT_VOICES[0];
+
+/** Durée réelle du fichier d'un morceau : en-tête WAV de 44 octets, PCM mono 16 bits. */
+const wordSeconds = (clip: string): number => {
+  const path = `public/audio/copilot/${voice}/${clipFile(clip)}.wav`;
+  const known = wordCache.get(path);
   if (known !== undefined) return known;
-  const file = readFileSync(`public/audio/copilot/${word}.wav`);
+  const file = readFileSync(path);
   const seconds = (file.length - 44) / 2 / file.readUInt32LE(24);
-  wordCache.set(word, seconds);
+  wordCache.set(path, seconds);
   return seconds;
 };
 
-/** Vitesse de diction du contrôle en cours */
-let speechRate: number = SPEECH_RATES.normal;
-
-/** La durée réelle des phrases, avec les vrais mots */
+/** La durée réelle des phrases, avec les vrais fichiers */
 const durationOf: CueTiming["durationOf"] = (call, short) => {
-  const words = callToWords(call, { short });
-  const spoken = words.reduce((sum, word) => sum + wordSeconds(word), 0);
-  return (spoken + (words.length - 1) * WORD_GAP_S) / speechRate;
+  const clips = callToClips(call, { short });
+  const spoken = clips.reduce((sum, clip) => sum + wordSeconds(clip), 0);
+  return spoken + (clips.length - 1) * WORD_GAP_S;
 };
 const timing: CueTiming = { durationOf };
 
@@ -621,14 +625,16 @@ export default async function check(): Promise<void> {
         runKinematic(name, track, calls, pace).result,
       );
     checkDeterminism(name, track, calls);
-    // Diction lente à l'allure de référence : les phrases les plus longues doivent aussi finir à l'heure.
-    speechRate = SPEECH_RATES.lent;
-    report(
-      name,
-      "cinématique ×1, diction lente",
-      runKinematic(name, track, calls, 1).result,
-    );
-    speechRate = SPEECH_RATES.normal;
+    // Les autres voix à l'allure de référence : leurs phrases doivent aussi finir à l'heure.
+    for (const other of COPILOT_VOICES.slice(1)) {
+      voice = other;
+      report(
+        name,
+        `cinématique ×1, voix ${other}`,
+        runKinematic(name, track, calls, 1).result,
+      );
+    }
+    voice = COPILOT_VOICES[0];
   }
 
   checkShort(tracks[3][1], computePaceNotes(tracks[3][1]).calls);

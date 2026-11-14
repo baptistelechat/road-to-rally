@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Retenu — Menu de départ</title>
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Michroma&amp;family=Share+Tech+Mono&amp;display=swap"
+          rel="stylesheet"
+        />
+        <style>
+          body {
+            margin: 0;
+            background: #0b1018;
+          }
+          a {
+            color: #ffd23f;
+          }
+          a:hover {
+            color: #ffe27a;
+          }
+        </style>
+      </helmet>
+      <main
+        style="
+          position: relative;
+          width: 100%;
+          height: 900px;
+          overflow: hidden;
+          background: #0b1018;
+          color: #e9edf3;
+          font-family: Manrope, system-ui, sans-serif;
+        "
+      >
+        <img
+          src="/_blob/5c840cca25c32621cb8c69df16f16860"
+          alt=""
+          style="
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          "
+        />
+        <div
+          aria-hidden="true"
+          style="
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 300px;
+            background: rgba(11, 16, 24, 0.88);
+            clip-path: polygon(
+              0 0,
+              100% 0,
+              100% 72%,
+              62% 100%,
+              38% 86%,
+              0 100%
+            );
+          "
+        ></div>
+        <h1
+          style="
+            position: absolute;
+            top: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 28px;
+          "
+        >
+          <img
+            src="/_blob/d070a4889de521396016d3a8b2b8940a"
+            alt=""
+            style="
+              width: 132px;
+              height: 132px;
+              clip-path: polygon(
+                14% 0,
+                100% 0,
+                100% 86%,
+                86% 100%,
+                0 100%,
+                0 14%
+              );
+            "
+          />
+          <img
+            src="/_blob/c5e1ca6386460b5ea4c86122bb462674"
+            alt="Road to Rally"
+            style="width: 320px; height: auto"
+          />
+        </h1>
+
+        <section
+          aria-label="Départ"
+          style="
+            position: absolute;
+            left: 50%;
+            bottom: 48px;
+            transform: translateX(-50%);
+            width: 1120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+          "
+        >
+          <div
+            role="group"
+            aria-label="Spéciale"
+            style="
+              width: 100%;
+              display: grid;
+              grid-template-columns: repeat(4, 260px); justify-content: center;
+              gap: 16px;
+            "
+          >
+            <button
+              type="button"
+              aria-pressed="true"
+              style="
+                padding: 0;
+                text-align: center;
+                background: #121a26;
+                color: #e9edf3;
+                border: 2px solid #ffd23f;
+                border-radius: 4px;
+                font-family: Manrope, sans-serif;
+                overflow: hidden;
+              "
+            >
+              <svg
+                viewBox="0 0 270 110"
+                width="100%"
+                height="110"
+                aria-hidden="true"
+                style="display: block; background: #0b1018"
+              >
+                <path
+                  d="M14 96 C54 22 100 88 136 52 S216 8 256 22"
+                  fill="none"
+                  stroke="#ffd23f"
+                  stroke-width="5"
+                  stroke-linecap="round"
+                />
+              </svg>
+              <span
+                style="
+                  display: flex;
+                  flex-direction: column; align-items: center; gap: 4px; padding: 12px 14px;
+                "
+                ><span style="font-size: 16px; font-weight: 800">Mountain</span
+                ><span
+                  style="
+                    font-family: Michroma, sans-serif;
+                    font-size: 9px;
+                    letter-spacing: 0.18em;
+                    color: #ffd23f;
+                  "
+                  >SPÉCIALE</span
+                ></span
+              >
+            </button>
+            <button
+              type="button"
+              aria-pressed="false"
+              style="
+                padding: 0;
+                text-align: center;
+                background: #121a26;
+                color: #e9edf3;
+                border: 2px solid #202c3f;
+                border-radius: 4px;
+                font-family: Manrope, sans-serif;
+                overflow: hidden;
+              "
+            >
+              <svg
+                viewBox="0 0 270 110"
+                width="100%"
+                height="110"
+                aria-hidden="true"
+                style="display: block; background: #0b1018"
+              >
+                <path
+                  d="M14 84 C74 76 110 28 164 44 S236 92 256 30"
+                  fill="none"
+                  stroke="#93a0b4"
+                  stroke-width="5"
+                  stroke-linecap="round"
+                />
+              </svg>
+              <span
+                style="
+                  display: flex;
+                  flex-direction: column; align-items: center; gap: 4px; padding: 12px 14px;
+                "
+                ><span style="font-size: 16px; font-weight: 800">Road</span
+                ><span
+                  style="
+                    font-family: Michroma, sans-serif;
+                    font-size: 9px;
+                    letter-spacing: 0.18em;
+                    color: #93a0b4;
+                  "
+                  >SPÉCIALE</span
+                ></span
+              >
+            </button>
+            <button
+              type="button"
+              aria-pressed="false"
+              style="
+                padding: 0;
+                text-align: center;
+                background: #121a26;
+                color: #e9edf3;
+                border: 2px solid #202c3f;
+                border-radius: 4px;
+                font-family: Manrope, sans-serif;
+                overflow: hidden;
+              "
+            >
+              <svg
+                viewBox="0 0 270 110"
+                width="100%"
+                height="110"
+                aria-hidden="true"
+                style="display: block; background: #0b1018"
+              >
+                <path
+                  d="M14 60 C36 28 54 92 82 60 S118 28 146 60 S190 92 218 52 S248 30 256 44"
+                  fill="none"
+                  stroke="#93a0b4"
+                  stroke-width="5"
+                  stroke-linecap="round"
+                />
+              </svg>
+              <span
+                style="
+                  display: flex;
+                  flex-direction: column; align-items: center; gap: 4px; padding: 12px 14px;
+                "
+                ><span style="font-size: 16px; font-weight: 800"
+                  >Pace notes</span
+                ><span
+                  style="
+                    font-family: Michroma, sans-serif;
+                    font-size: 9px;
+                    letter-spacing: 0.18em;
+                    color: #93a0b4;
+                  "
+                  >COPILOTE</span
+                ></span
+              >
+            </button>
+            <button
+              type="button"
+              aria-pressed="false"
+              style="
+                padding: 0;
+                text-align: center;
+                background: #121a26;
+                color: #e9edf3;
+                border: 2px solid #202c3f;
+                border-radius: 4px;
+                font-family: Manrope, sans-serif;
+                overflow: hidden;
+              "
+            >
+              <svg
+                viewBox="0 0 270 110"
+                width="100%"
+                height="110"
+                aria-hidden="true"
+                style="display: block; background: #0b1018"
+              >
+                <path
+                  d="M56 22 H200 C246 22 246 88 200 88 H72 C26 88 18 22 56 22 Z"
+                  fill="none"
+                  stroke="#93a0b4"
+                  stroke-width="5"
+                />
+              </svg>
+              <span
+                style="
+                  display: flex;
+                  flex-direction: column; align-items: center; gap: 4px; padding: 12px 14px;
+                "
+                ><span style="font-size: 16px; font-weight: 800">Track</span
+                ><span
+                  style="
+                    font-family: Michroma, sans-serif;
+                    font-size: 9px;
+                    letter-spacing: 0.18em;
+                    color: #93a0b4;
+                  "
+                  >BOUCLE</span
+                ></span
+              >
+            </button>
+          </div>
+          <button
+            type="button"
+            style="
+              min-width: 520px;
+              min-height: 72px;
+              background: #ffd23f;
+              color: #0b1018;
+              border: 0;
+              clip-path: polygon(6% 0, 100% 0, 94% 100%, 0 100%);
+              font-family: Michroma, sans-serif;
+              font-size: 20px;
+              letter-spacing: 0.06em;
+              text-transform: uppercase;
+            "
+          >
+            Prendre le départ
+          </button>
+          <nav aria-label="Autres écrans" style="display: flex; gap: 10px">
+            <a
+              href="Garage.dc.html"
+              style="
+                min-width: 150px;
+                min-height: 44px;
+                display: grid;
+                place-items: center;
+                background: #1e2a3c;
+                color: #e9edf3;
+                clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+                font-size: 14px;
+                font-weight: 700;
+                text-decoration: none;
+              "
+              >Garage</a
+            >
+            <a
+              href="#"
+              style="
+                min-width: 150px;
+                min-height: 44px;
+                display: grid;
+                place-items: center;
+                background: #1e2a3c;
+                color: #e9edf3;
+                clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+                font-size: 14px;
+                font-weight: 700;
+                text-decoration: none;
+              "
+              >Éditeur</a
+            >
+            <button
+              type="button"
+              style="
+                min-width: 150px;
+                min-height: 44px;
+                background: #1e2a3c;
+                color: #e9edf3;
+                border: 0;
+                clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+                font-family: Manrope, sans-serif;
+                font-size: 14px;
+                font-weight: 700;
+              "
+            >
+              + Importer un GPX
+            </button>
+            <button
+              type="button"
+              style="
+                min-width: 150px;
+                min-height: 44px;
+                background: #1e2a3c;
+                color: #e9edf3;
+                border: 0;
+                clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+                font-family: Manrope, sans-serif;
+                font-size: 14px;
+                font-weight: 700;
+              "
+            >
+              Options
+            </button>
+          </nav>
+        </section>
+      </main>
+    </x-dc>
+    <script
+      type="text/x-dc"
+      data-dc-script
+      data-props='{"$preview":{"width":1440,"height":900}}'
+    >
+      class Component extends DCLogic {
+        renderVals() { return {}; }
+      }
+    </script>
+  </body>
+</html>

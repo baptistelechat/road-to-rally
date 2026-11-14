@@ -58,7 +58,7 @@ export const PenaltyToast = () => {
           className={`${panel} flex items-baseline gap-3 px-5 py-2`}
         >
           <span className={label}>{penalty.reason}</span>
-          <span className="font-mono text-xl font-bold text-red-500 tabular-nums">
+          <span className="font-mono text-xl font-bold text-destructive tabular-nums">
             {formatSignedLap(penalty.ms)}
           </span>
         </div>

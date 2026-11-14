@@ -22,7 +22,7 @@ export const SplitDelta = ({ index, timeMs, deltaMs }: SplitDeltaProps) => (
         </div>
         {deltaMs !== null && (
           <div
-            className={`font-mono text-2xl font-bold tabular-nums ${deltaMs <= 0 ? "text-emerald-400" : "text-red-500"}`}
+            className={`font-mono text-2xl font-bold tabular-nums ${deltaMs <= 0 ? "text-chart-4" : "text-destructive"}`}
           >
             {formatSignedLap(deltaMs)}
             {/* La couleur ne suffit pas : le lecteur d'écran entend le sens. */}

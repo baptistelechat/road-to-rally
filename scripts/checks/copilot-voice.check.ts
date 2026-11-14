@@ -1,7 +1,14 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
-import { createCopilotVoice, SPEECH_RATES } from "../../src/audio/copilotVoice";
-import { callToWords, PACE_WORDS } from "../../src/audio/paceNoteWords";
+import {
+  COPILOT_VOICES,
+  createCopilotVoice,
+} from "../../src/audio/copilotVoice";
+import {
+  callToClips,
+  clipFile,
+  PACE_CLIPS,
+} from "../../src/audio/paceNoteWords";
 import { createNotesBenchStage } from "../../src/sim/track/notesBenchTrack";
 import {
   computePaceNotes,
@@ -40,45 +47,49 @@ const checkWords = (): void => {
   const detailed = call("single", [
     turn("left", 3, { long: true, tightens: true }),
   ]);
-  assert.deepEqual(callToWords(detailed), [
-    "gauche",
-    "trois",
-    "longue",
-    "se-resserre",
-  ]);
-  assert.deepEqual(callToWords(detailed, { short: true }), ["gauche", "trois"]);
+  assert.deepEqual(callToClips(detailed), ["gauche trois long se resserre"]);
+  assert.deepEqual(callToClips(detailed, { short: true }), ["gauche trois"]);
   assert.deepEqual(
-    callToWords(
+    callToClips(
       call("single", [turn("right", 2, { entryGrade: 4, tightens: true })]),
     ),
-    ["droite", "quatre", "se-resserre"],
+    ["droite quatre se resserre"],
   );
   assert.deepEqual(
-    callToWords(
+    callToClips(
       call("pair", [turn("right", 2), turn("left", 6, { long: true })]),
     ),
-    ["droite", "deux", "puis", "gauche", "six", "longue"],
+    ["droite deux", "puis gauche six long"],
   );
   assert.deepEqual(
-    callToWords(
+    callToClips(
       call("chain", [
         turn("right", 3, { long: true }),
         turn("left", 1),
         turn("right", 2),
       ]),
     ),
-    ["enfilade", "droite", "trois", "gauche", "un", "droite", "deux"],
+    ["enfilade", "droite trois", "gauche un", "droite deux"],
   );
   assert.deepEqual(
-    callToWords(call("single", [{ kind: "crest", startS: 0, endS: 1 }])),
-    ["attention", "crete"],
+    callToClips(call("single", [{ kind: "crest", startS: 0, endS: 1 }])),
+    ["attention crête"],
   );
   assert.deepEqual(
-    callToWords(call("single", [{ kind: "bump", startS: 0, endS: 1 }]), {
-      short: true,
-    }),
-    ["attention", "bosse"],
+    callToClips(
+      call("pair", [
+        { kind: "chicane", direction: "right", startS: 0, endS: 1 },
+        turn("left", 3),
+      ]),
+    ),
+    ["chicane droite", "puis gauche trois"],
   );
+  assert.deepEqual(
+    callToClips(call("single", [{ kind: "finish", startS: 0, endS: 0 }])),
+    ["arrivée"],
+  );
+  assert.equal(clipFile("puis arrivée"), "puis-arrivee");
+  assert.equal(PACE_CLIPS.length, 107);
 };
 
 const checkTracks = (): void => {
@@ -99,17 +110,18 @@ const checkTracks = (): void => {
     assert.ok(calls.length > 0, `${name} : aucune annonce`);
     for (const paceCall of calls)
       for (const options of [{}, { short: true }])
-        for (const word of callToWords(paceCall, options))
+        for (const clip of callToClips(paceCall, options))
           assert.ok(
-            existsSync(`public/audio/copilot/${word}.wav`),
-            `${name} : « ${word} » n'a pas de fichier`,
+            PACE_CLIPS.includes(clip),
+            `${name} : « ${clip} » n'a pas de fichier`,
           );
   }
 };
 
 /** Lit le WAV sans décodeur : PCM 16 bits mono, avec du son dedans. */
 const checkWav = (word: string): void => {
-  const file = readFileSync(`public/audio/copilot/${word}.wav`);
+  assert.ok(existsSync(word), `${word} : absent`);
+  const file = readFileSync(word);
   assert.equal(file.toString("latin1", 0, 4), "RIFF", `${word} : pas un WAV`);
   assert.equal(file.toString("latin1", 8, 12), "WAVE", `${word} : pas un WAV`);
   let channels = 0;
@@ -147,21 +159,13 @@ const checkMissingFiles = async (): Promise<void> => {
   console.error = logError;
   assert.equal(
     errors.length,
-    PACE_WORDS.length,
+    PACE_CLIPS.length,
     "erreurs de chargement muettes",
   );
 
   const phrase = call("pair", [turn("left", 2), turn("right", 4)]);
   const normal = voice.durationOf(phrase);
   assert.ok(Number.isFinite(normal) && normal > 0, "durée de repli invalide");
-  voice.setRate(SPEECH_RATES.rapide);
-  assert.ok(voice.durationOf(phrase) < normal, "la vitesse change la durée");
-  voice.setRate(10);
-  assert.equal(
-    voice.durationOf(phrase),
-    (normal * SPEECH_RATES.normal) / SPEECH_RATES.rapide,
-    "vitesse hors plage",
-  );
   voice.play(phrase);
   assert.equal(voice.isSpeaking(), false, "parle sans contexte");
   voice.stop();
@@ -170,6 +174,8 @@ const checkMissingFiles = async (): Promise<void> => {
 export default async function check(): Promise<void> {
   checkWords();
   checkTracks();
-  for (const word of PACE_WORDS) checkWav(word);
+  for (const voice of COPILOT_VOICES)
+    for (const clip of PACE_CLIPS)
+      checkWav(`public/audio/copilot/${voice}/${clipFile(clip)}.wav`);
   await checkMissingFiles();
 }

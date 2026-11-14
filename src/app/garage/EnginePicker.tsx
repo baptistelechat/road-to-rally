@@ -30,8 +30,8 @@ export const EnginePicker = ({
         tabIndex={-1}
         className={`flex cursor-pointer items-center justify-between gap-2 rounded border px-2 py-1.5 text-left transition-colors ${
           selected === id
-            ? "border-white bg-white/20 font-semibold"
-            : "border-white/25 hover:bg-white/15"
+            ? "border-foreground bg-foreground/20 font-semibold"
+            : "border-foreground/25 hover:bg-foreground/15"
         }`}
         onMouseDown={(event) => event.preventDefault()}
         onClick={() => dispatch({ type: "style", row: rowIndex, style })}
@@ -40,7 +40,7 @@ export const EnginePicker = ({
         {validated === id && (
           <span
             aria-hidden
-            className={`size-2 shrink-0 rounded-full bg-amber-400 ${playing === id ? "motion-safe:animate-pulse" : ""}`}
+            className={`size-2 shrink-0 rounded-full bg-brand ${playing === id ? "motion-safe:animate-pulse" : ""}`}
           />
         )}
       </button>

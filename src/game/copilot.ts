@@ -1,7 +1,7 @@
 // Assemble les notes, leur moment et la voix. Observateur strict : lit l'état après les pas de simulation sans jamais l'écrire.
 import { createCopilotVoice, type CopilotVoice } from "@/audio/copilotVoice";
 import type { CarAudio } from "@/audio/engineAudio";
-import { callToWords, type PaceWord } from "@/audio/paceNoteWords";
+import { callToClips } from "@/audio/paceNoteWords";
 import { createPaceNoteCue, type PaceCue } from "@/sim/paceNoteCue";
 import type { LapTimer } from "@/sim/lapTimer";
 import { computePaceNotes } from "@/sim/track/paceNotes";
@@ -18,7 +18,7 @@ export interface CopilotSim {
 export type CopilotAudio = Pick<CarAudio, "voiceBus" | "isMuted" | "setMix">;
 
 export interface Copilot {
-  /** Chargement, vitesse de diction et volume : le reste passe par `update` */
+  /** Chargement, choix de la voix et volume : le reste passe par `update` */
   voice: CopilotVoice;
   /** Une fois par image, après les pas de simulation. Le temps ne compte qu'en course. */
   update: (delta: number, screen: GameScreen) => void;
@@ -30,16 +30,8 @@ export interface Copilot {
   setMix: CarAudio["setMix"];
 }
 
-/** Le nom de fichier d'un mot n'est pas toujours son orthographe. */
-const WORD_TEXT: Partial<Record<PaceWord, string>> = {
-  "se-resserre": "se resserre",
-  crete: "crête",
-};
-
 const cueText = ({ call, short }: PaceCue): string =>
-  callToWords(call, { short })
-    .map((word) => WORD_TEXT[word] ?? word)
-    .join(" ");
+  callToClips(call, { short }).join(" ");
 
 export const createCopilot = (
   sim: CopilotSim,

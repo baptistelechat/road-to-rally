@@ -11,6 +11,7 @@ import { ControlsHelp } from "./components/ControlsHelp";
 import { GameMenu } from "./components/GameMenu";
 import { MiniMap } from "./components/MiniMap";
 import { PaceNotes } from "./components/PaceNotes";
+import { Speedometer } from "./components/Speedometer";
 import {
   PenaltyToast,
   StageCountdown,
@@ -20,36 +21,6 @@ import {
 } from "./components/RaceOverlays";
 import { StageNotices } from "./components/StageNotices";
 import { label, panel } from "./hudStyles";
-
-const formatGear = (gear: number): string => {
-  if (gear < 0) return "R";
-  if (gear === 0) return "N";
-  return String(gear);
-};
-
-const Speedometer = () => {
-  const speedKmh = useHudStore((s) => s.speedKmh);
-  const gear = useHudStore((s) => s.gear);
-  return (
-    <section
-      aria-label="Compteur"
-      className={`${panel} flex items-stretch gap-4 px-4 py-3`}
-    >
-      <div className="flex w-14 flex-col items-center justify-center border-r border-white/15 pr-4">
-        <span className={label}>Rapport</span>
-        <span className="font-mono text-4xl font-bold text-amber-400 tabular-nums">
-          {formatGear(gear)}
-        </span>
-      </div>
-      <div className="flex flex-col items-end justify-center">
-        <span className="font-mono text-6xl leading-none font-bold tabular-nums">
-          {speedKmh}
-        </span>
-        <span className={`${label} mt-1`}>km/h</span>
-      </div>
-    </section>
-  );
-};
 
 const SoundStatus = () => {
   const muted = useHudStore((s) => s.muted);
@@ -73,7 +44,7 @@ const DiagToast = () => {
     >
       {diag && (
         <div
-          className={`${panel} px-4 py-2 text-sm font-semibold text-amber-400`}
+          className={`${panel} px-4 py-2 text-sm font-semibold text-brand`}
         >
           {diag}
         </div>
@@ -101,10 +72,10 @@ const RecoveryCountdown = () => {
       className={`${panel} absolute top-1/4 left-1/2 w-72 -translate-x-1/2 px-5 py-4 text-center`}
     >
       <div className={label}>{title}</div>
-      <div className="font-mono text-5xl font-bold text-amber-400 tabular-nums">
+      <div className="font-mono text-5xl font-bold text-brand tabular-nums">
         {recovery.remaining.toFixed(1)}
       </div>
-      <div className="mt-1 text-xs text-white/70">{hint}</div>
+      <div className="mt-1 text-xs text-muted-foreground">{hint}</div>
     </div>
   );
 };

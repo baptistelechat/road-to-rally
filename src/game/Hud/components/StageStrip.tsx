@@ -16,9 +16,9 @@ const sectorColor = (
   delta: number | null | undefined,
   current: boolean,
 ): string => {
-  if (delta === undefined) return current ? "bg-white/60" : "bg-white/20";
-  if (delta === null) return "bg-white/85";
-  return delta <= 0 ? "bg-emerald-500" : "bg-red-500";
+  if (delta === undefined) return current ? "bg-foreground/60" : "bg-foreground/20";
+  if (delta === null) return "bg-foreground/85";
+  return delta <= 0 ? "bg-chart-4" : "bg-destructive";
 };
 
 /** Damier de l'arrivée, sans image */
@@ -60,23 +60,23 @@ export const StageStrip = ({
       {gates.map((gate) => (
         <div
           key={gate}
-          className="absolute left-1/2 h-0.5 w-3 -translate-x-1/2 translate-y-1/2 bg-white"
+          className="absolute left-1/2 h-0.5 w-3 -translate-x-1/2 translate-y-1/2 bg-foreground"
           style={{ bottom: percent(gate) }}
         />
       ))}
-      <div className="absolute bottom-0 left-1/2 size-2.5 -translate-x-1/2 translate-y-1/2 rounded-full border border-black bg-green-500" />
+      <div className="absolute bottom-0 left-1/2 size-2.5 -translate-x-1/2 translate-y-1/2 rounded-full border border-background bg-chart-4" />
       <div
-        className="absolute top-0 left-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 border border-black"
+        className="absolute top-0 left-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 border border-background"
         style={CHECKER}
       />
       {ghostFraction !== null && (
         <div
-          className="absolute left-1/2 size-3 -translate-x-1/2 translate-y-1/2 rounded-full border border-white/70 bg-white/40"
+          className="absolute left-1/2 size-3 -translate-x-1/2 translate-y-1/2 rounded-full border border-foreground/70 bg-foreground/40"
           style={{ bottom: percent(ghostFraction) }}
         />
       )}
       <div
-        className="absolute left-1/2 size-3 -translate-x-1/2 translate-y-1/2 rounded-full border border-black bg-amber-400"
+        className="absolute left-1/2 size-3 -translate-x-1/2 translate-y-1/2 rounded-full border border-background bg-brand"
         style={{ bottom: percent(carFraction) }}
       />
     </div>

@@ -27,7 +27,7 @@ export const PointSymbol = ({
   size?: SymbolSize;
 }) => (
   <span
-    className={`grid place-items-center rounded-full border-2 border-white bg-sky-600 font-bold text-white shadow-md ${size === "md" ? "size-6 text-xs" : "size-5 text-[10px]"}`}
+    className={`grid place-items-center rounded-full border-2 border-foreground bg-sky-600 font-bold text-foreground shadow-md ${size === "md" ? "size-6 text-xs" : "size-5 text-[10px]"}`}
   >
     {rank}
   </span>
@@ -60,7 +60,7 @@ export const ChicaneSymbol = ({
     </svg>
     {player && (
       <span
-        className={`absolute -top-0.5 -right-0.5 rounded-full border border-white bg-orange-500 ${size === "md" ? "size-2.5" : "size-1.5"}`}
+        className={`absolute -top-0.5 -right-0.5 rounded-full border border-foreground bg-orange-500 ${size === "md" ? "size-2.5" : "size-1.5"}`}
       />
     )}
   </span>
@@ -69,7 +69,7 @@ export const ChicaneSymbol = ({
 /** L'îlot d'un rond-point en pointillé rouge, comme sur la carte ; le rocher d'un petit giratoire en gris plein. */
 export const RoundaboutSymbol = ({ rock = false }: { rock?: boolean }) => (
   <span
-    className={`block size-4 rounded-full border-[3px] bg-neutral-900/60 shadow-md ${rock ? "border-stone-400" : "border-dashed border-red-500"}`}
+    className={`block size-4 rounded-full border-[3px] bg-background/60 shadow-md ${rock ? "border-stone-400" : "border-dashed border-red-500"}`}
   />
 );
 
@@ -79,7 +79,7 @@ export const MEDIAN_COLOR = "#f472b6";
 /** Un tronçon de glissière entre deux chaussées. */
 export const MedianSymbol = () => (
   <span
-    className="block h-1.5 w-4 rounded-full border border-white shadow-md"
+    className="block h-1.5 w-4 rounded-full border border-foreground shadow-md"
     style={{ backgroundColor: MEDIAN_COLOR }}
   />
 );
@@ -87,8 +87,8 @@ export const MedianSymbol = () => (
 /** Un intermédiaire du chrono, numéroté : la frise et la mini-carte de la course le montrent au même endroit. */
 export const SplitSymbol = ({ rank }: { rank: number | string }) => (
   <span className="inline-flex items-center gap-0.5">
-    <span className="block h-1.5 w-5 rounded-full border border-black/70 bg-white shadow" />
-    <span className="text-[10px] leading-none font-bold text-white [text-shadow:0_0_3px_black]">
+    <span className="block h-1.5 w-5 rounded-full border border-background/70 bg-foreground shadow" />
+    <span className="text-[10px] leading-none font-bold text-foreground [text-shadow:0_0_3px_black]">
       {rank}
     </span>
   </span>
@@ -97,7 +97,7 @@ export const SplitSymbol = ({ rank }: { rank: number | string }) => (
 /** La plus longue ligne droite, au milieu de sa portion. */
 export const StraightSymbol = ({ size = "md" }: { size?: SymbolSize }) => (
   <span
-    className={`grid place-items-center rounded-full border-2 border-white bg-green-600 text-white shadow-md ${size === "md" ? "size-6" : "size-5"}`}
+    className={`grid place-items-center rounded-full border-2 border-foreground bg-green-600 text-foreground shadow-md ${size === "md" ? "size-6" : "size-5"}`}
   >
     <MoveHorizontal
       aria-hidden="true"
