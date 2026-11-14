@@ -1,11 +1,10 @@
 // Chicanes automatiques sur l'axe analysé, pures et sans réseau : le pipeline recalcule le placement final avec les vraies largeurs.
 import {
-  toOsmWays,
   type AnalyzedAxis,
   type HighwaySegment,
 } from "@/geo/analyzeTrace";
 import { placeChicanes } from "@/geo/chicanes";
-import { deduceRoadAttributes } from "@/geo/osm";
+import { deduceRoadAttributes, toOsmWays } from "@/geo/osm";
 import type { AutoChicanes } from "./types";
 
 /**

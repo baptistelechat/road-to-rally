@@ -337,7 +337,7 @@ export const sortChicaneRequests = (
       a.side.localeCompare(b.side),
   );
 
-/** Plages à éviter : ponts et tunnels, puis plage de retour et jonction d'un aller-retour. `axis` : tout l'axe ou sa portion unique. */
+/** Plages à éviter : ponts et tunnels ou terre-pleins (`structures`), puis plage de retour et jonction d'un aller-retour. `axis` : tout l'axe ou sa portion unique. */
 export const chicaneExclusions = (
   axis: Vec3[],
   widths: number[],

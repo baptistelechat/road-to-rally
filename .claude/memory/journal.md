@@ -307,6 +307,63 @@ Intégration des voix du copilote. La voix ne recolle plus des mots : chaque not
 - [BDR-261104_2127-1](decisions/BDR-261104_2127-1.md) — Fichiers voix : un dossier par voix, nom tiré du texte
 - [ZBLK-20261103202354-5](archive/blockers/ZBLK-20261103202354-5.md) — Modèles Kokoro absents : « long » régénéré, résolu
 
+Session éditeur, partie en mode Rodin. Baptiste trouvait l'éditeur peu intuitif. Le profil d'altitude a reçu des graduations en distance et en altitude, puis les points, les chicanes et leur zone jaune, les ronds-points, les rochers et la plus longue ligne droite (désormais toujours en vert sur la carte), tous cliquables pour centrer la carte, zoom porté à 17. La limite de 2 km, sans raison technique, est passée à 500 m.
+
+L'éditeur a ensuite été refondu : un seul mode au lieu d'Éditer/Déplacer, avec une tolérance de clic à 8 px, une marge autour des marqueurs et aucun point créé en fermant un menu ou en cliquant sur une zone de chicane. Le panneau droit a disparu au profit d'une barre du haut, de popovers Points, Chicanes et Légende (au survol) et d'un bandeau de stats avec le score en fenêtre. Un seul jeu de symboles relie maintenant légende, carte et courbe. Sur fond clair, la route roulée passe en bleu nuit.
+
+Les petits giratoires de l'avenue Bollée au Mans étaient bien tagués mais écartés, trop petits pour un îlot : ils reçoivent un rocher. Les ronds-points disparus en jeu venaient d'Overpass saturé, d'où un secours BRouter pour les spéciales de l'éditeur. Le vrai sujet, un même lien donnant deux routes selon le jour, est noté dans l'epic 6 avec les options d'un lien figé (Vercel Blob recommandé, backend à trancher). Commit `3fa14f7` sur `development`, sans push ni check de déterminisme.
+
+**Entrées clés :**
+
+- [BDR-261104_1032-1](decisions/BDR-261104_1032-1.md) — Éditeur en un seul mode
+- [BDR-261104_1032-2](decisions/BDR-261104_1032-2.md) — Éditeur sans panneau latéral
+- [BDR-261104_1032-3](decisions/BDR-261104_1032-3.md) — Secours BRouter quand Overpass ne répond pas
+- [LRN-261104_1032-5](learnings/LRN-261104_1032-5.md) — Overpass saturé : spéciale sans ronds-points ni largeurs
+
+---
+
+Rendu satellite de l'éditeur retravaillé : les noms de rue du raster IGN `TRANSPORTNETWORKS.ROADS`, incrustés dans l'image, prenaient trop de place. Après une série de propositions (opacité, routes vectorielles, bouton, autre fond satellite), Baptiste a retenu les routes OSM vectorielles d'OpenFreeMap sur l'orthophoto, une opacité qui diminue avec le zoom et un bouton « Routes ». Les noms n'apparaissent plus qu'à partir du zoom 16. Ses retours ensuite : fonds réordonnés en Clair, Sombre, Satellite, bouton Routes déplacé à gauche de « Légende », et une erreur « Cannot style non-existing layer » au changement de fond, corrigée par un garde `getLayer`. React-doctor a relevé une valeur de contexte non mémorisée (corrigée, score 100). Commit `eda08f7`, non poussé. Rendu non vérifié à l'écran par Claude, car le serveur de dev de Baptiste occupait le port 3000.
+
+**Entrées clés :**
+
+- [BDR-261104_1456-1](decisions/BDR-261104_1456-1.md) — Routes du satellite en vecteur OSM, pas en raster IGN
+- [LRN-261104_1456-2](learnings/LRN-261104_1456-2.md) — mapcn : l'effet voit encore l'ancien style au changement de fond
+---
+
+Le score de l'éditeur tient désormais tout entier dans le bandeau au-dessus du profil : la fenêtre « Score détaillé » est retirée, épingles et ligne droite max (surlignage au survol) remontent, et le verdict « route sinueuse », simple traduction des virages par km, n'est plus affiché.
+
+Gros morceau ensuite : l'alerte récurrente « deux portions de route se touchent » sur les crochets BRouter en ville (carrefour en T, demi-tour au rond-point, retour devant le carrefour). L'aller-retour existant n'acceptait qu'un retour vers le départ. Baptiste a choisi l'option terre-plein : tout tronçon roulé dans les deux sens devient deux chaussées de 5 m séparées par 2 m de terre-plein et une glissière solide, en « roulant à droite » depuis le milieu des deux passages. La sim n'y voit qu'une spéciale ouverte ordinaire plus des glissières (`medians`). Première version validée sur un T synthétique, mais l'alerte restait sur la spéciale du Mans : en récupérant le brouillon via `/api/diag`, il est apparu que l'avenue Bollée a deux chaussées OSM à 8 m (tram) et un mini-giratoire à 256° de virage. Tolérance portée à 10 m, écart complété seulement de ce qui manque, boucle à 225° minimum. Baptiste a validé au volant, les checks n'ont pas été lancés à sa demande (le nouveau `dual-carriageway.check.ts` n'a jamais tourné). react-doctor à 91, commit `95fee94` sur `main`, sans push.
+
+**Entrées clés :**
+
+- [BDR-261104_1546-1](decisions/BDR-261104_1546-1.md) — aller-retour en milieu de spéciale : deux chaussées, glissière
+- [ZBLK-261104_1546-5](archive/blockers/ZBLK-261104_1546-5.md) — alerte persistante sur le tracé du Mans
+- [LRN-261104_1546-4](learnings/LRN-261104_1546-4.md) — reproduire un tracé éditeur via `/api/diag`
+---
+
+La glissière des terre-pleins devient visible dans l'éditeur : trait rose sur la carte, bande et icône sur le profil (aller, demi-tour, retour), ligne dans la légende. Vérifié sur la spéciale du Mans dans Chrome, où un clic raté a posé un point sur le vrai brouillon, aussitôt annulé. react-doctor à 91, commit `4d80e37` sur `main`, sans push.
+
+**Entrées clés :**
+
+- [LRN-261104_1546-6](learnings/LRN-261104_1546-6.md) — vérifier l'éditeur dans Chrome modifie le vrai brouillon
+
+---
+
+Epic 4, stories 4.1 à 4.5 (chrono, intermédiaires, remise en piste, record par spéciale, fantôme), le copilote 4.6 à 4.11 étant déjà livré. Trois agents en parallèle ont écrit modules et fiches, chacun renvoyant son code d'intégration ; l'orchestrateur a gardé la boucle de jeu, le store et le HUD. Lint et build une seule fois à la fin, aucun check lancé.
+
+Le playtest de Baptiste a enchaîné les retours : écart du résultat au format chrono et en couleur, fantôme invisible parce que le record venait de l'ancienne clé (d'où un fantôme de secours à allure constante), décompte avec bips et feux, décompte et intermédiaires aussi sur le circuit, intermédiaires ramenés à 3 secteurs égaux, frise WRC verticale, repères sur la mini-carte et dans l'éditeur, message de pénalité avec sa raison, fantôme sur la mini-carte. Le fantôme a ensuite été calé sur le chrono officiel (format v2 avec pénalités) et l'écran de résultat détaille chaque secteur jusqu'au total.
+
+Arches de secteur : plusieurs croquis comparés, choix d'une arche gonflable « SECTEUR n » (gros boudins ramenés à 65 cm, bandes, haubans), avec collision des pieds. Les panneaux d'annonce de chicane sont devenus des objets renversables. Les 403 de BRouter n'ont pas pu être reproduits : message dédié et cache des itinéraires en attendant.
+
+Le React Compiler a refusé l'écriture dans une ref passée au hook de boucle ; react-doctor a ensuite signalé l'effet qui faisait remonter le fantôme : remplacé par un objet outlet. Score react-doctor de 76 à 81 sur les fichiers modifiés. Commit 4f02a27 poussé sur main.
+
+**Entrées clés :**
+
+- [BDR-261104_2153-1](decisions/BDR-261104_2153-1.md) — fantôme sur le chrono officiel
+- [BDR-261104_2153-2](decisions/BDR-261104_2153-2.md) — trois secteurs et arches avec collider
+- [BLK-261104_2153-6](blockers/BLK-261104_2153-6.md) — 403 de BRouter non reproduit
+- [LRN-261104_2153-7](learnings/LRN-261104_2153-7.md) — fichiers chauds gardés par l'orchestrateur
+
 ## 2026-11-05
 
 Session d'identité visuelle avec le skill brand-creator. Une première série de six directions de design, pensées comme des sites, a été écartée : Baptiste a gardé la typo de la Spéciale de nuit (Michroma, Manrope, Share Tech Mono) et demandé des variations autour du low-poly, maquettées comme des écrans de jeu (HUD en course, pause, arrivée). La direction Nuit facettée a été retenue. Le nom du jeu est fixé à « Road to Rally ».
@@ -329,3 +386,11 @@ L'étape 18 a pris l'essentiel de la session : une première série de maquettes
 
 - [BDR-261105_2313-1](decisions/BDR-261105_2313-1.md) — Redesign retenu : menu B, pause road-book, HUD au choix
 - [BLK-261105_2313-5](blockers/BLK-261105_2313-5.md) — `development` en retard sur la prod epic 4, HUD en conflit
+
+## 2026-11-14
+
+Point d'avancement sur `main` : l'epic 4 (course) est entièrement codé (chrono, intermédiaires, pénalités, record, fantôme, copilote) mais rien n'est encore validé au volant. La doc était en retard sur le code : 4.6 à 4.11 restaient « à faire » dans la roadmap et leurs fiches, et les sections « Reste à faire » de 4.2 et 4.4 décrivaient un branchement déjà fait (vérifié dans `useGameLoop.ts`). Statuts passés en 🟡, sections périmées retirées, fiche `epic-4-course.md` supprimée au profit du dossier, epic 4 marqué « Au volant » dans la roadmap. Commit 209e7b8 poussé. Reste le playtest de passage de l'epic 4, puis les checks `splits`, `start-finish` et `ghost` sur accord de Baptiste.
+
+**Entrées clés :**
+
+- [BDR-261114_1646-1](decisions/BDR-261114_1646-1.md) — Fiche d'epic supprimée une fois ses stories détaillées

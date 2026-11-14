@@ -8,6 +8,7 @@ register: blockers
 | --- | --- | --- | --- | --- |
 | [BLK-002](blockers/BLK-002.md) | 2026-11-01 | Lag à 5 min en mode dev avec manette Bluetooth | #lag #bluetooth #gamepad #nextjs #dev-mode #web-audio #performance | ouvert |
 | [BLK-261105_2313-5](blockers/BLK-261105_2313-5.md) | 2026-11-05 | `development` en retard sur la prod epic 4, HUD en conflit | #git #branches #hud #design-tokens #merge-conflict #epic-4 | ouvert |
+| [BLK-261104_2153-6](blockers/BLK-261104_2153-6.md) | 2026-11-04 | 403 de BRouter, cause non reproduite | #brouter #http #403 #rate-limit #editor #cache | ouvert |
 | [BLK-20261101150421-7](blockers/BLK-20261101150421-7.md) | 2026-11-01 | Vitesse de mesure variable selon le drapeau de départ | #mesure #performance #drapeaux #navigateur #claude-browser #garage | ouvert |
 | [BLK-20261101191443-5](blockers/BLK-20261101191443-5.md) | 2026-11-01 | next dev bloqué avant l'hydratation dans le panneau navigateur | #nextjs #hmr #browser-pane #hydration #dev-mode #test | ouvert |
 | [BLK-20261102122033-11](blockers/BLK-20261102122033-11.md) | 2026-11-02 | Worker MapLibre chargé depuis unpkg par mapcn | #mapcn #maplibre #unpkg #securite #worker #supply-chain | ouvert |

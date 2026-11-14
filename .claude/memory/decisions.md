@@ -19,6 +19,19 @@ register: decisions
 | [BDR-261104_2127-1](decisions/BDR-261104_2127-1.md) | 2026-11-04 | Fichiers voix : un dossier par voix, nom tiré du texte | #copilote #voix #web-audio #fichiers #kokoro #gain | actif |
 | [BDR-261105_1736-1](decisions/BDR-261105_1736-1.md) | 2026-11-05 | Identité Road to Rally : Nuit facettée, Épingle, carte og unique | #brand #logo #og-image #nextjs #design-system #low-poly | actif |
 | [BDR-261105_2313-1](decisions/BDR-261105_2313-1.md) | 2026-11-05 | Redesign retenu : menu B, pause road-book, HUD au choix | #redesign #hud #game-ui #mockups #claude-design #nuit-facettee | actif |
+| [BDR-261104_1032-1](decisions/BDR-261104_1032-1.md) | 2026-11-04 | Éditeur en un seul mode, sans bascule Éditer/Déplacer | #editeur #maplibre #clic #ux #marqueur #epic-3 | actif |
+| [BDR-261104_1032-2](decisions/BDR-261104_1032-2.md) | 2026-11-04 | Éditeur sans panneau latéral : barre, popovers, bandeau | #editeur #layout #popover #shadcn #legende #profil | actif |
+| [BDR-261104_1032-3](decisions/BDR-261104_1032-3.md) | 2026-11-04 | Secours BRouter quand Overpass ne répond pas | #pipeline #overpass #brouter #secours #osm #cache #partage | actif |
+| [BDR-261104_1032-4](decisions/BDR-261104_1032-4.md) | 2026-11-04 | Spéciale de 500 m minimum, plus 2 km | #editeur #longueur #pipeline #prd #gpx | actif |
+| [BDR-261104_1456-1](decisions/BDR-261104_1456-1.md) | 2026-11-04 | Routes du satellite en vecteur OSM, pas en raster IGN | #editor #maplibre #satellite #openfreemap #osm #basemap | actif |
+| [BDR-261104_1546-1](decisions/BDR-261104_1546-1.md) | 2026-11-04 | Aller-retour en milieu de spéciale : deux chaussées, glissière | #aller-retour #dual-carriageway #terre-plein #glissiere #gpx #rapier #editor | actif |
+| [BDR-261104_1546-2](decisions/BDR-261104_1546-2.md) | 2026-11-04 | Score de l'éditeur en entier dans le bandeau, sans verdict | #editor #score #ui #profil #stats | actif |
+| [BDR-261104_2153-1](decisions/BDR-261104_2153-1.md) | 2026-11-04 | Fantôme sur le chrono officiel, poses et entrées stockées | #ghost #chrono #penalites #replay #localstorage #determinisme | actif |
+| [BDR-261104_2153-2](decisions/BDR-261104_2153-2.md) | 2026-11-04 | Trois secteurs égaux, arches gonflables avec collider | #splits #secteurs #arches #colliders #hud #editor | actif |
+| [BDR-261104_2153-3](decisions/BDR-261104_2153-3.md) | 2026-11-04 | Décompte de 3 s partout, pénalité de 5 s par remise | #countdown #depart #penalites #recovery #circuit #sim | actif |
+| [BDR-261104_2153-4](decisions/BDR-261104_2153-4.md) | 2026-11-04 | Record par spéciale, identifié par l'empreinte du tracé | #records #stagehash #localstorage #fallback #migration #splits | actif |
+| [BDR-261104_2153-5](decisions/BDR-261104_2153-5.md) | 2026-11-04 | Panneaux d'annonce de chicane en objets renversables | #chicanes #light-props #rapier #scenery #render #determinisme | actif |
+| [BDR-261114_1646-1](decisions/BDR-261114_1646-1.md) | 2026-11-14 | Fiche d'epic supprimée une fois ses stories détaillées | #docs #roadmap #stories #epic #convention | actif |
 | [BDR-20261101115222-1](decisions/BDR-20261101115222-1.md) | 2026-11-01 | L'IGN est la seule source d'altitude en jeu | #ign #brouter #srtm #relief #altitude #epic-2 | actif |
 | [BDR-20261101115222-2](decisions/BDR-20261101115222-2.md) | 2026-11-01 | Circuit conservé et trois cartes de test | #sandbox #cartes #url #selecteur #localstorage #epic-2 | actif |
 | [BDR-20261101115222-3](decisions/BDR-20261101115222-3.md) | 2026-11-01 | Les tracés qui se croisent sont refusés en v0 | #ribbon #nearest #croisement #maillage #scope #epic-2 | actif |

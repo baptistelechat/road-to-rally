@@ -13,7 +13,7 @@ Les epics suivent l'ordre des phases du PRD.
 | 1   | [Gameplay](stories/epic-1-gameplay/) : voiture, contrôles, tracé sandbox   | Tu as envie d'y rejouer 10 minutes sans rien d'autre                  | ✅ Validé  |
 | 2   | [Pipeline géo](stories/epic-2-pipeline-geo/) : GPX vers route et relief 3D | Une vraie spéciale de 5 km roulable sans bug de maillage              | ✅ Validé  |
 | 3   | [Éditeur sur carte](stories/epic-3-editeur/) : tracé assisté               | Un ami crée une spéciale sans ton aide                                | ✅ Validé  |
-| 4   | [Course](stories/epic-4-course.md) : chrono, fantôme, copilote             | Une spéciale complète se court du départ à l'arrivée, notes à l'heure | ⬜ À faire |
+| 4   | [Course](stories/epic-4-course/) : chrono, fantôme, copilote             | Une spéciale complète se court du départ à l'arrivée, notes à l'heure | 🟡 Au volant |
 | 5   | [Décor](stories/epic-5-decor.md) : bâtiments et forêts depuis les données  | 60 FPS sur un portable moyen dans un village                          | ⬜ À faire |
 | 6   | [Partage](stories/epic-6-partage.md) : tracé et temps dans l'URL           | Un ami ouvre le lien et tente de battre ton temps                     | ⬜ À faire |
 
@@ -67,18 +67,23 @@ Le détail suit la proximité : les epics 1 à 3 ont une fiche par story, les su
 
 L'éditeur s'inspire de [gpx.studio](https://gpx.studio/fr/help/toolbar/routing) pour le tracé entre plusieurs points. Le parcours complet, de la carte au volant, fonctionne dès la story 3.4 : le reste s'y ajoute.
 
-## Epic 4 : copilote
+## Epic 4 : course
 
-Détaché du reste de l'epic car il ne dépend pas de l'éditeur : à faire dans cet ordre, avant ou après 4.1. La mini-carte est la première à reporter si le temps manque.
+Le copilote (4.6 à 4.11) a été développé avant 4.1 car il ne dépend pas de l'éditeur. La mini-carte est la première à reporter si le temps manque.
 
 | Story                                                  | Sujet               | Statut |
 | ------------------------------------------------------ | ------------------- | ------ |
-| [4.6](stories/epic-4-course/4.6-calcul-notes.md)       | Calcul des notes    | ⬜     |
-| [4.7](stories/epic-4-course/4.7-voix-copilote.md)      | Voix du copilote    | ⬜     |
-| [4.8](stories/epic-4-course/4.8-moment-note.md)        | Moment de la note   | ⬜     |
-| [4.9](stories/epic-4-course/4.9-icones-virages.md)     | Icônes de virage    | ⬜     |
-| [4.10](stories/epic-4-course/4.10-mini-carte.md)       | Mini-carte          | ⬜     |
-| [4.11](stories/epic-4-course/4.11-options-copilote.md) | Options du copilote | ⬜     |
+| [4.1](stories/epic-4-course/4.1-depart-arrivee.md)        | Départ et arrivée    | 🟡     |
+| [4.2](stories/epic-4-course/4.2-temps-intermediaires.md)  | Temps intermédiaires | 🟡     |
+| [4.3](stories/epic-4-course/4.3-remise-route.md)          | Remise sur la route  | 🟡     |
+| [4.4](stories/epic-4-course/4.4-meilleur-temps.md)        | Meilleur temps local | 🟡     |
+| [4.5](stories/epic-4-course/4.5-fantome.md)               | Fantôme              | 🟡     |
+| [4.6](stories/epic-4-course/4.6-calcul-notes.md)       | Calcul des notes    | 🟡     |
+| [4.7](stories/epic-4-course/4.7-voix-copilote.md)      | Voix du copilote    | 🟡     |
+| [4.8](stories/epic-4-course/4.8-moment-note.md)        | Moment de la note   | 🟡     |
+| [4.9](stories/epic-4-course/4.9-icones-virages.md)     | Icônes de virage    | 🟡     |
+| [4.10](stories/epic-4-course/4.10-mini-carte.md)       | Mini-carte          | 🟡     |
+| [4.11](stories/epic-4-course/4.11-options-copilote.md) | Options du copilote | 🟡     |
 
 ✅ validé · 🟡 code livré et vérifié par les tests, jugement au volant de Baptiste attendu · ⬜ à faire
 

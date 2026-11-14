@@ -7,6 +7,8 @@ import {
   ROUNDABOUT_MIN_ON_RING,
   ROUNDABOUT_MIN_RADIUS,
   ROUNDABOUT_RING_LANE,
+  ROUNDABOUT_ROCK_CLEARANCE,
+  ROUNDABOUT_ROCK_RADIUS,
   STEP,
 } from "./config";
 import {
@@ -22,7 +24,10 @@ export interface Roundabout {
   /** Centre de l'îlot, dans le plan de la spéciale */
   x: number;
   z: number;
-  /** Rayon de l'îlot, en mètres : le bord de la route roulée reste à `ROUNDABOUT_EDGE_MARGIN` de sa barrière */
+  /**
+   * Rayon de l'îlot, en mètres : le bord de la route roulée reste à `ROUNDABOUT_EDGE_MARGIN` de sa barrière.
+   * Sous `ROUNDABOUT_MIN_ISLAND`, c'est un rocher (`isRock`), qui peut mordre le bord intérieur de la chaussée estimée.
+   */
   radius: number;
 }
 
@@ -120,8 +125,10 @@ export const findRoundabouts = (
     let first = -1;
     const cap = circle.radius - ROUNDABOUT_RING_LANE;
     let island = cap;
+    let nearest = Infinity;
     axis.forEach((p, i) => {
       const d = Math.hypot(p.x - circle.x, p.z - circle.z);
+      nearest = Math.min(nearest, d);
       if (Math.abs(d - circle.radius) <= band) {
         onRing++;
         if (first < 0) first = i;
@@ -129,11 +136,14 @@ export const findRoundabouts = (
       // Jamais sur la chaussée roulée, quel que soit le point : ni à l'entrée, ni à la sortie, ni sur une autre portion.
       island = Math.min(island, d - widths[i] / 2 - ROUNDABOUT_EDGE_MARGIN);
     });
-    if (
-      onRing * STEP < ROUNDABOUT_MIN_ON_RING ||
-      island < ROUNDABOUT_MIN_ISLAND
-    )
-      continue;
+    if (onRing * STEP < ROUNDABOUT_MIN_ON_RING) continue;
+    // Trop petit pour une barrière : un rocher au centre, s'il laisse passer la voiture sur l'axe.
+    // ponytail: la largeur `highway` (7 m en primary) est celle de l'avenue, pas de l'anneau ; le rocher peut en mordre le bord intérieur.
+    if (island < ROUNDABOUT_MIN_ISLAND) {
+      if (nearest < ROUNDABOUT_ROCK_RADIUS + ROUNDABOUT_ROCK_CLEARANCE)
+        continue;
+      island = ROUNDABOUT_ROCK_RADIUS;
+    }
     found.push({
       index: first,
       roundabout: {
@@ -148,3 +158,7 @@ export const findRoundabouts = (
     .sort((a, b) => a.index - b.index)
     .map(({ roundabout }) => roundabout);
 };
+
+/** Un îlot sous `ROUNDABOUT_MIN_ISLAND` est un rocher, pas une barrière. */
+export const isRock = (radius: number): boolean =>
+  radius < ROUNDABOUT_MIN_ISLAND;

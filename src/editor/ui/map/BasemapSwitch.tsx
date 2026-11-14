@@ -1,13 +1,13 @@
 "use client";
 
-import { Moon, Satellite, Sun } from "lucide-react";
+import { Moon, Route, Satellite, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { BasemapId } from "./basemaps";
+import { useBasemap, useRoads, type BasemapId } from "./basemaps";
 
 const OPTIONS: { id: BasemapId; label: string; Icon: typeof Moon }[] = [
-  { id: "satellite", label: "Satellite", Icon: Satellite },
   { id: "light", label: "Clair", Icon: Sun },
   { id: "dark", label: "Sombre", Icon: Moon },
+  { id: "satellite", label: "Satellite", Icon: Satellite },
 ];
 
 interface BasemapSwitchProps {
@@ -15,7 +15,10 @@ interface BasemapSwitchProps {
   onChange: (id: BasemapId) => void;
 }
 
-export const BasemapSwitch = ({ value, onChange }: BasemapSwitchProps) => (
+export const BasemapSwitch = ({
+  value,
+  onChange,
+}: BasemapSwitchProps) => (
   <div
     role="group"
     aria-label="Fond de carte"
@@ -35,3 +38,22 @@ export const BasemapSwitch = ({ value, onChange }: BasemapSwitchProps) => (
     ))}
   </div>
 );
+
+/** Routes OSM sur la photo, ou la photo seule : n'existe que sur le satellite. */
+export const RoadsToggle = () => {
+  const basemap = useBasemap();
+  const { showRoads, setShowRoads } = useRoads();
+  if (basemap !== "satellite") return null;
+  return (
+    <Button
+      size="sm"
+      variant={showRoads ? "secondary" : "ghost"}
+      aria-pressed={showRoads}
+      title="Routes sur la photo"
+      onClick={() => setShowRoads(!showRoads)}
+    >
+      <Route aria-hidden="true" />
+      Routes
+    </Button>
+  );
+};

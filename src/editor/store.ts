@@ -42,8 +42,6 @@ export type EditorIssue = Omit<TraceIssue, "code"> & {
 
 export type ProfileStatus = "idle" | "loading" | "failed" | "outOfFrance";
 
-export type MapMode = "edit" | "move";
-
 /** La recherche d'autres routes pour un segment. `null` : aucune, ou elle ne vaut plus pour le tracé actuel. */
 export type VariantState =
   | { kind: "searching"; segmentIndex: number }
@@ -66,10 +64,10 @@ export interface EditorState {
   draftSaved: boolean;
   /** Un point ou la poignée d'insertion est en cours de glissement */
   dragging: boolean;
+  /** Le menu de chicane demandé hors du marqueur, par un clic sur sa zone : un objet neuf par demande */
+  chicaneMenu: { id: string } | null;
   /** La chicane en cours de glissement, déjà recalée sur la route : sa zone la suit */
   draggedChicane: { id: string; position: LatLon } | null;
-  /** `edit` : un clic crée. `move` : les éléments se glissent, et aucun clic ne crée rien. Hors de l'historique. */
-  mapMode: MapMode;
 
   analyzing: boolean;
   analysis: TraceAnalysis | null;
@@ -230,7 +228,6 @@ export const createEditorStore = (
       draftSaved: true,
       dragging: false,
       draggedChicane: null,
-      mapMode: "edit",
       analyzing: false,
       analysis: null,
       analysisError: null,
@@ -242,6 +239,7 @@ export const createEditorStore = (
       profileMessage: null,
       variants: null,
       hoverS: null,
+      chicaneMenu: null,
       highlightStraight: false,
       focus: null,
 

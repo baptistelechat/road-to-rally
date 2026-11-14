@@ -162,6 +162,15 @@ export const CopilotOptionsPanel = ({
         cards={SPEEDOMETERS}
         onChoose={(speedometerStyle) => update({ speedometerStyle })}
       />
+      <MenuSelect
+        title="Fantôme"
+        value={options.ghostEnabled}
+        options={ENABLED}
+        onChoose={(ghostEnabled, close) => {
+          update({ ghostEnabled });
+          close();
+        }}
+      />
       <button
         type="button"
         data-menu-back=""

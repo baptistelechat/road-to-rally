@@ -12,6 +12,8 @@ const POST_HALF_WIDTH = 0.09;
 const SIGN_MASS = 15;
 const SIGN_HALF_HEIGHT = 1.2;
 const SIGN_HALF_WIDTH = 0.08;
+/** Mât du panneau d'annonce de chicane, jusqu'au haut du panneau */
+const CHICANE_SIGN_HALF_HEIGHT = 1.4;
 
 const LIGHT_MEMBERSHIP = 0x0002;
 const collisionGroups = (membership: number, filter: number): number =>
@@ -29,13 +31,18 @@ export const RAY_IGNORED_GROUPS = collisionGroups(LIGHT_MEMBERSHIP, 0xffff);
 export const isHay = (kind: SceneryKind): boolean =>
   kind === "hay" || kind === "hayUpright";
 
+export const isChicaneSign = (kind: SceneryKind): boolean =>
+  kind === "chicaneSignLeft" || kind === "chicaneSignRight";
+
 export const isLightProp = (kind: SceneryKind): boolean =>
-  isHay(kind) || kind === "post" || kind === "sign";
+  isHay(kind) || kind === "post" || kind === "sign" || isChicaneSign(kind);
 
 const CENTER_HEIGHT: Partial<Record<SceneryKind, number>> = {
   hay: HAY_RADIUS,
   hayUpright: HAY_HALF_LENGTH,
   sign: SIGN_HALF_HEIGHT,
+  chicaneSignLeft: CHICANE_SIGN_HALF_HEIGHT,
+  chicaneSignRight: CHICANE_SIGN_HALF_HEIGHT,
 };
 
 /** Hauteur du centre physique au-dessus du pied, là où le modèle 3D a son origine. */
@@ -99,6 +106,12 @@ const colliderFor = (item: SceneryItem): RAPIER_TYPES.ColliderDesc => {
       .setRotation({ x: 0, y: 0, z: quarterTurn, w: quarterTurn })
       .setMass(HAY_MASS);
   }
+  if (isChicaneSign(item.kind))
+    return RAPIER.ColliderDesc.cuboid(
+      SIGN_HALF_WIDTH * item.scale,
+      CHICANE_SIGN_HALF_HEIGHT * item.scale,
+      SIGN_HALF_WIDTH * item.scale,
+    ).setMass(SIGN_MASS);
   if (item.kind === "sign") {
     // Le mât seul : la voiture passe sous le panneau, elle ne touche que le pied.
     return RAPIER.ColliderDesc.cuboid(

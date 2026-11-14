@@ -5,12 +5,20 @@ import { useHudStore } from "@/game/hudStore";
 import type { ImportedStage } from "@/game/useStageImport";
 import type { RecoveryStatus } from "@/sim/recovery";
 import type { Simulation } from "@/sim/simulation";
-import { Chrono, FinishBanner } from "./components/Chrono";
+import type { CarSource } from "@/render/carSource";
+import { Chrono } from "./components/Chrono";
 import { ControlsHelp } from "./components/ControlsHelp";
 import { GameMenu } from "./components/GameMenu";
 import { MiniMap } from "./components/MiniMap";
 import { PaceNotes } from "./components/PaceNotes";
 import { Speedometer } from "./components/Speedometer";
+import {
+  PenaltyToast,
+  StageCountdown,
+  StageProgressStrip,
+  StageResultScreen,
+  StageSplit,
+} from "./components/RaceOverlays";
 import { StageNotices } from "./components/StageNotices";
 import { label, panel } from "./hudStyles";
 
@@ -74,6 +82,8 @@ const RecoveryCountdown = () => {
 
 interface HudProps {
   sim: Simulation;
+  /** Fantôme, pour la mini-carte. `null` tant que la scène ne l'a pas transmis. */
+  ghost: Pick<CarSource, "getPose"> | null;
   copilot: Copilot;
   /** Identifiant de la carte en cours */
   map: string;
@@ -89,6 +99,7 @@ interface HudProps {
 /** HUD en DOM, à placer par-dessus le canvas. Seuls les boutons et le sélecteur captent les clics. */
 export const Hud = ({
   sim,
+  ghost,
   copilot,
   map,
   mapLabel,
@@ -107,9 +118,13 @@ export const Hud = ({
     </div>
     <DiagToast />
     <PaceNotes />
-    <MiniMap sim={sim} />
-    <FinishBanner />
+    <MiniMap sim={sim} ghost={ghost} />
+    <StageProgressStrip />
+    <StageSplit />
+    <PenaltyToast />
     <RecoveryCountdown />
+    <StageCountdown />
+    <StageResultScreen />
     <GameMenu
       map={map}
       mapLabel={mapLabel}

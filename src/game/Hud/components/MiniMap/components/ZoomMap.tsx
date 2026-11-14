@@ -1,8 +1,9 @@
 import { useCallback, useMemo, useRef } from "react";
 import type { Simulation } from "@/sim/simulation";
+import type { CarSource } from "@/render/carSource";
 import { miniMapOutline, ZOOM_MAX_POINTS } from "../../../miniMapOutline";
-import { type CarTick, useCarTick } from "./carTick";
-import { CarArrow, Markers, Road } from "./Road";
+import { type CarTick, placeGhost, useCarTick } from "./carTick";
+import { CarArrow, Gates, GhostDot, Markers, Road } from "./Road";
 
 /** Demi-largeur de la vue, en mètres : 800 m de côté */
 const RADIUS = 400;
@@ -14,23 +15,33 @@ const PIXELS = 160;
 
 interface ZoomMapProps {
   sim: Simulation;
+  /** Fantôme, relu à chaque image */
+  ghost: Pick<CarSource, "getPose"> | null;
   /** `true` : la carte tourne et la route à venir est toujours devant. `false` : nord en haut. */
   headingUp: boolean;
   className: string;
 }
 
 /** Portion de la spéciale autour de la voiture, à plus grande échelle. */
-export const ZoomMap = ({ sim, headingUp, className }: ZoomMapProps) => {
+export const ZoomMap = ({
+  sim,
+  ghost,
+  headingUp,
+  className,
+}: ZoomMapProps) => {
   const map = useRef<SVGGElement>(null);
   const done = useRef<SVGPathElement>(null);
   const arrow = useRef<SVGPathElement>(null);
-  const { path, start, finish, doneAt } = useMemo(
+  const ghostDot = useRef<SVGCircleElement>(null);
+  const { path, start, finish, gates, doneAt } = useMemo(
     () => miniMapOutline(sim.track, ZOOM_MAX_POINTS),
     [sim],
   );
 
   const onTick = useCallback(
-    ({ x, z, heading, index }: CarTick) => {
+    (tick: CarTick) => {
+      const { x, z, heading, index } = tick;
+      placeGhost(ghostDot.current, tick.ghost);
       done.current?.setAttribute("stroke-dasharray", `${doneAt(index)} 1`);
       const turn = headingUp ? `rotate(${-heading}) ` : "";
       map.current?.setAttribute("transform", `${turn}translate(${-x} ${-z})`);
@@ -41,7 +52,7 @@ export const ZoomMap = ({ sim, headingUp, className }: ZoomMapProps) => {
     },
     [headingUp, doneAt],
   );
-  useCarTick(sim, onTick);
+  useCarTick(sim, ghost, onTick);
 
   const top = headingUp ? -RADIUS * (1 + AHEAD) : -RADIUS;
   return (
@@ -57,12 +68,14 @@ export const ZoomMap = ({ sim, headingUp, className }: ZoomMapProps) => {
           scale={(RADIUS * 2) / PIXELS}
           doneRef={done}
         />
+        <Gates gates={gates} unit={UNIT} />
         <Markers
           start={start}
           finish={finish}
           closed={sim.track.closed}
           unit={UNIT}
         />
+        <GhostDot unit={UNIT} ghostRef={ghostDot} />
       </g>
       <CarArrow unit={UNIT} arrowRef={arrow} />
       {!headingUp && (

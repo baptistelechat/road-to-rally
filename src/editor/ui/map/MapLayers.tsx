@@ -4,11 +4,13 @@ import { AnchorMarkers } from "./AnchorMarkers";
 import { ChicaneMarkers } from "./ChicaneMarkers";
 import { HoverMarker } from "./HoverMarker";
 import { InsertHandle } from "./InsertHandle";
+import { MedianLines } from "./MedianLines";
 import { IssueMarkers } from "./IssueMarkers";
 import { MapFocus } from "./MapFocus";
-import { ModeSwitch } from "./ModeSwitch";
+import { ElementPanels, FirstHint, Legend, RouteStatus } from "./MapPanels";
 import { ReturnLayer } from "./ReturnLayer";
 import { RoundaboutIslands } from "./RoundaboutIslands";
+import { SplitMarkers } from "./SplitMarkers";
 import { TraceLayers } from "./TraceLayers";
 import { VariantRoutes } from "./VariantRoutes";
 
@@ -16,11 +18,16 @@ import { VariantRoutes } from "./VariantRoutes";
 export const MapLayers = () => (
   <>
     <MapFocus />
-    <ModeSwitch />
+    <ElementPanels />
+    <Legend />
+    <FirstHint />
+    <RouteStatus />
     <TraceLayers />
     <ReturnLayer />
     <VariantRoutes />
     <RoundaboutIslands />
+    <MedianLines />
+    <SplitMarkers />
     <IssueMarkers />
     <ChicaneMarkers />
     <InsertHandle />

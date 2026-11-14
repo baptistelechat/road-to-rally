@@ -3,7 +3,7 @@ import { isLightProp, RAY_IGNORED_GROUPS } from "../lightProps";
 import { RAPIER } from "../rapier";
 import type { MeshData, SceneryItem, Track } from "../types";
 import { embankment, GROUND_Y, shoulderStrips } from "./ribbon";
-import { finishArch, startArch } from "./scenery";
+import { finishArch, splitArches, startArch } from "./scenery";
 
 /** Hauteur des colliders de décor : assez haut pour qu'une voiture ne monte jamais dessus */
 const OBSTACLE_HEIGHT = 4;
@@ -12,6 +12,8 @@ const GROUND_MARGIN = 2000;
 /** Glissant, à peine élastique : la voiture s'arrête contre la barrière sans y accrocher ni rebondir. */
 const BLOCK_FRICTION = 0.2;
 const BLOCK_RESTITUTION = 0.1;
+/** Épaisseur du collider de la glissière d'un terre-plein, en mètres */
+const MEDIAN_THICKNESS = 0.3;
 
 const addTrimesh = (world: RAPIER_TYPES.World, mesh: MeshData): void => {
   // FIX_INTERNAL_EDGES : la caisse ne doit pas accrocher les arêtes entre triangles coplanaires.
@@ -93,9 +95,13 @@ export const addTrackColliders = (
         item.colliderRadius,
       );
 
-  const arches = track.closed
-    ? [startArch(track)]
-    : [startArch(track), finishArch(track)];
+  // Les arches gonflables des intermédiaires se percutent comme celles du départ et de l'arrivée.
+  const arches: (ReturnType<typeof startArch> & { postRadius?: number })[] = [
+    ...(track.closed
+      ? [startArch(track)]
+      : [startArch(track), finishArch(track)]),
+    ...splitArches(track),
+  ];
   for (const arch of arches) {
     const yaw = 2 * Math.atan2(arch.rotation.y, arch.rotation.w);
     for (const side of [-1, 1])
@@ -104,7 +110,7 @@ export const addTrackColliders = (
         arch.position.x + Math.cos(yaw) * side * arch.halfSpan,
         arch.position.y + GROUND_Y,
         arch.position.z - Math.sin(yaw) * side * arch.halfSpan,
-        0.3,
+        arch.postRadius ?? 0.3,
       );
   }
 
@@ -149,4 +155,34 @@ export const addTrackColliders = (
         .setRestitution(BLOCK_RESTITUTION)
         .setCollisionGroups(RAY_IGNORED_GROUPS),
     );
+
+  // Après les îlots : sans terre-plein, le monde reste le même au bit près. Un bloc par segment, bout à bout.
+  for (const { points, height, skirt } of track.medians)
+    for (let i = 1; i < points.length; i++) {
+      const a = points[i - 1];
+      const b = points[i];
+      const dx = b.x - a.x;
+      const dz = b.z - a.z;
+      // L'axe X local suit le segment : (cos, -sin) après rotation de `yaw` autour de Y.
+      const yaw = Math.atan2(-dz, dx);
+      const low = Math.min(a.y, b.y) - skirt;
+      const high = Math.max(a.y, b.y) + height;
+      world.createCollider(
+        RAPIER.ColliderDesc.cuboid(
+          Math.hypot(dx, dz) / 2,
+          (high - low) / 2,
+          MEDIAN_THICKNESS / 2,
+        )
+          .setTranslation((a.x + b.x) / 2, (low + high) / 2, (a.z + b.z) / 2)
+          .setRotation({
+            x: 0,
+            y: Math.sin(yaw / 2),
+            z: 0,
+            w: Math.cos(yaw / 2),
+          })
+          .setFriction(BLOCK_FRICTION)
+          .setRestitution(BLOCK_RESTITUTION)
+          .setCollisionGroups(RAY_IGNORED_GROUPS),
+      );
+    }
 };

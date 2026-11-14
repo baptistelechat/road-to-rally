@@ -148,6 +148,16 @@ export interface RoundaboutIsland {
   skirt: number;
 }
 
+/** Glissière du terre-plein entre les deux chaussées d'un aller-retour en milieu de spéciale. */
+export interface MedianBarrier {
+  /** Pied de la glissière, au niveau du sol, tous les 2 m environ */
+  points: Vec3[];
+  /** Hauteur au-dessus des points */
+  height: number;
+  /** Partie enterrée sous les points */
+  skirt: number;
+}
+
 export interface Track {
   /** Points de l'axe à pas constant, sans doublon de fermeture */
   points: Vec3[];
@@ -176,6 +186,8 @@ export interface Track {
   laneCounts?: number[];
   /** Îlots des ronds-points roulés. Vide sans rond-point. */
   islands: RoundaboutIsland[];
+  /** Glissières des terre-pleins. Vide sans aller-retour en milieu de spéciale. */
+  medians: MedianBarrier[];
   /**
    * Point de l'axe le plus proche, sur le plan horizontal. Sans référence, ou hors aller-retour : au bit près le même, et le
    * premier passage en cas de superposition. Avec `nearS`, l'abscisse suivie : le passage de la voiture, pas le premier venu.
@@ -219,6 +231,8 @@ export interface StageData {
   lanes?: number[];
   /** Îlots des ronds-points, dans l'ordre du passage. Absent sans rond-point. */
   islands?: RoundaboutIsland[];
+  /** Glissières des terre-pleins, dans l'ordre du passage. Absent sans aller-retour en milieu de spéciale. */
+  medians?: MedianBarrier[];
   /** Terrain conforme à la route, `null` tant que le pipeline ne le produit pas */
   terrain: MeshData | null;
   /** Version du pipeline : tout changement de seuil l'incrémente */
@@ -236,7 +250,10 @@ export type SceneryKind =
   | "hay"
   | "hayUpright"
   | "sign"
-  | "post";
+  | "post"
+  /** Annonce de chicane, dessin d'un premier virage à gauche ou à droite (voir `chicaneSignKind`) */
+  | "chicaneSignLeft"
+  | "chicaneSignRight";
 
 export interface SceneryItem {
   kind: SceneryKind;

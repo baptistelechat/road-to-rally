@@ -5,13 +5,7 @@ import type { LatLon } from "@/geo/gpx";
 import { editorStore, useEditor } from "../store";
 import { EditorLayout } from "./EditorLayout";
 import { MapLayers } from "./map/MapLayers";
-import { ChicanePanel } from "./panel/ChicanePanel";
-import { IssueList } from "./panel/IssueList";
-import { PointsPanel } from "./panel/PointsPanel";
 import { ProfilePanel } from "./panel/ProfilePanel";
-import { RollPanel } from "./panel/RollPanel";
-import { ScorePanel } from "./panel/ScorePanel";
-import { VariantPanel } from "./panel/VariantPanel";
 import { useTraceAnalysis } from "./useTraceAnalysis";
 
 /** `Ctrl+Z`, `Ctrl+Y` et `Ctrl+Maj+Z`. Dans un champ de texte, ils gardent leur sens habituel. */
@@ -38,10 +32,9 @@ const useUndoShortcuts = (): void => {
   }, []);
 };
 
-/** Hors du composant : stable, sans réabonner la carte. En mode déplacement, un clic à côté d'un point ne crée rien. */
+/** Hors du composant : stable, sans réabonner la carte. Un clic près d'un point est filtré par `MapClickHandler`. */
 const handleMapClick = (position: LatLon): void => {
-  const { mapMode, addPoint } = editorStore.getState();
-  if (mapMode === "edit") void addPoint(position);
+  void editorStore.getState().addPoint(position);
 };
 
 /** L'orchestrateur de l'éditeur : `EditorLayout` place, le store porte l'état. */
@@ -63,20 +56,6 @@ export const EditorApp = () => {
       onMapClick={handleMapClick}
       mapChildren={<MapLayers />}
       profile={trace.segments.length > 0 ? <ProfilePanel /> : undefined}
-      points={
-        <>
-          <PointsPanel />
-          <VariantPanel />
-        </>
-      }
-      chicanes={<ChicanePanel />}
-      score={<ScorePanel />}
-      actions={
-        <div className="space-y-4">
-          <IssueList />
-          <RollPanel />
-        </div>
-      }
     />
   );
 };

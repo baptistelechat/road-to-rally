@@ -1,3 +1,4 @@
+import { raceCourse, splitGates } from "@/sim/splits";
 import type { Quat, Track, Vec3 } from "@/sim/types";
 
 /** Plafond de points du tracé entier : à cette taille, 15 km sur 7 500 points n'apporteraient rien */
@@ -16,6 +17,8 @@ export interface MiniMapOutline {
   unit: number;
   /** Plus grand côté de `viewBox`, marges comprises */
   size: number;
+  /** Intermédiaires : position et angle de la route en degrés, pour un trait en travers. Vide sur le circuit. */
+  gates: { x: number; z: number; angle: number }[];
   /** Part du tracé dessiné parcourue à l'index `index` de `track.points`, de 0 à 1 */
   doneAt: (index: number) => number;
 }
@@ -59,6 +62,18 @@ export const miniMapOutline = (
   const height = Math.max(...zs) - minZ;
   const unit = Math.max(width, height) / 100;
   const margin = unit * 6;
+  const course = raceCourse(track);
+  const gates = splitGates(course.startS, course.finishS - course.startS).map((s) => {
+    // Circuit : la portion d'un tour peut dépasser la fin de l'axe.
+    const i = track.indexAt(s % track.length);
+    const a = points[Math.max(0, i - 1)];
+    const b = points[Math.min(points.length - 1, i + 1)];
+    return {
+      x: points[i].x,
+      z: points[i].z,
+      angle: (Math.atan2(b.z - a.z, b.x - a.x) * 180) / Math.PI,
+    };
+  });
   return {
     path: `${kept.map((point, i) => `${i ? "L" : "M"}${Math.round(point.x)} ${Math.round(point.z)}`).join("")}${closed ? "Z" : ""}`,
     viewBox: `${minX - margin} ${minZ - margin} ${width + 2 * margin} ${height + 2 * margin}`,
@@ -66,6 +81,7 @@ export const miniMapOutline = (
     finish: points[to],
     unit,
     size: Math.max(width, height) + 2 * margin,
+    gates,
     doneAt,
   };
 };

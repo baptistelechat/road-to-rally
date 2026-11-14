@@ -12,7 +12,8 @@ import {
 import { CHICANE_GAP } from "@/geo/config";
 import { RIG_TUNING } from "@/render/camera/cameraRig";
 import { Atmosphere } from "@/render/Atmosphere";
-import { approachSigns, ChicaneView } from "@/render/scenery/ChicaneView";
+import { ChicaneView } from "@/render/scenery/ChicaneView";
+import { approachSigns } from "@/sim/track/chicaneSigns";
 import { CHICANE_GEOMETRY, SCENERY_MATERIAL } from "@/render/scenery/models";
 import { carConfig } from "@/sim/carConfig";
 import type { Vec3 } from "@/sim/types";

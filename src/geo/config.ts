@@ -1,14 +1,17 @@
 // Tous les seuils du pipeline géo. Changer une valeur qui modifie le résultat impose d'incrémenter PIPELINE_VERSION.
 
 /** Version du pipeline, recopiée dans `StageData.pipelineVersion` */
-export const PIPELINE_VERSION = 12;
+export const PIPELINE_VERSION = 13;
 
 // --- Axe (story 2.1) ---
 
 /** Pas de l'axe en mètres, le même que le sandbox */
 export const STEP = 2;
-/** Longueur autorisée, prolongement exclu, en mètres */
-export const MIN_STAGE_LENGTH = 2000;
+/**
+ * Longueur autorisée, prolongement exclu, en mètres.
+ * Le plancher n'a pas de raison technique : sous 500 m, la course dure moins que la génération.
+ */
+export const MIN_STAGE_LENGTH = 500;
 export const MAX_STAGE_LENGTH = 15000;
 /**
  * GPX sans route au-delà de ses lignes : ligne droite ajoutée avant le départ et après l'arrivée, pour s'arrêter à fond.
@@ -251,8 +254,12 @@ export const ROUNDABOUT_MIN_ON_RING = 6;
 export const ROUNDABOUT_EDGE_MARGIN = 0.5;
 /** L'îlot ne déborde jamais au-delà de ça vers l'anneau OSM, en mètres : une voie de giratoire au moins */
 export const ROUNDABOUT_RING_LANE = 2.5;
-/** En dessous de ce rayon, en mètres, pas d'îlot : la route roulée coupe déjà le centre */
+/** En dessous de ce rayon, en mètres, pas de barrière : un rocher au centre à la place */
 export const ROUNDABOUT_MIN_ISLAND = 1;
+/** Rayon du rocher d'un giratoire trop petit pour une barrière, en mètres. Toujours sous `ROUNDABOUT_MIN_ISLAND` : c'est ce qui le distingue. */
+export const ROUNDABOUT_ROCK_RADIUS = 0.7;
+/** Distance minimale entre l'axe roulé et le bord du rocher, en mètres : la voiture passe sans le toucher */
+export const ROUNDABOUT_ROCK_CLEARANCE = 1.5;
 
 // --- Aller-retour (story 3.7) ---
 
@@ -276,6 +283,27 @@ export const ROUND_TRIP_SPLIT_WIDTH = 6.5;
 export const ROUND_TRIP_REJOIN = 30;
 /** Points du bras pris en compte pour la courbure à la jonction : elle n'est pas un bout de route */
 export const WIDEN_ARM_CONTEXT = 8;
+
+// --- Aller-retour en milieu de spéciale : deux chaussées et un terre-plein ---
+
+/** Deux passages se suivent en sens inverse si leurs points sont à moins de ça, en mètres : même route ou deux chaussées d'une avenue */
+export const DUAL_MATCH_TOLERANCE = 10;
+/** Virage cumulé minimal de la boucle de demi-tour, en degrés : une épingle en fait 180, un mini-giratoire de l'avenue Bollée au Mans 256 */
+export const DUAL_MIN_LOOP_TURN = 225;
+/** Produit scalaire des caps en dessous duquel deux passages vont en sens inverse */
+export const DUAL_OPPOSITE_DOT = -0.8;
+/** Largeur de chaque chaussée, en mètres */
+export const DUAL_WIDTH = 5;
+/** Largeur du terre-plein entre les deux chaussées, en mètres */
+export const MEDIAN_WIDTH = 2;
+/** Décalage de chaque chaussée depuis l'axe d'origine : on roule à droite */
+export const DUAL_OFFSET = DUAL_WIDTH / 2 + MEDIAN_WIDTH / 2;
+/** Longueur du biseau qui amène le tracé sur sa chaussée et l'en ramène, en mètres */
+export const DUAL_TAPER = 30;
+/** Écart minimal entre la glissière et le bord d'une chaussée, en mètres */
+export const MEDIAN_CLEARANCE = 0.4;
+/** En dessous de cette longueur, en mètres, pas de glissière */
+export const MEDIAN_MIN_LENGTH = 10;
 
 // --- Éditeur : retour, chicanes du joueur et variantes (stories 3.7, 3.9 et 3.10). Rien ici ne touche à la spéciale générée. ---
 

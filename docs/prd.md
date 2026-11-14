@@ -141,7 +141,7 @@ Huit phases, chacune avec un critère de passage : tant qu'il n'est pas atteint,
    - Passage : tu as envie d'y rejouer 10 minutes sans rien d'autre.
 2. **Pipeline géo vers 3D** (3 à 6 semaines) : à partir d'un tracé figé (un fichier GPX), générer le ruban de route, le terrain et aplanir le couloir sous la route.
    - Passage : une vraie spéciale de 5 km roulable sans bug de maillage.
-3. **Éditeur sur carte** (2 à 3 semaines) : départ, arrivée, points de passage, accrochage aux routes, profil d'altitude, limite de longueur (2 à 15 km).
+3. **Éditeur sur carte** (2 à 3 semaines) : départ, arrivée, points de passage, accrochage aux routes, profil d'altitude, limite de longueur (0,5 à 15 km).
    - Passage : un ami crée une spéciale sans ton aide.
 4. **Chrono et course** (1 à 2 semaines) : départ arrêté, temps intermédiaires, remise sur la route, meilleur temps local, fantôme.
 5. **Décor** (3 à 4 semaines) : bâtiments, forêts instanciées, panneaux, public, niveaux de détail.
