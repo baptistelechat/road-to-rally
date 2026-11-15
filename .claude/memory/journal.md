@@ -429,3 +429,12 @@ Epic 5 (décor) de bout en bout. Stories 5.1 à 5.8 rédigées, contrat partagé
 - [BDR-261115_2236-1](decisions/BDR-261115_2236-1.md) — Décor réel tiré de la Géoplateforme IGN, sans Overpass
 - [LRN-261115_2236-4](learnings/LRN-261115_2236-4.md) — Les surfaces d'eau BD TOPO couvrent toute la vallée
 - [BLK-261115_2236-6](blockers/BLK-261115_2236-6.md) — Ponts : la route est remplacée par une surface plate
+
+---
+
+Session dédiée au bug des ponts (story 5.9). Lecture du terrain sous les ponts, de `planWater`, du profil et du rendu du ruban, puis banc synthétique hors navigateur. Le terrain et le fond tendu sous le tablier n'étaient pas en cause : c'est la nappe qui, passant entière sous le pont, n'était bornée que par le sol conforme, donc par le tablier. Sur une rivière plus étroite que la maille de 16 m, elle se calait au niveau des bas-côtés et passait devant la route à l'écran. Correctif dans `waterSurfaces.ts` (plafond 1,5 m sous le tablier, remontant de 1 % par mètre), `PIPELINE_VERSION` 20, fiche 5.9 mise à jour. Session longue (beaucoup de temps perdu sur l'invocation de `tsx` sous Windows) et interrompue par Baptiste avant `pnpm lint` et `pnpm build` : correctif non vérifié, rien de committé, le commit reste à la session parente.
+
+**Entrées clés :**
+
+- [BLK-261115_2236-6](blockers/BLK-261115_2236-6.md) — Ponts : la route est remplacée par une surface plate
+- [LRN-261115_2244-1](learnings/LRN-261115_2244-1.md) — Banc synthétique hors navigateur pour le pipeline géo

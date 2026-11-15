@@ -27,6 +27,7 @@ register: learnings
 | [LRN-261115_1418-5](learnings/LRN-261115_1418-5.md) | 2026-11-15 | Vercel clone tout le repo au build, ne sert que le rendu | #vercel #nextjs #build #public #deploy #assets |
 | [LRN-261115_1418-6](learnings/LRN-261115_1418-6.md) | 2026-11-15 | Aperçu audio : ne charger que les morceaux joués | #audio #web-audio #preview #latency #copilot #loading |
 | [LRN-261115_2236-4](learnings/LRN-261115_2236-4.md) | 2026-11-15 | Les surfaces d'eau BD TOPO couvrent toute la vallée | #decor #eau #bdtopo #terrain #hydrographie #epic-5 |
+| [LRN-261115_2244-1](learnings/LRN-261115_2244-1.md) | 2026-11-15 | Banc synthétique hors navigateur pour le pipeline géo | #tsx #windows #geo #repro #terrain #eau |
 | [LRN-20261101115222-4](learnings/LRN-20261101115222-4.md) | 2026-11-01 | Pièges de l'API altimétrie de l'IGN | #ign #geoplateforme #altimetrie #api #cors #rge-alti |
 | [LRN-20261101115222-5](learnings/LRN-20261101115222-5.md) | 2026-11-01 | Plusieurs itinéraires : BRouter et OSRM diffèrent | #brouter #osrm #routing #itineraires #mapcn #maplibre |
 | [LRN-20261101115222-6](learnings/LRN-20261101115222-6.md) | 2026-11-01 | Le filtre rtk peut faire croire à un diff vide | #rtk #git #diff #hooks #claude-code #commit |
