@@ -1,6 +1,7 @@
 // Surfaces d'eau praticables (stories 5.4 et 5.9). Pure et déterministe : mêmes entrées, mêmes nappes au bit près.
 // L'eau est à son propre niveau, tiré du relief brut, jamais d'un tablier de pont ; le terrain est creusé dessous.
 import { createTrack } from "../../sim/track/createTrack";
+import { GROUND_Y } from "../../sim/track/ribbon";
 import { createSpatialGrid } from "../../sim/track/spatialGrid";
 import { createWaterLevel } from "../../sim/track/waterLevel";
 import type { DecorWater, Vec3 } from "../../sim/types";
@@ -47,6 +48,13 @@ const MIN_CELL_SAMPLES = 3;
 const WATER_REACH = 320;
 /** Un point de structure dans l'eau ou à moins de ça d'une berge : c'est un pont au-dessus de l'eau */
 const BRIDGE_WATER_REACH = 5;
+/**
+ * Sous un tablier, l'eau reste au moins à tant sous le bas-côté, en mètres. Sans ça, une rivière plus étroite que
+ * la maille de relief se cale sur ses berges, donc à hauteur de la route, et passe devant elle à l'écran.
+ */
+const BRIDGE_CLEARANCE = 1.5;
+/** En s'éloignant du pont, ce plafond remonte d'autant par mètre : pas de marche sous le tablier entre deux cases */
+const BRIDGE_CLEARANCE_SLOPE = 0.01;
 /** Profondeur du lit sous la surface, en mètres */
 const BED_DEPTH = 0.8;
 /** Relief brut plus haut que le niveau d'autant : terre sèche dans le polygone, rien n'y est creusé, en mètres */
@@ -350,9 +358,7 @@ export const planWater = (
   const { axis, widths, rawAt, conformAt } = context;
   const areas = decor.water
     .filter((area) => isOpenWater(area.nature))
-    .sort((a, b) =>
-    a.id < b.id ? -1 : a.id > b.id ? 1 : 0,
-  );
+    .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
   const polygons: Polygon[] = [];
   for (const area of areas)
     for (const polygon of area.polygons) {
@@ -379,6 +385,28 @@ export const planWater = (
 
   const bridged = findBridges(axis, context.structures, polygons);
   const ford = createFordClearance(axis, widths, bridged, true);
+  const decks = axis.filter((_, i) => bridged[i]);
+  // Plafond de l'eau d'une case sous un pont ou près de lui ; `Infinity` sans pont, la nappe ne change pas.
+  const deckCeiling = (
+    x0: number,
+    z0: number,
+    x1: number,
+    z1: number,
+  ): number => {
+    let ceiling = Infinity;
+    for (const { x, y, z } of decks) {
+      const dx = Math.max(x0 - x, 0, x - x1);
+      const dz = Math.max(z0 - z, 0, z - z1);
+      ceiling = Math.min(
+        ceiling,
+        y +
+          GROUND_Y -
+          BRIDGE_CLEARANCE +
+          BRIDGE_CLEARANCE_SLOPE * Math.hypot(dx, dz),
+      );
+    }
+    return ceiling;
+  };
   const road = createTrack(axis, widths, false);
   const roadClearance = (x: number, z: number): number => {
     const sample = road.nearest(x, z);
@@ -489,7 +517,7 @@ export const planWater = (
         if (ground !== null) level = Math.min(level, ground);
       }
       const reference = roundCm(rawLevel);
-      const y = roundCm(Math.min(level, rawLevel));
+      const y = roundCm(Math.min(level, rawLevel, deckCeiling(x0, z0, x1, z1)));
       const fordClear = ford(centerX, centerZ);
       const pieces: PlaneRing[][] = [];
       if (fordClear - halfDiagonal >= ROAD_MARGIN) pieces.push(tile);
