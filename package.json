@@ -4,11 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "tsx scripts/sync-input-icons.ts --check && next build",
     "start": "next start",
     "lint": "eslint",
     "check:determinism": "tsx scripts/check-determinism.mts",
-    "bake:stages": "tsx scripts/bake-stage.ts"
+    "bake:stages": "tsx scripts/bake-stage.ts",
+    "icons:sync": "tsx scripts/sync-input-icons.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",

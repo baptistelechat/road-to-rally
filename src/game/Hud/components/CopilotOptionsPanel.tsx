@@ -9,6 +9,7 @@ import {
   type Volume,
 } from "@/game/copilotOptions";
 import { setCopilotOptions, useHudStore } from "@/game/hudStore";
+import { setPadChoice, usePromptDeviceStore } from "@/input/promptDevice";
 import { label } from "../hudStyles";
 import { drawerButton } from "./Menu/menuStyles";
 import {
@@ -16,6 +17,7 @@ import {
   ENABLED_PLURAL,
   HUD_STYLE_OPTIONS,
   MAP_STYLES,
+  PAD_ICONS,
   SHOWN,
   SPEEDOMETERS,
   VOICES,
@@ -41,15 +43,17 @@ export const CopilotOptionsPanel = ({
   const id = useId();
   const options = useHudStore((s) => s.copilotOptions);
   const muted = useHudStore((s) => s.muted);
+  const padChoice = usePromptDeviceStore((s) => s.padChoice);
   const preview = useRef<VoicePreview | null>(null);
 
-  useEffect(
-    () => () => {
+  // Créé à l'ouverture : les morceaux de l'exemple se chargent avant le premier choix de voix.
+  useEffect(() => {
+    preview.current = createVoicePreview();
+    return () => {
       preview.current?.dispose();
       preview.current = null;
-    },
-    [],
-  );
+    };
+  }, []);
   useEffect(() => {
     if (muted) preview.current?.stop();
   }, [muted]);
@@ -64,8 +68,7 @@ export const CopilotOptionsPanel = ({
   const updateAndListen = (patch: Partial<CopilotOptions>): void => {
     const { voice, voiceVolume } = update(patch);
     if (muted) return;
-    preview.current ??= createVoicePreview();
-    preview.current.say(voice, voiceVolume / 100);
+    preview.current?.say(voice, voiceVolume / 100);
   };
 
   return (
@@ -85,7 +88,7 @@ export const CopilotOptionsPanel = ({
             options={HUD_STYLE_OPTIONS}
             onChoose={(hudStyle) => update({ hudStyle })}
           />
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="mb-3 grid gap-4 sm:grid-cols-2">
             <MenuCards
               title="Compteur"
               value={options.speedometerStyle}
@@ -123,6 +126,12 @@ export const CopilotOptionsPanel = ({
             value={options.controlsHelpEnabled}
             options={SHOWN}
             onChoose={(controlsHelpEnabled) => update({ controlsHelpEnabled })}
+          />
+          <MenuSelect
+            title="Icônes manette"
+            value={padChoice}
+            options={PAD_ICONS}
+            onChoose={setPadChoice}
           />
         </section>
         <section

@@ -1,3 +1,4 @@
+import { ConfirmCancelHint } from "@/input/InputPrompt";
 import {
   type ColorRow,
   GARAGE_ROWS,
@@ -41,11 +42,7 @@ const Palette = ({ menu, dispatch }: LiveryPanelProps) => (
         );
       })}
     </div>
-    <p className={HINT}>
-      Valider : clic, Entrée ou A
-      <br />
-      Annuler : Échap ou B
-    </p>
+    <ConfirmCancelHint className={HINT} />
   </div>
 );
 

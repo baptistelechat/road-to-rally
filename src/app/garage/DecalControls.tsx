@@ -1,3 +1,4 @@
+import { ConfirmCancelHint } from "@/input/InputPrompt";
 import { useEffect, useRef } from "react";
 import {
   drawNumber,
@@ -95,13 +96,7 @@ export const StylePicker = ({
         </button>
       ))}
     </div>
-    {open && (
-      <p className="text-xs text-muted-foreground">
-        Valider : Entrée ou A
-        <br />
-        Annuler : Échap ou B
-      </p>
-    )}
+    {open && <ConfirmCancelHint className="text-xs text-muted-foreground" />}
   </>
 );
 
@@ -159,12 +154,9 @@ export const SlotEditor = ({ row, text, value, dispatch }: SlotEditorProps) => (
         ▼
       </button>
     </div>
-    <p className="text-xs text-muted-foreground">
-      Taper au clavier ou utiliser les flèches
-      <br />
-      Valider : Entrée ou A
-      <br />
-      Annuler : Échap ou B
-    </p>
+    <div className="flex flex-col gap-1 text-xs text-muted-foreground">
+      <p>Taper au clavier ou utiliser les flèches</p>
+      <ConfirmCancelHint />
+    </div>
   </div>
 );

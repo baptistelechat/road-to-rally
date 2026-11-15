@@ -1,7 +1,9 @@
 "use client";
 
+import type { ReactNode } from "react";
 import type { HudStyle } from "@/game/copilotOptions";
 import { requestRestart, useHudStore } from "@/game/hudStore";
+import { InputPrompt } from "@/input/InputPrompt";
 import { formatLap } from "../formatTime";
 import { hudBlock, hudFacetButton, label } from "../hudStyles";
 
@@ -34,9 +36,11 @@ interface ChronoProps {
   closed: boolean;
   /** Cockpit : dans le tableau de bord. Broadcast : bandeau télé en haut à gauche. */
   hudStyle: HudStyle;
+  /** Broadcast : posé à gauche du temps, à sa hauteur (h-11.5) ; les lignes Dernier et Meilleur s'alignent sur son bord. */
+  lead?: ReactNode;
 }
 
-export const Chrono = ({ closed, hudStyle }: ChronoProps) => {
+export const Chrono = ({ closed, hudStyle, lead }: ChronoProps) => {
   const lapMs = useHudStore((s) => s.lapMs);
   // Le chrono en cours change sans cesse : il reste hors de la zone annoncée.
   if (hudStyle === "cockpit")
@@ -54,10 +58,13 @@ export const Chrono = ({ closed, hudStyle }: ChronoProps) => {
       aria-label="Chronomètre"
       className="flex flex-col items-start gap-1"
     >
-      <div
-        className={`${hudBlock} border-l-4 border-foreground px-4 py-1.5 font-mono text-[2.125rem] leading-none tabular-nums`}
-      >
-        {formatLap(lapMs)}
+      <div className="flex gap-1">
+        {lead}
+        <div
+          className={`${hudBlock} flex h-11.5 items-center border-l-4 border-foreground px-4 font-mono text-[2.125rem] leading-none tabular-nums`}
+        >
+          {formatLap(lapMs)}
+        </div>
       </div>
       <LapRows
         closed={closed}
@@ -68,23 +75,17 @@ export const Chrono = ({ closed, hudStyle }: ChronoProps) => {
 };
 
 /** Touche de relance rappelée sur le bouton, selon la manette ou le clavier */
-export const RestartButton = ({ closed }: { closed: boolean }) => {
-  const device = useHudStore((s) => s.device);
-  return (
-    <button
-      type="button"
-      className={`${hudFacetButton} pointer-events-auto`}
-      onClick={(event) => {
-        requestRestart();
-        // Sans ça, Espace (frein à main) relancerait le tour en cliquant à nouveau.
-        event.currentTarget.blur();
-      }}
-    >
-      {closed ? "Relancer le tour" : "Relancer"}
-      <span aria-hidden="true" className="font-mono">
-        {" · "}
-        {device === "gamepad" ? "Select" : "⌫"}
-      </span>
-    </button>
-  );
-};
+export const RestartButton = ({ closed }: { closed: boolean }) => (
+  <button
+    type="button"
+    className={`${hudFacetButton} pointer-events-auto inline-flex items-center gap-2`}
+    onClick={(event) => {
+      requestRestart();
+      // Sans ça, Espace (frein à main) relancerait le tour en cliquant à nouveau.
+      event.currentTarget.blur();
+    }}
+  >
+    {closed ? "Relancer le tour" : "Relancer"}
+    <InputPrompt action="restart" size="sm" />
+  </button>
+);

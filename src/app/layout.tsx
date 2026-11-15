@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Manrope, Michroma, Share_Tech_Mono } from "next/font/google";
+import { InputDeviceTracker } from "@/input/InputPrompt";
 import "./globals.css";
 
 const michroma = Michroma({
@@ -33,10 +34,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`dark ${michroma.variable} ${manrope.variable} ${shareTechMono.variable} h-full antialiased`}
     >
       {/* Certaines extensions, comme ColorZilla, ajoutent des attributs à <body> avant React. */}
-      <body
-        className="h-full overflow-hidden"
-        suppressHydrationWarning
-      >
+      <body className="h-full overflow-hidden" suppressHydrationWarning>
+        <InputDeviceTracker />
         {children}
       </body>
     </html>

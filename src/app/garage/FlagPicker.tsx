@@ -1,3 +1,4 @@
+import { ConfirmCancelHint } from "@/input/InputPrompt";
 import { memo, useEffect, useRef, useState } from "react";
 import {
   drawFlagWhenSettled,
@@ -126,11 +127,7 @@ export const FlagPicker = ({
           />
         ))}
       </div>
-      <p className="text-xs text-muted-foreground">
-        Valider : clic, Entrée ou A
-        <br />
-        Annuler : Échap ou B
-      </p>
+      <ConfirmCancelHint className="text-xs text-muted-foreground" />
     </div>
   );
 };

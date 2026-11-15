@@ -2,6 +2,7 @@
 
 import { requestRestart, setHudScreen, useHudStore } from "@/game/hudStore";
 import { formatSignedLap } from "../formatTime";
+import { hudLeft } from "../hudStyles";
 import { Countdown } from "./Countdown";
 import { SplitDelta } from "./SplitDelta";
 import { StageResult } from "./StageResult";
@@ -77,5 +78,6 @@ export const PenaltyToast = () => {
 /** Frise de la spéciale, absente du circuit */
 export const StageProgressStrip = () => {
   const strip = useHudStore((s) => s.strip);
-  return strip ? <StageStrip {...strip} /> : null;
+  const hudStyle = useHudStore((s) => s.copilotOptions.hudStyle);
+  return strip ? <StageStrip {...strip} leftClass={hudLeft[hudStyle]} /> : null;
 };

@@ -8,6 +8,7 @@ import {
   SPEEDOMETER_STYLES,
   type SpeedometerStyle,
 } from "@/game/copilotOptions";
+import type { PadChoice } from "@/input/promptDevice";
 import type { MenuCard } from "../MenuCards";
 import type { MenuOption } from "../MenuSelect";
 import { MiniMapPreview } from "../MiniMap/components/MiniMapPreview";
@@ -22,6 +23,11 @@ export const ENABLED_PLURAL = enabledOptions("s");
 export const SHOWN: readonly MenuOption<boolean>[] = [
   { id: true, name: "Affichées" },
   { id: false, name: "Masquées" },
+];
+export const PAD_ICONS: readonly MenuOption<PadChoice>[] = [
+  { id: "auto", name: "Auto" },
+  { id: "xbox", name: "Xbox" },
+  { id: "playstation", name: "PlayStation" },
 ];
 export const VOICES: readonly MenuOption<CopilotVoiceId>[] = [
   { id: "siwis", name: "Féminine" },

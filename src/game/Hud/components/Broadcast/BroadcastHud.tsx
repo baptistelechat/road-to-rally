@@ -1,7 +1,9 @@
 "use client";
 
+import { hudLeft } from "../../hudStyles";
 import { Chrono, RestartButton } from "../Chrono";
 import { ControlsHelp } from "../ControlsHelp";
+import { DriverBadge } from "../DriverBadge";
 import { Speedometer } from "../Speedometer";
 import { StageNotices } from "../StageNotices";
 
@@ -10,17 +12,19 @@ interface BroadcastHudProps {
   notices: readonly string[];
 }
 
-/** Habillage télé : chrono en bandeau en haut à gauche, compteur en bas à droite. */
+/** Habillage télé : voiture et chrono en bandeau en haut à gauche, commandes en bas à gauche, compteur en bas à droite. */
 export const BroadcastHud = ({ closed, notices }: BroadcastHudProps) => (
   <>
-    <div className="absolute top-7 left-7 flex flex-col items-start gap-2">
-      <Chrono closed={closed} hudStyle="broadcast" />
+    <div
+      className={`absolute top-7 ${hudLeft.broadcast} flex flex-col items-start gap-2`}
+    >
+      <Chrono closed={closed} hudStyle="broadcast" lead={<DriverBadge />} />
       <RestartButton closed={closed} />
       <StageNotices notices={notices} />
-      {/* Décalé de la frise verticale (left-4, 22 px de large), qui monte jusqu'à mi-hauteur moins 160 px */}
-      <div className="pl-5">
-        <ControlsHelp closed={closed} />
-      </div>
+    </div>
+    {/* Dans l'angle, comme le compteur en face : la frise verticale s'arrête bien au-dessus. */}
+    <div className={`absolute bottom-7 ${hudLeft.broadcast}`}>
+      <ControlsHelp closed={closed} />
     </div>
     <div className="absolute right-7 bottom-7">
       <Speedometer />

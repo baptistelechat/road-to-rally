@@ -1,3 +1,10 @@
+import type { HudStyle } from "@/game/copilotOptions";
+
+/** Marge du bord gauche, la même que celle du bord droit : frise, commandes et bandeau s'alignent dessus. */
+export const hudLeft: Record<HudStyle, string> = {
+  cockpit: "left-6",
+  broadcast: "left-7",
+};
 export const panel =
   "rounded-sm border border-foreground/15 bg-background/85 text-foreground";
 export const label =

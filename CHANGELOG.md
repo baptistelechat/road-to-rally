@@ -89,6 +89,9 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Écran « Prêt » après un changement de carte depuis la pause, au lieu de repasser par le menu de départ
 - Accès au garage depuis le menu de départ et la pause, et retour au menu principal depuis la pause
 - Nom de la carte dans l'en-tête de l'écran d'arrivée
+- Icônes des touches et des boutons à la place des textes d'aide, en course et au garage : clavier en ZQSD ou WASD selon sa disposition, manette Xbox ou PlayStation reconnue, selon le dernier appareil utilisé
+- Option « Icônes manette » dans les options : Auto, Xbox ou PlayStation
+- Drapeau et numéro de la voiture choisis au garage, affichés dans le HUD à côté du chrono
 
 ### Changed
 
@@ -105,6 +108,8 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Chicanes moins hautes, deux rangs de bottes : la sortie se voit par-dessus en caméra poursuite, et reste cachée en vue capot
 - Clic droit plus tolérant pour ajouter une chicane à côté du tracé
 - Le premier point du tracé est désormais le départ et le dernier l'arrivée, avec 200 m de vraie route ajoutés au-delà, hors chrono. Sans route libre, l'éditeur demande de déplacer le point au lieu d'inventer une route
+- Panneau des commandes sur deux colonnes : en haut à gauche en Cockpit, en bas à gauche en Broadcast, aligné avec la frise des secteurs. L'aide du garage s'affiche aussi au clavier et à la souris
+- Le signalement de lag n'apparaît plus dans l'aide des commandes, `F9` et `LB` le déclenchent toujours
 - Marqueurs de chicane en forme de panneau triangulaire du jeu, avec le sens du premier virage, et sens indiqué dans la liste (« droite puis gauche »)
 - Les ponts et tunnels ne retirent plus les chicanes
 - Le message de virage arrondi indique le rayon appliqué et l'écart avec la route réelle
@@ -165,3 +170,4 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Erreur à l'ajout d'un point quand un nouveau rond-point s'insérait avant les autres sur le tracé
 - Chicanes annoncées à l'envers par la voix et l'icône du copilote : elles disent maintenant le même côté que le panneau au bord de la route
 - Navigation à la manette dans les menus : haut et bas suivent l'écran rangée par rangée, gauche et droite passent d'une grille à l'autre
+- Exemple de voix des options qui partait avec plusieurs secondes de retard après un changement de voix

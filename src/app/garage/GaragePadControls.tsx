@@ -23,23 +23,16 @@ const spherical = new Spherical();
 interface GaragePadControlsProps {
   target: readonly [number, number, number];
   onMenuAction: (action: MenuAction) => void;
-  onConnectionChange: (connected: boolean) => void;
 }
 
 export const GaragePadControls = ({
   target,
   onMenuAction,
-  onConnectionChange,
 }: GaragePadControlsProps) => {
-  const connected = useRef(false);
   const repeat = useRef<MenuRepeat>({ held: undefined, wait: 0 });
 
   useFrame(({ camera }, delta) => {
     const pad = findStandardPad(window);
-    if (connected.current !== (pad !== null)) {
-      connected.current = pad !== null;
-      onConnectionChange(connected.current);
-    }
     if (!pad) {
       repeat.current.held = undefined;
       return;

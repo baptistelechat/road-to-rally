@@ -2,13 +2,15 @@
 
 import { OrbitControls } from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import type { Group } from "three";
 import { CarModel } from "@/render/car/CarModel";
 import type { Livery } from "@/render/car/livery";
 import { GARAGE_CAMERA } from "@/render/garage/buildGarageGeometry";
 import { GarageDecor } from "@/render/garage/GarageDecor";
 import { carConfig } from "@/sim/carConfig";
+import { InputPrompt } from "@/input/InputPrompt";
+import type { PromptAction } from "@/input/inputPrompts";
 import { GaragePadControls } from "./GaragePadControls";
 import { ROTATION_ROW } from "./garageMenu";
 import { GarageHeader } from "./GarageHeader";
@@ -20,11 +22,12 @@ const TURN_SPEED = 0.25;
 const PLATE_HEIGHT = 0.04;
 const NIGHT = "#0b1018"; // = --background (.dark)
 
-const PAD_HELP: readonly (readonly [string, string])[] = [
-  ["Croix / Stick gauche", "Naviguer"],
-  ["A / B", "Valider / Annuler"],
-  ["Stick droit", "Tourner autour"],
-  ["RT / LT", "Rapprocher / Éloigner"],
+const GARAGE_HELP: readonly (readonly [PromptAction, string])[] = [
+  ["navigate", "Naviguer"],
+  ["confirm", "Valider"],
+  ["cancel", "Annuler"],
+  ["orbit", "Tourner autour"],
+  ["zoom", "Rapprocher / Éloigner"],
 ];
 
 interface TurntableProps {
@@ -55,7 +58,6 @@ const Turntable = ({ paused, livery }: TurntableProps) => {
 };
 
 export const GarageScene = () => {
-  const [padConnected, setPadConnected] = useState(false);
   const [menu, dispatch] = useGarageMenu();
 
   return (
@@ -92,7 +94,6 @@ export const GarageScene = () => {
         <GaragePadControls
           target={GARAGE_CAMERA.target}
           onMenuAction={dispatch}
-          onConnectionChange={setPadConnected}
         />
         <OrbitControls
           target={[...GARAGE_CAMERA.target]}
@@ -106,16 +107,19 @@ export const GarageScene = () => {
       <GarageHeader livery={menu.livery} />
       <LiveryPanel menu={menu} dispatch={dispatch} />
       <div className="absolute right-6 bottom-6 flex flex-col items-end gap-2">
-        {padConnected && (
-          <dl className="grid grid-cols-[auto_auto] gap-x-3 gap-y-0.5 rounded border border-border bg-background/90 px-3 py-2 text-xs text-foreground">
-            {PAD_HELP.map(([control, role]) => (
-              <div key={control} className="contents">
-                <dt className="font-mono text-muted-foreground">{control}</dt>
-                <dd className="font-semibold">{role}</dd>
-              </div>
-            ))}
-          </dl>
-        )}
+        <dl
+          aria-label="Commandes"
+          className="grid grid-cols-[auto_auto] items-center gap-x-3 gap-y-1 rounded border border-border bg-background/90 px-3 py-2 text-xs text-foreground"
+        >
+          {GARAGE_HELP.map(([action, role]) => (
+            <div key={action} className="contents">
+              <dt className="flex justify-end">
+                <InputPrompt action={action} size="sm" />
+              </dt>
+              <dd className="font-semibold">{role}</dd>
+            </div>
+          ))}
+        </dl>
         <button
           type="button"
           className={`group relative isolate min-h-11 cursor-pointer px-6.5 text-[13px] font-bold text-foreground ${FOCUS_VISIBLE} ${menu.row === ROTATION_ROW ? MENU_FOCUS : ""}`}

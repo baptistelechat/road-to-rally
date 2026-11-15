@@ -7,6 +7,8 @@ interface StageStripProps {
   carFraction: number;
   /** Position du fantôme, fraction 0..1, `null` sans fantôme */
   ghostFraction: number | null;
+  /** Position horizontale, alignée sur le bord du HUD */
+  leftClass: string;
 }
 
 const percent = (fraction: number): string =>
@@ -33,6 +35,7 @@ export const StageStrip = ({
   sectorDeltas,
   carFraction,
   ghostFraction,
+  leftClass,
 }: StageStripProps) => {
   const bounds = [0, ...gates, 1];
   const current = sectorDeltas.findIndex((delta) => delta === undefined);
@@ -46,7 +49,7 @@ export const StageStrip = ({
     <div
       role="img"
       aria-label={summary}
-      className="pointer-events-none absolute top-1/2 left-4 h-80 w-[22px] -translate-y-1/2 drop-shadow-[0_1px_2px_var(--color-background)]"
+      className={`pointer-events-none absolute top-1/2 ${leftClass} h-80 w-[22px] -translate-y-1/2 drop-shadow-[0_1px_2px_var(--color-background)]`}
     >
       {bounds.slice(1).map((to, i) => (
         // Biseau en haut de chaque secteur : la facette de la DA.

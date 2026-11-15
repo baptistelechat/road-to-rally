@@ -1,57 +1,59 @@
 "use client";
 
 import { useHudStore } from "@/game/hudStore";
+import { InputPrompt } from "@/input/InputPrompt";
+import { type PromptAction, promptIcons } from "@/input/inputPrompts";
+import { usePromptDevice, usePromptDeviceStore } from "@/input/promptDevice";
 import { RESPAWN_HOLD_S } from "@/sim/recovery";
 import { panel } from "../hudStyles";
 
-type Help = readonly (readonly [string, string])[];
+type Row = readonly [PromptAction, string];
 
-const keyboardHelp = (restart: string): Help => [
-  ["Flèches / ZQSD", "Conduire"],
-  ["Espace", "Frein à main"],
-  ["R maintenu", `Remise en piste (${RESPAWN_HOLD_S} s)`],
-  ["Retour arrière", restart],
-  ["C", "Vue"],
-  ["M", "Son"],
-  ["Échap", "Pause et cartes"],
-  ["F9", "Signaler un lag"],
+const help = (restart: string): readonly Row[] => [
+  ["steer", "Diriger"],
+  ["pedals", "Gaz / Frein, marche arrière"],
+  ["lookAround", "Tourner la caméra"],
+  ["handbrake", "Frein à main"],
+  ["respawn", `Maintenir : remise en piste (${RESPAWN_HOLD_S} s)`],
+  ["restart", restart],
+  ["camera", "Vue"],
+  ["mute", "Son"],
+  ["pause", "Pause et cartes"],
 ];
 
-const gamepadHelp = (restart: string): Help => [
-  ["Stick gauche", "Diriger"],
-  ["Stick droit", "Tourner la caméra"],
-  ["RT / LT", "Gaz / Frein, marche arrière"],
-  ["A", "Frein à main"],
-  ["Y maintenu", `Remise en piste (${RESPAWN_HOLD_S} s)`],
-  ["Select", restart],
-  ["X", "Vue"],
-  ["Start", "Pause et cartes"],
-  ["LB", "Signaler un lag"],
-];
+const Column = ({ rows }: { rows: readonly Row[] }) => (
+  <dl className="grid grid-cols-[auto_auto] content-start items-center gap-x-3 gap-y-1">
+    {rows.map(([action, role]) => (
+      <div key={action} className="contents">
+        <dt className="flex justify-end">
+          <InputPrompt action={action} size="sm" />
+        </dt>
+        <dd className="text-muted-foreground">{role}</dd>
+      </div>
+    ))}
+  </dl>
+);
 
-/** Masqué si le joueur l'a coupé dans les options. */
+/**
+ * Masqué si le joueur l'a coupé dans les options. Une action absente de l'appareil n'a pas de ligne.
+ * Deux colonnes : moitié moins haut, la frise verticale laisse peu de place à gauche.
+ */
 export const ControlsHelp = ({ closed }: { closed: boolean }) => {
-  const device = useHudStore((s) => s.device);
+  const device = usePromptDevice();
+  const layout = usePromptDeviceStore((s) => s.layout);
   const enabled = useHudStore((s) => s.copilotOptions.controlsHelpEnabled);
   if (!enabled) return null;
-  const restart = closed ? "Relancer le tour" : "Relancer";
-  const help =
-    device === "gamepad" ? gamepadHelp(restart) : keyboardHelp(restart);
+  const rows = help(closed ? "Relancer le tour" : "Relancer").filter(
+    ([action]) => promptIcons(action, device, layout).length > 0,
+  );
+  const half = Math.ceil(rows.length / 2);
   return (
-    <dl
+    <section
       aria-label="Commandes"
-      className={`${panel} hidden grid-cols-[auto_auto] items-center gap-x-3 gap-y-1 px-3 py-2 text-xs sm:grid`}
+      className={`${panel} hidden gap-6 px-3 py-2 text-xs sm:flex`}
     >
-      {help.map(([key, action]) => (
-        <div key={key} className="contents">
-          <dt>
-            <kbd className="rounded-sm border border-input bg-secondary px-1 font-mono text-[0.6875rem] text-secondary-foreground">
-              {key}
-            </kbd>
-          </dt>
-          <dd className="text-muted-foreground">{action}</dd>
-        </div>
-      ))}
-    </dl>
+      <Column rows={rows.slice(0, half)} />
+      <Column rows={rows.slice(half)} />
+    </section>
   );
 };
