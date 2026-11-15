@@ -105,6 +105,7 @@ export const createSimulation = (
     config,
     atRideHeight(track.startPose),
     track.surfaceAt,
+    track.waterAt,
   );
   const lap = createLapTimer(track, track.startPose);
 

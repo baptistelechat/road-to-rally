@@ -108,6 +108,8 @@ export const createVehicle = (
   config: CarConfig,
   spawn: Pose,
   surfaceAt: (x: number, z: number) => Surface,
+  /** Niveau de l'eau (story 5.9). Absent ou `null` partout : la voiture roule au bit près comme avant. */
+  waterAt?: (x: number, z: number) => number | null,
 ): Vehicle => {
   let cfg = config;
   const body = world.createRigidBody(
@@ -343,6 +345,17 @@ export const createVehicle = (
       }
       wheel.surface = surfaceAt(contact.x, contact.z);
       const surface = cfg.surfaces[wheel.surface];
+      // Sur un pont, l'eau est sous la roue : profondeur négative, aucun effet.
+      const level = waterAt ? waterAt(contact.x, contact.z) : null;
+      const immersion =
+        level === null
+          ? 0
+          : clamp((level - contact.y) / cfg.water.fullDepth, 0, 1);
+      // Hors de l'eau, exactement l'adhérence de la surface : rien ne bouge au bit près.
+      const grip =
+        immersion > 0
+          ? surface.grip * (1 - cfg.water.gripLoss * immersion)
+          : surface.grip;
 
       const wheelForward = isFront
         ? addScaled(scale(forward, cosSteer), right, sinSteer)
@@ -364,7 +377,7 @@ export const createVehicle = (
       if (locked) resist += cfg.brakes.handbrakeForce * 0.5;
       const stopCap = (Math.abs(vLong) * cfg.mass) / (WHEEL_COUNT * dt);
       const fDrive = driveForce * axle.driveShare * 0.5;
-      const longBudget = axle.frictionSlip * surface.grip * load;
+      const longBudget = axle.frictionSlip * grip * load;
       const fLong = clamp(
         fDrive - Math.sign(vLong) * Math.min(resist, stopCap),
         -longBudget,
@@ -385,8 +398,7 @@ export const createVehicle = (
         : isFront
           ? 1
           : rearLiftGrip;
-      const latMax =
-        axle.sideFriction * surface.grip * load * ellipse * axleGrip;
+      const latMax = axle.sideFriction * grip * load * ellipse * axleGrip;
       // À basse vitesse, le pneu ne doit pas renvoyer plus que la vitesse à annuler : c'est ce qui évite le tremblement.
       const leverSquared = axle.z * axle.z;
       const effectiveMass = 1 / (1 / cfg.mass + leverSquared / yawInertia);
@@ -410,6 +422,27 @@ export const createVehicle = (
         force: scale(groundForward, fLong),
         at: addScaled(contact, up, toCom * (1 - cfg.tires.pitchInfluence)),
       });
+
+      // Traînée de l'eau, hors budget du pneu : elle s'oppose au déplacement horizontal sans jamais l'inverser.
+      if (immersion > 0) {
+        const speed2 = velocity.x * velocity.x + velocity.z * velocity.z;
+        if (speed2 > 1e-6) {
+          const speed = Math.sqrt(speed2);
+          const drag = Math.min(
+            immersion *
+              (cfg.water.dragLinear * speed + cfg.water.dragQuadratic * speed2),
+            (speed * cfg.mass) / (WHEEL_COUNT * dt),
+          );
+          impulses.push({
+            force: {
+              x: (-velocity.x / speed) * drag,
+              y: 0,
+              z: (-velocity.z / speed) * drag,
+            },
+            at: addScaled(contact, up, toCom * (1 - cfg.tires.pitchInfluence)),
+          });
+        }
+      }
     }
 
     for (const { force, at } of impulses)

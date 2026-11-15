@@ -1,9 +1,27 @@
-import { isChicaneSign, isHay, isLightProp } from "../lightProps";
+import {
+  BUSH_RADIUS,
+  isChicaneSign,
+  isHay,
+  isLightProp,
+  isLooseVegetation,
+  VINE_HALF_LENGTH,
+  VINE_HALF_WIDTH,
+} from "../lightProps";
 import { chicaneSignItems } from "./chicaneSigns";
+import { createDecorFootprints } from "./decorFootprints";
 import { raceCourse, splitGates } from "../splits";
 import { isNearBlock } from "./obstacles";
+import { rallyDressing, type RallyHairpin } from "./rallyDressing";
 import { SHOULDER_WIDTH } from "./ribbon";
-import type { Pose, SceneryItem, SceneryKind, Track, Vec3 } from "../types";
+import type {
+  DecorTree,
+  DecorTreeKind,
+  Pose,
+  SceneryItem,
+  SceneryKind,
+  Track,
+  Vec3,
+} from "../types";
 
 /** Au-delà de cette distance à l'axe, le décor n'a ni collision ni ombre. */
 export const NEAR_SCENERY_DISTANCE = 40;
@@ -46,6 +64,144 @@ const HAY_RIM: [number, number][] = [
 const HAY_RIM_WEIGHT = 2 * HAY_FOOTPRINT ** 2 + 4 * HAY_DIAGONAL ** 2;
 /** Dégagement du décor autour d'un bloc de chicane, en mètres : la chicane se lit, rien ne s'y coince */
 const BLOCK_CLEARANCE = 4;
+/** Public : jamais à moins de cette distance du bord de route, en mètres */
+const SPECTATOR_CLEARANCE = 6;
+/** Au-delà de cette pente (20°), personne ne se tient debout */
+const MAX_SPECTATOR_SLOPE = Math.tan((20 * Math.PI) / 180);
+/** En dessous de ce rayon, un virage est une épingle : le public s'y masse */
+const HAIRPIN_RADIUS = 25;
+/** Plafond par spéciale : au-delà, les FPS chutent */
+const MAX_SPECTATORS = 600;
+/** Part des virages ordinaires (bottes, rayon < 60 m) qui reçoivent un petit groupe */
+const BEND_CROWD_SHARE = 0.25;
+
+/**
+ * Un arbre réel porte un collider jusqu'à cette distance du bord de route, en mètres. Plus court que
+ * `NEAR_SCENERY_DISTANCE` : une forêt fermée en aurait près de 10 000 sur 10 km, ici environ 2 500.
+ */
+const DECOR_TREE_COLLIDER_REACH = 15;
+/**
+ * Au-delà de cette distance au bord de route, un rang de vigne prend la bande économique, en mètres.
+ * ponytail: choix figé par la distance à la route (pas à la voiture), `SceneryView` ne change pas de géométrie en course.
+ */
+const VINE_DETAIL_REACH = 100;
+/**
+ * Buissons et rangs de vigne renversables jusqu'à cette distance du bord de route, en mètres. Plus court que les
+ * arbres (15 m) : au-delà de 10 m la voiture est déjà en perdition, et la bande de 3 à 10 m garde la haie de bord
+ * de route entière pour environ deux fois moins de corps qu'à 15 m dans un vignoble.
+ */
+const LOOSE_VEGETATION_REACH = 10;
+/**
+ * Plafond des corps de végétation renversable, les plus proches de la route d'abord. Endormis, ils ne coûtent
+ * presque rien au pas ; c'est le premier pas (tous éveillés) et la relecture de `sync` qui grossissent avec eux.
+ * Une haie de bord de route continue des deux côtés sur 10 km en compte environ 8 300 : plafonnée ici.
+ */
+const MAX_LOOSE_VEGETATION = 4000;
+/** Au-delà de cette pente (14°), la végétation reste fixe : inclinée dès le départ, elle se lirait comme renversée */
+const LOOSE_MAX_SLOPE = 0.25;
+/** Au-delà de cet écart entre le sol et le plan de l'emprise, la végétation reste fixe, en mètres */
+const LOOSE_MAX_GAP = 0.2;
+/** Marge entre deux emprises de corps, en mètres : rien ne se chevauche, rien n'explose au réveil */
+const LOOSE_MARGIN = 0.05;
+/** Maille de l'index des emprises, en mètres */
+const FOOTPRINT_CELL = 8;
+/**
+ * Rayon du collider de la végétation à l'échelle 1, en mètres : le tronc, pas la ramure. `tree`, `pine` et `rock`
+ * inchangés (décor de la story 1.7 au bit près) ; les autres reprennent le pied du tronc du modèle du labo.
+ */
+const VEGETATION_COLLIDER: Record<string, number> = {
+  pine: 0.35,
+  tree: 0.4,
+  rock: 0.9,
+  oakTiered: 0.35,
+  poplar: 0.3,
+  birch: 0.2,
+  willow: 0.45,
+  scotsPine: 0.27,
+  fruitTree: 0.18,
+  deadTree: 0.3,
+};
+/**
+ * Au-delà de cette distance au bord de route, un arbre prend sa version lointaine quand le labo en a une, en
+ * mètres. Toujours au-delà de `DECOR_TREE_COLLIDER_REACH` : un arbre qu'on peut percuter garde son modèle détaillé.
+ * ponytail: comme la vigne, figé par la distance à la route ; une bascule selon la voiture viendra avec la 5.6.
+ */
+const TREE_DETAIL_REACH = 60;
+const FAR_TREE: Partial<Record<DecorTreeKind, SceneryKind>> = {
+  tree: "treeFar",
+  pine: "pineFar",
+  oakTiered: "oakTieredFar",
+  birch: "birchFar",
+};
+/** Végétation réelle, versions lointaines comprises : déjà écartée des bâtiments et de l'eau par le pipeline. */
+const DECOR_VEGETATION: ReadonlySet<SceneryKind> = new Set<SceneryKind>([
+  "tree",
+  "pine",
+  "oakTiered",
+  "poplar",
+  "birch",
+  "willow",
+  "scotsPine",
+  "fruitTree",
+  "deadTree",
+  "treeFar",
+  "pineFar",
+  "oakTieredFar",
+  "birchFar",
+  "bush",
+  "vineRow",
+  "vineRowFar",
+]);
+
+/**
+ * Arbres réels du décor (epic 5) en objets de décor : collider seulement près de la route, comme la végétation
+ * pseudo-aléatoire qu'ils remplacent. Déjà posés au sol et filtrés par le pipeline.
+ */
+const decorTreeItems = (
+  track: Track,
+  trees: DecorTree[],
+  /** Reçoit la distance au bord de route de chaque candidat renversable */
+  looseClearance: Map<SceneryItem, number>,
+): SceneryItem[] =>
+  trees.map(({ kind, position, yaw, scale }): SceneryItem => {
+    const sample = track.nearest(position.x, position.z);
+    const clearance = sample.distance - sample.width / 2;
+    // Haies et vignes : renversables près de la route (tri final dans `generateScenery`), décor seul au-delà.
+    if (kind === "bush" || kind === "vineRow") {
+      if (clearance <= LOOSE_VEGETATION_REACH) {
+        const item: SceneryItem = {
+          kind: kind === "bush" ? "bushProp" : "vineRowProp",
+          position,
+          yaw,
+          scale,
+          colliderRadius: kind === "bush" ? BUSH_RADIUS : VINE_HALF_WIDTH,
+        };
+        looseClearance.set(item, clearance);
+        return item;
+      }
+      return {
+        kind:
+          kind === "vineRow" && clearance > VINE_DETAIL_REACH
+            ? "vineRowFar"
+            : kind,
+        position,
+        yaw,
+        scale,
+        colliderRadius: 0,
+      };
+    }
+    const far = FAR_TREE[kind];
+    return {
+      kind: far && clearance > TREE_DETAIL_REACH ? far : kind,
+      position,
+      yaw,
+      scale,
+      colliderRadius:
+        clearance <= DECOR_TREE_COLLIDER_REACH
+          ? VEGETATION_COLLIDER[kind] * scale
+          : 0,
+    };
+  });
 
 // Générateur mulberry32 : Math.random casserait le déterminisme.
 const createRandom = (seed: number): (() => number) => {
@@ -71,6 +227,161 @@ export const slopeAt = (
   if (east === null || west === null || south === null || north === null)
     return 0;
   return Math.hypot(east - west, south - north) / (2 * TREE_SLOPE_REACH);
+};
+
+/**
+ * Emprise d'un corps vue du dessus : rectangle orienté, demi-côtés le long de x et z locaux, ou disque de rayon
+ * `halfX` (`round`) pour un cylindre debout : un carré tourné rapprocherait à tort deux buissons voisins.
+ */
+interface Footprint {
+  x: number;
+  z: number;
+  yaw: number;
+  halfX: number;
+  halfZ: number;
+  round: boolean;
+}
+
+/** Axes x et z locaux d'un cap, dans le plan (x, z) : x local = (cos, -sin), z local = (sin, cos). */
+const axesOf = (yaw: number): [number, number, number, number] => [
+  Math.cos(yaw),
+  -Math.sin(yaw),
+  Math.sin(yaw),
+  Math.cos(yaw),
+];
+
+/** Disque contre rectangle orienté : le point du rectangle le plus proche du centre du disque. */
+const discHitsBox = (disc: Footprint, box: Footprint): boolean => {
+  const [ax, az, bx, bz] = axesOf(box.yaw);
+  const tx = disc.x - box.x;
+  const tz = disc.z - box.z;
+  const u = tx * ax + tz * az;
+  const v = tx * bx + tz * bz;
+  const du = u - Math.max(-box.halfX, Math.min(box.halfX, u));
+  const dv = v - Math.max(-box.halfZ, Math.min(box.halfZ, v));
+  return du * du + dv * dv < disc.halfX * disc.halfX;
+};
+
+/** Deux emprises se chevauchent-elles ? Disques, disque et rectangle, ou axes séparateurs entre rectangles. */
+const footprintsOverlap = (a: Footprint, b: Footprint): boolean => {
+  if (a.round && b.round)
+    return Math.hypot(b.x - a.x, b.z - a.z) < a.halfX + b.halfX;
+  if (a.round) return discHitsBox(a, b);
+  if (b.round) return discHitsBox(b, a);
+  const [ax, az, bx, bz] = axesOf(a.yaw);
+  const [cx, cz, dx, dz] = axesOf(b.yaw);
+  const tx = b.x - a.x;
+  const tz = b.z - a.z;
+  const axes: [number, number][] = [
+    [ax, az],
+    [bx, bz],
+    [cx, cz],
+    [dx, dz],
+  ];
+  for (const [ux, uz] of axes) {
+    const reachA =
+      a.halfX * Math.abs(ax * ux + az * uz) +
+      a.halfZ * Math.abs(bx * ux + bz * uz);
+    const reachB =
+      b.halfX * Math.abs(cx * ux + cz * uz) +
+      b.halfZ * Math.abs(dx * ux + dz * uz);
+    if (Math.abs(tx * ux + tz * uz) > reachA + reachB) return false;
+  }
+  return true;
+};
+
+interface FootprintIndex {
+  add: (footprint: Footprint) => void;
+  hits: (footprint: Footprint) => boolean;
+}
+
+/** Index des emprises par mailles : chaque emprise est rangée dans les mailles de son cercle englobant. */
+const createFootprintIndex = (): FootprintIndex => {
+  const cells = new Map<string, Footprint[]>();
+  const keysOf = (f: Footprint): string[] => {
+    const r = Math.hypot(f.halfX, f.halfZ);
+    const keys: string[] = [];
+    for (
+      let ix = Math.floor((f.x - r) / FOOTPRINT_CELL);
+      ix <= Math.floor((f.x + r) / FOOTPRINT_CELL);
+      ix++
+    )
+      for (
+        let iz = Math.floor((f.z - r) / FOOTPRINT_CELL);
+        iz <= Math.floor((f.z + r) / FOOTPRINT_CELL);
+        iz++
+      )
+        keys.push(`${ix},${iz}`);
+    return keys;
+  };
+  return {
+    add: (f) => {
+      for (const key of keysOf(f)) {
+        const cell = cells.get(key);
+        if (cell) cell.push(f);
+        else cells.set(key, [f]);
+      }
+    },
+    hits: (f) =>
+      keysOf(f).some((key) =>
+        (cells.get(key) ?? []).some((other) => footprintsOverlap(f, other)),
+      ),
+  };
+};
+
+/**
+ * Pose d'un corps renversable sur son emprise : plan des moindres carrés sur huit points du tour, posé juste
+ * au-dessus du point le plus haut. `null` si le sol manque, est trop raide ou trop irrégulier.
+ */
+const seatLoose = (
+  track: Pick<Track, "groundAt" | "terrain">,
+  f: Footprint,
+  y: number,
+): { y: number; up?: Vec3 } | null => {
+  if (!track.terrain) return { y };
+  const center = track.groundAt(f.x, f.z);
+  if (center === null) return null;
+  const [ax, az, bx, bz] = axesOf(f.yaw);
+  const offsets: [number, number][] = [
+    [f.halfX, 0],
+    [-f.halfX, 0],
+    [0, f.halfZ],
+    [0, -f.halfZ],
+    [f.halfX, f.halfZ],
+    [f.halfX, -f.halfZ],
+    [-f.halfX, f.halfZ],
+    [-f.halfX, -f.halfZ],
+  ];
+  const rim: [number, number, number][] = [];
+  for (const [du, dv] of offsets) {
+    const h = track.groundAt(f.x + du * ax + dv * bx, f.z + du * az + dv * bz);
+    if (h === null) return null;
+    rim.push([du, dv, h]);
+  }
+  // Points symétriques : chaque pente se lit à part, Σ du² = 6 halfX² et Σ dv² = 6 halfZ².
+  let slopeU = 0;
+  let slopeV = 0;
+  for (const [du, dv, h] of rim) {
+    slopeU += (du * h) / (6 * f.halfX * f.halfX);
+    slopeV += (dv * h) / (6 * f.halfZ * f.halfZ);
+  }
+  let lift = 0;
+  let sink = 0;
+  for (const [du, dv, h] of rim) {
+    const gap = h - (center + slopeU * du + slopeV * dv);
+    lift = Math.max(lift, gap);
+    sink = Math.min(sink, gap);
+  }
+  if (lift - sink > LOOSE_MAX_GAP) return null;
+  // Pente dans le monde : x local porte slopeU, z local slopeV.
+  const gx = slopeU * ax + slopeV * bx;
+  const gz = slopeU * az + slopeV * bz;
+  if (Math.hypot(gx, gz) > LOOSE_MAX_SLOPE) return null;
+  const length = Math.sqrt(gx * gx + 1 + gz * gz);
+  return {
+    y: center + lift,
+    up: { x: -gx / length, y: 1 / length, z: -gz / length },
+  };
 };
 
 /** Pas de l'axe : un tracé fermé a autant de segments que de points, un tracé ouvert un de moins. */
@@ -312,14 +623,11 @@ export const generateScenery = (track: Track, seed: number): SceneryItem[] => {
   }
 
   // Végétation proche : un bouquet tous les quelques mètres, de chaque côté, pour faire défiler la vitesse.
+  // Avec un décor réel, seuls les rochers restent : les arbres viennent des vraies zones de végétation.
+  const decor = track.decor;
   const rollKind = (): SceneryKind => {
     const roll = random();
     return roll < 0.45 ? "pine" : roll < 0.85 ? "tree" : "rock";
-  };
-  const colliderOf: Record<string, number> = {
-    pine: 0.35,
-    tree: 0.4,
-    rock: 0.9,
   };
   const nearEvery = Math.max(1, Math.round(5 / step));
   for (let i = 0; i < n; i += nearEvery) {
@@ -328,37 +636,48 @@ export const generateScenery = (track: Track, seed: number): SceneryItem[] => {
     const offset = halfWidth + VEGETATION_CLEARANCE + random() * random() * 45;
     const [x, z] = lateralPoint(i, side * offset);
     const kind = rollKind();
+    // Tirés dans l'ordre d'origine (cap puis échelle) : sans décor, la suite des tirages ne bouge pas.
+    const yaw = random() * Math.PI * 2;
+    const scale = kind === "rock" ? 0.5 + random() * 0.9 : 0.8 + random() * 0.7;
+    if (decor && kind !== "rock") continue;
     place(
       kind,
       x,
       z,
-      random() * Math.PI * 2,
-      kind === "rock" ? 0.5 + random() * 0.9 : 0.8 + random() * 0.7,
+      yaw,
+      scale,
       halfWidth + VEGETATION_CLEARANCE,
-      colliderOf[kind],
+      VEGETATION_COLLIDER[kind],
     );
   }
 
-  // Végétation lointaine : un fond sans collision ni ombre.
-  const xs = points.map((p) => p.x);
-  const zs = points.map((p) => p.z);
-  const minX = Math.min(...xs) - 280;
-  const maxX = Math.max(...xs) + 280;
-  const minZ = Math.min(...zs) - 280;
-  const maxZ = Math.max(...zs) + 280;
-  for (let i = 0; i < 420; i++) {
-    const x = minX + random() * (maxX - minX);
-    const z = minZ + random() * (maxZ - minZ);
-    const kind = random() < 0.6 ? "pine" : "tree";
-    place(
-      kind,
-      x,
-      z,
-      random() * Math.PI * 2,
-      0.9 + random() * 0.9,
-      NEAR_SCENERY_DISTANCE,
-      0,
-    );
+  const looseClearance = new Map<SceneryItem, number>();
+  if (decor) {
+    // Les arbres réels remplacent la végétation proche et lointaine. Retirés comme le reste près des chicanes.
+    for (const tree of decorTreeItems(track, decor.trees, looseClearance))
+      items.push(tree);
+  } else {
+    // Végétation lointaine : un fond sans collision ni ombre.
+    const xs = points.map((p) => p.x);
+    const zs = points.map((p) => p.z);
+    const minX = Math.min(...xs) - 280;
+    const maxX = Math.max(...xs) + 280;
+    const minZ = Math.min(...zs) - 280;
+    const maxZ = Math.max(...zs) + 280;
+    for (let i = 0; i < 420; i++) {
+      const x = minX + random() * (maxX - minX);
+      const z = minZ + random() * (maxZ - minZ);
+      const kind = random() < 0.6 ? "pine" : "tree";
+      place(
+        kind,
+        x,
+        z,
+        random() * Math.PI * 2,
+        0.9 + random() * 0.9,
+        NEAR_SCENERY_DISTANCE,
+        0,
+      );
+    }
   }
 
   // Plots blancs tous les 100 m, de chaque côté : repères de vitesse, et on peut les renverser.
@@ -395,28 +714,125 @@ export const generateScenery = (track: Track, seed: number): SceneryItem[] => {
     }
   }
 
+  // Public : générateur à part, tiré après tout le reste et ajouté en fin de liste. Avec ou sans lui,
+  // le reste du décor est identique au bit près ; il n'en retire jamais rien.
+  const spectatorRandom = createRandom(seed ^ 0x27d4eb2d);
+  const crowd: SceneryItem[] = [];
+  /** Épingles et leur public, pour l'habillage rallye (story 5.5) */
+  const hairpinGroups: (RallyHairpin & { members: SceneryItem[] })[] = [];
+  const indexAt = (i: number): number =>
+    closed ? ((i % n) + n) % n : Math.max(0, Math.min(n - 1, i));
+  // Emprises des bâtiments et de l'eau réels, partagées avec le retrait du mobilier plus bas.
+  const { inBuilding, inWater } = createDecorFootprints(decor);
+
+  /** Groupe de `size` spectateurs sur `spread` mètres autour de l'indice `center`, du côté `side`. */
+  const crowdAt = (
+    center: number,
+    side: number,
+    size: number,
+    spread: number,
+  ): void => {
+    for (let k = 0; k < size; k++) {
+      // Toujours quatre tirages par spectateur, même écarté : la suite ne dépend pas des filtres.
+      const along = (spectatorRandom() - 0.5) * spread;
+      const depth = spectatorRandom() * 3;
+      const turn = (spectatorRandom() - 0.5) * 0.8;
+      const scale = 0.9 + spectatorRandom() * 0.2;
+      if (crowd.length >= MAX_SPECTATORS) continue;
+      const i = indexAt(center + Math.round(along / step));
+      const lateral = widths[i] / 2 + SPECTATOR_CLEARANCE + 0.5 + depth;
+      const [x, z] = lateralPoint(i, side * lateral);
+      // La route la plus proche, l'autre branche d'une épingle comprise.
+      const sample = track.nearest(x, z);
+      if (sample.distance - sample.width / 2 < SPECTATOR_CLEARANCE) continue;
+      const ground = track.groundAt(x, z);
+      if (ground === null) continue;
+      if (track.terrain && slopeAt(track, x, z) > MAX_SPECTATOR_SLOPE) continue;
+      if (inBuilding(x, z) || inWater(x, z)) continue;
+      const p = points[i];
+      crowd.push({
+        kind: "spectator",
+        position: { x, y: ground, z },
+        // Face à la route, à peu près : le cap varie aussi la teinte au rendu.
+        yaw: Math.atan2(p.x - x, p.z - z) + turn,
+        scale,
+        colliderRadius: 0,
+      });
+    }
+  };
+  const groupSize = (min: number, max: number): number =>
+    min + Math.floor(spectatorRandom() * (max - min + 1));
+
+  // Le départ d'abord, des deux côtés, de 20 à 60 m après la ligne : jamais coupé par le plafond.
+  const startIndex = indexAt(Math.round((track.startS + 40) / step));
+  for (const side of [-1, 1]) crowdAt(startIndex, side, groupSize(12, 20), 40);
+  // Puis chaque virage à bottes, à l'extérieur et derrière elles : toujours aux épingles, parfois ailleurs.
+  // ponytail: un virage qui chevauche l'indice 0 d'un circuit compte pour deux, sans gravité.
+  for (let i = 0; i < n; ) {
+    if (!isBend(i)) {
+      i++;
+      continue;
+    }
+    let apex = i;
+    let j = i;
+    for (; j < n && isBend(j); j++)
+      if (Math.abs(curvature[j]) > Math.abs(curvature[apex])) apex = j;
+    const roll = spectatorRandom();
+    const side = curvature[apex] > 0 ? -1 : 1;
+    if (Math.abs(curvature[apex]) > 1 / HAIRPIN_RADIUS) {
+      const from = crowd.length;
+      crowdAt(apex, side, groupSize(12, 20), 24);
+      hairpinGroups.push({
+        apex,
+        side,
+        curvature: Math.abs(curvature[apex]),
+        members: crowd.slice(from),
+      });
+    } else if (roll < BEND_CROWD_SHARE)
+      crowdAt(apex, side, groupSize(6, 10), 14);
+    i = j;
+  }
+
+  // Retiré après coup : les tirages ne se décalent pas, le reste du décor ne bouge pas.
+  const clearOfBlocks = (item: SceneryItem): boolean =>
+    !track.obstacles.some((block) =>
+      isNearBlock(block, item.position.x, item.position.z, BLOCK_CLEARANCE),
+    ) &&
+    // Rien sur l'îlot ni à cheval sur sa barrière.
+    !track.islands.some(
+      ({ position, radius }) =>
+        Math.hypot(
+          item.position.x - position.x,
+          item.position.z - position.z,
+        ) <=
+        radius + BLOCK_CLEARANCE,
+    );
+
+  // Mobilier et rochers hors des bâtiments et de l'eau réels, retirés après coup comme le reste. Les arbres réels
+  // sont déjà écartés par le pipeline. Sans décor, rien n'est retiré : le décor reste le même au bit près.
+  const clearOfDecor = (item: SceneryItem): boolean =>
+    !decor ||
+    DECOR_VEGETATION.has(item.kind) ||
+    isLooseVegetation(item.kind) ||
+    !(
+      inBuilding(item.position.x, item.position.z) ||
+      inWater(item.position.x, item.position.z)
+    );
+
   // Une botte posée sur un panneau ou un plot les ferait exploser au premier choc : la botte cède la place.
   // Les annonces de chicane passent en dernier : sans chicane, le décor et le monde restent les mêmes au bit près.
-  const signs = chicaneSignItems(track);
+  const signs = chicaneSignItems(track).filter(clearOfDecor);
   const standing = [...items, ...signs].filter(
     (item) =>
-      item.kind === "post" || item.kind === "sign" || isChicaneSign(item.kind),
+      (item.kind === "post" ||
+        item.kind === "sign" ||
+        isChicaneSign(item.kind)) &&
+      clearOfDecor(item),
   );
   const kept = items.filter(
     (item) =>
-      // Retiré après coup : les tirages ne se décalent pas, le reste du décor ne bouge pas.
-      !track.obstacles.some((block) =>
-        isNearBlock(block, item.position.x, item.position.z, BLOCK_CLEARANCE),
-      ) &&
-      // Rien sur l'îlot ni à cheval sur sa barrière.
-      !track.islands.some(
-        ({ position, radius }) =>
-          Math.hypot(
-            item.position.x - position.x,
-            item.position.z - position.z,
-          ) <=
-          radius + BLOCK_CLEARANCE,
-      ) &&
+      clearOfBlocks(item) &&
+      clearOfDecor(item) &&
       (!isHay(item.kind) ||
         standing.every(
           (other) =>
@@ -426,5 +842,107 @@ export const generateScenery = (track: Track, seed: number): SceneryItem[] => {
             ) > HAY_CLEARANCE,
         )),
   );
-  return [...kept, ...signs];
+  // Le public après : aucun indice d'objet existant ne bouge.
+  const crowdKept = crowd.filter(clearOfBlocks);
+  // Habillage rallye tout à la fin, générateur à part : seules les bottes devant le public des épingles cèdent la place.
+  const keptCrowd = new Set(crowdKept);
+  const dress = (base: SceneryItem[]): SceneryItem[] =>
+    rallyDressing({
+      track,
+      seed,
+      items: base,
+      hairpins: hairpinGroups.filter((group) =>
+        group.members.some((member) => keptCrowd.has(member)),
+      ),
+      startS: track.startS + ARCH_S,
+      inBuilding,
+      inWater,
+      clear: clearOfBlocks,
+    });
+  if (looseClearance.size === 0)
+    return dress([...kept, ...signs, ...crowdKept]);
+
+  // Végétation renversable tout à la fin : les objets légers d'origine gardent leur ordre et leurs corps.
+  // Un candidat qui chevauche un autre corps, un collider fixe, un bâtiment ou l'eau, sur un sol trop raide,
+  // ou au-delà du plafond, redevient un décor fixe sans collider : il reste dessiné, avec son ombre.
+  const occupied = createFootprintIndex();
+  for (const item of [...kept, ...signs]) {
+    if (isLooseVegetation(item.kind)) continue;
+    const half = isHay(item.kind)
+      ? HAY_FOOTPRINT
+      : isLightProp(item.kind)
+        ? Math.max(item.colliderRadius, POLE_FOOTPRINT)
+        : item.colliderRadius;
+    if (half > 0)
+      occupied.add({
+        x: item.position.x,
+        z: item.position.z,
+        yaw: 0,
+        halfX: half,
+        halfZ: half,
+        round: true,
+      });
+  }
+  // Les plus proches de la route d'abord, puis l'ordre du pipeline : tri total, même décor au bit près.
+  const candidates = kept
+    .map((item, index) => ({ item, index }))
+    .filter(({ item }) => isLooseVegetation(item.kind))
+    .sort(
+      (a, b) =>
+        (looseClearance.get(a.item) ?? 0) - (looseClearance.get(b.item) ?? 0) ||
+        a.index - b.index,
+    );
+  const accepted = new Map<SceneryItem, SceneryItem>();
+  for (const { item } of candidates) {
+    if (accepted.size >= MAX_LOOSE_VEGETATION) break;
+    const bush = item.kind === "bushProp";
+    const footprint: Footprint = {
+      x: item.position.x,
+      z: item.position.z,
+      yaw: item.yaw,
+      halfX: (bush ? BUSH_RADIUS : VINE_HALF_LENGTH) + LOOSE_MARGIN,
+      halfZ: (bush ? BUSH_RADIUS : VINE_HALF_WIDTH) + LOOSE_MARGIN,
+      round: bush,
+    };
+    if (occupied.hits(footprint)) continue;
+    const [ax, az, bx, bz] = axesOf(item.yaw);
+    const signsOf: [number, number][] = [
+      [1, 1],
+      [1, -1],
+      [-1, 1],
+      [-1, -1],
+    ];
+    const blocked = signsOf.some(([su, sv]) => {
+      const x =
+        footprint.x + su * footprint.halfX * ax + sv * footprint.halfZ * bx;
+      const z =
+        footprint.z + su * footprint.halfX * az + sv * footprint.halfZ * bz;
+      return inBuilding(x, z) || inWater(x, z);
+    });
+    if (blocked) continue;
+    const seat = seatLoose(track, footprint, item.position.y);
+    if (!seat) continue;
+    occupied.add(footprint);
+    accepted.set(item, {
+      ...item,
+      position: { ...item.position, y: seat.y },
+      ...(seat.up ? { up: seat.up } : {}),
+    });
+  }
+  const fixed = kept.flatMap((item): SceneryItem[] => {
+    if (!isLooseVegetation(item.kind)) return [item];
+    if (accepted.has(item)) return [];
+    return [
+      {
+        ...item,
+        kind: item.kind === "bushProp" ? "bush" : "vineRow",
+        colliderRadius: 0,
+      },
+    ];
+  });
+  const loose = kept.flatMap((item) => {
+    const seated = accepted.get(item);
+    return seated ? [seated] : [];
+  });
+  return dress([...fixed, ...signs, ...crowdKept, ...loose]);
 };

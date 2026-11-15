@@ -1,10 +1,23 @@
+import {
+  DECOR_BUILDING_TYPES,
+  DECOR_ROOF_KINDS,
+  DECOR_ROOF_MATERIALS,
+  DECOR_TREE_KINDS,
+  DECOR_WALL_MATERIALS,
+} from "../types";
 import type {
   ChicaneBlock,
+  DecorBuilding,
+  DecorBuildingKind,
+  DecorBuildingType,
+  DecorTree,
+  DecorWater,
   MedianBarrier,
   RoundaboutIsland,
   MeshData,
   SharedRange,
   StageData,
+  StageDecor,
   Vec3,
 } from "../types";
 
@@ -178,8 +191,7 @@ const parseIslands = (value: unknown): RoundaboutIsland[] => {
 
 const parseMedians = (value: unknown): MedianBarrier[] => {
   if (!Array.isArray(value)) return fail("medians", "doit être un tableau");
-  if (value.length === 0)
-    fail("medians", "doit être absent sans terre-plein");
+  if (value.length === 0) fail("medians", "doit être absent sans terre-plein");
   return value.map((median: unknown, i) => {
     const field = `medians[${i}]`;
     if (!isObject(median) || !Array.isArray(median.points))
@@ -197,6 +209,180 @@ const parseMedians = (value: unknown): MedianBarrier[] => {
       skirt: positive("skirt"),
     };
   });
+};
+
+type LegacyTypology = Omit<
+  DecorBuilding,
+  "footprint" | "base" | "height" | "kind" | "floors"
+>;
+
+const legacy = (
+  type: DecorBuildingType,
+  roof: DecorBuilding["roof"],
+  roofMaterial: DecorBuilding["roofMaterial"],
+  wallMaterial: DecorBuilding["wallMaterial"],
+): LegacyTypology => ({
+  type,
+  roof,
+  roofMaterial,
+  wallMaterial,
+  party: [],
+  street: 0,
+});
+
+const BUILDING_KINDS: readonly DecorBuildingKind[] = [
+  "house",
+  "farm",
+  "industrial",
+  "church",
+  "other",
+];
+
+/** Valeur d'une liste fermée, sinon une erreur qui donne les valeurs permises. */
+const oneOf = <T extends string>(
+  list: readonly T[],
+  value: unknown,
+  field: string,
+): T => {
+  const found = list.find((k) => k === value);
+  return found === undefined
+    ? fail(field, `doit être ${list.join(", ")}`)
+    : found;
+};
+
+/** Typologie d'un bâtiment rangé avant la story 5.2 : le toit et la couleur qu'il avait déjà. */
+const LEGACY_TYPOLOGY: Record<DecorBuildingKind, LegacyTypology> = {
+  house: legacy("house", "gable", "tile", "render"),
+  farm: legacy("barn", "gable", "metal", "wood"),
+  industrial: legacy("workshop", "flat", "membrane", "metal"),
+  church: legacy("church", "gable", "slate", "stone"),
+  other: legacy("house", "flat", "membrane", "render"),
+};
+
+/** Contour plan : au moins 3 points { x, z } finis. */
+const parseOutline = (
+  value: unknown,
+  field: string,
+): { x: number; z: number }[] => {
+  if (!Array.isArray(value)) return fail(field, "doit être un tableau");
+  if (value.length < 3) fail(field, "doit contenir au moins 3 points");
+  return value.map((point: unknown, i) => {
+    if (!isObject(point)) return fail(`${field}[${i}]`, "doit être { x, z }");
+    return {
+      x: finite(point.x, `${field}[${i}].x`),
+      z: finite(point.z, `${field}[${i}].z`),
+    };
+  });
+};
+
+const parseBuilding = (value: unknown, i: number): DecorBuilding => {
+  const field = `decor.buildings[${i}]`;
+  if (!isObject(value)) return fail(field, "doit être un bâtiment");
+  const kind = BUILDING_KINDS.find((k) => k === value.kind);
+  if (kind === undefined)
+    return fail(`${field}.kind`, `doit être ${BUILDING_KINDS.join(", ")}`);
+  const height = finite(value.height, `${field}.height`);
+  if (height <= 0) fail(`${field}.height`, "doit rester positif");
+  const footprint = parseOutline(value.footprint, `${field}.footprint`);
+  const base = finite(value.base, `${field}.base`);
+  // Spéciale d'avant la typologie (rouverte à la demande) : déduite de l'usage, comme l'ancien rendu.
+  if (value.type === undefined)
+    return {
+      footprint,
+      base,
+      height,
+      kind,
+      floors: Math.max(1, Math.round(height / 3)),
+      ...LEGACY_TYPOLOGY[kind],
+    };
+  const type = oneOf(DECOR_BUILDING_TYPES, value.type, `${field}.type`);
+  const floors = finite(value.floors, `${field}.floors`);
+  if (!Number.isInteger(floors) || floors < 1)
+    fail(`${field}.floors`, "doit être un entier positif");
+  const wallIndex = (v: unknown, name: string): number => {
+    const k = finite(v, name);
+    if (!Number.isInteger(k) || k < 0 || k >= footprint.length)
+      fail(name, "doit désigner un mur de l'emprise");
+    return k;
+  };
+  if (!Array.isArray(value.party))
+    return fail(`${field}.party`, "doit être un tableau");
+  const party = value.party.map((v: unknown, k) =>
+    wallIndex(v, `${field}.party[${k}]`),
+  );
+  return {
+    footprint,
+    base,
+    height,
+    kind,
+    type,
+    floors,
+    roof: oneOf(DECOR_ROOF_KINDS, value.roof, `${field}.roof`),
+    roofMaterial: oneOf(
+      DECOR_ROOF_MATERIALS,
+      value.roofMaterial,
+      `${field}.roofMaterial`,
+    ),
+    wallMaterial: oneOf(
+      DECOR_WALL_MATERIALS,
+      value.wallMaterial,
+      `${field}.wallMaterial`,
+    ),
+    party,
+    street: wallIndex(value.street, `${field}.street`),
+  };
+};
+
+const parseTree = (value: unknown, i: number): DecorTree => {
+  const field = `decor.trees[${i}]`;
+  if (!isObject(value) || !isObject(value.position))
+    return fail(field, "doit être un arbre");
+  const kind = DECOR_TREE_KINDS.find((k) => k === value.kind);
+  if (kind === undefined)
+    return fail(`${field}.kind`, `doit être ${DECOR_TREE_KINDS.join(", ")}`);
+  const scale = finite(value.scale, `${field}.scale`);
+  if (scale <= 0) fail(`${field}.scale`, "doit rester positif");
+  return {
+    kind,
+    position: {
+      x: finite(value.position.x, `${field}.position.x`),
+      y: finite(value.position.y, `${field}.position.y`),
+      z: finite(value.position.z, `${field}.position.z`),
+    },
+    yaw: finite(value.yaw, `${field}.yaw`),
+    scale,
+  };
+};
+
+const parseWater = (value: unknown, i: number): DecorWater => {
+  const field = `decor.water[${i}]`;
+  if (!isObject(value)) return fail(field, "doit être une surface d'eau");
+  const outline = parseOutline(value.outline, `${field}.outline`);
+  const y = finite(value.y, `${field}.y`);
+  // Absent sur une surface sans île : la clé n'est pas recréée, l'empreinte reste la même.
+  if (value.holes === undefined) return { outline, y };
+  if (!Array.isArray(value.holes))
+    return fail(`${field}.holes`, "doit être un tableau");
+  const holes = value.holes.map((hole: unknown, k) =>
+    parseOutline(hole, `${field}.holes[${k}]`),
+  );
+  return { outline, holes, y };
+};
+
+/** Des listes vides sont permises : un tracé en pleine plaine n'a ni bâtiment ni eau. L'ordre est gardé tel quel, il fait le déterminisme. */
+const parseDecor = (value: unknown): StageDecor => {
+  if (!isObject(value))
+    return fail("decor", "doit être { buildings, trees, water }");
+  const decor = value;
+  const list = (key: string): unknown[] =>
+    Array.isArray(decor[key])
+      ? (decor[key] as unknown[])
+      : fail(`decor.${key}`, "doit être un tableau");
+  return {
+    buildings: list("buildings").map(parseBuilding),
+    trees: list("trees").map(parseTree),
+    water: list("water").map(parseWater),
+  };
 };
 
 /** Valide une spéciale lue en JSON. Toute donnée inattendue, vieille version comprise, lève une erreur claire. */
@@ -247,6 +433,8 @@ export const parseStage = (json: unknown): StageData => {
       medians: parseMedians(json.medians),
     }),
     terrain: parseTerrain(json.terrain),
+    // Absent : la spéciale reste celle d'avant l'epic 5, au bit près.
+    ...(json.decor !== undefined && { decor: parseDecor(json.decor) }),
     pipelineVersion: finite(json.pipelineVersion, "pipelineVersion"),
     generatedAt: text(json.generatedAt, "generatedAt"),
     hash: text(json.hash, "hash"),

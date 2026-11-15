@@ -14,6 +14,31 @@ const SIGN_HALF_HEIGHT = 1.2;
 const SIGN_HALF_WIDTH = 0.08;
 /** Mât du panneau d'annonce de chicane, jusqu'au haut du panneau */
 const CHICANE_SIGN_HALF_HEIGHT = 1.4;
+/** Amortissement des objets légers d'origine : inchangé, le monde sans décor reste le même au bit près */
+const PROP_LINEAR_DAMPING = 0.25;
+const PROP_ANGULAR_DAMPING = 0.6;
+const PROP_FRICTION = 0.7;
+
+/**
+ * Végétation renversable près de la route (story 5.3), tous ses réglages ici. La voiture fait 1 100 kg : un buisson
+ * de 90 kg lui prend environ 8 % de sa vitesse au choc, un rang de vigne de 120 kg environ 10 %. Une haie fauchée
+ * freine franchement en quelques modules sans arrêter net. Amortissement fort : la végétation s'écrase et se couche,
+ * elle ne roule ni ne glisse loin. Largeurs et longueurs non mises à l'échelle : deux voisins ne se touchent jamais.
+ */
+const BUSH_MASS = 90;
+/** Cylindre debout, bas : il se couche au choc au lieu de rouler comme une boule. Rayon < pas de 2,4 m / 2. */
+export const BUSH_RADIUS = 1;
+/** Demi-hauteur à l'échelle 1 : sous le toit de la voiture, qui ne grimpe pas dessus */
+const BUSH_HALF_HEIGHT = 0.7;
+const VINE_MASS = 120;
+/** Boîte longue et basse le long de x local : 4,6 m pour un module de 5 m, rangs à 2 m */
+export const VINE_HALF_LENGTH = 2.3;
+export const VINE_HALF_WIDTH = 0.3;
+/** Demi-hauteur à l'échelle 1 : jusqu'au haut du feuillage (1,55 m) */
+const VINE_HALF_HEIGHT = 0.75;
+const VEGETATION_LINEAR_DAMPING = 1.2;
+const VEGETATION_ANGULAR_DAMPING = 1.5;
+const VEGETATION_FRICTION = 0.9;
 
 const LIGHT_MEMBERSHIP = 0x0002;
 const collisionGroups = (membership: number, filter: number): number =>
@@ -34,8 +59,43 @@ export const isHay = (kind: SceneryKind): boolean =>
 export const isChicaneSign = (kind: SceneryKind): boolean =>
   kind === "chicaneSignLeft" || kind === "chicaneSignRight";
 
+/** Buisson ou rang de vigne renversable : placé en fin de décor par `generateScenery`, donc créé après les autres. */
+export const isLooseVegetation = (kind: SceneryKind): boolean =>
+  kind === "bushProp" || kind === "vineRowProp";
+
+/** Collider d'un objet d'habillage rallye : boîte de demi-côtés donnés à l'échelle 1, centre à mi-hauteur. */
+interface RallyPropShape {
+  halfX: number;
+  halfY: number;
+  halfZ: number;
+  mass: number;
+}
+
+/**
+ * Habillage rallye renversable (story 5.5) : voile, pancarte, mât, banderole, module de barrière des épingles et
+ * module de rubalise. Légers, comme les panneaux : la voiture les fauche sans s'y arrêter. Ajoutés en fin de décor.
+ */
+export const RALLY_PROP_SHAPE: Partial<Record<SceneryKind, RallyPropShape>> = {
+  rallySail: { halfX: 0.08, halfY: 1.8, halfZ: 0.08, mass: 6 },
+  rallyPlacard: { halfX: 0.5, halfY: 0.88, halfZ: 0.05, mass: 5 },
+  rallyMast: { halfX: 0.06, halfY: 2.5, halfZ: 0.06, mass: 8 },
+  rallyCheckerMast: { halfX: 0.06, halfY: 2.5, halfZ: 0.06, mass: 8 },
+  rallyBanner: { halfX: 3.1, halfY: 1.28, halfZ: 0.05, mass: 20 },
+  rallyBarrier: { halfX: 1, halfY: 0.6, halfZ: 0.06, mass: 10 },
+  // Module de 5 m sur piquets de 1,1 m : boîte de 4,7 m, deux voisins bout à bout ne se touchent pas.
+  rallyTape: { halfX: 2.35, halfY: 0.55, halfZ: 0.05, mass: 3 },
+};
+
+export const isRallyProp = (kind: SceneryKind): boolean =>
+  RALLY_PROP_SHAPE[kind] !== undefined;
+
 export const isLightProp = (kind: SceneryKind): boolean =>
-  isHay(kind) || kind === "post" || kind === "sign" || isChicaneSign(kind);
+  isRallyProp(kind) ||
+  isHay(kind) ||
+  kind === "post" ||
+  kind === "sign" ||
+  isChicaneSign(kind) ||
+  isLooseVegetation(kind);
 
 const CENTER_HEIGHT: Partial<Record<SceneryKind, number>> = {
   hay: HAY_RADIUS,
@@ -43,11 +103,15 @@ const CENTER_HEIGHT: Partial<Record<SceneryKind, number>> = {
   sign: SIGN_HALF_HEIGHT,
   chicaneSignLeft: CHICANE_SIGN_HALF_HEIGHT,
   chicaneSignRight: CHICANE_SIGN_HALF_HEIGHT,
+  bushProp: BUSH_HALF_HEIGHT,
+  vineRowProp: VINE_HALF_HEIGHT,
 };
 
 /** Hauteur du centre physique au-dessus du pied, là où le modèle 3D a son origine. */
 export const lightPropCenter = (item: SceneryItem): number =>
-  (CENTER_HEIGHT[item.kind] ?? POST_HALF_HEIGHT) * item.scale;
+  (CENTER_HEIGHT[item.kind] ??
+    RALLY_PROP_SHAPE[item.kind]?.halfY ??
+    POST_HALF_HEIGHT) * item.scale;
 
 export interface LightProps {
   items: SceneryItem[];
@@ -55,6 +119,8 @@ export interface LightProps {
   sync: () => boolean;
   /** Dernières poses relues, dans l'ordre de `items`. Le tableau est réutilisé d'un appel à l'autre. */
   current: () => Pose[];
+  /** Indices relus par le dernier `sync`, tous après un `rest`. Tableau réutilisé. */
+  changed: () => readonly number[];
   /** Relit tous les objets, endormis compris. Plus coûteux : réservé aux vérifications. */
   poses: () => Pose[];
   /** À appeler après un `world.step()` : Rapier réveille les corps qu'on vient de créer ou de replacer. */
@@ -90,6 +156,24 @@ export const lightPropSpawn = (item: SceneryItem): Pose => {
 };
 
 const colliderFor = (item: SceneryItem): RAPIER_TYPES.ColliderDesc => {
+  const rally = RALLY_PROP_SHAPE[item.kind];
+  if (rally)
+    return RAPIER.ColliderDesc.cuboid(
+      rally.halfX * item.scale,
+      rally.halfY * item.scale,
+      rally.halfZ * item.scale,
+    ).setMass(rally.mass);
+  if (item.kind === "bushProp")
+    return RAPIER.ColliderDesc.cylinder(
+      BUSH_HALF_HEIGHT * item.scale,
+      BUSH_RADIUS,
+    ).setMass(BUSH_MASS);
+  if (item.kind === "vineRowProp")
+    return RAPIER.ColliderDesc.cuboid(
+      VINE_HALF_LENGTH,
+      VINE_HALF_HEIGHT * item.scale,
+      VINE_HALF_WIDTH,
+    ).setMass(VINE_MASS);
   if (item.kind === "hayUpright") {
     return RAPIER.ColliderDesc.cylinder(
       HAY_HALF_LENGTH * item.scale,
@@ -135,6 +219,7 @@ export const createLightProps = (
   const spawn = items.map(lightPropSpawn);
 
   const bodies = items.map((item, i) => {
+    const vegetation = isLooseVegetation(item.kind);
     const body = world.createRigidBody(
       RAPIER.RigidBodyDesc.dynamic()
         .setTranslation(
@@ -143,12 +228,16 @@ export const createLightProps = (
           spawn[i].position.z,
         )
         .setRotation(spawn[i].rotation)
-        .setLinearDamping(0.25)
-        .setAngularDamping(0.6),
+        .setLinearDamping(
+          vegetation ? VEGETATION_LINEAR_DAMPING : PROP_LINEAR_DAMPING,
+        )
+        .setAngularDamping(
+          vegetation ? VEGETATION_ANGULAR_DAMPING : PROP_ANGULAR_DAMPING,
+        ),
     );
     world.createCollider(
       colliderFor(item)
-        .setFriction(0.7)
+        .setFriction(vegetation ? VEGETATION_FRICTION : PROP_FRICTION)
         .setCollisionGroups(RAY_IGNORED_GROUPS),
       body,
     );
@@ -161,6 +250,7 @@ export const createLightProps = (
     rotation: { ...pose.rotation },
   }));
   let dirty = true;
+  const changed: number[] = [];
 
   const read = (index: number): void => {
     const translation = bodies[index].translation();
@@ -176,14 +266,15 @@ export const createLightProps = (
   };
 
   const sync = (): boolean => {
-    let moved = dirty;
-    dirty = false;
+    changed.length = 0;
+    if (dirty) for (let i = 0; i < bodies.length; i++) changed.push(i);
     for (let i = 0; i < bodies.length; i++) {
       if (bodies[i].isSleeping()) continue;
       read(i);
-      moved = true;
+      if (!dirty) changed.push(i);
     }
-    return moved;
+    dirty = false;
+    return changed.length > 0;
   };
 
   const rest = (): void => {
@@ -199,6 +290,7 @@ export const createLightProps = (
     rest,
     sync,
     current: () => poses,
+    changed: () => changed,
     poses: () => {
       bodies.forEach((_, i) => read(i));
       return poses;

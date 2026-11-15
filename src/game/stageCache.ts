@@ -36,7 +36,8 @@ const openDatabase = (): Promise<IDBDatabase> =>
   });
 
 /**
- * `parseStage` valide le reste : le terrain en typed arrays, lui, se vérifie ici sans le recopier.
+ * `parseStage` valide le reste, `decor` compris : il ressort tel qu'il a été rangé, sans aucune requête vers l'IGN.
+ * Le terrain en typed arrays, lui, se vérifie ici sans le recopier.
  * `anyVersion` : une spéciale rouverte à la demande. Une nouvelle génération du même tracé, elle, ne reprend jamais une ancienne version.
  */
 const validEntry = (value: unknown, anyVersion = false): StageData | null => {
@@ -100,7 +101,10 @@ export const writeCachedStage = async (
   }
 };
 
-/** Une spéciale dégradée n'a pas la clé normale : `loadStage` ne la reprend pas et retentera Overpass (règle de 2.7). */
+/**
+ * Une spéciale dégradée n'a pas la clé normale : `loadStage` ne la reprend pas et retentera Overpass (règle de 2.7).
+ * Un décor indisponible compte aussi : le pipeline pousse alors un avertissement, la Géoplateforme sera retentée.
+ */
 const DEGRADED_SUFFIX = ":degraded";
 
 interface DegradedEntry extends StageData {

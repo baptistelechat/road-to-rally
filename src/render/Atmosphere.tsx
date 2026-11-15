@@ -4,9 +4,8 @@ import { useFrame } from "@react-three/fiber";
 import { useRef, useState } from "react";
 import { type DirectionalLight, Object3D } from "three";
 import type { CarSource } from "./carSource";
+import { DEFAULT_LOOK, LOOK_PRESETS, type LookId } from "./look";
 
-const SKY = "#e9c9a2";
-const SUN_OFFSET = { x: 70, y: 55, z: 45 };
 /** Demi-côté de la zone d'ombre autour de la voiture */
 const SHADOW_RANGE = 45;
 /** La zone d'ombre avance par pas de texel : les bords d'ombre ne scintillent pas en roulant */
@@ -16,12 +15,20 @@ interface AtmosphereProps {
   /** La zone d'ombre suit cette voiture ; sans elle, elle reste centrée sur l'origine */
   follow?: CarSource;
   fog?: boolean;
+  /** Ambiance lumineuse (story 5.1) ; fin d'après-midi par défaut */
+  look?: LookId;
 }
 
-/** Ciel uni, lumière de fin d'après-midi, brouillard léger. Le `<Canvas>` doit avoir la prop `shadows`. */
-export const Atmosphere = ({ follow, fog = true }: AtmosphereProps) => {
+/** Ciel uni, lumière et brouillard de l'ambiance choisie. Le `<Canvas>` doit avoir la prop `shadows`. */
+export const Atmosphere = ({
+  follow,
+  fog = true,
+  look = DEFAULT_LOOK,
+}: AtmosphereProps) => {
   const lightRef = useRef<DirectionalLight>(null);
   const [target] = useState(() => new Object3D());
+  const preset = LOOK_PRESETS[look];
+  const sun = preset.sun.offset;
 
   useFrame(() => {
     const light = lightRef.current;
@@ -33,21 +40,32 @@ export const Atmosphere = ({ follow, fog = true }: AtmosphereProps) => {
     const y = Math.round(pose.position.y / SHADOW_SNAP) * SHADOW_SNAP;
     target.position.set(x, y, z);
     target.updateMatrixWorld();
-    light.position.set(x + SUN_OFFSET.x, y + SUN_OFFSET.y, z + SUN_OFFSET.z);
+    light.position.set(x + sun.x, y + sun.y, z + sun.z);
   });
 
   return (
     <>
-      <color attach="background" args={[SKY]} />
-      {fog && <fog attach="fog" args={[SKY, 140, 760]} />}
-      <hemisphereLight args={["#ffe2bd", "#54603a", 1.1]} />
+      <color attach="background" args={[preset.sky]} />
+      {fog && (
+        <fog
+          attach="fog"
+          args={[preset.sky, preset.fog.near, preset.fog.far]}
+        />
+      )}
+      <hemisphereLight
+        args={[
+          preset.hemisphere.sky,
+          preset.hemisphere.ground,
+          preset.hemisphere.intensity,
+        ]}
+      />
       <primitive object={target} />
       <directionalLight
         ref={lightRef}
         target={target}
-        position={[SUN_OFFSET.x, SUN_OFFSET.y, SUN_OFFSET.z]}
-        color="#ffc98a"
-        intensity={2.4}
+        position={[sun.x, sun.y, sun.z]}
+        color={preset.sun.color}
+        intensity={preset.sun.intensity}
         castShadow
         shadow-mapSize={[2048, 2048]}
         shadow-camera-left={-SHADOW_RANGE}

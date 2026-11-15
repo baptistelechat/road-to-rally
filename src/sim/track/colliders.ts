@@ -2,6 +2,11 @@ import type RAPIER_TYPES from "@dimforge/rapier3d-deterministic-compat";
 import { isLightProp, RAY_IGNORED_GROUPS } from "../lightProps";
 import { RAPIER } from "../rapier";
 import type { MeshData, SceneryItem, Track } from "../types";
+import {
+  buildingBox,
+  buildingHullPoints,
+  nearBuildings,
+} from "./buildingColliders";
 import { embankment, GROUND_Y, shoulderStrips } from "./ribbon";
 import { finishArch, splitArches, startArch } from "./scenery";
 
@@ -14,6 +19,9 @@ const BLOCK_FRICTION = 0.2;
 const BLOCK_RESTITUTION = 0.1;
 /** Épaisseur du collider de la glissière d'un terre-plein, en mètres */
 const MEDIAN_THICKNESS = 0.3;
+/** Obstacles du décor (arbres, poteaux, bâtiments) : on rebondit dessus sans s'y coincer. */
+const DECOR_FRICTION = 0.2;
+const DECOR_RESTITUTION = 0.25;
 
 const addTrimesh = (world: RAPIER_TYPES.World, mesh: MeshData): void => {
   // FIX_INTERNAL_EDGES : la caisse ne doit pas accrocher les arêtes entre triangles coplanaires.
@@ -37,8 +45,8 @@ const addObstacle = (
   world.createCollider(
     RAPIER.ColliderDesc.cylinder(OBSTACLE_HEIGHT / 2, radius)
       .setTranslation(x, y + OBSTACLE_HEIGHT / 2, z)
-      .setFriction(0.2)
-      .setRestitution(0.25),
+      .setFriction(DECOR_FRICTION)
+      .setRestitution(DECOR_RESTITUTION),
   );
 };
 
@@ -185,4 +193,27 @@ export const addTrackColliders = (
           .setCollisionGroups(RAY_IGNORED_GROUPS),
       );
     }
+
+  // Tout à la fin : sans décor, le monde reste le même au bit près. Ordre trié du pipeline, jamais celui d'un Set.
+  // Rayons de suspension ignorés comme les chicanes : une roue collée au mur ne grimpe pas sur le toit.
+  for (const building of nearBuildings(track)) {
+    let desc = RAPIER.ColliderDesc.convexHull(buildingHullPoints(building));
+    if (!desc) {
+      const { center, half, yaw } = buildingBox(building);
+      desc = RAPIER.ColliderDesc.cuboid(half.x, half.y, half.z)
+        .setTranslation(center.x, center.y, center.z)
+        .setRotation({
+          x: 0,
+          y: Math.sin(yaw / 2),
+          z: 0,
+          w: Math.cos(yaw / 2),
+        });
+    }
+    world.createCollider(
+      desc
+        .setFriction(DECOR_FRICTION)
+        .setRestitution(DECOR_RESTITUTION)
+        .setCollisionGroups(RAY_IGNORED_GROUPS),
+    );
+  }
 };

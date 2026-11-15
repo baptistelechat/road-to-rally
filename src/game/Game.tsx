@@ -17,7 +17,9 @@ import { ExhaustFlame } from "@/render/fx/ExhaustFlame";
 import { ImpactSparks } from "@/render/fx/ImpactSparks";
 import { SkidMarks } from "@/render/fx/SkidMarks";
 import { LightPropsView } from "@/render/scenery/LightPropsView";
+import { RallyView } from "@/render/scenery/rallyView";
 import { SceneryView } from "@/render/scenery/SceneryView";
+import { DecorView } from "@/render/decor/DecorView";
 import { StartLights } from "@/render/track/StartLights";
 import { TrackView } from "@/render/track/TrackView";
 import {
@@ -68,6 +70,8 @@ const Scene = ({
   const [cameraMode, setCameraMode] = useState<"chase" | "hood">("chase");
   const [livery] = useState(loadLivery);
   const [dust] = useState(createDustPool);
+  // Ambiance du menu ; `?look=` l'emporte au chargement (story 5.1).
+  const look = useHudStore((s) => s.look);
   const staticScenery = useMemo(
     () => sim.scenery.filter((item) => !isLightProp(item.kind)),
     [sim],
@@ -107,11 +111,18 @@ const Scene = ({
         mode={cameraMode}
         orbit={cameraOrbit}
       />
-      <Atmosphere follow={source} />
+      <Atmosphere follow={source} look={look} />
       <TrackView track={sim.track} />
       <StartLights track={sim.track} getCountdown={sim.countdown} />
-      <SceneryView items={staticScenery} />
+      <SceneryView items={staticScenery} track={sim.track} source={source} />
+      <DecorView track={sim.track} source={source} />
       <LightPropsView props={sim.props} />
+      <RallyView
+        scenery={staticScenery}
+        props={sim.props}
+        track={sim.track}
+        source={source}
+      />
       {/* Les trois panneaux à la fois : FPS, ms et mémoire. Sous la mini-carte (`top-16`, `size-40`), aligné sur son bord droit. */}
       <Stats className="!top-58 !right-4 !left-auto !flex flex-col gap-px [&>canvas]:!block" />
       <CarModel source={source} livery={livery} />

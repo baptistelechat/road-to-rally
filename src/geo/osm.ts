@@ -11,8 +11,8 @@ import {
   OSM_DIRECTION_WEIGHT,
   OSM_MATCH_DISTANCE,
   OVERPASS_MARGIN,
-  OVERPASS_MAX_RETRIES,
-  OVERPASS_RETRY_DELAY,
+  OVERPASS_MIRROR_TIMEOUT,
+  OVERPASS_MIRRORS,
   OVERPASS_SERVER_TIMEOUT,
   OVERPASS_TIMEOUT,
   OVERPASS_URL,
@@ -29,7 +29,12 @@ import {
   type PlanePoint,
   type TracePoints,
 } from "./gpx";
-import { requestText, type HttpOptions, type RetryPolicy } from "./http";
+import {
+  requestText,
+  throwIfAborted,
+  type HttpOptions,
+  type RetryPolicy,
+} from "./http";
 import { boxSmooth, medianFilter } from "./smooth";
 
 /** Une voie telle qu'Overpass la renvoie, réduite aux tags utiles */
@@ -52,13 +57,23 @@ const USEFUL_TAGS = [
 const NOT_DRIVABLE =
   "footway|path|steps|cycleway|pedestrian|bridleway|corridor|platform|proposed|construction|raceway|bus_guideway";
 
-const POLICY: RetryPolicy = {
+/** Une tentative par serveur : en cas d'échec, le miroir suivant plutôt que 30 s d'attente sur un serveur saturé. */
+const policyFor = (timeout: number): RetryPolicy => ({
   service: "Le service des routes OpenStreetMap",
-  retries: OVERPASS_MAX_RETRIES,
-  delay: () => OVERPASS_RETRY_DELAY,
-  timeout: OVERPASS_TIMEOUT,
-  shouldRetry: (status) => status === 429 || status === 406 || status >= 500,
-};
+  retries: 0,
+  delay: () => 0,
+  timeout,
+  shouldRetry: () => false,
+});
+
+/** Serveur principal, puis miroirs publics dans l'ordre. */
+const OVERPASS_SERVERS: readonly { url: string; timeout: number }[] = [
+  { url: OVERPASS_URL, timeout: OVERPASS_TIMEOUT },
+  ...OVERPASS_MIRRORS.map((url) => ({
+    url,
+    timeout: OVERPASS_MIRROR_TIMEOUT,
+  })),
+];
 
 const overpassQuery = (trace: TracePoints): string => {
   const corners = trace.points.map((p) => unproject(p, trace.origin));
@@ -131,29 +146,36 @@ export const parseOverpass = (body: string): OsmWay[] | null => {
 };
 
 /**
- * Une seule tentative de plus, après 30 s comme le demande le serveur. Indisponible : `null`, la génération continue
- * avec la largeur par défaut. Seule une annulation remonte.
+ * Serveur principal, puis chaque miroir une fois, jusqu'à une réponse complète et lisible. Tous indisponibles :
+ * `null`, la génération continue avec la largeur par défaut. Seule une annulation remonte.
  */
 export const fetchOsmWays = async (
   trace: TracePoints,
   options: HttpOptions,
 ): Promise<OsmWay[] | null> => {
-  try {
-    const body = await requestText(
-      OVERPASS_URL,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({ data: overpassQuery(trace) }).toString(),
-      },
-      POLICY,
-      options,
-    );
-    return parseOverpass(body);
-  } catch (error) {
-    if (!(error instanceof StageError) || error.code === "aborted") throw error;
-    return null;
+  const body = new URLSearchParams({ data: overpassQuery(trace) }).toString();
+  for (const server of OVERPASS_SERVERS) {
+    throwIfAborted(options.signal);
+    try {
+      const text = await requestText(
+        server.url,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body,
+        },
+        policyFor(server.timeout),
+        options,
+      );
+      // Réponse illisible ou coupée (`remark`) : le miroir suivant peut faire mieux.
+      const ways = parseOverpass(text);
+      if (ways) return ways;
+    } catch (error) {
+      if (!(error instanceof StageError) || error.code === "aborted")
+        throw error;
+    }
   }
+  return null;
 };
 
 /** Mètres écrits simplement (`5`, `5 m`, `3,5`). Le reste, dont `narrow` et les pieds, est ignoré. */

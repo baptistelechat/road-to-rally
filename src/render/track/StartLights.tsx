@@ -4,9 +4,9 @@ import { useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import { BoxGeometry, Color, MeshStandardMaterial, Quaternion } from "three";
 import { redLightsOn } from "@/audio/countdownBeep";
+import { ARCH_LIGHTS_Y, archScale } from "@/render/scenery/rallyModels";
 import { startArch } from "@/sim/track/scenery";
 import type { Track } from "@/sim/types";
-import { BANNER_Y } from "./TrackFurniture";
 
 const LAMPS = 3;
 const LAMP_SIZE = 0.42;
@@ -26,13 +26,15 @@ interface StartLightsProps {
   getCountdown: () => number | null;
 }
 
-/** Rampe de feux sous la bannière de départ : rouges un par un au décompte, tous verts au GO. Lit la simulation sans l'écrire. */
+/** Panneau lumineux porté par l'arche de départ, sous l'enseigne : rouges un par un au décompte, tous verts au GO. Lit la simulation sans l'écrire. */
 export const StartLights = ({ track, getCountdown }: StartLightsProps) => {
   const rig = useMemo(() => {
-    const { position, rotation } = startArch(track);
+    const { position, rotation, halfSpan } = startArch(track);
     const width = LAMPS * LAMP_GAP + 0.3;
     return {
       position,
+      // Même échelle que l'arche du labo, pour rester accroché sous son enseigne (`RallyArches`).
+      scale: archScale(halfSpan),
       quaternion: new Quaternion(
         rotation.x,
         rotation.y,
@@ -91,8 +93,9 @@ export const StartLights = ({ track, getCountdown }: StartLightsProps) => {
     <group
       position={[rig.position.x, rig.position.y, rig.position.z]}
       quaternion={rig.quaternion}
+      scale={rig.scale}
     >
-      <group position={[0, BANNER_Y - HOUSING_HEIGHT / 2, 0]}>
+      <group position={[0, ARCH_LIGHTS_Y, 0]}>
         <mesh geometry={rig.housing} castShadow>
           <meshStandardMaterial color="#1c1c20" flatShading />
         </mesh>

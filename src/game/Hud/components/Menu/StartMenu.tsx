@@ -6,12 +6,12 @@ import { CUSTOM_MAP_ID } from "@/game/maps";
 import type { ImportedStage } from "@/game/useStageImport";
 import { StageImportPanel } from "../StageImportPanel";
 import { leaveFor, returnToEditor } from "./mapChoices";
+import { LookSelect } from "./LookSelect";
 import { MapCards } from "./MapCards";
 import {
-  brandButton,
+  brandStartButton,
   facetBanner,
   facetButton,
-  facetStart,
   facetTile,
   grayButton,
 } from "./menuStyles";
@@ -72,11 +72,12 @@ export const StartMenu = ({
         className="absolute bottom-[min(3rem,5vh)] left-1/2 flex w-[min(70rem,calc(100%-2rem))] -translate-x-1/2 flex-col items-center gap-5"
       >
         <MapCards map={map} mapLabel={mapLabel} />
+        <LookSelect />
         <button
           type="button"
           autoFocus={!returned}
           data-needs-sound=""
-          className={`min-h-18 w-full max-w-[32.5rem] px-10 font-display text-xl tracking-[0.06em] uppercase ${brandButton} ${facetStart}`}
+          className={`min-h-18 w-full max-w-[32.5rem] px-10 font-display text-xl tracking-[0.06em] uppercase ${brandStartButton}`}
           onClick={() => setHudScreen("race")}
         >
           Prendre le départ

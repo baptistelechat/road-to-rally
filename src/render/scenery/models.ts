@@ -2,7 +2,6 @@ import {
   BoxGeometry,
   BufferAttribute,
   BufferGeometry,
-  ConeGeometry,
   CylinderGeometry,
   DodecahedronGeometry,
   IcosahedronGeometry,
@@ -20,7 +19,8 @@ import {
   CHICANE_STACK_HEIGHT,
   CHICANE_STACK_ROWS,
 } from "@/geo/config";
-import type { SceneryKind } from "@/sim/types";
+import { isRallyKind } from "@/sim/track/rallyDressing";
+import type { RallySceneryKind, SceneryKind } from "@/sim/types";
 import {
   SIGN_ART_BENDS,
   SIGN_ART_BORDER,
@@ -29,6 +29,7 @@ import {
   SIGN_ART_RIM,
   SIGN_ART_WIDTH,
 } from "./chicaneSignArt";
+import { TREE_GEOMETRY, VEGETATION_GEOMETRY } from "./vegetationModels";
 
 type Rgb = [number, number, number];
 
@@ -58,25 +59,21 @@ const merged = (...parts: BufferGeometry[]): BufferGeometry => {
   return geometry;
 };
 
-const TRUNK: Rgb = [0.34, 0.24, 0.16];
-
 // Origine au pied de l'élément, dimensions pour `scale` = 1.
 /** Objets du décor dessinés depuis `SCENERY_GEOMETRY` ; les annonces de chicane viennent de `CHICANE_GEOMETRY`. */
 export type StaticSceneryKind = Exclude<
   SceneryKind,
-  "chicaneSignLeft" | "chicaneSignRight"
+  "chicaneSignLeft" | "chicaneSignRight" | RallySceneryKind
 >;
 
 export const SCENERY_GEOMETRY: Record<StaticSceneryKind, BufferGeometry> = {
-  tree: merged(
-    part(new CylinderGeometry(0.22, 0.32, 2.4, 5), TRUNK, 0, 1.2),
-    part(new IcosahedronGeometry(2, 0), [0.32, 0.47, 0.17], 0, 3.6),
-  ),
-  pine: merged(
-    part(new CylinderGeometry(0.16, 0.26, 1.6, 5), TRUNK, 0, 0.8),
-    part(new ConeGeometry(1.9, 3.4, 6), [0.14, 0.32, 0.17], 0, 3),
-    part(new ConeGeometry(1.35, 2.8, 6), [0.17, 0.37, 0.19], 0, 5),
-  ),
+  // Essences d'arbres du labo (story 5.3) : `tree` (chêne à lobes), `pine` (sapin), les autres et leurs `*Far`
+  ...TREE_GEOMETRY,
+  // Haies et vignes réelles (story 5.3) : `bush`, `vineRow`, `vineRowFar`
+  ...VEGETATION_GEOMETRY,
+  // Versions renversables près de la route : même géométrie, dessinées par `LightPropsView` en course.
+  bushProp: VEGETATION_GEOMETRY.bush,
+  vineRowProp: VEGETATION_GEOMETRY.vineRow,
   rock: part(new DodecahedronGeometry(1, 0), [0.47, 0.45, 0.41], 0, 0.45),
   hay: part(
     new CylinderGeometry(0.75, 0.75, 1.2, 8),
@@ -98,6 +95,29 @@ export const SCENERY_GEOMETRY: Record<StaticSceneryKind, BufferGeometry> = {
     part(new BoxGeometry(1, 0.7, 0.06), [0.92, 0.72, 0.1], 0, 2.1),
     part(new BoxGeometry(0.85, 0.18, 0.08), [0.1, 0.1, 0.1], 0, 2.1),
   ),
+  // Ancienne silhouette, plus dessinée : `SceneryView` passe le public à `crowd/` (styles B, A, C selon la distance).
+  // ponytail: gardée pour que `StaticSceneryKind` reste complet ; à retirer avec l'entrée du type.
+  spectator: merged(
+    part(new BoxGeometry(0.34, 0.8, 0.2), [0.2, 0.24, 0.36], 0, 0.4),
+    part(new BoxGeometry(0.44, 0.6, 0.26), [0.72, 0.18, 0.12], 0, 1.1),
+    part(new IcosahedronGeometry(0.14, 0), [0.86, 0.68, 0.55], 0, 1.56),
+    part(
+      new BoxGeometry(0.1, 0.55, 0.1),
+      [0.72, 0.18, 0.12],
+      -0.3,
+      1.58,
+      0,
+      0.35,
+    ),
+    part(
+      new BoxGeometry(0.1, 0.55, 0.1),
+      [0.72, 0.18, 0.12],
+      0.3,
+      1.58,
+      0,
+      -0.35,
+    ),
+  ),
 };
 
 const TAPE_RED: Rgb = [0.86, 0.12, 0.1];
@@ -116,9 +136,10 @@ export const CHICANE_BARRIER_MODULE = 2;
 export const CHICANE_STACK_MODULE = 2.4;
 
 /** Poteaux aux extrémités, ruban en boîtes fines : visible des deux faces sans matériau double face. */
-const chicaneBarrier = (): BufferGeometry => {
+/** `buried` : poteaux enfouis sous le sol. Renversable, la barrière n'en a pas : ils se verraient une fois couchée. */
+const chicaneBarrier = (buried: number = CHICANE_SKIRT): BufferGeometry => {
   const half = CHICANE_BARRIER_MODULE / 2;
-  const postHeight = CHICANE_BARRIER_HEIGHT + CHICANE_SKIRT;
+  const postHeight = CHICANE_BARRIER_HEIGHT + buried;
   const stripes = 4;
   const stripe = CHICANE_BARRIER_MODULE / stripes;
   const tapes = [0.45, 0.8].map((height) => height * CHICANE_BARRIER_HEIGHT);
@@ -128,7 +149,7 @@ const chicaneBarrier = (): BufferGeometry => {
         new BoxGeometry(0.1, postHeight, 0.1),
         [0.36, 0.36, 0.38],
         x,
-        postHeight / 2 - CHICANE_SKIRT,
+        postHeight / 2 - buried,
       ),
     ),
     ...tapes.flatMap((y, row) =>
@@ -360,6 +381,8 @@ const warningSign = (
 // Origine au centre du module, au niveau de la route : la partie sous y = 0 reste enterrée.
 export const CHICANE_GEOMETRY = {
   chicaneBarrier: chicaneBarrier(),
+  /** Module renversable des épingles (habillage rallye) : origine au pied, rien sous le sol */
+  looseBarrier: chicaneBarrier(0),
   hayStack: hayStack(),
   chevronLeft: chevronPanel(0),
   chevronRight: chevronPanel(Math.PI),
@@ -380,5 +403,7 @@ export const SCENERY_MATERIAL = new MeshStandardMaterial({
 export const lightPropGeometry = (kind: SceneryKind): BufferGeometry => {
   if (kind === "chicaneSignLeft") return CHICANE_GEOMETRY.looseSignLeft;
   if (kind === "chicaneSignRight") return CHICANE_GEOMETRY.looseSignRight;
+  // L'habillage rallye a ses modèles et sa vue (`rallyModels.ts`, `rallyView.tsx`).
+  if (isRallyKind(kind)) return CHICANE_GEOMETRY.looseBarrier;
   return SCENERY_GEOMETRY[kind];
 };

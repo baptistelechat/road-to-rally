@@ -12,6 +12,8 @@ interface MenuSelectProps<T extends string | number | boolean> {
   value: T;
   options: readonly MenuOption<T>[];
   autoFocus?: boolean;
+  /** Choix nombreux : ils passent à la ligne, centrés, sous le libellé si la place manque */
+  wrap?: boolean;
   /** Jamais appelé pour la valeur en cours */
   onChoose: (id: T) => void;
 }
@@ -25,18 +27,19 @@ export const MenuSelect = <T extends string | number | boolean>({
   value,
   options,
   autoFocus,
+  wrap = false,
   onChoose,
 }: MenuSelectProps<T>) => (
   // Le groupe couvre toute la rangée, libellé compris : à la manette, descendre d'ici part de toute la largeur.
   <div
     role="radiogroup"
     aria-label={title}
-    className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1"
+    className={`flex flex-wrap items-center gap-x-3 gap-y-1 ${wrap ? "justify-center" : "justify-between"}`}
   >
     <span aria-hidden="true" className={fieldLabel}>
       {title}
     </span>
-    <div className="flex gap-1">
+    <div className={`flex gap-1 ${wrap ? "flex-wrap justify-center" : ""}`}>
       {options.map(({ id, name }) => (
         <button
           key={String(id)}

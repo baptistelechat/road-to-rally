@@ -5,7 +5,6 @@ import { BufferAttribute, BufferGeometry } from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { embankment, lateralStrip, shoulderStrips } from "@/sim/track/ribbon";
 import { FORK_MARGIN, roadForkReach } from "@/sim/track/roadContact";
-import { finishArch, startArch } from "@/sim/track/scenery";
 import type { MeshData, Track, Vec3 } from "@/sim/types";
 import {
   ChicaneView,
@@ -13,8 +12,7 @@ import {
   MedianBarriers,
 } from "../scenery/ChicaneView";
 import { groundMesh, withSkirt } from "./groundMesh";
-import { SplitArches } from "./SplitArches";
-import { Arch } from "./TrackFurniture";
+import { RallyArches } from "./RallyArches";
 
 const LINE_INSET = 0.2;
 const LINE_WIDTH = 0.18;
@@ -285,9 +283,7 @@ export const TrackView = ({ track }: { track: Track }) => {
             </mesh>
           ),
       )}
-      <Arch track={track} place={startArch} />
-      {!track.closed && <Arch track={track} place={finishArch} />}
-      <SplitArches track={track} />
+      <RallyArches track={track} />
       <ChicaneView blocks={track.obstacles} />
       <IslandBarriers islands={track.islands} groundAt={track.groundAt} />
       <MedianBarriers medians={track.medians} groundAt={track.groundAt} />

@@ -20,6 +20,13 @@ import {
   TERRAIN_ROW_MIN_GAP,
   TERRAIN_ROWS,
 } from "./config";
+import {
+  createWaterBed,
+  type GroundTint,
+  type WaterBed,
+  type WaterPlan,
+} from "./decor/landcover";
+import { densify, insideRings } from "./decor/landcoverGeometry";
 import { StageError, formatKm } from "./errors";
 import { roundMm, type PlanePoint } from "./gpx";
 
@@ -139,19 +146,18 @@ const roadRows = (
   return { rows, rowAltitudes };
 };
 
-/**
- * Altitude locale de chaque nœud, ou `null` s'il tombe sous la route ou sans donnée.
- * Le relief brut reste libre entre deux limites, l'une sous et l'autre au-dessus de chaque portion de route proche.
- * Toutes les portions comptent, pas la plus proche : entre deux branches d'épingle, aucune arête ne naît du changement de branche.
- */
-const nodeHeights = (
-  points: Vec3[],
-  edge: number[],
-  nodes: PlanePoint[],
-  altitudes: number[],
-  baseAltitude: number,
-  clearance: number,
-): (number | null)[] => {
+/** Serrage du relief autour de la route, partagé par les nœuds du terrain et l'eau qui s'y pose. */
+interface Blend {
+  /** Le point tombe-t-il sous la route, à `clearance` près du bord du bas-côté ? */
+  underRoad: (x: number, z: number, clearance: number) => boolean;
+  /**
+   * Relief brut en altitude locale, laissé libre entre deux limites, l'une sous et l'autre au-dessus de chaque portion de route proche.
+   * Toutes les portions comptent, pas la plus proche : entre deux branches d'épingle, aucune arête ne naît du changement de branche.
+   */
+  conform: (x: number, z: number, raw: number) => number;
+}
+
+const createBlend = (points: Vec3[], edge: number[]): Blend => {
   const all = createSpatialGrid(BLEND_GRID_CELL);
   const sampled = createSpatialGrid(BLEND_GRID_CELL);
   points.forEach((p, i) => {
@@ -160,52 +166,102 @@ const nodeHeights = (
   });
   const span = Math.ceil(TERRAIN_BLEND_REACH / BLEND_GRID_CELL) + 1;
 
-  return nodes.map((node, n) => {
+  return {
+    underRoad: (x, z, clearance) => {
+      const cx = Math.floor(x / BLEND_GRID_CELL);
+      const cz = Math.floor(z / BLEND_GRID_CELL);
+      // Tous les points de l'axe ici : un nœud sous la route ne doit pas passer entre deux échantillons.
+      for (let ox = -1; ox <= 1; ox++)
+        for (let oz = -1; oz <= 1; oz++) {
+          for (const i of all.at(cx + ox, cz + oz) ?? []) {
+            const reach = edge[i] + clearance;
+            const dx = points[i].x - x;
+            const dz = points[i].z - z;
+            if (dx * dx + dz * dz < reach * reach) return true;
+          }
+        }
+      return false;
+    },
+    conform: (x, z, raw) => {
+      const cx = Math.floor(x / BLEND_GRID_CELL);
+      const cz = Math.floor(z / BLEND_GRID_CELL);
+      let low = -Infinity;
+      let high = Infinity;
+      let lowDistance = 0;
+      let highDistance = 0;
+      for (let ox = -span; ox <= span; ox++)
+        for (let oz = -span; oz <= span; oz++) {
+          for (const i of sampled.at(cx + ox, cz + oz) ?? []) {
+            const distance =
+              Math.hypot(points[i].x - x, points[i].z - z) - edge[i];
+            if (distance > TERRAIN_BLEND_REACH) continue;
+            const clear = Math.max(0, distance);
+            const limit = blendLimit(clear);
+            const y = points[i].y + GROUND_Y;
+            if (y - limit > low) {
+              low = y - limit;
+              lowDistance = clear;
+            }
+            if (y + limit < high) {
+              high = y + limit;
+              highDistance = clear;
+            }
+          }
+        }
+      if (low <= high) return Math.min(high, Math.max(low, raw));
+      // Branches trop proches pour leur écart d'altitude : le dépassement se partage selon la distance à chacune,
+      // pour que la pente reste la même des deux côtés au lieu de monter un mur contre la plus proche.
+      const total = lowDistance + highDistance;
+      return total > 0
+        ? high + ((low - high) * highDistance) / total
+        : (low + high) / 2;
+    },
+  };
+};
+
+/** Altitude locale de chaque nœud, ou `null` s'il tombe sous la route ou sans donnée. */
+const nodeHeights = (
+  nodes: PlanePoint[],
+  altitudes: number[],
+  baseAltitude: number,
+  clearance: number,
+  blend: Blend,
+): (number | null)[] =>
+  nodes.map((node, n) => {
     if (altitudes[n] === IGN_NO_DATA) return null;
-    const cx = Math.floor(node.x / BLEND_GRID_CELL);
-    const cz = Math.floor(node.z / BLEND_GRID_CELL);
-    // Tous les points de l'axe ici : un nœud sous la route ne doit pas passer entre deux échantillons.
-    for (let ox = -1; ox <= 1; ox++)
-      for (let oz = -1; oz <= 1; oz++) {
-        for (const i of all.at(cx + ox, cz + oz) ?? []) {
-          const reach = edge[i] + clearance;
-          const dx = points[i].x - node.x;
-          const dz = points[i].z - node.z;
-          if (dx * dx + dz * dz < reach * reach) return null;
-        }
-      }
-    let low = -Infinity;
-    let high = Infinity;
-    let lowDistance = 0;
-    let highDistance = 0;
-    for (let ox = -span; ox <= span; ox++)
-      for (let oz = -span; oz <= span; oz++) {
-        for (const i of sampled.at(cx + ox, cz + oz) ?? []) {
-          const distance =
-            Math.hypot(points[i].x - node.x, points[i].z - node.z) - edge[i];
-          if (distance > TERRAIN_BLEND_REACH) continue;
-          const clear = Math.max(0, distance);
-          const limit = blendLimit(clear);
-          const y = points[i].y + GROUND_Y;
-          if (y - limit > low) {
-            low = y - limit;
-            lowDistance = clear;
-          }
-          if (y + limit < high) {
-            high = y + limit;
-            highDistance = clear;
-          }
-        }
-      }
-    if (low <= high)
-      return Math.min(high, Math.max(low, altitudes[n] - baseAltitude));
-    // Branches trop proches pour leur écart d'altitude : le dépassement se partage selon la distance à chacune,
-    // pour que la pente reste la même des deux côtés au lieu de monter un mur contre la plus proche.
-    const total = lowDistance + highDistance;
-    return total > 0
-      ? high + ((low - high) * highDistance) / total
-      : (low + high) / 2;
+    if (blend.underRoad(node.x, node.z, clearance)) return null;
+    return blend.conform(node.x, node.z, altitudes[n] - baseAltitude);
   });
+
+/**
+ * Relief de la spéciale avant tout creusement, en altitude locale : brut, et conforme à la route comme le terrain.
+ * L'eau y lit son niveau (story 5.9). `null` hors du couloir fin.
+ */
+export const createReliefSamplers = (
+  points: Vec3[],
+  widths: number[],
+  gridNodes: PlanePoint[],
+  gridAltitudes: number[],
+  baseAltitude: number,
+): {
+  rawAt: (x: number, z: number) => number | null;
+  conformAt: (x: number, z: number) => number | null;
+} => {
+  const shoulders = shoulderWidths(points, widths, false);
+  const edge = widths.map((w, i) => w / 2 + shoulders[i]);
+  const blend = createBlend(points, edge);
+  const altitudeAt = rawAltitudeSampler(gridNodes, gridAltitudes);
+  const rawAt = (x: number, z: number): number | null => {
+    const raw = altitudeAt(x, z);
+    return raw === null ? null : raw - baseAltitude;
+  };
+  return {
+    rawAt,
+    conformAt: (x, z) => {
+      const raw = rawAt(x, z);
+      return raw === null ? null : blend.conform(x, z, raw);
+    },
+  };
 };
 
 /** Triangle qui contient (x, z), `-1` sinon. Linéaire : une seule recherche par terrain. */
@@ -352,6 +408,193 @@ const forkContour = (
   return { positions, constraints };
 };
 
+/** Berges : un sommet tous les combien de mètres le long du contour de l'eau */
+const BANK_STEP = 3;
+/** Bande le long des berges, maille fine pour une rivière plus étroite que la grille de 16 m */
+const BANK_BAND = 8;
+const BANK_BAND_STEP = 4;
+/** Deux sommets d'eau plus proches que ça d'un autre : le second est retiré, en mètres */
+const WATER_NODE_GAP = 1.5;
+/** Berge relevée juste au-dessus de l'eau : la nappe ne flotte jamais au bord, en mètres */
+const BANK_FREEBOARD = 0.02;
+/** Rangées de sommets de part et d'autre d'un pont, depuis le bord du bas-côté : le lit va jusque sous le tablier */
+const BRIDGE_NODE_OFFSETS = [3, 6];
+/** Un bord de bas-côté est sur un pont s'il est à moins de ça au-delà du bas-côté d'un point du pont, en mètres */
+const BRIDGE_EDGE_TOLERANCE = 0.3;
+/** Le fond tendu sous le tablier déborde d'autant de chaque côté du bas-côté, en mètres */
+const DECK_BED_OVERHANG = 7;
+/** Écart des sommets en travers du fond sous le tablier, en mètres */
+const DECK_BED_STEP = 2.5;
+/** Hors de l'eau, le fond sous le tablier reste sous la route… */
+const UNDER_DECK = 0.5;
+/** …et juste sous le terrain voisin, pour ne jamais en dépasser */
+const UNDER_GROUND = 0.05;
+
+/** Point à `lateral` mètres de l'axe en i, positif à droite (même formule que `roadRows`) */
+const lateralAt = (points: Vec3[], i: number, lateral: number): PlanePoint => {
+  const last = points.length - 1;
+  const prev = points[Math.max(0, i - 1)];
+  const next = points[Math.min(last, i + 1)];
+  const len = Math.hypot(next.x - prev.x, next.z - prev.z) || 1;
+  return {
+    x: roundMm(points[i].x - ((next.z - prev.z) / len) * lateral),
+    z: roundMm(points[i].z + ((next.x - prev.x) / len) * lateral),
+  };
+};
+
+/**
+ * Sommets ajoutés pour l'eau (story 5.9) : berges, bande fine le long des berges, rangées sous les ponts.
+ * Sans eux, une rivière plus étroite que la maille ne serait creusée nulle part.
+ */
+const waterNodes = (
+  points: Vec3[],
+  edge: number[],
+  plan: WaterPlan,
+  bed: WaterBed,
+  existing: PlanePoint[],
+  altitudeAt: (x: number, z: number) => number | null,
+): { nodes: PlanePoint[]; altitudes: number[]; bank: boolean[] } => {
+  const occupied: PlanePoint[] = [...existing];
+  const grid = createSpatialGrid(WATER_NODE_GAP);
+  occupied.forEach((p, i) => grid.insert(i, p.x, p.z, p.x, p.z));
+  const nodes: PlanePoint[] = [];
+  const altitudes: number[] = [];
+  const bank: boolean[] = [];
+  const add = (x: number, z: number, onBank: boolean): void => {
+    const cx = Math.floor(x / WATER_NODE_GAP);
+    const cz = Math.floor(z / WATER_NODE_GAP);
+    for (let ox = -1; ox <= 1; ox++)
+      for (let oz = -1; oz <= 1; oz++)
+        for (const k of grid.at(cx + ox, cz + oz) ?? [])
+          if (Math.hypot(occupied[k].x - x, occupied[k].z - z) < WATER_NODE_GAP)
+            return;
+    const altitude = altitudeAt(x, z);
+    if (altitude === null) return;
+    grid.insert(occupied.length, x, z, x, z);
+    occupied.push({ x, z });
+    nodes.push({ x, z });
+    altitudes.push(altitude);
+    bank.push(onBank);
+  };
+
+  for (const rings of plan.polygons)
+    for (const ring of rings)
+      for (const p of densify(ring, BANK_STEP))
+        add(roundMm(p.x), roundMm(p.z), true);
+
+  for (const rings of plan.polygons) {
+    const { xs, zs } = rings[0];
+    const x0 = Math.ceil(Math.min(...xs) / BANK_BAND_STEP);
+    const x1 = Math.floor(Math.max(...xs) / BANK_BAND_STEP);
+    const z0 = Math.ceil(Math.min(...zs) / BANK_BAND_STEP);
+    const z1 = Math.floor(Math.max(...zs) / BANK_BAND_STEP);
+    for (let ix = x0; ix <= x1; ix++)
+      for (let iz = z0; iz <= z1; iz++) {
+        const x = ix * BANK_BAND_STEP;
+        const z = iz * BANK_BAND_STEP;
+        // Distance d'abord : bon marché, elle écarte presque tout l'intérieur d'un grand étang.
+        if (bed.bankDistance(x, z) > BANK_BAND) continue;
+        if (insideRings(rings, x, z)) add(x, z, false);
+      }
+  }
+
+  points.forEach((_, i) => {
+    if (!plan.bridged[i]) return;
+    for (const offset of BRIDGE_NODE_OFFSETS)
+      for (const side of [-1, 1]) {
+        const p = lateralAt(points, i, side * (edge[i] + offset));
+        if (bed.levelAt(p.x, p.z) !== null) add(p.x, p.z, false);
+      }
+  });
+  return { nodes, altitudes, bank };
+};
+
+/**
+ * Fond tendu sous le tablier d'un pont : le lit dans l'eau, juste sous la route ailleurs, jamais au-dessus du terrain
+ * voisin. Il bouche l'ouverture laissée sous le pont : on voit l'eau passer, et une voiture tombée retombe dans le lit.
+ */
+const deckBed = (
+  points: Vec3[],
+  edge: number[],
+  bridged: boolean[],
+  bed: WaterBed,
+  rawAt: (x: number, z: number) => number | null,
+  conformAt: (x: number, z: number) => number | null,
+  tint: GroundTint | null | undefined,
+): MeshData | null => {
+  const positions: number[] = [];
+  const colors: number[] = [];
+  const indices: number[] = [];
+  const n = points.length;
+  let i = 0;
+  while (i < n) {
+    if (!bridged[i]) {
+      i++;
+      continue;
+    }
+    let end = i;
+    while (end + 1 < n && bridged[end + 1]) end++;
+    // Un point de plus de chaque côté : le fond rejoint les berges sous le début du tablier.
+    const from = Math.max(0, i - 1);
+    const to = Math.min(n - 1, end + 1);
+    let widest = 0;
+    for (let k = from; k <= to; k++) widest = Math.max(widest, edge[k]);
+    const across = Math.ceil(
+      (2 * (widest + DECK_BED_OVERHANG)) / DECK_BED_STEP,
+    );
+    const base = positions.length / 3;
+    for (let k = from; k <= to; k++) {
+      const reach = edge[k] + DECK_BED_OVERHANG;
+      const deck = points[k].y + GROUND_Y - UNDER_DECK;
+      for (let j = 0; j <= across; j++) {
+        const { x, z } = lateralAt(
+          points,
+          k,
+          -reach + (2 * reach * j) / across,
+        );
+        const ground = conformAt(x, z);
+        const raw = rawAt(x, z);
+        const y = Math.min(
+          deck,
+          bed.bedAt(x, z, raw) ??
+            (ground === null ? deck : ground - UNDER_GROUND),
+        );
+        positions.push(x, y, z);
+        colors.push(
+          ...(tint?.(x, z, bed.dryAt(x, z, raw)) ?? groundColor(x, z)),
+        );
+      }
+    }
+    for (let k = 0; k < to - from; k++)
+      for (let j = 0; j < across; j++) {
+        const a = base + k * (across + 1) + j;
+        const b = a + 1;
+        const c = a + across + 1;
+        const d = c + 1;
+        for (const [p, q, r] of [
+          [a, b, d],
+          [a, d, c],
+        ]) {
+          // Normale vers le haut, comme le terrain : `FIX_INTERNAL_EDGES` exige un maillage orienté.
+          const up =
+            (positions[q * 3 + 2] - positions[p * 3 + 2]) *
+              (positions[r * 3] - positions[p * 3]) -
+              (positions[q * 3] - positions[p * 3]) *
+                (positions[r * 3 + 2] - positions[p * 3 + 2]) >
+            0;
+          indices.push(p, up ? q : r, up ? r : q);
+        }
+      }
+    i = end + 1;
+  }
+  if (indices.length === 0) return null;
+  return {
+    positions: Float32Array.from(positions),
+    indices: Uint32Array.from(indices),
+    colors: Float32Array.from(colors),
+  };
+};
+
 /**
  * Terrain conforme à la route : Delaunay contraint sur les nœuds et les bords extérieurs des bas-côtés.
  * Ces bords sortent de `shoulderStrips`, la fonction même qui fait les bas-côtés : mêmes sommets au bit près, pas de marche.
@@ -365,6 +608,10 @@ export const buildTerrain = (
   baseAltitude: number,
   runoffPoints: number,
   armEnd?: number,
+  /** Occupation du sol réelle (story 5.4). Absente : l'herbe de `groundColor` partout, au bit près comme avant. */
+  tint?: GroundTint | null,
+  /** Eau à creuser (story 5.9). Absente ou vide : le terrain d'avant, au bit près. */
+  water?: WaterPlan | null,
 ): MeshData => {
   const n = points.length;
   const shoulders = shoulderWidths(points, widths, false);
@@ -376,25 +623,76 @@ export const buildTerrain = (
     gridNodes,
     gridAltitudes,
   );
-  const nodes = [...rows, ...gridNodes];
+  const blend = createBlend(points, edge);
+  const plan = water && water.surfaces.length > 0 ? water : null;
+  const bed = plan ? createWaterBed(plan, points, widths) : null;
+  const altitudeAt = plan ? rawAltitudeSampler(gridNodes, gridAltitudes) : null;
+  const wet =
+    plan && bed && altitudeAt
+      ? waterNodes(points, edge, plan, bed, [...rows, ...gridNodes], altitudeAt)
+      : null;
+  const nodes = wet
+    ? [...rows, ...gridNodes, ...wet.nodes]
+    : [...rows, ...gridNodes];
   const heights = [
     ...nodeHeights(
-      points,
-      edge,
       rows,
       rowAltitudes,
       baseAltitude,
       TERRAIN_ROAD_CLEARANCE,
+      blend,
     ),
     ...nodeHeights(
-      points,
-      edge,
       gridNodes,
       gridAltitudes,
       baseAltitude,
       TERRAIN_GRID_CLEARANCE,
+      blend,
     ),
+    ...(wet
+      ? nodeHeights(
+          wet.nodes,
+          wet.altitudes,
+          baseAltitude,
+          TERRAIN_ROAD_CLEARANCE,
+          blend,
+        )
+      : []),
   ];
+
+  // Lit de l'eau : tout nœud dans l'eau descend au fond, chaque berge remonte au ras de l'eau.
+  // La terre sèche d'un polygone plus large que l'eau (relief brut bien au-dessus du niveau) ne bouge pas.
+  const inWater = new Uint8Array(nodes.length);
+  if (bed && wet) {
+    const firstWet = rows.length + gridNodes.length;
+    const altitudes = [...rowAltitudes, ...gridAltitudes, ...wet.altitudes];
+    nodes.forEach(({ x, z }, k) => {
+      const height = heights[k];
+      if (height === null) return;
+      const raw = altitudes[k] - baseAltitude;
+      if (k >= firstWet && wet.bank[k - firstWet]) {
+        // Pile sur le contour, le test d'appartenance hésite : on regarde aussi à 50 cm autour.
+        let level: number | null = null;
+        for (const [dx, dz] of [
+          [0, 0],
+          [0.5, 0],
+          [-0.5, 0],
+          [0, 0.5],
+          [0, -0.5],
+        ]) {
+          const l = bed.levelAt(x + dx, z + dz);
+          if (l !== null) level = level === null ? l : Math.max(level, l);
+        }
+        if (level !== null)
+          heights[k] = Math.max(height, level + BANK_FREEBOARD);
+        return;
+      }
+      const floor = bed.bedAt(x, z, raw);
+      if (floor === null) return;
+      inWater[k] = 1;
+      heights[k] = Math.min(height, floor);
+    });
+  }
 
   // Sommets : le contour, puis les nœuds conservés. En Float32 dès le départ, comme dans le rendu.
   const contour =
@@ -415,6 +713,35 @@ export const buildTerrain = (
   for (let v = 0; v < vertexCount; v++) {
     coords[2 * v] = positions[3 * v];
     coords[2 * v + 1] = positions[3 * v + 2];
+  }
+
+  // Sous un pont : bords du bas-côté au-dessus de l'eau, et sommets dans l'eau. Les triangles qui les relient
+  // feraient un mur sous le tablier : ils sont retirés, l'eau passe dessous.
+  const opening =
+    plan && plan.bridged.some(Boolean) ? new Uint8Array(vertexCount) : null;
+  const wetVertex = new Uint8Array(vertexCount);
+  if (opening && plan) {
+    kept.forEach((node, k) => {
+      if (inWater[node]) wetVertex[fixed + k] = 1;
+    });
+    const bridges = createSpatialGrid(BLEND_GRID_CELL);
+    points.forEach((p, i) => {
+      if (plan.bridged[i]) bridges.insert(i, p.x, p.z, p.x, p.z);
+    });
+    for (let v = 0; v < fixed; v++) {
+      const x = positions[v * 3];
+      const z = positions[v * 3 + 2];
+      const cx = Math.floor(x / BLEND_GRID_CELL);
+      const cz = Math.floor(z / BLEND_GRID_CELL);
+      for (let ox = -1; ox <= 1; ox++)
+        for (let oz = -1; oz <= 1; oz++)
+          for (const i of bridges.at(cx + ox, cz + oz) ?? [])
+            if (
+              Math.hypot(points[i].x - x, points[i].z - z) <=
+              edge[i] + BRIDGE_EDGE_TOLERANCE
+            )
+              opening[v] = 1;
+    }
   }
 
   const del = new Delaunator(coords);
@@ -477,6 +804,12 @@ export const buildTerrain = (
       Math.max(length2(a, b), length2(b, c), length2(c, a)) > maxEdge2
     )
       continue;
+    if (
+      opening &&
+      (opening[a] || opening[b] || opening[c]) &&
+      (wetVertex[a] || wetVertex[b] || wetVertex[c])
+    )
+      continue;
     // Normale vers le haut, comme le ruban : `FIX_INTERNAL_EDGES` exige un maillage orienté.
     const up =
       (coords[2 * b + 1] - coords[2 * a + 1]) *
@@ -489,14 +822,53 @@ export const buildTerrain = (
 
   const finalPositions = new Float32Array(used * 3);
   const colors = new Float32Array(used * 3);
+  // Relief brut en altitude locale, `null` hors du couloir fin ou sans eau : la terre sèche n'est pas peinte en eau.
+  const rawAt = (x: number, z: number): number | null => {
+    const raw = altitudeAt ? altitudeAt(x, z) : null;
+    return raw === null ? null : raw - baseAltitude;
+  };
   remap.forEach((target, v) => {
     if (target < 0) return;
     finalPositions.set(positions.subarray(v * 3, v * 3 + 3), target * 3);
-    colors.set(groundColor(positions[v * 3], positions[v * 3 + 2]), target * 3);
+    const x = positions[v * 3];
+    const z = positions[v * 3 + 2];
+    const dry = bed ? bed.dryAt(x, z, rawAt(x, z)) : false;
+    colors.set(tint?.(x, z, dry) ?? groundColor(x, z), target * 3);
   });
-  return {
-    positions: finalPositions,
-    indices: Uint32Array.from(faces),
-    colors,
-  };
+  const under =
+    opening && plan && bed && altitudeAt
+      ? deckBed(
+          points,
+          edge,
+          plan.bridged,
+          bed,
+          rawAt,
+          (x, z) => {
+            const raw = rawAt(x, z);
+            return raw === null ? null : blend.conform(x, z, raw);
+          },
+          tint,
+        )
+      : null;
+  if (!under)
+    return {
+      positions: finalPositions,
+      indices: Uint32Array.from(faces),
+      colors,
+    };
+  // Le fond sous les ponts, à la suite du terrain : même maillage, donc même rendu et même collider.
+  const allPositions = new Float32Array(
+    finalPositions.length + under.positions.length,
+  );
+  allPositions.set(finalPositions);
+  allPositions.set(under.positions, finalPositions.length);
+  const underColors = under.colors ?? new Float32Array(under.positions.length);
+  const allColors = new Float32Array(colors.length + underColors.length);
+  allColors.set(colors);
+  allColors.set(underColors, colors.length);
+  const indices = new Uint32Array(faces.length + under.indices.length);
+  indices.set(faces);
+  for (let k = 0; k < under.indices.length; k++)
+    indices[faces.length + k] = under.indices[k] + used;
+  return { positions: allPositions, indices, colors: allColors };
 };

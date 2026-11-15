@@ -1,5 +1,6 @@
 // État du HUD. Poussé à environ 10 Hz, pour ne pas refaire le rendu React à chaque pas de simulation.
 import { create } from "zustand";
+import type { LookId } from "@/render/look";
 import type { RecoveryStatus } from "@/sim/recovery";
 import type { SplitCrossing } from "@/sim/splits";
 import type { PaceNote } from "@/sim/track/paceNotes";
@@ -9,6 +10,7 @@ import {
   loadCopilotOptions,
   saveCopilotOptions,
 } from "./copilotOptions";
+import { dropLookParam, initialLook, saveLook } from "./lookOption";
 
 export const HUD_PERIOD_MS = 100;
 /** Icônes de virage affichées au plus */
@@ -95,6 +97,8 @@ export interface HudState extends LapTimes {
   /** Dernière annonce, en toutes lettres */
   paceCall: HudPaceCall | null;
   copilotOptions: CopilotOptions;
+  /** Ambiance lumineuse de la scène, choisie dans les menus */
+  look: LookId;
   /** Secondes entières restantes avant le GO, `null` une fois parti */
   countdown: number | null;
   result: StageResultData | null;
@@ -121,6 +125,7 @@ export const useHudStore = create<HudState>(() => ({
   paceChain: null,
   paceCall: null,
   copilotOptions: loadCopilotOptions(),
+  look: initialLook(),
   countdown: null,
   result: null,
   split: null,
@@ -265,6 +270,13 @@ export const setHudPaceCall = (text: string | null): void => {
 export const setCopilotOptions = (copilotOptions: CopilotOptions): void => {
   saveCopilotOptions(copilotOptions);
   useHudStore.setState({ copilotOptions });
+};
+
+/** Choix du joueur : enregistré, et il remplace `?look=` de l'URL. */
+export const setLook = (look: LookId): void => {
+  saveLook(look);
+  dropLookParam();
+  useHudStore.setState({ look });
 };
 
 /** Appelable à chaque image : seule la seconde affichée est publiée. */

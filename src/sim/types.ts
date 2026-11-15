@@ -158,6 +158,147 @@ export interface MedianBarrier {
   skirt: number;
 }
 
+/** Usage d'un bâtiment, pour sa couleur et son toit (epic 5) */
+export type DecorBuildingKind =
+  | "house"
+  | "farm"
+  | "industrial"
+  | "church"
+  | "other";
+
+/**
+ * Typologie déduite des données IGN (story 5.2, labo `decor-lab/buildings`). L'ordre fixe l'empreinte : n'ajouter qu'à la fin.
+ * `townHouse` maison de bourg, `shop` maison de bourg à vitrine, `house` pavillon, `longhouse` longère,
+ * `barn` grange, `hangar` hangar ouvert, `workshop` bâtiment d'activité, `apartment` petit immeuble,
+ * `tower` tour ou clocher seul, `annex` annexe ou garage.
+ */
+export const DECOR_BUILDING_TYPES = [
+  "townHouse",
+  "shop",
+  "house",
+  "longhouse",
+  "barn",
+  "hangar",
+  "workshop",
+  "apartment",
+  "church",
+  "chapel",
+  "tower",
+  "annex",
+  "silo",
+  "greenhouse",
+  "monument",
+] as const;
+export type DecorBuildingType = (typeof DECOR_BUILDING_TYPES)[number];
+
+/** Toit voulu ; le rendu retombe croupe → pignon → plat si l'emprise ne s'y prête pas. N'ajouter qu'à la fin. */
+export const DECOR_ROOF_KINDS = [
+  "gable",
+  "hip",
+  "flat",
+  "parapet",
+  "shed",
+] as const;
+export type DecorRoofKind = (typeof DECOR_ROOF_KINDS)[number];
+
+/** `tile` tuile plate ou mécanique, `canal` tuile canal, `membrane` toit-terrasse. N'ajouter qu'à la fin. */
+export const DECOR_ROOF_MATERIALS = [
+  "tile",
+  "canal",
+  "slate",
+  "metal",
+  "glass",
+  "stone",
+  "membrane",
+] as const;
+export type DecorRoofMaterial = (typeof DECOR_ROOF_MATERIALS)[number];
+
+/** Parement des murs. N'ajouter qu'à la fin. */
+export const DECOR_WALL_MATERIALS = [
+  "render",
+  "stone",
+  "granite",
+  "brick",
+  "wood",
+  "metal",
+  "glass",
+] as const;
+export type DecorWallMaterial = (typeof DECOR_WALL_MATERIALS)[number];
+
+/** Un bâtiment réel (BD TOPO IGN), dans le plan local de la spéciale (story 5.2). */
+export interface DecorBuilding {
+  /** Emprise au sol, contour extérieur sans point répété, sens anti-horaire vu du dessus, au centimètre */
+  footprint: { x: number; z: number }[];
+  /** Altitude du pied dans le repère de la spéciale (comme `points[].y`), au point le plus bas de l'emprise */
+  base: number;
+  /** Hauteur des murs au-dessus de `base`, en mètres */
+  height: number;
+  kind: DecorBuildingKind;
+  type: DecorBuildingType;
+  /** Niveaux, rez-de-chaussée compris, au moins 1 */
+  floors: number;
+  roof: DecorRoofKind;
+  roofMaterial: DecorRoofMaterial;
+  wallMaterial: DecorWallMaterial;
+  /** Murs mitoyens, croissants : le mur k va de `footprint[k]` à `footprint[k + 1]` */
+  party: number[];
+  /** Mur tourné vers la route (porte, vitrine), même numérotation */
+  street: number;
+}
+
+/**
+ * Végétation réelle (story 5.3). L'ordre fixe l'empreinte de `stageHash` : n'ajouter qu'à la fin.
+ * `bush` : module de haie de 3 m, `vineRow` : module de rang de vigne de 5 m, tous deux allongés selon x local.
+ * `tree` est le chêne à lobes, `pine` le sapin ; les autres essences du labo suivent `vineRow`.
+ */
+export const DECOR_TREE_KINDS = [
+  "tree",
+  "pine",
+  "bush",
+  "vineRow",
+  "oakTiered",
+  "poplar",
+  "birch",
+  "willow",
+  "scotsPine",
+  "fruitTree",
+  "deadTree",
+] as const;
+export type DecorTreeKind = (typeof DECOR_TREE_KINDS)[number];
+
+/** Un arbre réel ou peuplé dans une zone de végétation réelle (story 5.3). */
+export interface DecorTree {
+  kind: DecorTreeKind;
+  position: Vec3;
+  /** Rotation autour de Y en radians */
+  yaw: number;
+  scale: number;
+}
+
+/**
+ * Surface d'eau à plat (stories 5.4 et 5.9) : étang, rivière, ou une case d'une rivière en pente.
+ * Le terrain est creusé dessous : on peut y entrer. Sous un pont, la surface passe sous la route, à son propre niveau.
+ */
+export interface DecorWater {
+  outline: { x: number; z: number }[];
+  /** Îles, contours sans point répété. Absent : aucune. */
+  holes?: { x: number; z: number }[][];
+  /** Altitude de la surface dans le repère de la spéciale */
+  y: number;
+}
+
+/**
+ * Décor issu des vraies données, calculé une fois par le pipeline : de simples données, triées, arrondies,
+ * identiques au bit près pour les mêmes entrées. La simulation n'en lit que ce qui porte un collider.
+ */
+export interface StageDecor {
+  /** Triés par distance croissante à l'axe */
+  buildings: DecorBuilding[];
+  /** Triés par distance croissante à l'axe */
+  trees: DecorTree[];
+  water: DecorWater[];
+}
+
 export interface Track {
   /** Points de l'axe à pas constant, sans doublon de fermeture */
   points: Vec3[];
@@ -188,6 +329,8 @@ export interface Track {
   islands: RoundaboutIsland[];
   /** Glissières des terre-pleins. Vide sans aller-retour en milieu de spéciale. */
   medians: MedianBarrier[];
+  /** Décor réel d'une spéciale (epic 5). Absent sur le circuit et sur une spéciale sans données de décor. */
+  decor?: StageDecor;
   /**
    * Point de l'axe le plus proche, sur le plan horizontal. Sans référence, ou hors aller-retour : au bit près le même, et le
    * premier passage en cas de superposition. Avec `nearS`, l'abscisse suivie : le passage de la voiture, pas le premier venu.
@@ -196,6 +339,8 @@ export interface Track {
   surfaceAt: (x: number, z: number) => Surface;
   /** Altitude du sol en (x, z), `null` hors du couloir d'une spéciale */
   groundAt: (x: number, z: number) => number | null;
+  /** Niveau de l'eau en (x, z), `null` hors de l'eau (story 5.9). Absent : aucune eau, circuit compris. */
+  waterAt?: (x: number, z: number) => number | null;
   /** Pose de départ, dans le sens de la route */
   startPose: Pose;
   /** Pose de remise en piste au plus proche de (x, z), dans le sens de la route, reculée hors de tout bloc de chicane */
@@ -235,6 +380,8 @@ export interface StageData {
   medians?: MedianBarrier[];
   /** Terrain conforme à la route, `null` tant que le pipeline ne le produit pas */
   terrain: MeshData | null;
+  /** Décor réel (epic 5). Absent : données indisponibles ou spéciale d'avant, le décor procédural de la story 1.7 prend le relais. */
+  decor?: StageDecor;
   /** Version du pipeline : tout changement de seuil l'incrémente */
   pipelineVersion: number;
   /** Date de génération, ISO 8601. Hors empreinte. */
@@ -244,8 +391,29 @@ export interface StageData {
 }
 
 export type SceneryKind =
+  /** Chêne à lobes et sapin : la végétation pseudo-aléatoire de la story 1.7 et les arbres réels les plus courants */
   | "tree"
   | "pine"
+  /** Autres essences réelles (story 5.3), mêmes règles de collider que `tree` */
+  | "oakTiered"
+  | "poplar"
+  | "birch"
+  | "willow"
+  | "scotsPine"
+  | "fruitTree"
+  | "deadTree"
+  /** Versions lointaines, choisies par `scenery.ts` selon la distance au bord de route : jamais de collider */
+  | "treeFar"
+  | "pineFar"
+  | "oakTieredFar"
+  | "birchFar"
+  /** Haie et vigne réelles : décor seul, sans collider (story 5.3) ; `vineRowFar` est la bande économique de loin */
+  | "bush"
+  | "vineRow"
+  | "vineRowFar"
+  /** Même buisson ou rang, près de la route : objet léger renversable (voir `lightProps.ts`), en fin de décor */
+  | "bushProp"
+  | "vineRowProp"
   | "rock"
   | "hay"
   | "hayUpright"
@@ -253,7 +421,25 @@ export type SceneryKind =
   | "post"
   /** Annonce de chicane, dessin d'un premier virage à gauche ou à droite (voir `chicaneSignKind`) */
   | "chicaneSignLeft"
-  | "chicaneSignRight";
+  | "chicaneSignRight"
+  /** Spectateur : décor seul, sans collider (story 5.5) */
+  | "spectator"
+  | RallySceneryKind;
+
+/**
+ * Habillage rallye (story 5.5, `rallyDressing.ts`) : commissaire sans collider, tente fixe, le reste (rubalise
+ * comprise) renversable comme les panneaux (voir `RALLY_PROP_SHAPE`).
+ */
+export type RallySceneryKind =
+  | "marshal"
+  | "rallyTape"
+  | "rallyTent"
+  | "rallySail"
+  | "rallyPlacard"
+  | "rallyMast"
+  | "rallyCheckerMast"
+  | "rallyBanner"
+  | "rallyBarrier";
 
 export interface SceneryItem {
   kind: SceneryKind;

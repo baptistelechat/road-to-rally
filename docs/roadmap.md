@@ -8,14 +8,14 @@ Découpage du [PRD](prd.md) pour le premier jet : on trace, on génère, on roul
 
 Les epics suivent l'ordre des phases du PRD.
 
-| #   | Epic                                                                       | Critère de passage                                                    | Statut     |
-| --- | -------------------------------------------------------------------------- | --------------------------------------------------------------------- | ---------- |
-| 1   | [Gameplay](stories/epic-1-gameplay/) : voiture, contrôles, tracé sandbox   | Tu as envie d'y rejouer 10 minutes sans rien d'autre                  | ✅ Validé  |
-| 2   | [Pipeline géo](stories/epic-2-pipeline-geo/) : GPX vers route et relief 3D | Une vraie spéciale de 5 km roulable sans bug de maillage              | ✅ Validé  |
-| 3   | [Éditeur sur carte](stories/epic-3-editeur/) : tracé assisté               | Un ami crée une spéciale sans ton aide                                | ✅ Validé  |
-| 4   | [Course](stories/epic-4-course/) : chrono, fantôme, copilote             | Une spéciale complète se court du départ à l'arrivée, notes à l'heure | 🟡 Au volant |
-| 5   | [Décor](stories/epic-5-decor.md) : bâtiments et forêts depuis les données  | 60 FPS sur un portable moyen dans un village                          | ⬜ À faire |
-| 6   | [Partage](stories/epic-6-partage.md) : tracé et temps dans l'URL           | Un ami ouvre le lien et tente de battre ton temps                     | ⬜ À faire |
+| #   | Epic                                                                       | Critère de passage                                                    | Statut       |
+| --- | -------------------------------------------------------------------------- | --------------------------------------------------------------------- | ------------ |
+| 1   | [Gameplay](stories/epic-1-gameplay/) : voiture, contrôles, tracé sandbox   | Tu as envie d'y rejouer 10 minutes sans rien d'autre                  | ✅ Validé    |
+| 2   | [Pipeline géo](stories/epic-2-pipeline-geo/) : GPX vers route et relief 3D | Une vraie spéciale de 5 km roulable sans bug de maillage              | ✅ Validé    |
+| 3   | [Éditeur sur carte](stories/epic-3-editeur/) : tracé assisté               | Un ami crée une spéciale sans ton aide                                | ✅ Validé    |
+| 4   | [Course](stories/epic-4-course/) : chrono, fantôme, copilote               | Une spéciale complète se court du départ à l'arrivée, notes à l'heure | 🟡 Au volant |
+| 5   | [Décor](stories/epic-5-decor/) : bâtiments et forêts depuis les données    | 60 FPS sur un portable moyen dans un village                          | 🟡 Au volant |
+| 6   | [Partage](stories/epic-6-partage.md) : tracé et temps dans l'URL           | Un ami ouvre le lien et tente de battre ton temps                     | ⬜ À faire   |
 
 Le détail suit la proximité : les epics 1 à 3 ont une fiche par story, les suivants une liste à préciser au moment de les attaquer, car ce qu'on apprendra sur la voiture les changera.
 
@@ -71,19 +71,35 @@ L'éditeur s'inspire de [gpx.studio](https://gpx.studio/fr/help/toolbar/routing)
 
 Le copilote (4.6 à 4.11) a été développé avant 4.1 car il ne dépend pas de l'éditeur. La mini-carte est la première à reporter si le temps manque.
 
-| Story                                                  | Sujet               | Statut |
-| ------------------------------------------------------ | ------------------- | ------ |
-| [4.1](stories/epic-4-course/4.1-depart-arrivee.md)        | Départ et arrivée    | 🟡     |
-| [4.2](stories/epic-4-course/4.2-temps-intermediaires.md)  | Temps intermédiaires | 🟡     |
-| [4.3](stories/epic-4-course/4.3-remise-route.md)          | Remise sur la route  | 🟡     |
-| [4.4](stories/epic-4-course/4.4-meilleur-temps.md)        | Meilleur temps local | 🟡     |
-| [4.5](stories/epic-4-course/4.5-fantome.md)               | Fantôme              | 🟡     |
-| [4.6](stories/epic-4-course/4.6-calcul-notes.md)       | Calcul des notes    | 🟡     |
-| [4.7](stories/epic-4-course/4.7-voix-copilote.md)      | Voix du copilote    | 🟡     |
-| [4.8](stories/epic-4-course/4.8-moment-note.md)        | Moment de la note   | 🟡     |
-| [4.9](stories/epic-4-course/4.9-icones-virages.md)     | Icônes de virage    | 🟡     |
-| [4.10](stories/epic-4-course/4.10-mini-carte.md)       | Mini-carte          | 🟡     |
-| [4.11](stories/epic-4-course/4.11-options-copilote.md) | Options du copilote | 🟡     |
+| Story                                                    | Sujet                | Statut |
+| -------------------------------------------------------- | -------------------- | ------ |
+| [4.1](stories/epic-4-course/4.1-depart-arrivee.md)       | Départ et arrivée    | 🟡     |
+| [4.2](stories/epic-4-course/4.2-temps-intermediaires.md) | Temps intermédiaires | 🟡     |
+| [4.3](stories/epic-4-course/4.3-remise-route.md)         | Remise sur la route  | 🟡     |
+| [4.4](stories/epic-4-course/4.4-meilleur-temps.md)       | Meilleur temps local | 🟡     |
+| [4.5](stories/epic-4-course/4.5-fantome.md)              | Fantôme              | 🟡     |
+| [4.6](stories/epic-4-course/4.6-calcul-notes.md)         | Calcul des notes     | 🟡     |
+| [4.7](stories/epic-4-course/4.7-voix-copilote.md)        | Voix du copilote     | 🟡     |
+| [4.8](stories/epic-4-course/4.8-moment-note.md)          | Moment de la note    | 🟡     |
+| [4.9](stories/epic-4-course/4.9-icones-virages.md)       | Icônes de virage     | 🟡     |
+| [4.10](stories/epic-4-course/4.10-mini-carte.md)         | Mini-carte           | 🟡     |
+| [4.11](stories/epic-4-course/4.11-options-copilote.md)   | Options du copilote  | 🟡     |
+
+## Epic 5 : décor
+
+Données de la Géoplateforme IGN (BD TOPO et RPG), détail dans le [README de l'epic](stories/epic-5-decor/README.md). Vague 1 en parallèle, vague 2 sur le décor livré. Code livré le 15/11 après deux tours de retours de Baptiste et un labo de propositions (`/decor-lab`) : typologies de bâtiments, essences d'arbres, haies et vignes destructibles, eau praticable, habillage rallye et public à trois niveaux de détail. `lint` et `build` passent ; aucun check lancé, `PIPELINE_VERSION` à 18. Reste le jugement au volant et le critère de passage (60 FPS dans un village).
+
+| Story                                                   | Sujet                    | Statut |
+| ------------------------------------------------------- | ------------------------ | ------ |
+| [5.1](stories/epic-5-decor/5.1-direction-artistique.md) | Direction artistique     | 🟡     |
+| [5.2](stories/epic-5-decor/5.2-batiments.md)            | Bâtiments                | 🟡     |
+| [5.3](stories/epic-5-decor/5.3-forets-haies.md)         | Forêts et haies          | 🟡     |
+| [5.4](stories/epic-5-decor/5.4-sol-eau.md)              | Eau et occupation du sol | 🟡     |
+| [5.5](stories/epic-5-decor/5.5-panneaux-public.md)      | Panneaux et public       | 🟡     |
+| [5.6](stories/epic-5-decor/5.6-niveaux-detail.md)       | Niveaux de détail        | 🟡     |
+| [5.7](stories/epic-5-decor/5.7-collisions.md)           | Collisions               | 🟡     |
+| [5.8](stories/epic-5-decor/5.8-donnees-cache.md)        | Données et cache         | 🟡     |
+| [5.9](stories/epic-5-decor/5.9-eau-ponts.md)            | Eau praticable et ponts  | 🟡     |
 
 ✅ validé · 🟡 code livré et vérifié par les tests, jugement au volant de Baptiste attendu · ⬜ à faire
 
@@ -97,6 +113,7 @@ Le copilote (4.6 à 4.11) a été développé avant 4.1 car il ne dépend pas de
 | Physique         | `@dimforge/rapier3d-deterministic-compat` en direct, sans `@react-three/rapier` | Ce wrapper embarque `rapier3d-compat` 0.19.2 (non déterministe). La simulation doit pouvoir tourner sans rendu pour le fantôme et le futur rejeu serveur       |
 | Modèle voiture   | Construit par code                                                              | Pas de pipeline Blender à maintenir, couleurs par sommet, livrées faciles                                                                                      |
 | Décor            | Un décor simple en story 1.7, le décor complet en epic 5                        | La sandbox ne reste pas vide et la vitesse se sent, sans avancer le travail de la phase 5 du PRD                                                               |
+| Données du décor | BD TOPO et RPG de la Géoplateforme IGN par WFS, aucune requête Overpass de plus | Hauteurs réelles des bâtiments, couverture homogène, CORS ouvert testé le 15/11. Overpass est déjà le maillon fragile                                          |
 | Géo sans backend | IGN et Overpass appelés depuis le navigateur, à la création de la spéciale      | Testé le 01/11 : les deux répondent avec CORS ouvert. Aucun appel en course                                                                                    |
 | Croisements      | Tracé refusé s'il se croise ou si deux chaussées se touchent, sauf aller-retour | `nearest` suppose une seule route à chaque position. Ponts et carrefours coûteraient cher pour un cas rare. L'aller-retour arrive en story 3.7                 |
 | Largeur          | Variable le long de la route, stockée par point                                 | Une route étroite et une départementale ne se conduisent pas pareil, et le contrat `Track` est encore facile à changer                                         |

@@ -1,8 +1,8 @@
 "use client";
 
 import type { ResultSector } from "@/game/hudStore";
-import { menuFocus } from "../hudStyles";
 import { formatLap } from "../formatTime";
+import { brandStartButton, facetButton, grayButton } from "./Menu/menuStyles";
 import { StageResultTable } from "./StageResultTable";
 
 interface StageResultProps {
@@ -23,11 +23,10 @@ interface StageResultProps {
 /** Coin bas droit coupé, la facette de la DA « Nuit facettée » */
 const facetPanel = "[clip-path:polygon(0_0,100%_0,100%_94%,94%_100%,0_100%)]";
 /**
- * La facette d'un bouton vit sur son `span` intérieur : un `clip-path` sur le bouton couperait aussi les traits
- * de focus, seul repère de la sélection à la manette.
+ * Facette sur le bouton lui-même, comme au menu de départ : les traits de focus (ombres intérieures) suivent le
+ * parallélogramme au lieu de déborder en rectangle.
  */
-const actionButton = `flex min-h-14 ${menuFocus}`;
-const actionFace = "grid w-full place-items-center px-6 text-sm";
+const actionButton = "grid min-h-14 flex-1 place-items-center px-6 text-sm";
 
 /**
  * Écran de résultat d'une spéciale. Un `dialog` ouvert comme le menu : `applyMenuAction` y trouve les boutons,
@@ -84,21 +83,17 @@ export const StageResult = ({
             <button
               type="button"
               autoFocus
-              className={`${actionButton} flex-1`}
+              className={`${actionButton} font-display tracking-[0.06em] uppercase ${brandStartButton}`}
               onClick={onRestart}
             >
-              <span
-                className={`${actionFace} bg-brand font-display tracking-[0.06em] text-brand-foreground uppercase transition-colors hover:bg-brand/90 [clip-path:polygon(5%_0,100%_0,95%_100%,0_100%)]`}
-              >
-                Recommencer
-              </span>
+              Recommencer
             </button>
-            <button type="button" className={actionButton} onClick={onMenu}>
-              <span
-                className={`${actionFace} bg-accent font-bold text-accent-foreground transition-colors hover:bg-accent/80 [clip-path:polygon(10%_0,100%_0,90%_100%,0_100%)]`}
-              >
-                Retour au menu
-              </span>
+            <button
+              type="button"
+              className={`${actionButton} ${grayButton} ${facetButton}`}
+              onClick={onMenu}
+            >
+              Retour au menu
             </button>
           </div>
         </div>

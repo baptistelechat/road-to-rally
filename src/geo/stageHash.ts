@@ -1,7 +1,25 @@
 import { ribbon } from "../sim/track/ribbon";
-import type { MeshData, StageData } from "../sim/types";
+import {
+  DECOR_BUILDING_TYPES,
+  DECOR_ROOF_KINDS,
+  DECOR_ROOF_MATERIALS,
+  DECOR_TREE_KINDS,
+  DECOR_WALL_MATERIALS,
+  type DecorBuildingKind,
+  type MeshData,
+  type StageData,
+} from "../sim/types";
 
 type Numbers = Float32Array | Float64Array | Uint32Array;
+
+/** Rang de l'usage dans l'empreinte : ne jamais réordonner, seulement ajouter à la fin */
+const BUILDING_KINDS: readonly DecorBuildingKind[] = [
+  "house",
+  "farm",
+  "industrial",
+  "church",
+  "other",
+];
 
 // ponytail: octets dans l'ordre de la machine, petit-boutiste sur tous les navigateurs visés.
 /** cyrb53 sur des octets : détecte une spéciale différente, pas une attaque. */
@@ -92,5 +110,58 @@ export const stageHash = (stage: StageData): string => {
         ]),
       ),
     );
+  // Sans décor, rien n'est ajouté : une spéciale sans données de décor garde son empreinte.
+  if (stage.decor) {
+    const { buildings, trees, water } = stage.decor;
+    // Le nombre de points précède chaque contour : deux découpes différentes ne se confondent pas.
+    hasher.add(
+      new Float64Array(
+        buildings.flatMap((building) => [
+          building.footprint.length,
+          ...building.footprint.flatMap((p) => [p.x, p.z]),
+          building.base,
+          building.height,
+          BUILDING_KINDS.indexOf(building.kind),
+          // Typologie de la story 5.2 : rangs dans les listes de `types.ts`, puis les murs mitoyens précédés de leur nombre.
+          DECOR_BUILDING_TYPES.indexOf(building.type),
+          building.floors,
+          DECOR_ROOF_KINDS.indexOf(building.roof),
+          DECOR_ROOF_MATERIALS.indexOf(building.roofMaterial),
+          DECOR_WALL_MATERIALS.indexOf(building.wallMaterial),
+          building.party.length,
+          ...building.party,
+          building.street,
+        ]),
+      ),
+    );
+    hasher.add(
+      new Float64Array(
+        trees.flatMap((tree) => [
+          // Rang dans `DECOR_TREE_KINDS` : tree 0 et pine 1, comme avant
+          DECOR_TREE_KINDS.indexOf(tree.kind),
+          tree.position.x,
+          tree.position.y,
+          tree.position.z,
+          tree.yaw,
+          tree.scale,
+        ]),
+      ),
+    );
+    hasher.add(
+      new Float64Array(
+        water.flatMap((surface) => [
+          surface.outline.length,
+          ...surface.outline.flatMap((p) => [p.x, p.z]),
+          surface.y,
+          // Îles : leur nombre, puis chacune précédée de son nombre de points.
+          surface.holes?.length ?? 0,
+          ...(surface.holes ?? []).flatMap((hole) => [
+            hole.length,
+            ...hole.flatMap((p) => [p.x, p.z]),
+          ]),
+        ]),
+      ),
+    );
+  }
   return hasher.digest();
 };

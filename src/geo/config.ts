@@ -1,7 +1,7 @@
 // Tous les seuils du pipeline géo. Changer une valeur qui modifie le résultat impose d'incrémenter PIPELINE_VERSION.
 
 /** Version du pipeline, recopiée dans `StageData.pipelineVersion` */
-export const PIPELINE_VERSION = 13;
+export const PIPELINE_VERSION = 19;
 
 // --- Axe (story 2.1) ---
 
@@ -68,6 +68,19 @@ export const PROFILE_MAX_ITERATIONS = 20000;
 // --- Largeur et attributs OSM (story 2.4) ---
 
 export const OVERPASS_URL = "https://overpass-api.de/api/interpreter";
+/**
+ * Instances publiques essayées dans l'ordre quand le serveur principal échoue (réseau, 429, 5xx, réponse illisible
+ * ou coupée), une fois chacune. Même base OSM mondiale à jour et même `parseOverpass` : mêmes données, même résultat.
+ * - private.coffee : instance communautaire récente, sans quota annoncé, CORS ouvert, la plus disponible en 2026.
+ * - kumi.systems : la plus ancienne alternative (citée par le wiki OSM), CORS ouvert, plus lente aux heures chargées.
+ * Non testées depuis un agent : la mémoire du projet interdit les requêtes répétées vers Overpass.
+ */
+export const OVERPASS_MIRRORS: readonly string[] = [
+  "https://overpass.private.coffee/api/interpreter",
+  "https://overpass.kumi.systems/api/interpreter",
+];
+/** Délai d'un miroir, en ms : court, la requête du couloir prend quelques secondes sur un serveur disponible */
+export const OVERPASS_MIRROR_TIMEOUT = 20000;
 /** Marge autour de l'emprise du tracé, en mètres */
 export const OVERPASS_MARGIN = 30;
 export const OVERPASS_SERVER_TIMEOUT = 25;

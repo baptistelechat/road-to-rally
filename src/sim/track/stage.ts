@@ -2,6 +2,7 @@ import type { StageData, Track } from "../types";
 import { createTrack } from "./createTrack";
 import { createMeshHeight } from "./meshHeight";
 import { GROUND_Y, shoulderStrips, SHOULDER_WIDTH } from "./ribbon";
+import { createWaterLevel } from "./waterLevel";
 
 export const createStageTrack = (stage: StageData): Track => {
   const track = createTrack(stage.points, stage.widths, false, {
@@ -15,6 +16,10 @@ export const createStageTrack = (stage: StageData): Track => {
   });
   if (stage.lanes)
     track.laneCounts = stage.lanes.slice(0, track.unique.points.length);
+  if (stage.decor) track.decor = stage.decor;
+  // Sans eau, pas de requête : la voiture garde sa physique au bit près.
+  if (stage.decor && stage.decor.water.length > 0)
+    track.waterAt = createWaterLevel(stage.decor.water);
   if (!stage.terrain) return track;
   const height = createMeshHeight([
     stage.terrain,

@@ -8,7 +8,7 @@ import { CopilotOptionsPanel } from "../CopilotOptionsPanel";
 import { MapSelect } from "../MapSelect";
 import { leaveFor } from "./mapChoices";
 import { MenuDrawer } from "./MenuDrawer";
-import { brandButton, drawerButton, facetSlant } from "./menuStyles";
+import { brandSlantButton, drawerButton } from "./menuStyles";
 
 interface PauseDrawerProps {
   map: string;
@@ -45,7 +45,7 @@ export const PauseDrawer = ({
         <button
           type="button"
           autoFocus
-          className={`min-h-10 px-4 text-sm ${brandButton} ${facetSlant}`}
+          className={`min-h-10 px-4 text-sm ${brandSlantButton}`}
           onClick={() => setHudScreen("race")}
         >
           Reprendre

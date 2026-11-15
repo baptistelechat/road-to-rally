@@ -29,6 +29,13 @@ import {
   RUNOFF_MAX_SLOPE,
   STEP,
 } from "./config";
+import {
+  buildDecor,
+  createGroundTint,
+  fetchDecor,
+  planWater,
+  type DecorInputs,
+} from "./decor";
 import { StageError, formatKm } from "./errors";
 import {
   roundMm,
@@ -47,7 +54,7 @@ import {
 } from "./osm";
 import { buildProfile, closeRoundTripProfile, symmetrizeFork } from "./profile";
 import { findRoundabouts } from "./roundabouts";
-import { buildTerrain, corridorNodes } from "./terrain";
+import { buildTerrain, corridorNodes, createReliefSamplers } from "./terrain";
 
 export { PIPELINE_VERSION };
 export { StageError } from "./errors";
@@ -57,6 +64,7 @@ export type StageStep =
   | "relief"
   | "routes"
   | "terrain"
+  | "decor"
   | "finalisation";
 
 /** Tout ce que le réseau apporte : `buildStage` en tire la spéciale sans plus jamais l'appeler. */
@@ -70,6 +78,8 @@ export interface StageInputs {
   ways: OsmWay[] | null;
   /** Altitudes IGN brutes des nœuds de `corridorNodes`, dans leur ordre. `null` : spéciale sans terrain. */
   terrain: number[] | null;
+  /** Bâtiments, végétation, eau et parcelles (epic 5). Absent ou `null` : décor procédural, spéciale identique à celle d'avant. */
+  decor?: DecorInputs | null;
   /** Chicanes demandées. Absent ou vide : la spéciale reste identique à celle d'un tracé sans chicane. */
   chicanes?: ChicaneRequest[];
   generatedAt: string;
@@ -143,6 +153,13 @@ export const fetchStageInputs = async (
   onProgress?.("terrain");
   const terrain = await fetchCorridorAltitudes(trace, options);
   throwIfAborted(signal);
+  onProgress?.("decor");
+  const decor = await fetchDecor(trace, options);
+  throwIfAborted(signal);
+  if (decor === null)
+    warnings.push(
+      "Les données de décor de l'IGN sont indisponibles : bâtiments et forêts réels manquent, le décor est inventé.",
+    );
   onProgress?.("finalisation");
   return {
     inputs: {
@@ -151,6 +168,7 @@ export const fetchStageInputs = async (
       altitudes,
       ways,
       terrain,
+      decor,
       generatedAt: new Date().toISOString(),
     },
     warnings,
@@ -381,6 +399,48 @@ export const buildStageWithWarnings = (
       };
     });
 
+  // L'eau se pose sur le relief avant le terrain, qui creuse son lit (story 5.9). Sans décor : `null`, rien ne change.
+  const water =
+    inputs.terrain && nodes && inputs.decor
+      ? planWater(inputs.decor, {
+          origin: trace.origin,
+          axis: unique,
+          widths,
+          structures,
+          ...createReliefSamplers(
+            unique,
+            widths,
+            nodes,
+            inputs.terrain,
+            baseAltitude,
+          ),
+        })
+      : null;
+  const terrain =
+    inputs.terrain && nodes
+      ? buildTerrain(
+          unique,
+          widths,
+          nodes,
+          inputs.terrain,
+          baseAltitude,
+          trace.runoffPoints,
+          shared?.armEnd,
+          createGroundTint(inputs.decor, trace.origin),
+          water,
+        )
+      : null;
+  // Sans données de décor, rien de plus : la spéciale reste identique à celle d'avant, au bit près.
+  const decor = buildDecor(
+    inputs.decor,
+    unique,
+    widths,
+    terrain,
+    trace.origin,
+    baseAltitude,
+    water?.surfaces ?? [],
+  );
+
   return {
     stage: {
       name,
@@ -395,18 +455,8 @@ export const buildStageWithWarnings = (
       ...(blocks.length > 0 && { obstacles: blocks }),
       ...(islands.length > 0 && { islands }),
       ...(medians.length > 0 && { medians }),
-      terrain:
-        inputs.terrain && nodes
-          ? buildTerrain(
-              unique,
-              widths,
-              nodes,
-              inputs.terrain,
-              baseAltitude,
-              trace.runoffPoints,
-              shared?.armEnd,
-            )
-          : null,
+      terrain,
+      ...(decor && { decor }),
       pipelineVersion: PIPELINE_VERSION,
       generatedAt: inputs.generatedAt,
       hash: "",

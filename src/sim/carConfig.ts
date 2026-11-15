@@ -112,6 +112,20 @@ export interface CarConfig {
     asphalt: { grip: number; rollingResistance: number };
     grass: { grip: number; rollingResistance: number };
   };
+  /**
+   * Roue immergée (story 5.9) : profondeur = niveau de l'eau moins le point de contact. Tout croît avec la part
+   * `profondeur / fullDepth`, bornée à 1. Sans eau sous la roue, rien ne change.
+   */
+  water: {
+    /** Profondeur où l'effet est plein, en mètres : à peu près le moyeu */
+    fullDepth: number;
+    /** Part d'adhérence perdue à pleine profondeur, longitudinale et latérale */
+    gripLoss: number;
+    /** Traînée par roue à pleine profondeur, en N par m/s */
+    dragLinear: number;
+    /** Traînée par roue à pleine profondeur, en N par (m/s)² : l'entrée à pleine vitesse freine fort */
+    dragQuadratic: number;
+  };
   /** Garde au sol du bas des bavettes à l'assiette de repos, en mètres. Purement visuel. */
   mudflaps: {
     frontClearance: number;
@@ -203,6 +217,12 @@ export const carConfig: CarConfig = {
   surfaces: {
     asphalt: { grip: 1, rollingResistance: 0 },
     grass: { grip: 0.55, rollingResistance: 900 },
+  },
+  water: {
+    fullDepth: 0.35,
+    gripLoss: 0.5,
+    dragLinear: 250,
+    dragQuadratic: 10,
   },
   mudflaps: {
     frontClearance: 0.07,

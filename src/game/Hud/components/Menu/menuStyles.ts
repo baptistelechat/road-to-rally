@@ -23,9 +23,13 @@ export const grayButton =
   "bg-secondary font-bold text-secondary-foreground transition-colors hover:bg-accent focus-line";
 /** Bouton gris compact du drawer et des panneaux */
 export const drawerButton = `${grayButton} ${facetSlant} min-h-9 px-4 text-xs`;
-/** Bouton jaune principal : départ, reprise, Prêt */
-export const brandButton =
+/** Bouton jaune principal, sans sa facette : prendre `brandStartButton` ou `brandSlantButton`. Traits de focus sombres : blancs, ils disparaîtraient sur le jaune. */
+const brandButton =
   "bg-brand font-extrabold text-brand-foreground transition-colors hover:bg-brand/85 focus-line";
+/** Bouton jaune en grand parallélogramme : départ, Prêt, Recommencer */
+export const brandStartButton = `${brandButton} ${facetStart}`;
+/** Bouton jaune à biseau fixe du drawer : Reprendre */
+export const brandSlantButton = `${brandButton} ${facetSlant}`;
 
 /** Teinte d'un choix : le choisi en jaune, `accent` reste le survol. */
 const choiceTone = (selected: boolean): string =>

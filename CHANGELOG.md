@@ -92,6 +92,16 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Icônes des touches et des boutons à la place des textes d'aide, en course et au garage : clavier en ZQSD ou WASD selon sa disposition, manette Xbox ou PlayStation reconnue, selon le dernier appareil utilisé
 - Option « Icônes manette » dans les options : Auto, Xbox ou PlayStation
 - Drapeau et numéro de la voiture choisis au garage, affichés dans le HUD à côté du chrono
+- Décor réel sur les spéciales, tiré des données de l'IGN : les vrais bâtiments du village à leur hauteur, maisons, fermes, églises, ateliers, silos ou serres, avec fenêtres, volets et toits en tuile ou en ardoise selon la région
+- Forêts, haies, vergers et vignes là où ils existent vraiment, avec neuf essences d'arbres et des saules au bord de l'eau
+- Champs, prairies, vignes et sous-bois colorés selon les parcelles réelles
+- Rivières et étangs à leur niveau : on peut y entrer, la voiture ralentit et projette des gerbes d'eau
+- Haies et rangs de vigne qu'on fauche en sortant de la route, comme les bottes de paille
+- Habillage de rallye : arche gonflable au départ, aux secteurs et à l'arrivée, avec les feux du départ, banderoles, voiles, pancartes, mâts de drapeaux, tente buvette, rubalise renversable et commissaires
+- Public au bord de la route au départ, à l'arrivée et aux épingles, derrière des barrières, avec des tenues variées et des drapeaux de tous les pays
+- Cinq ambiances au choix sur la page d'accueil et dans l'écran « Prêt » : après-midi, matin, couchant, brume et aube
+- Étape « Décor » dans la progression de la génération d'une spéciale, avec un avertissement si les données de l'IGN sont indisponibles
+- Page `/decor-lab` pour comparer les modèles de bâtiments, de végétation, de public et les ambiances
 
 ### Changed
 
@@ -118,6 +128,10 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Virages et carrefours moins arrondis : rayon minimal de 5 m au lieu de 8 m, la route roulée colle mieux à la vraie route
 - Pointillés selon le nombre de voies d'OpenStreetMap : aucun sur une voie unique, une ligne sur deux voies, deux sur trois
 - Le sélecteur de carte passe du HUD au menu de départ et de pause
+- Seule la portion de décor proche de la voiture est dessinée, pour garder la fluidité dans les villages
+- Bâtiments proches de la route solides : on peut les percuter
+- Écran d'arrivée aux boutons biseautés comme le menu principal
+- Quand le serveur des routes OpenStreetMap ne répond pas, deux serveurs de secours sont essayés avant de se passer de ses données
 - Le choix de la carte devient une liste qui s'ouvre, à la souris comme à la manette, où A valide et B referme
 - Les styles de mini-carte et de compteur se choisissent sur des cartes avec aperçu, et la mini-carte se désactive depuis la carte « Aucune »
 - Le compteur garde la même largeur quelle que soit la vitesse

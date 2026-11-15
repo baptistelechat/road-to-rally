@@ -9,6 +9,7 @@ const STEPS: readonly { id: StageStep; label: string }[] = [
   { id: "relief", label: "Relief" },
   { id: "routes", label: "Routes" },
   { id: "terrain", label: "Terrain" },
+  { id: "decor", label: "Décor" },
   { id: "finalisation", label: "Finalisation" },
 ];
 

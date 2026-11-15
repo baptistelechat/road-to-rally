@@ -4,7 +4,8 @@ import { useEffect } from "react";
 import { setHudScreen } from "@/game/hudStore";
 import { label } from "../../hudStyles";
 import { READY_PARAM } from "./mapChoices";
-import { brandButton, facetStart } from "./menuStyles";
+import { LookSelect } from "./LookSelect";
+import { brandStartButton } from "./menuStyles";
 
 interface ReadyScreenProps {
   mapLabel: string;
@@ -13,7 +14,7 @@ interface ReadyScreenProps {
 }
 
 /**
- * Carte changée depuis la pause : un seul bouton, focalisé, que A valide. Son clic débloque aussi le son.
+ * Carte changée depuis la pause : le choix d'ambiance et le bouton Prêt, focalisé, que A valide. Son clic débloque aussi le son.
  * Le paramètre d'URL est retiré dès l'affichage : recharger la page ramène au menu de départ.
  */
 export const ReadyScreen = ({ mapLabel, onBack }: ReadyScreenProps) => {
@@ -38,11 +39,12 @@ export const ReadyScreen = ({ mapLabel, onBack }: ReadyScreenProps) => {
         <span className={label}>Spéciale</span>
         <span className="text-center font-display text-3xl">{mapLabel}</span>
       </h1>
+      <LookSelect />
       <button
         type="button"
         autoFocus
         data-needs-sound=""
-        className={`min-h-18 w-[min(32.5rem,100%)] px-10 font-display text-xl tracking-[0.06em] uppercase ${brandButton} ${facetStart}`}
+        className={`min-h-18 w-[min(32.5rem,100%)] px-10 font-display text-xl tracking-[0.06em] uppercase ${brandStartButton}`}
         onClick={() => setHudScreen("race")}
       >
         Prêt

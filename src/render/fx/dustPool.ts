@@ -20,6 +20,8 @@ const KIND_DUST = 0;
 const KIND_SMOKE = 1;
 const KIND_CLOD = 2;
 const KIND_SPARK = 3;
+/** Goutte d'une gerbe d'eau (story 5.9) : retombe comme une motte, sans chute sous son départ */
+const KIND_SPLASH = 4;
 /** Chute maximale d'une étincelle sous son point de départ, en mètres */
 const SPARK_MAX_DROP = 2;
 const MAX_SPAWN_PER_WHEEL = 3;
@@ -54,7 +56,7 @@ const vertexShader = /* glsl */ `
     float size;
     if (heavy) {
       // Mottes et étincelles retombent, puis s'arrêtent à leur hauteur de départ, moins la chute prévue.
-      float drop = vKind > 2.5 ? vGreen * ${SPARK_MAX_DROP.toFixed(1)} : 0.0;
+      float drop = vKind > 2.5 && vKind < 3.5 ? vGreen * ${SPARK_MAX_DROP.toFixed(1)} : 0.0;
       world.y = max(world.y - 4.9 * age * age, iOrigin.y - drop);
       size = iStyle.x;
       vAlpha = 1.0 - smoothstep(0.7, 1.0, t);
@@ -87,7 +89,9 @@ const fragmentShader = /* glsl */ `
         ? vec3(0.62, 0.62, 0.62)
         : vKind < 2.5
           ? mix(vec3(0.13, 0.08, 0.04), vec3(0.11, 0.25, 0.05), vGreen)
-          : vec3(1.0, 0.55, 0.14);
+          : vKind < 3.5
+            ? vec3(1.0, 0.55, 0.14)
+            : vec3(0.78, 0.88, 0.92);
     gl_FragColor = vec4(color, vAlpha * radial);
     if (gl_FragColor.a < 0.004) discard;
     #include <colorspace_fragment>
@@ -97,6 +101,8 @@ const fragmentShader = /* glsl */ `
 export interface DustPool {
   mesh: Mesh;
   update: (state: CarState, pose: Pose, dt: number) => void;
+  /** Fait vieillir les particules sans rien émettre des roues : pour un pool qui n'émet que des gerbes */
+  advance: (dt: number) => void;
   /** Étincelles et bouffée de fumée en un point du monde, pour une détonation d'échappement */
   burst: (at: Vec3, velocity: Vec3, strength: number) => void;
   /** Gerbe d'étincelles sur un choc : `away` part de l'obstacle, `drop` est la hauteur au-dessus du sol */
@@ -107,6 +113,8 @@ export interface DustPool {
     strength: number,
     drop: number,
   ) => void;
+  /** Gerbe d'eau au point `at`, à la surface : `strength` de 0 (roue qui roule) à 1 (entrée à pleine vitesse) */
+  splash: (at: Vec3, velocity: Vec3, strength: number) => void;
   /** Oublie les émissions en cours, par exemple après une remise en piste */
   reset: () => void;
   /** Nombre total de particules émises depuis la création */
@@ -250,11 +258,16 @@ export const createDustPool = (): DustPool => {
     );
   };
 
+  const advance = (dt: number): void => {
+    time += dt;
+    material.uniforms.uTime.value = time;
+  };
+
   return {
     mesh,
+    advance,
     update: (state, pose, dt) => {
-      time += dt;
-      material.uniforms.uTime.value = time;
+      advance(dt);
       for (let i = 0; i < state.wheels.length; i++) {
         const wheel = state.wheels[i];
         if (!wheel?.inContact) continue;
@@ -324,6 +337,33 @@ export const createDustPool = (): DustPool => {
           KIND_SPARK + fall,
         );
       }
+    },
+    splash: (at, velocity, strength) => {
+      const drops = 1 + Math.round(10 * strength);
+      for (let n = 0; n < drops; n++)
+        write(
+          at.x + (Math.random() - 0.5) * 0.4,
+          at.y,
+          at.z + (Math.random() - 0.5) * 0.4,
+          velocity.x * 0.35 + (Math.random() - 0.5) * (1.5 + 3 * strength),
+          1.5 + Math.random() * (1.5 + 4 * strength),
+          velocity.z * 0.35 + (Math.random() - 0.5) * (1.5 + 3 * strength),
+          0.5 + Math.random() * 0.4,
+          0.06 + Math.random() * 0.08,
+          KIND_SPLASH,
+        );
+      // Bruine au-dessus de la gerbe : la même fumée claire que l'asphalte.
+      write(
+        at.x,
+        at.y + 0.1,
+        at.z,
+        velocity.x * 0.2,
+        0.6 + strength,
+        velocity.z * 0.2,
+        0.6 + Math.random() * 0.3,
+        0.5 + 0.6 * strength,
+        KIND_SMOKE,
+      );
     },
     reset: () => {
       accumulators.fill(0);
