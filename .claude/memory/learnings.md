@@ -23,6 +23,10 @@ register: learnings
 | [LRN-261104_2034-5](learnings/LRN-261104_2034-5.md) | 2026-11-04 | Kokoro : ponctuation ignorée, mots seuls ratés | #kokoro #tts #voix #prosodie #ponctuation #decoupage |
 | [LRN-261104_2034-6](learnings/LRN-261104_2034-6.md) | 2026-11-04 | Voix masculine française avec Kokoro par mélange | #kokoro #tts #voix #style-vector #accent #blend |
 | [LRN-261104_2153-7](learnings/LRN-261104_2153-7.md) | 2026-11-04 | Agents parallèles : fichiers chauds gardés par l'orchestrateur | #subagents #parallel-edit #orchestration #integration #game-loop #briefs |
+| [LRN-261115_1418-4](learnings/LRN-261115_1418-4.md) | 2026-11-15 | Pack Kenney Input Prompts : choisir le dossier Vector | #kenney #gamepad #icons #svg #game-ui #assets |
+| [LRN-261115_1418-5](learnings/LRN-261115_1418-5.md) | 2026-11-15 | Vercel clone tout le repo au build, ne sert que le rendu | #vercel #nextjs #build #public #deploy #assets |
+| [LRN-261115_1418-6](learnings/LRN-261115_1418-6.md) | 2026-11-15 | Aperçu audio : ne charger que les morceaux joués | #audio #web-audio #preview #latency #copilot #loading |
+| [LRN-261115_2236-4](learnings/LRN-261115_2236-4.md) | 2026-11-15 | Les surfaces d'eau BD TOPO couvrent toute la vallée | #decor #eau #bdtopo #terrain #hydrographie #epic-5 |
 | [LRN-20261101115222-4](learnings/LRN-20261101115222-4.md) | 2026-11-01 | Pièges de l'API altimétrie de l'IGN | #ign #geoplateforme #altimetrie #api #cors #rge-alti |
 | [LRN-20261101115222-5](learnings/LRN-20261101115222-5.md) | 2026-11-01 | Plusieurs itinéraires : BRouter et OSRM diffèrent | #brouter #osrm #routing #itineraires #mapcn #maplibre |
 | [LRN-20261101115222-6](learnings/LRN-20261101115222-6.md) | 2026-11-01 | Le filtre rtk peut faire croire à un diff vide | #rtk #git #diff #hooks #claude-code #commit |

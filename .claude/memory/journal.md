@@ -408,3 +408,24 @@ Un `pnpm build` lancé pendant le `pnpm dev` de Baptiste a cassé les chunks de 
 - [BDR-261114_2039-1](decisions/BDR-261114_2039-1.md) — UI : focus en deux traits, boutons biseautés, scrollbar fine
 - [BDR-261104_2034-3](decisions/BDR-261104_2034-3.md) — chicane : `direction` = côté libre (corrigé)
 - [LRN-20261101202404-2](learnings/LRN-20261101202404-2.md) — vérifier la branche avant commit + push
+## 2026-11-15
+
+Remplacement des aides texte par les icônes du pack Kenney Input Prompts. Après comparaison des quatre formats, le dossier Vector est retenu : il garde les couleurs des boutons. Le pack SVG va dans `assets-src/kenney-input/`, hors `public/`. `src/input/inputPrompts.ts` devient la table unique action → icônes par appareil (clavier AZERTY/QWERTY, Xbox, PlayStation), et `pnpm icons:sync` copie dans `public/input/` les seules icônes utilisées, avec un `--check` au début du build. `promptDevice.ts` affiche les icônes du dernier appareil utilisé et reconnaît une manette Sony par son id. Une option « Icônes manette » permet de forcer Xbox ou PlayStation. Les icônes sont intégrées dans l'aide de course, le bouton Relancer, l'aide du garage et les rappels Valider/Annuler des grilles.
+
+Deuxième temps, retours de Baptiste en jeu : l'exemple de voix des options partait en retard parce qu'il chargeait toute la voix. Il précharge désormais les deux seuls morceaux joués. Ajout d'une marge avant « Icônes de virage », d'un badge drapeau + numéro repris du garage dans les deux HUD, d'une aide sur 2 colonnes (Cockpit en haut à gauche, Broadcast en bas à gauche) et d'une marge gauche commune avec la frise. Le signalement de lag a été retiré de l'aide. Plusieurs allers-retours sur le placement : touches clavier agrandies puis remises, drapeau pleine hauteur refusé au profit du petit drapeau sur fond. Vérification en Cockpit et Broadcast dans le navigateur intégré, react-doctor 100/100, commit `0d473c4` poussé sur `main`.
+
+**Entrées clés :**
+
+- [BDR-261115_1418-1](decisions/BDR-261115_1418-1.md) — Icônes de commandes : pack Kenney, table unique, sync
+- [BDR-261115_1418-3](decisions/BDR-261115_1418-3.md) — HUD : place de l'aide et du badge voiture
+- [LRN-261115_1418-6](learnings/LRN-261115_1418-6.md) — Aperçu audio : ne charger que les morceaux joués
+
+---
+
+Epic 5 (décor) de bout en bout. Stories 5.1 à 5.8 rédigées, contrat partagé posé (types `StageDecor`, module `src/geo/decor/` aux fonctions vides branchées dans le pipeline, `DecorView` monté), puis intégration par vagues de sous-agents en parallèle. Source des données tranchée : Géoplateforme IGN par WFS (BD TOPO, RPG), testée en direct (CORS ouvert, 1 requête/s, BBOX en lon,lat). Premier essai au volant de Baptiste : ambiances à choisir dans les menus, rendu des bâtiments trop simple, marge de 2 m trop stricte, eau à rendre praticable sous les ponts, panneaux dans les bâtiments, arbres dans l'eau. Création d'un labo `/decor-lab` pour montrer des propositions avant intégration (typologies de bâtiments, essences, buissons, vignes, public, banderoles, ambiances) ; Baptiste a choisi (haies en boules, vignes, public B/A/C, 5 ambiances, couleurs de marque, commissaires derrière la barrière) puis demandé l'intégration complète. Deux agents arrêtés en cours de route par Baptiste : état vérifié par `tsc` puis tâches relancées. Corrections après essais : focus des boutons jaunes (malentendu sur « bordures dark », finalement retour au blanc), nappe d'eau qui noyait la vallée (polygones BD TOPO trop larges), rubalise destructible et cédant aux barrières, public sans chevauchement, bâtiments industriels éclatés et vitrines géantes, portes en l'air sur les pentes. Overpass reste indisponible même avec deux miroirs ; les ponts cassés par la story 5.9 sont repris dans une session dédiée. `PIPELINE_VERSION` 13 → 19, lint et build verts, react-doctor 100/100, commit `4a25fcc`. Aucun check de déterminisme lancé.
+
+**Entrées clés :**
+
+- [BDR-261115_2236-1](decisions/BDR-261115_2236-1.md) — Décor réel tiré de la Géoplateforme IGN, sans Overpass
+- [LRN-261115_2236-4](learnings/LRN-261115_2236-4.md) — Les surfaces d'eau BD TOPO couvrent toute la vallée
+- [BLK-261115_2236-6](blockers/BLK-261115_2236-6.md) — Ponts : la route est remplacée par une surface plate
