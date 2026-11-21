@@ -13,7 +13,7 @@ import {
 } from "@/editor/draft";
 import type { EditorTrace } from "@/editor/types";
 import { backLink, capsLabel } from "@/editor/ui/styles";
-import { EDITOR_TRACE_URL } from "@/game/maps";
+import { AUTO_ROLL_PARAM, EDITOR_TRACE_URL } from "@/game/maps";
 import {
   deleteStoredStage,
   listStoredStages,
@@ -35,7 +35,11 @@ interface Draft {
 const sameTrace = (stored: unknown, draft: EditorTrace): boolean =>
   JSON.stringify(parseTrace(stored)) === JSON.stringify(parseTrace(draft));
 
-const openTrace = (): void => window.location.assign(EDITOR_TRACE_URL);
+/** `roll` : l'éditeur lance la génération dès que le tracé est vérifié (bouton « Régénérer »). */
+const openTrace = (roll = false): void =>
+  window.location.assign(
+    roll ? `${EDITOR_TRACE_URL}?${AUTO_ROLL_PARAM}=1` : EDITOR_TRACE_URL,
+  );
 
 /** Point d'entrée de l'éditeur : créer une spéciale, ou reprendre une de celles rangées dans IndexedDB. */
 export const EditorHome = () => {
@@ -46,6 +50,7 @@ export const EditorHome = () => {
   // L'action qui attend la confirmation d'écraser le brouillon. `null` dans `stage` : nouvelle spéciale.
   const [replacing, setReplacing] = useState<{
     stage: StoredStage | null;
+    roll?: boolean;
   } | null>(null);
 
   useEffect(() => {
@@ -65,7 +70,7 @@ export const EditorHome = () => {
   const unrolled =
     hasDraft && !(linked && sameTrace(linked.trace, draft.trace));
 
-  const start = (stage: StoredStage | null): void => {
+  const start = (stage: StoredStage | null, roll = false): void => {
     if (!stage) {
       clearDraft();
       openTrace();
@@ -77,14 +82,15 @@ export const EditorHome = () => {
       return;
     }
     writeDraftStage(stage.key);
-    openTrace();
+    openTrace(roll);
   };
 
   /** Un brouillon jamais roulé serait perdu sans retour : on demande d'abord. */
-  const request = (stage: StoredStage | null): void => {
-    if (stage && stage.key === draft?.stageKey) openTrace();
-    else if (unrolled) setReplacing({ stage });
-    else start(stage);
+  const request = (stage: StoredStage | null, roll = false): void => {
+    // Le brouillon est déjà ce tracé : il peut porter des changements, la régénération les prend avec.
+    if (stage && stage.key === draft?.stageKey) openTrace(roll);
+    else if (unrolled) setReplacing({ stage, roll });
+    else start(stage, roll);
   };
 
   const remove = (key: string): void => {
@@ -168,6 +174,11 @@ export const EditorHome = () => {
                   onEdit={
                     parseTrace(stage.trace) ? () => request(stage) : undefined
                   }
+                  onRegenerate={
+                    stage.outdated && parseTrace(stage.trace)
+                      ? () => request(stage, true)
+                      : undefined
+                  }
                   onDelete={() => remove(stage.key)}
                 />
               ))}
@@ -179,7 +190,7 @@ export const EditorHome = () => {
           open={replacing !== null}
           onCancel={() => setReplacing(null)}
           onConfirm={() => {
-            if (replacing) start(replacing.stage);
+            if (replacing) start(replacing.stage, replacing.roll);
           }}
         />
       </main>

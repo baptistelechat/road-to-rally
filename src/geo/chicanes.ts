@@ -8,6 +8,7 @@ import type {
   Vec3,
 } from "../sim/types";
 import {
+  CHICANE_ALONG_REACH,
   CHICANE_BLOCK_DEPTH,
   CHICANE_EXCLUDED_CLEARANCE,
   CHICANE_GAP,
@@ -324,6 +325,8 @@ export const placeChicanes = (
 export interface ChicaneRequest {
   position: { lat: number; lon: number };
   side: ChicaneSide;
+  /** Distance au départ en mètres, comme le kilomètre affiché : départage les passages d'une route parcourue deux fois */
+  along?: number;
 }
 
 /** Ordre stable : deux listes aux mêmes chicanes donnent la même clé de cache et la même spéciale. */
@@ -334,6 +337,7 @@ export const sortChicaneRequests = (
     (a, b) =>
       a.position.lat - b.position.lat ||
       a.position.lon - b.position.lon ||
+      (a.along ?? 0) - (b.along ?? 0) ||
       a.side.localeCompare(b.side),
   );
 
@@ -371,9 +375,12 @@ const snapToAxis = (
   s: Float64Array,
   x: number,
   z: number,
+  near?: number,
 ): { s: number; distance: number } => {
   let bestS = 0;
   let best = Number.POSITIVE_INFINITY;
+  let nearS = 0;
+  let nearBest = Number.POSITIVE_INFINITY;
   for (let i = 0; i + 1 < axis.length; i++) {
     const a = axis[i];
     const b = axis[i + 1];
@@ -387,10 +394,24 @@ const snapToAxis = (
     const dx = a.x + abx * t - x;
     const dz = a.z + abz * t - z;
     const d2 = dx * dx + dz * dz;
+    const at = s[i] + (s[i + 1] - s[i]) * t;
     if (d2 < best) {
       best = d2;
-      bestS = s[i] + (s[i + 1] - s[i]) * t;
+      bestS = at;
     }
+    if (
+      near !== undefined &&
+      Math.abs(at - near) <= CHICANE_ALONG_REACH &&
+      d2 < nearBest
+    ) {
+      nearBest = d2;
+      nearS = at;
+    }
+  }
+  // Le passage demandé s'il est assez près ; sinon le plus proche, comme sans distance (tracé trop modifié depuis).
+  if (nearBest <= CHICANE_SNAP_TOLERANCE ** 2) {
+    best = nearBest;
+    bestS = nearS;
   }
   return { s: Math.round(bestS * 1000) / 1000, distance: Math.sqrt(best) };
 };
@@ -446,9 +467,10 @@ export const resolveChicanes = (
   const warnings: string[] = [];
   const removals: ChicaneRemoval[] = [];
   const snapped = sortChicaneRequests(requests)
-    .map(({ position, side }) => {
+    .map(({ position, side, along }) => {
       const { x, z } = project(position, origin);
-      return { side, position, ...snapToAxis(axis, s, x, z) };
+      const near = along === undefined ? undefined : startS + along;
+      return { side, position, ...snapToAxis(axis, s, x, z, near) };
     })
     .sort((a, b) => a.s - b.s || a.side.localeCompare(b.side));
 

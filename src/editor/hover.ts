@@ -1,4 +1,9 @@
 // Ce que le pointeur survole sur la carte. Pur : la projection à l'écran est fournie par l'appelant.
+import {
+  CHICANE_ALONG_REACH,
+  CHICANE_SNAP_TOLERANCE,
+  STEP,
+} from "@/geo/config";
 import type { LatLon } from "@/geo/gpx";
 import type { Segment } from "./types";
 
@@ -63,11 +68,24 @@ export const nearestOnTrace = (
   return best;
 };
 
-/** L'indice du point le plus proche. Sur quelques kilomètres, la latitude et la longitude se comparent à plat. */
-export const nearestIndex = (points: LatLon[], position: LatLon): number => {
+const METERS_PER_DEGREE = 111_320;
+const NEAR_POINTS = CHICANE_ALONG_REACH / STEP;
+const NEAR_TOLERANCE = (CHICANE_SNAP_TOLERANCE / METERS_PER_DEGREE) ** 2;
+
+/**
+ * L'indice du point le plus proche. Sur quelques kilomètres, la latitude et la longitude se comparent à plat.
+ * `near` : l'indice attendu ; sur une route parcourue deux fois, il garde le bon passage s'il en a un assez près.
+ */
+export const nearestIndex = (
+  points: LatLon[],
+  position: LatLon,
+  near?: number,
+): number => {
   const cosLat = Math.cos((position.lat * Math.PI) / 180);
   let best = 0;
   let bestDistance = Infinity;
+  let nearBest = 0;
+  let nearDistance = Infinity;
   points.forEach(({ lat, lon }, i) => {
     const distance =
       (lat - position.lat) ** 2 + ((lon - position.lon) * cosLat) ** 2;
@@ -75,6 +93,14 @@ export const nearestIndex = (points: LatLon[], position: LatLon): number => {
       best = i;
       bestDistance = distance;
     }
+    if (
+      near !== undefined &&
+      Math.abs(i - near) <= NEAR_POINTS &&
+      distance < nearDistance
+    ) {
+      nearBest = i;
+      nearDistance = distance;
+    }
   });
-  return best;
+  return nearDistance <= NEAR_TOLERANCE ? nearBest : best;
 };

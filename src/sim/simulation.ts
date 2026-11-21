@@ -72,16 +72,28 @@ const copyPose = (pose: Pose): Pose => ({
   rotation: { ...pose.rotation },
 });
 
+/** Piste et décor déjà construits : le chargement rend la main à l'écran entre les étapes. Mêmes calculs, même ordre. */
+export interface PreparedStage {
+  track?: Track;
+  scenery?: SceneryItem[];
+}
+
+export const prepareScenery = (track: Track): SceneryItem[] =>
+  generateScenery(track, SANDBOX_SEED);
+
 /** Le module Rapier doit être initialisé avant l'appel : voir `initRapier`. */
 export const createSimulation = (
   config: CarConfig = carConfig,
   stage?: StageData,
+  prepared: PreparedStage = {},
 ): Simulation => {
   const world = new RAPIER.World({ x: 0, y: -9.81, z: 0 });
   world.timestep = FIXED_DT;
 
-  const track = stage ? createStageTrack(stage) : createSandboxTrack();
-  const scenery = generateScenery(track, SANDBOX_SEED);
+  const track =
+    prepared.track ??
+    (stage ? createStageTrack(stage) : createSandboxTrack());
+  const scenery = prepared.scenery ?? prepareScenery(track);
   addTrackColliders(world, track, scenery);
   const props = createLightProps(world, scenery);
   const recovery = createRecovery(

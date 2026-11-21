@@ -157,7 +157,15 @@ interface Blend {
   conform: (x: number, z: number, raw: number) => number;
 }
 
-const createBlend = (points: Vec3[], edge: number[]): Blend => {
+/**
+ * `bridged` : points sur un pont. Le relief n'y est pas relevé jusqu'au tablier (ni remblai ni plateau sous l'ouvrage) ;
+ * il reste seulement borné par le haut, pour ne jamais traverser la route.
+ */
+const createBlend = (
+  points: Vec3[],
+  edge: number[],
+  bridged?: readonly boolean[],
+): Blend => {
   const all = createSpatialGrid(BLEND_GRID_CELL);
   const sampled = createSpatialGrid(BLEND_GRID_CELL);
   points.forEach((p, i) => {
@@ -198,7 +206,7 @@ const createBlend = (points: Vec3[], edge: number[]): Blend => {
             const clear = Math.max(0, distance);
             const limit = blendLimit(clear);
             const y = points[i].y + GROUND_Y;
-            if (y - limit > low) {
+            if (!bridged?.[i] && y - limit > low) {
               low = y - limit;
               lowDistance = clear;
             }
@@ -243,13 +251,15 @@ export const createReliefSamplers = (
   gridNodes: PlanePoint[],
   gridAltitudes: number[],
   baseAltitude: number,
+  /** Points sur un pont : voir `createBlend` */
+  bridged?: readonly boolean[],
 ): {
   rawAt: (x: number, z: number) => number | null;
   conformAt: (x: number, z: number) => number | null;
 } => {
   const shoulders = shoulderWidths(points, widths, false);
   const edge = widths.map((w, i) => w / 2 + shoulders[i]);
-  const blend = createBlend(points, edge);
+  const blend = createBlend(points, edge, bridged);
   const altitudeAt = rawAltitudeSampler(gridNodes, gridAltitudes);
   const rawAt = (x: number, z: number): number | null => {
     const raw = altitudeAt(x, z);
@@ -429,6 +439,8 @@ const DECK_BED_STEP = 2.5;
 const UNDER_DECK = 0.5;
 /** …et juste sous le terrain voisin, pour ne jamais en dépasser */
 const UNDER_GROUND = 0.05;
+/** Un sommet plus bas que ça sous le tablier qui le survole n'est pas relié au bord du pont, en mètres */
+const BELOW_DECK = 1;
 
 /** Point à `lateral` mètres de l'axe en i, positif à droite (même formule que `roadRows`) */
 const lateralAt = (points: Vec3[], i: number, lateral: number): PlanePoint => {
@@ -516,8 +528,9 @@ const waterNodes = (
 const deckBed = (
   points: Vec3[],
   edge: number[],
-  bridged: boolean[],
-  bed: WaterBed,
+  bridged: readonly boolean[],
+  /** `null` sans eau : le fond suit alors le sol sous l'ouvrage */
+  bed: WaterBed | null,
   rawAt: (x: number, z: number) => number | null,
   conformAt: (x: number, z: number) => number | null,
   tint: GroundTint | null | undefined,
@@ -556,12 +569,13 @@ const deckBed = (
         const raw = rawAt(x, z);
         const y = Math.min(
           deck,
-          bed.bedAt(x, z, raw) ??
+          bed?.bedAt(x, z, raw) ??
             (ground === null ? deck : ground - UNDER_GROUND),
         );
         positions.push(x, y, z);
         colors.push(
-          ...(tint?.(x, z, bed.dryAt(x, z, raw)) ?? groundColor(x, z)),
+          ...(tint?.(x, z, bed ? bed.dryAt(x, z, raw) : false) ??
+            groundColor(x, z)),
         );
       }
     }
@@ -612,6 +626,8 @@ export const buildTerrain = (
   tint?: GroundTint | null,
   /** Eau à creuser (story 5.9). Absente ou vide : le terrain d'avant, au bit près. */
   water?: WaterPlan | null,
+  /** Points sur un pont, sur l'eau ou non : le sol y suit la vallée, sans remblai. Absent : aucun pont. */
+  bridges?: readonly boolean[] | null,
 ): MeshData => {
   const n = points.length;
   const shoulders = shoulderWidths(points, widths, false);
@@ -623,10 +639,16 @@ export const buildTerrain = (
     gridNodes,
     gridAltitudes,
   );
-  const blend = createBlend(points, edge);
+  const blend = createBlend(points, edge, bridges ?? undefined);
   const plan = water && water.surfaces.length > 0 ? water : null;
   const bed = plan ? createWaterBed(plan, points, widths) : null;
-  const altitudeAt = plan ? rawAltitudeSampler(gridNodes, gridAltitudes) : null;
+  // Tous les ponts, sur l'eau ou à sec : même ouverture sous le tablier, même fond tendu dessous.
+  const bridged = points.map(
+    (_, i) => Boolean(bridges?.[i]) || Boolean(plan?.bridged[i]),
+  );
+  const anyBridge = bridged.some(Boolean);
+  const altitudeAt =
+    plan || anyBridge ? rawAltitudeSampler(gridNodes, gridAltitudes) : null;
   const wet =
     plan && bed && altitudeAt
       ? waterNodes(points, edge, plan, bed, [...rows, ...gridNodes], altitudeAt)
@@ -717,16 +739,32 @@ export const buildTerrain = (
 
   // Sous un pont : bords du bas-côté au-dessus de l'eau, et sommets dans l'eau. Les triangles qui les relient
   // feraient un mur sous le tablier : ils sont retirés, l'eau passe dessous.
-  const opening =
-    plan && plan.bridged.some(Boolean) ? new Uint8Array(vertexCount) : null;
+  const opening = anyBridge ? new Uint8Array(vertexCount) : null;
   const wetVertex = new Uint8Array(vertexCount);
-  if (opening && plan) {
-    kept.forEach((node, k) => {
-      if (inWater[node]) wetVertex[fixed + k] = 1;
-    });
-    const bridges = createSpatialGrid(BLEND_GRID_CELL);
+  if (opening) {
+    const decks = createSpatialGrid(BLEND_GRID_CELL);
     points.forEach((p, i) => {
-      if (plan.bridged[i]) bridges.insert(i, p.x, p.z, p.x, p.z);
+      if (bridged[i]) decks.insert(i, p.x, p.z, p.x, p.z);
+    });
+    // Dans l'eau, ou bien plus bas que le tablier qui passe au-dessus : relier ce sommet au bord ferait un mur.
+    kept.forEach((node, k) => {
+      if (inWater[node]) {
+        wetVertex[fixed + k] = 1;
+        return;
+      }
+      const { x, z } = nodes[node];
+      const height = heights[node] ?? 0;
+      const cx = Math.floor(x / BLEND_GRID_CELL);
+      const cz = Math.floor(z / BLEND_GRID_CELL);
+      for (let ox = -1; ox <= 1; ox++)
+        for (let oz = -1; oz <= 1; oz++)
+          for (const i of decks.at(cx + ox, cz + oz) ?? [])
+            if (
+              Math.hypot(points[i].x - x, points[i].z - z) <=
+                edge[i] + DECK_BED_OVERHANG &&
+              height < points[i].y + GROUND_Y - BELOW_DECK
+            )
+              wetVertex[fixed + k] = 1;
     });
     for (let v = 0; v < fixed; v++) {
       const x = positions[v * 3];
@@ -735,7 +773,7 @@ export const buildTerrain = (
       const cz = Math.floor(z / BLEND_GRID_CELL);
       for (let ox = -1; ox <= 1; ox++)
         for (let oz = -1; oz <= 1; oz++)
-          for (const i of bridges.at(cx + ox, cz + oz) ?? [])
+          for (const i of decks.at(cx + ox, cz + oz) ?? [])
             if (
               Math.hypot(points[i].x - x, points[i].z - z) <=
               edge[i] + BRIDGE_EDGE_TOLERANCE
@@ -836,11 +874,11 @@ export const buildTerrain = (
     colors.set(tint?.(x, z, dry) ?? groundColor(x, z), target * 3);
   });
   const under =
-    opening && plan && bed && altitudeAt
+    opening && altitudeAt
       ? deckBed(
           points,
           edge,
-          plan.bridged,
+          bridged,
           bed,
           rawAt,
           (x, z) => {

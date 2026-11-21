@@ -76,6 +76,18 @@ export const stageHash = (stage: StageData): string => {
   hasher.add(new Float64Array(stage.widths));
   addMesh(hasher, ribbon(stage.points, stage.widths, false));
   addMesh(hasher, stage.terrain);
+  // Sans pont, rien n'est ajouté : les empreintes déjà publiées ne bougent pas.
+  if (stage.bridges)
+    hasher.add(
+      new Float64Array(
+        stage.bridges.flatMap((bridge) => [
+          bridge.from,
+          bridge.to,
+          ["stone", "concrete", "steel", "viaduct"].indexOf(bridge.style),
+          bridge.halfWidth,
+        ]),
+      ),
+    );
   // Sans chicane, rien n'est ajouté : les empreintes déjà publiées ne bougent pas.
   if (stage.lanes) hasher.add(new Float64Array(stage.lanes));
   if (stage.islands)

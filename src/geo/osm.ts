@@ -233,6 +233,8 @@ export interface RoadAttributes {
   widths: number[];
   /** Vrai sur un pont ou un tunnel : l'IGN y donne le terrain, pas la route */
   structures: boolean[];
+  /** Tags de la voie sur un pont (tunnel exclu), `null` ailleurs : de quoi choisir le style de l'ouvrage */
+  bridgeTags: (Record<string, string> | null)[];
   /** Voies de circulation en chaque point de l'axe, pour le marquage */
   lanes: number[];
 }
@@ -327,6 +329,7 @@ export const deduceRoadAttributes = (
   const planeWays = (ways ?? []).map((way) => toPlaneWay(way, trace.origin));
   const raw: number[] = [];
   const structures: boolean[] = [];
+  const bridgeTags: (Record<string, string> | null)[] = [];
   const rawLanes: number[] = [];
   const { points } = trace;
   points.forEach((point, i) => {
@@ -345,6 +348,11 @@ export const deduceRoadAttributes = (
       way !== null &&
         (isStructure(way.tags.bridge) || isStructure(way.tags.tunnel)),
     );
+    bridgeTags.push(
+      way !== null && isStructure(way.tags.bridge) && !isStructure(way.tags.tunnel)
+        ? way.tags
+        : null,
+    );
   });
   // Le prolongement ne suit aucune voie réelle : il garde la largeur de la route qu'il continue.
   const last = points.length - 1 - trace.runoffPoints;
@@ -353,6 +361,7 @@ export const deduceRoadAttributes = (
     raw[i] = raw[i < trace.runoffPoints ? trace.runoffPoints : last];
     rawLanes[i] = rawLanes[i < trace.runoffPoints ? trace.runoffPoints : last];
     structures[i] = false;
+    bridgeTags[i] = null;
   }
   const smoothed = boxSmooth(
     boxSmooth(medianFilter(raw, WIDTH_MEDIAN_RADIUS), WIDTH_SMOOTH_RADIUS),
@@ -360,7 +369,8 @@ export const deduceRoadAttributes = (
   );
   // Le filtre médian retire une voie associée par erreur sur quelques points, au passage d'un carrefour.
   const lanes = medianFilter(rawLanes, WIDTH_MEDIAN_RADIUS).map(Math.round);
-  if (!trace.dual) return { widths: smoothed.map(roundMm), structures, lanes };
+  if (!trace.dual)
+    return { widths: smoothed.map(roundMm), structures, bridgeTags, lanes };
 
   // Deux chaussées : une voie de `DUAL_WIDTH` chacune, avec un fondu vers la largeur d'OSM autour.
   const inside = dualMask(points, trace.dual).map(Number);
@@ -370,6 +380,7 @@ export const deduceRoadAttributes = (
       roundMm(inside[i] ? DUAL_WIDTH : width + (DUAL_WIDTH - width) * weight[i]),
     ),
     structures,
+    bridgeTags,
     lanes: lanes.map((count, i) => (inside[i] ? 1 : count)),
   };
 };

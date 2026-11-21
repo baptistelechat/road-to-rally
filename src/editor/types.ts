@@ -36,12 +36,16 @@ export interface ChicaneElement {
   /** Côté du premier bloc dans le sens de la route */
   side: ChicaneSide;
   origin: ChicaneOrigin;
+  /** Distance au départ en mètres quand elle a été posée : une route parcourue deux fois a deux passages au même endroit */
+  along?: number;
 }
 
 /** Une chicane proposée par l'analyse du tracé. Hors du document : elle se recalcule à chaque changement du tracé. */
 export interface AutoChicane {
   position: LatLon;
   side: ChicaneSide;
+  /** Distance au départ en mètres */
+  along?: number;
 }
 
 export interface AutoChicanes {

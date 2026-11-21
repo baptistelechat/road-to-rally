@@ -144,7 +144,9 @@ const ChicaneZones = ({ chicanes }: { chicanes: ListedChicane[] }) => {
         ? chicanes.map(({ id, index }): AxisZone => ({
             id,
             index:
-              dragged?.id === id ? nearestIndex(axis, dragged.position) : index,
+              dragged?.id === id
+                ? nearestIndex(axis, dragged.position, index)
+                : index,
             reach: EDITOR_CHICANE_MIN_GAP / 2,
           }))
         : [],

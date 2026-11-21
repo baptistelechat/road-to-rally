@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { BridgesSection } from "./sections/BridgesSection";
 import { BuildingsSection } from "./sections/BuildingsSection";
 import { CrowdSection } from "./sections/CrowdSection";
 import { LooksSection } from "./sections/LooksSection";
@@ -12,6 +13,7 @@ const TABS = [
   { id: "vegetation", label: "Végétation", Section: VegetationSection },
   { id: "crowd", label: "Public et banderoles", Section: CrowdSection },
   { id: "looks", label: "Ambiances", Section: LooksSection },
+  { id: "bridges", label: "Ponts", Section: BridgesSection },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];

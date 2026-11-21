@@ -1,7 +1,7 @@
 // Tous les seuils du pipeline géo. Changer une valeur qui modifie le résultat impose d'incrémenter PIPELINE_VERSION.
 
 /** Version du pipeline, recopiée dans `StageData.pipelineVersion` */
-export const PIPELINE_VERSION = 20;
+export const PIPELINE_VERSION = 21;
 
 // --- Axe (story 2.1) ---
 
@@ -251,6 +251,8 @@ export const CHICANE_BARRIER_HEIGHT = 1.2;
 export const CHICANE_SKIRT = 0.6;
 /** Écart toléré entre une chicane demandée et l'axe, en mètres : au-delà, elle est retirée plutôt que déplacée */
 export const CHICANE_SNAP_TOLERANCE = 15;
+/** Fenêtre de recalage autour de la distance au départ d'une chicane, en mètres : sur une route parcourue deux fois, elle garde son passage */
+export const CHICANE_ALONG_REACH = 250;
 /** Écart minimal entre deux chicanes demandées, en mètres : 1 m sous la limite de l'éditeur, pour qu'une chicane qu'il accepte ne soit jamais retirée au millimètre */
 export const CHICANE_MIN_SEPARATION = 99;
 

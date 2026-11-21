@@ -2,6 +2,7 @@
 import type { AnalyzedAxis } from "@/geo/analyzeTrace";
 import type { ChicaneRequest } from "@/geo/chicanes";
 import {
+  CHICANE_ALONG_REACH,
   CHICANE_LINE_CLEARANCE,
   EDITOR_CHICANE_MIN_GAP,
   EDITOR_CHICANE_NUDGE,
@@ -77,13 +78,26 @@ export const chicaneSpacingWarnings = (
         ];
   });
 
-/** Le point permis le plus proche. Sur toute la bande : c'est le joueur qui vise, pas une ancienne position. `null` : aucune place. */
-const bandIndex = (axis: ChicaneAxis, position: LatLon): number | null => {
+/** Le point permis le plus proche. Sur toute la bande : c'est le joueur qui vise. `near` : l'indice actuel, pour rester sur son passage. `null` : aucune place. */
+const bandIndex = (
+  axis: ChicaneAxis,
+  position: LatLon,
+  near?: number,
+): number | null => {
   const { from, to } = chicaneBand(axis);
   return from > to
     ? null
-    : from + nearestIndex(axis.latLon.slice(from, to + 1), position);
+    : from +
+        nearestIndex(
+          axis.latLon.slice(from, to + 1),
+          position,
+          near === undefined ? undefined : near - from,
+        );
 };
+
+/** La distance au départ d'un point de l'axe, celle du kilomètre affiché et du pipeline. */
+const alongOf = (axis: ChicaneAxis, index: number): number =>
+  (index - axis.runoffPoints) * STEP;
 
 /** Pendant un glissement : le marqueur ne quitte jamais la route. */
 export const snapToBand = (
@@ -101,14 +115,20 @@ export const listChicanes = ({
   axis,
 }: ChicaneContext): ListedChicane[] => {
   if (!trace.chicanesEnabled) return [];
-  const indexOf = (position: LatLon): number =>
-    axis ? nearestIndex(axis.latLon, position) : 0;
+  const indexOf = (position: LatLon, along?: number): number =>
+    axis
+      ? nearestIndex(
+          axis.latLon,
+          position,
+          along === undefined ? undefined : axis.runoffPoints + along / STEP,
+        )
+      : 0;
   const player = trace.chicanes.map((chicane) => ({
     ...chicane,
-    index: indexOf(chicane.position),
+    index: indexOf(chicane.position, chicane.along),
   }));
-  const automatic = auto.flatMap(({ position, side }): ListedChicane[] => {
-    const index = indexOf(position);
+  const automatic = auto.flatMap(({ position, side, along }): ListedChicane[] => {
+    const index = indexOf(position, along);
     const hidden =
       trace.removedChicanes.some(
         (removed) =>
@@ -120,13 +140,22 @@ export const listChicanes = ({
       );
     return hidden
       ? []
-      : [{ id: `auto-${index}`, position, side, origin: "auto", index }];
+      : [
+          {
+            id: `auto-${index}`,
+            position,
+            side,
+            origin: "auto",
+            along,
+            index,
+          },
+        ];
   });
   return [...player, ...automatic].sort((a, b) => a.index - b.index);
 };
 
 export const chicaneRequests = (chicanes: ListedChicane[]): ChicaneRequest[] =>
-  chicanes.map(({ position, side }) => ({ position, side }));
+  chicanes.map(({ position, side, along }) => ({ position, side, along }));
 
 const nextId = (trace: EditorTrace): string => {
   const used = trace.chicanes.map(({ id }) => Number(id.slice(1)) || 0);
@@ -137,7 +166,7 @@ const nextId = (trace: EditorTrace): string => {
 const touch = (
   trace: EditorTrace,
   chicane: ListedChicane,
-  changes: Partial<Pick<ChicaneElement, "position" | "side">>,
+  changes: Partial<Pick<ChicaneElement, "position" | "side" | "along">>,
 ): EditorTrace =>
   chicane.origin === "player"
     ? {
@@ -156,6 +185,7 @@ const touch = (
             position: chicane.position,
             side: chicane.side,
             origin: "player",
+            along: chicane.along,
             ...changes,
           },
         ],
@@ -178,6 +208,7 @@ const moveTo = (
     : {
         trace: touch(context.trace, chicane, {
           position: axis.latLon[index],
+          along: alongOf(axis, index),
         }),
       };
 };
@@ -238,6 +269,7 @@ export const addChicane = (
           position: axis.latLon[index],
           side: "left",
           origin: "player",
+          along: alongOf(axis, index),
         },
       ],
     },
@@ -251,11 +283,13 @@ export const moveChicane = (
 ): ApplyResult => {
   const { axis } = context;
   if (!axis) return { refusal: NOT_READY };
-  const index = bandIndex(axis, position);
-  if (index === null) return { refusal: NO_ROOM };
-  return withChicane(context, id, (chicane) =>
-    moveTo(context, axis, chicane, index),
-  );
+  return withChicane(context, id, (chicane) => {
+    // Glissée sur une route parcourue deux fois, elle reste sur le passage d'où elle part.
+    const index = bandIndex(axis, position, chicane.index);
+    return index === null
+      ? { refusal: NO_ROOM }
+      : moveTo(context, axis, chicane, index);
+  });
 };
 
 /** Le déplacement au clavier : un cran le long du tracé, sans sortir de la bande. */
@@ -318,15 +352,47 @@ export const settleChicanes = (trace: EditorTrace): SettledChicanes => {
   const chicanes: ChicaneElement[] = [];
   for (const chicane of trace.chicanes) {
     const origin = chicane.position;
-    const { distance: gap, point } = closestOnPolyline(
-      { x: 0, z: 0 },
-      road.map((p) => project(p, origin)),
-    );
-    if (gap > EDITOR_CHICANE_SETTLE_REACH) continue;
-    if (gap < 0.01) chicanes.push(chicane);
+    const line = road.map((p) => project(p, origin));
+    const cumulative = [0];
+    for (let i = 1; i < line.length; i++)
+      cumulative.push(
+        cumulative[i - 1] +
+          Math.hypot(line[i].x - line[i - 1].x, line[i].z - line[i - 1].z),
+      );
+    const closest = (from: number, to: number) => {
+      const hit = closestOnPolyline({ x: 0, z: 0 }, line.slice(from, to + 1));
+      const i = from + hit.segment;
+      const along =
+        cumulative[i] + ((cumulative[i + 1] ?? cumulative[i]) - cumulative[i]) * hit.t;
+      return { ...hit, along };
+    };
+    // ponytail: la fenêtre suit l'ancienne distance ; un ajout de plus de CHICANE_ALONG_REACH en amont la rate et retombe sur le plus proche.
+    const { along } = chicane;
+    const from =
+      along === undefined
+        ? -1
+        : cumulative.findIndex((d) => d >= along - CHICANE_ALONG_REACH);
+    const to =
+      along === undefined
+        ? -1
+        : cumulative.findLastIndex((d) => d <= along + CHICANE_ALONG_REACH);
+    const near =
+      from >= 0 && to > from ? closest(Math.max(0, from - 1), to) : null;
+    const hit =
+      near && near.distance <= EDITOR_CHICANE_SETTLE_REACH
+        ? near
+        : closest(0, line.length - 1);
+    if (hit.distance > EDITOR_CHICANE_SETTLE_REACH) continue;
+    const newAlong = Math.round(hit.along);
+    const moved = hit.distance >= 0.01;
+    if (!moved && along === newAlong) chicanes.push(chicane);
     else {
       changed = true;
-      chicanes.push({ ...chicane, position: unproject(point, origin) });
+      chicanes.push({
+        ...chicane,
+        along: newAlong,
+        position: moved ? unproject(hit.point, origin) : chicane.position,
+      });
     }
   }
   const lost = trace.chicanes.length - chicanes.length;

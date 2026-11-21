@@ -63,6 +63,8 @@ export const chooseMap = (map: string, id: string, ready = false): void => {
 
 /** Une vraie navigation : la scène 3D et son contexte WebGL sont libérés avant la page suivante. */
 export const leaveFor = (path: string): void =>
+  // Voulu : `router.push` garderait la scène, le monde Rapier et l'audio en mémoire.
+  // eslint-disable-next-line @next/next/no-location-assign-relative-destination
   window.location.assign(`${window.location.origin}${path}`);
 
 /** Retour sur la carte si le brouillon est bien le tracé de cette spéciale, sinon à l'accueil de l'éditeur. */

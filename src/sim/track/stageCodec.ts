@@ -16,6 +16,7 @@ import type {
   RoundaboutIsland,
   MeshData,
   SharedRange,
+  StageBridge,
   StageData,
   StageDecor,
   Vec3,
@@ -208,6 +209,26 @@ const parseMedians = (value: unknown): MedianBarrier[] => {
       height: positive("height"),
       skirt: positive("skirt"),
     };
+  });
+};
+
+const BRIDGE_STYLES = ["stone", "concrete", "steel", "viaduct"] as const;
+
+const parseBridges = (value: unknown, count: number): StageBridge[] => {
+  if (!Array.isArray(value)) return fail("bridges", "doit être un tableau");
+  if (value.length === 0) fail("bridges", "doit être absent sans pont");
+  return value.map((bridge: unknown, i) => {
+    const field = `bridges[${i}]`;
+    if (!isObject(bridge)) return fail(field, "doit être un pont");
+    const from = finite(bridge.from, `${field}.from`);
+    const to = finite(bridge.to, `${field}.to`);
+    if (!Number.isInteger(from) || !Number.isInteger(to) || from < 0 || to <= from || to >= count)
+      fail(field, "doit aller d'un point de l'axe à un point suivant");
+    const style = BRIDGE_STYLES.find((s) => s === bridge.style);
+    if (!style) return fail(`${field}.style`, "doit être un style de pont connu");
+    const halfWidth = finite(bridge.halfWidth, `${field}.halfWidth`);
+    if (halfWidth <= 0) fail(`${field}.halfWidth`, "doit rester positif");
+    return { from, to, style, halfWidth };
   });
 };
 
@@ -433,6 +454,9 @@ export const parseStage = (json: unknown): StageData => {
       medians: parseMedians(json.medians),
     }),
     terrain: parseTerrain(json.terrain),
+    ...(json.bridges !== undefined && {
+      bridges: parseBridges(json.bridges, points.length),
+    }),
     // Absent : la spéciale reste celle d'avant l'epic 5, au bit près.
     ...(json.decor !== undefined && { decor: parseDecor(json.decor) }),
     pipelineVersion: finite(json.pipelineVersion, "pipelineVersion"),

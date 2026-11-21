@@ -5,7 +5,12 @@ import { type RefObject, useEffect, useRef, useState } from "react";
 import { createCarAudio, type CarAudio } from "@/audio/engineAudio";
 import { loadLivery } from "@/render/car/livery";
 import { initRapier } from "@/sim/rapier";
-import { createSimulation, type Simulation } from "@/sim/simulation";
+import {
+  createSimulation,
+  prepareScenery,
+  type Simulation,
+} from "@/sim/simulation";
+import { createStageTrack } from "@/sim/track/stage";
 import { parseStage } from "@/sim/track/stageCodec";
 import type { StageData } from "@/sim/types";
 import { createCopilot, type Copilot } from "./copilot";
@@ -14,7 +19,7 @@ import { setHudMuted, setHudScreen, useHudStore } from "./hudStore";
 import type { GameMap } from "./maps";
 import type { ImportedStage } from "./useStageImport";
 
-/** Au-delà, le joueur a vu l'écran se figer : on lui dit pourquoi. */
+/** Au-delà, le joueur a vu l'écran se figer (l'étape la plus longue du chargement) : on lui dit pourquoi. */
 const LONG_CREATION_MS = 500;
 
 const loadStage = async (
@@ -87,12 +92,27 @@ export const useGameSession = (
       .then(async ([, stage]) => {
         if (given) await nextPaint();
         if (cancelled) return;
-        const startedAt = performance.now();
-        created = createSimulation(undefined, stage);
-        const creationMs = performance.now() - startedAt;
+        // Piste, décor puis colliders, avec un rendu entre chaque : l'écran ne reste jamais figé pendant tout le chargement.
+        const phases: number[] = [];
+        const timed = <T>(run: () => T): T => {
+          const startedAt = performance.now();
+          const result = run();
+          phases.push(performance.now() - startedAt);
+          return result;
+        };
+        const track = stage ? timed(() => createStageTrack(stage)) : undefined;
+        if (track) await nextPaint();
+        if (cancelled) return;
+        const scenery = track ? timed(() => prepareScenery(track)) : undefined;
+        if (track) await nextPaint();
+        if (cancelled) return;
+        created = timed(() =>
+          createSimulation(undefined, stage, { track, scenery }),
+        );
+        const creationMs = Math.max(...phases);
         if (stage)
           console.info(
-            `Colliders et simulation créés en ${Math.round(creationMs)} ms`,
+            `Simulation créée en ${phases.map(Math.round).join(" + ")} ms (piste, décor, colliders)`,
           );
         copilot = createCopilot(created, audio);
         applyAudioOptions(copilot, useHudStore.getState().copilotOptions);

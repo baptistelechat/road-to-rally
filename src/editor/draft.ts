@@ -66,7 +66,8 @@ const isChicane = (value: unknown): value is ChicaneElement =>
   typeof value.id === "string" &&
   isLatLon(value.position) &&
   (value.side === "left" || value.side === "right") &&
-  (value.origin === "auto" || value.origin === "player");
+  (value.origin === "auto" || value.origin === "player") &&
+  (value.along === undefined || typeof value.along === "number");
 
 const isReturnRoute = (value: unknown): value is ReturnRoute =>
   isRecord(value) &&

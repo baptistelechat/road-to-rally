@@ -34,8 +34,9 @@ export const computeAutoChicanes = (
   // Le premier point à cette abscisse : l'aperçu n'a pas besoin de mieux qu'un point de l'axe.
   const pointAt = (s: number): number =>
     abscissae.findIndex((value) => value >= s);
+  const startS = abscissae[runoffPoints];
   const { chicanes, tooNarrow } = placeChicanes(flat, widths, {
-    startS: abscissae[runoffPoints],
+    startS,
     finishS: abscissae[Math.max(runoffPoints, last)],
     excluded: [],
   });
@@ -43,6 +44,7 @@ export const computeAutoChicanes = (
     chicanes: chicanes.map(({ s, side }) => ({
       position: latLon[pointAt(s)],
       side,
+      along: Math.round(s - startS),
     })),
     tooNarrow: tooNarrow.length,
   };

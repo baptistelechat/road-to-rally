@@ -5,6 +5,7 @@ import {
   findRoadContact,
   isForkPair,
   roadForkReach,
+  shoulderWidths,
 } from "../sim/track/roadContact";
 import type {
   MedianBarrier,
@@ -45,7 +46,9 @@ import {
   type TracePoints,
 } from "./gpx";
 import { throwIfAborted, type HttpOptions } from "./http";
+import { findStageBridges } from "./bridges";
 import { assertCovered, fetchAltitudes } from "./ign";
+import { fetchIgnWays } from "./ignRoads";
 import {
   deduceRoadAttributes,
   dualMask,
@@ -60,12 +63,7 @@ export { PIPELINE_VERSION };
 export { StageError } from "./errors";
 
 export type StageStep =
-  | "lecture"
-  | "relief"
-  | "routes"
-  | "terrain"
-  | "decor"
-  | "finalisation";
+  "lecture" | "relief" | "routes" | "terrain" | "decor" | "finalisation";
 
 /** Tout ce que le réseau apporte : `buildStage` en tire la spéciale sans plus jamais l'appeler. */
 export interface StageInputs {
@@ -135,7 +133,10 @@ export const fetchStageInputs = async (
   assertCovered(altitudes, trace.runoffPoints);
 
   onProgress?.("routes");
-  const osmWays = await fetchOsmWays(trace, options);
+  // La BD TOPO d'abord : rapide et à jour sur toute la France. Overpass, saturé, ne sert plus qu'en secours.
+  const osmWays =
+    (await fetchIgnWays(trace, options)) ??
+    (await fetchOsmWays(trace, options));
   // Moins riche qu'Overpass (ni `lanes`, ni `width`, ni ponts), mais bien mieux que rien : largeurs par type de route et ronds-points.
   const fallback = options.fallbackWays?.length ? options.fallbackWays : null;
   const ways = osmWays ?? fallback;
@@ -144,7 +145,7 @@ export const fetchStageInputs = async (
       ? []
       : fallback
         ? [
-            "Les données OSM sont indisponibles : largeurs et ronds-points viennent de BRouter, mais les ponts et les tunnels manquent, ils suivent le relief.",
+            "Les données de routes de l'IGN et d'OSM sont indisponibles : largeurs et ronds-points viennent de BRouter, mais les ponts et les tunnels manquent, ils suivent le relief.",
           ]
         : [
             "Les données de routes sont indisponibles : la route garde une largeur de 5 m partout, et les ponts suivent le relief.",
@@ -259,6 +260,8 @@ export const buildStageWithWarnings = (
 
   const attributes = deduceRoadAttributes(trace, inputs.ways);
   const structures = attributes.structures.slice(0, uniqueCount);
+  const bridgeTags = attributes.bridgeTags.slice(0, uniqueCount);
+  const bridgeMask = bridgeTags.map((tags) => tags !== null);
   let widths = attributes.widths.slice(0, uniqueCount);
   const lanes = attributes.lanes.slice(0, uniqueCount);
   let profile = buildProfile(
@@ -413,6 +416,7 @@ export const buildStageWithWarnings = (
             nodes,
             inputs.terrain,
             baseAltitude,
+            bridgeMask,
           ),
         })
       : null;
@@ -428,8 +432,20 @@ export const buildStageWithWarnings = (
           shared?.armEnd,
           createGroundTint(inputs.decor, trace.origin),
           water,
+          bridgeMask,
         )
       : null;
+  // Ponts dessinés seulement avec un terrain : sans lui, la route n'a pas de vallée à enjamber.
+  const shoulders = shoulderWidths(unique, widths, false);
+  const bridges = terrain
+    ? findStageBridges(
+        unique,
+        bridgeTags,
+        (i) => inputs.altitudes[i] - baseAltitude,
+        (i) => Boolean(water?.bridged[i]),
+        widths.map((w, i) => w / 2 + shoulders[i]),
+      )
+    : [];
   // Sans données de décor, rien de plus : la spéciale reste identique à celle d'avant, au bit près.
   const decor = buildDecor(
     inputs.decor,
@@ -456,6 +472,7 @@ export const buildStageWithWarnings = (
       ...(islands.length > 0 && { islands }),
       ...(medians.length > 0 && { medians }),
       terrain,
+      ...(bridges.length > 0 && { bridges }),
       ...(decor && { decor }),
       pipelineVersion: PIPELINE_VERSION,
       generatedAt: inputs.generatedAt,

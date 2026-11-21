@@ -17,6 +17,15 @@ const GROUND_MARGIN = 2000;
 /** Glissant, à peine élastique : la voiture s'arrête contre la barrière sans y accrocher ni rebondir. */
 const BLOCK_FRICTION = 0.2;
 const BLOCK_RESTITUTION = 0.1;
+/** Garde-corps d'un pont : hauteur au-dessus de la chaussée et partie enterrée, en mètres */
+const PARAPET_HEIGHT = 1;
+const PARAPET_SKIRT = 0.3;
+/**
+ * Paroi du garde-corps en deçà de la demi-largeur du tablier, en mètres : 5 cm avant la face du parapet de pierre
+ * dessiné (+0,3 - 0,45). Pile sur la face, la carrosserie entrait dans le mur ; à 20 cm, le choc semblait loin du mur
+ * au volant (essais de Baptiste, 21/11).
+ */
+const PARAPET_INNER_GAP = 0.2;
 /** Épaisseur du collider de la glissière d'un terre-plein, en mètres */
 const MEDIAN_THICKNESS = 0.3;
 /** Obstacles du décor (arbres, poteaux, bâtiments) : on rebondit dessus sans s'y coincer. */
@@ -215,5 +224,43 @@ export const addTrackColliders = (
         .setRestitution(DECOR_RESTITUTION)
         .setCollisionGroups(RAY_IGNORED_GROUPS),
     );
+  }
+  // Garde-corps des ponts, après le décor : sans pont, le monde reste le même au bit près. Une paroi continue par côté,
+  // qui suit la courbe : des blocs droits bout à bout se rejoignaient en angle, et la voiture qui longeait le mur
+  // accrochait l'arête du bloc suivant. Orientée vers la route, avec `FIX_INTERNAL_EDGES` comme le ruban.
+  const points = track.unique.points;
+  const last = points.length - 1;
+  for (const bridge of track.bridges ?? []) {
+    const inner = bridge.halfWidth - PARAPET_INNER_GAP;
+    for (const side of [-1, 1]) {
+      const positions: number[] = [];
+      for (let i = bridge.from; i <= bridge.to; i++) {
+        const prev = points[Math.max(0, i - 1)];
+        const next = points[Math.min(last, i + 1)];
+        const len = Math.hypot(next.x - prev.x, next.z - prev.z) || 1;
+        // À droite de la route : (-dz, dx), comme `bridgeGeometry`.
+        const x = points[i].x - ((next.z - prev.z) / len) * inner * side;
+        const z = points[i].z + ((next.x - prev.x) / len) * inner * side;
+        positions.push(x, points[i].y - PARAPET_SKIRT, z);
+        positions.push(x, points[i].y + PARAPET_HEIGHT, z);
+      }
+      const indices: number[] = [];
+      for (let k = 0; k < bridge.to - bridge.from; k++) {
+        const [bottom, top, nextBottom, nextTop] = [2 * k, 2 * k + 1, 2 * k + 2, 2 * k + 3];
+        // (bas, bas suivant, haut suivant) a sa normale vers la droite : à gauche elle regarde la route, à droite on l'inverse.
+        if (side < 0) indices.push(bottom, nextBottom, nextTop, bottom, nextTop, top);
+        else indices.push(bottom, nextTop, nextBottom, bottom, top, nextTop);
+      }
+      world.createCollider(
+        RAPIER.ColliderDesc.trimesh(
+          Float32Array.from(positions),
+          Uint32Array.from(indices),
+          RAPIER.TriMeshFlags.FIX_INTERNAL_EDGES,
+        )
+          .setFriction(BLOCK_FRICTION)
+          .setRestitution(BLOCK_RESTITUTION)
+          .setCollisionGroups(RAY_IGNORED_GROUPS),
+      );
+    }
   }
 };

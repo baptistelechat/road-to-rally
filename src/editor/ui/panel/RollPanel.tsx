@@ -1,10 +1,16 @@
 "use client";
 
 import { Play } from "lucide-react";
-import { useCallback, useEffect, useId, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useEffectEvent,
+  useId,
+  useState,
+} from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { customStageUrl } from "@/game/maps";
+import { AUTO_ROLL_PARAM, customStageUrl } from "@/game/maps";
 import { StageProgress } from "@/game/Hud/components/StageProgress";
 import { deleteStoredStage, storeCustomStage } from "@/game/stageCache";
 import {
@@ -33,13 +39,14 @@ interface Outcome {
 }
 
 /** Le nom proposé tant que le joueur n'en donne pas : la commune du premier point. */
-const usePlaceDefault = (): string => {
+const usePlaceDefault = (named: boolean): string => {
   const first = useEditor(
     (state) => state.history.present.anchors[0]?.position,
   );
   const [place, setPlace] = useState<string | null>(null);
   useEffect(() => {
-    if (!first) return;
+    // Un tracé déjà nommé (ou rouvert, nommé au premier départ) n'a pas besoin de la commune.
+    if (!first || named) return;
     const controller = new AbortController();
     fetchPlaceName(first, { signal: controller.signal })
       .then((name) => {
@@ -48,7 +55,7 @@ const usePlaceDefault = (): string => {
       // Un confort seulement : sans réponse, le nom générique suffit.
       .catch(() => {});
     return () => controller.abort();
-  }, [first]);
+  }, [first, named]);
   return first && place ? `Spéciale de ${place}` : FALLBACK_NAME;
 };
 
@@ -78,7 +85,7 @@ export const RollPanel = () => {
   const setName = useEditor((state) => state.setName);
   const blocker = useEditor(rollBlocker);
   const chicanes = useChicanes();
-  const placeDefault = usePlaceDefault();
+  const placeDefault = usePlaceDefault(name.trim() !== "");
   const [outcome, setOutcome] = useState<Outcome | null>(null);
 
   const open = useCallback((loaded: LoadedStage): void => {
@@ -124,13 +131,31 @@ export const RollPanel = () => {
 
   const roll = (): void => {
     setOutcome(null);
+    const title = name.trim() || placeDefault;
+    // Le nom retenu est enregistré avec la spéciale : la rouvrir ne redemande pas la commune.
+    if (title !== name) setName(title);
     chooseText(
       stageGpx(trace),
-      name.trim() || placeDefault,
+      title,
       chicaneRequests(chicanes),
       toOsmWays(trace.segments),
     );
   };
+
+  // Bouton « Régénérer » de la liste : une seule fois, dès que le tracé est vérifié et ses chicanes placées.
+  const autoRoll = useEffectEvent((): void => {
+    const url = new URL(window.location.href);
+    if (!url.searchParams.has(AUTO_ROLL_PARAM)) return;
+    url.searchParams.delete(AUTO_ROLL_PARAM);
+    window.history.replaceState(window.history.state, "", url);
+    roll();
+  });
+  useEffect(() => {
+    if (blocker !== null || status.kind !== "idle") return;
+    // Hors du rendu en cours : la génération met à jour l'état du panneau.
+    const timer = setTimeout(autoRoll);
+    return () => clearTimeout(timer);
+  }, [blocker, status.kind]);
 
   // Ce qui suit un clic sur « Rouler » s'affiche sous la barre : la génération, un avertissement, un refus d'enregistrer.
   const shownStatus = settled ? IDLE_STATUS : status;

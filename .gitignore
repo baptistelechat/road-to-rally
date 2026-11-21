@@ -54,3 +54,6 @@ next-env.d.ts
 
 # Pages et fichiers temporaires (auditions, essais)
 /public/_tmp/
+
+# copié depuis node_modules par scripts/sync-maplibre-worker.ts
+/public/vendor/

@@ -75,6 +75,8 @@ export const CUSTOM_MAP_ID = "custom";
 export const EDITOR_URL = "/editor";
 /** La carte où l'on trace, sur le brouillon en cours. */
 export const EDITOR_TRACE_URL = "/editor/trace";
+/** Paramètre de `EDITOR_TRACE_URL` : rouler dès que le tracé est vérifié, sans clic (bouton « Régénérer ») */
+export const AUTO_ROLL_PARAM = "roll";
 
 export const customStageUrl = (key: string): string =>
   `/?map=${CUSTOM_MAP_ID}&stage=${encodeURIComponent(key)}`;

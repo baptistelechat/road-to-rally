@@ -3,6 +3,7 @@
 import { useCallback } from "react";
 import type { CarSource } from "@/render/carSource";
 import type { Track } from "@/sim/types";
+import { BridgesView } from "./BridgesView";
 import { BuildingsView } from "./BuildingsView";
 import { WaterView } from "./WaterView";
 
@@ -23,7 +24,8 @@ export const DecorView = ({ track, source }: DecorViewProps) => {
     [track],
   );
   const { decor } = track;
-  if (!decor) return null;
+  // Les ponts ne dépendent pas des données de décor : ils viennent des routes.
+  if (!decor) return <BridgesView track={track} />;
   // ponytail: l'eau reste un seul maillage plat, un appel de dessin ; à découper si elle pèse au profileur.
   return (
     <group>
@@ -34,6 +36,7 @@ export const DecorView = ({ track, source }: DecorViewProps) => {
         source={source}
       />
       <WaterView water={decor.water} source={source} waterAt={track.waterAt} />
+      <BridgesView track={track} />
     </group>
   );
 };

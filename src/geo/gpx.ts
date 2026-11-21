@@ -596,8 +596,8 @@ export const cleanedPlane = (raw: LatLon[], origin: LatLon): PlanePoint[] =>
 export const closestOnPolyline = (
   p: PlanePoint,
   line: PlanePoint[],
-): { distance: number; point: PlanePoint } => {
-  let best = { distance: Infinity, point: p };
+): { distance: number; point: PlanePoint; segment: number; t: number } => {
+  let best = { distance: Infinity, point: p, segment: 0, t: 0 };
   for (let i = 0; i + 1 < line.length; i++) {
     const a = line[i];
     const b = line[i + 1];
@@ -610,7 +610,7 @@ export const closestOnPolyline = (
         : 0;
     const point = { x: a.x + dx * t, z: a.z + dz * t };
     const distance = Math.hypot(point.x - p.x, point.z - p.z);
-    if (distance < best.distance) best = { distance, point };
+    if (distance < best.distance) best = { distance, point, segment: i, t };
   }
   return best;
 };

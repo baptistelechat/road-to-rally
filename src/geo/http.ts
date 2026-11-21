@@ -21,7 +21,7 @@ export interface RetryPolicy {
 const aborted = (): StageError =>
   new StageError("aborted", "Génération annulée.");
 
-const defaultSleep = (
+export const defaultSleep = (
   milliseconds: number,
   signal?: AbortSignal,
 ): Promise<void> =>

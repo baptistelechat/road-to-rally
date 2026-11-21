@@ -45,9 +45,13 @@ export const SidePanel = () => {
   const [tab, setTab] = useState<TabId>("points");
   const points = useEditor((state) => state.history.present.anchors.length);
   const chicanes = useChicanes().length;
+  const chicanesEnabled = useEditor(
+    (state) => state.history.present.chicanesEnabled,
+  );
   const labels: Record<TabId, string> = {
     points: `Points (${points})`,
-    chicanes: `Chicanes (${chicanes})`,
+    // Coupées, « (0) » passerait pour un tracé sans ligne droite : l'état se lit sans ouvrir l'onglet.
+    chicanes: chicanesEnabled ? `Chicanes (${chicanes})` : "Chicanes (retirées)",
     score: "Score",
   };
 

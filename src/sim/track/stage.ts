@@ -17,6 +17,7 @@ export const createStageTrack = (stage: StageData): Track => {
   if (stage.lanes)
     track.laneCounts = stage.lanes.slice(0, track.unique.points.length);
   if (stage.decor) track.decor = stage.decor;
+  if (stage.bridges) track.bridges = stage.bridges;
   // Sans eau, pas de requête : la voiture garde sa physique au bit près.
   if (stage.decor && stage.decor.water.length > 0)
     track.waterAt = createWaterLevel(stage.decor.water);

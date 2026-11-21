@@ -5,7 +5,7 @@ import { carConfig } from "../../src/sim/carConfig";
 import { FIXED_DT } from "../../src/sim/fixedStep";
 import { createLapTimer } from "../../src/sim/lapTimer";
 import { initRapier } from "../../src/sim/rapier";
-import { createSimulation } from "../../src/sim/simulation";
+import { COUNTDOWN_S, createSimulation } from "../../src/sim/simulation";
 import { createStageTrack } from "../../src/sim/track/stage";
 import { parseStage, stageToJson } from "../../src/sim/track/stageCodec";
 import { NEUTRAL_INPUT, type StageData, type Vec3 } from "../../src/sim/types";
@@ -185,19 +185,21 @@ const checkRun = (name: string, stage: StageData): number => {
   return result ?? 0;
 };
 
-/** Immobile sur la ligne jusqu'au premier gaz, chrono compris. Reculer derrière la ligne ramène au départ. */
+/** Immobile sur la ligne pendant le décompte, même en pente et en jouant du frein. Reculer derrière la ligne ramène au départ. */
 const checkStartLine = (stage: StageData): void => {
   const sim = createSimulation(carConfig, stage);
   const { track, lap } = sim;
   const at = { ...sim.state().position };
-  for (let i = 0; i < 180; i++)
+  // Le décompte libère la voiture au GO, son dernier pas (story 4.1) : on s'arrête juste avant.
+  const countdownSteps = Math.round(COUNTDOWN_S / FIXED_DT);
+  for (let i = 1; i < countdownSteps; i++)
     sim.step({ ...NEUTRAL_INPUT, brake: i % 2, steer: 0.5 });
   const still = sim.state().position;
   assert.equal(Math.hypot(still.x - at.x, still.y - at.y, still.z - at.z), 0);
-  assert.equal(lap.currentMs(), null, "chrono lancé sans gaz");
+  assert.equal(lap.currentMs(), null, "chrono lancé avant le GO");
 
   for (let i = 0; i < 30; i++) sim.step({ ...NEUTRAL_INPUT, throttle: 1 });
-  assert.ok(lap.currentMs() !== null, "chrono non lancé par le gaz");
+  assert.ok(lap.currentMs() !== null, "chrono non lancé au GO");
   for (let i = 0; i < 60 * 30 && sim.respawnCount() === 0; i++)
     sim.step({ ...NEUTRAL_INPUT, brake: 1 });
   assert.equal(sim.respawnCount(), 1, "recul derrière la ligne non rattrapé");

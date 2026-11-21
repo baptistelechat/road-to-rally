@@ -1,6 +1,6 @@
 "use client";
 
-import { Play, Trash2 } from "lucide-react";
+import { Play, RefreshCw, Trash2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -39,6 +39,8 @@ interface StageRowProps {
   hasUnrolledChanges: boolean;
   /** Absent : aucun tracé rangé avec cette spéciale */
   onEdit?: () => void;
+  /** Absent : spéciale à jour, ou sans tracé à régénérer */
+  onRegenerate?: () => void;
   onDelete: () => void;
 }
 
@@ -47,14 +49,24 @@ export const StageRow = ({
   stage,
   hasUnrolledChanges,
   onEdit,
+  onRegenerate,
   onDelete,
 }: StageRowProps) => (
   <li className="flex flex-col overflow-hidden rounded-lg border bg-card">
-    <StageThumbnail
-      trace={parseTrace(stage.trace)}
-      highlighted={hasUnrolledChanges}
-      className="h-[150px] w-full"
-    />
+    <div className="relative">
+      <StageThumbnail
+        trace={parseTrace(stage.trace)}
+        highlighted={hasUnrolledChanges}
+        className="h-[150px] w-full"
+      />
+      {/* Générée par une ancienne version : le point répond au bouton jaune de régénération. */}
+      {stage.outdated && (
+        <span
+          aria-hidden="true"
+          className="absolute top-3 right-3 size-2.5 rounded-full bg-brand"
+        />
+      )}
+    </div>
     <div className="flex flex-1 flex-col gap-1 px-4 py-3.5">
       <h3 className="truncate text-[1.0625rem] font-extrabold">{stage.name}</h3>
       <p className="font-mono text-[0.8125rem] text-muted-foreground">
@@ -71,7 +83,7 @@ export const StageRow = ({
           gardé, elle ne peut pas être modifiée.
         </p>
       )}
-      {stage.outdated && (
+      {stage.outdated && !onRegenerate && (
         <p className="text-xs text-muted-foreground">
           Générée par une ancienne version du jeu : les derniers réglages de la
           génération ne s&apos;y appliquent pas.
@@ -94,6 +106,17 @@ export const StageRow = ({
         <Play aria-hidden="true" />
         Rouler
       </Button>
+      {onRegenerate && (
+        <Button
+          variant="attention"
+          size="icon-xl"
+          onClick={onRegenerate}
+          aria-label={`Régénérer ${stage.name} avec la dernière version`}
+          title="Régénérer avec la dernière version"
+        >
+          <RefreshCw aria-hidden="true" />
+        </Button>
+      )}
       {onEdit && (
         <Button variant="outline" size="xl" onClick={onEdit}>
           Modifier

@@ -19,6 +19,9 @@ const buttonVariants = cva(
         destructive:
           "bg-destructive/10 text-destructive hover:bg-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30",
         link: "text-primary underline-offset-4 hover:underline",
+        /** Contour couleur de marque : une action à faire, sans prendre la place du bouton principal */
+        attention:
+          "border-brand bg-transparent text-brand hover:bg-brand/10 aria-expanded:bg-brand/10",
       },
       size: {
         default:

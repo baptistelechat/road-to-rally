@@ -30,10 +30,12 @@ export const BasemapSwitch = ({
         type="button"
         className={segmentButton(id === value)}
         aria-pressed={id === value}
+        title={label}
         onClick={() => onChange(id)}
       >
         <Icon aria-hidden="true" />
-        {label}
+        {/* Sous 1024 px, les libellés débordaient sous le panneau de gauche : icônes seules. */}
+        <span className="max-lg:sr-only">{label}</span>
       </button>
     ))}
   </div>

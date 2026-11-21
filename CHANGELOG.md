@@ -101,7 +101,9 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Public au bord de la route au départ, à l'arrivée et aux épingles, derrière des barrières, avec des tenues variées et des drapeaux de tous les pays
 - Cinq ambiances au choix sur la page d'accueil et dans l'écran « Prêt » : après-midi, matin, couchant, brume et aube
 - Étape « Décor » dans la progression de la génération d'une spéciale, avec un avertissement si les données de l'IGN sont indisponibles
-- Page `/decor-lab` pour comparer les modèles de bâtiments, de végétation, de public et les ambiances
+- Page `/decor-lab` pour comparer les modèles de bâtiments, de végétation, de public, les ambiances et les ponts
+- Ponts dessinés sous la route, avec garde-corps solides et trottoir : pierre à arches dans les bourgs et sur les petits ouvrages, viaduc dès 12 m de haut, poutres en treillis sur l'eau des petites routes, béton à piles ailleurs
+- Bouton « Régénérer » sur les spéciales générées par une ancienne version du jeu : le tracé se rouvre dans l'éditeur et la génération se lance seule
 
 ### Changed
 
@@ -138,6 +140,11 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Les compteurs de performance passent sous la mini-carte, empilés
 - En pause, A à la manette active la ligne sélectionnée au lieu de reprendre directement la course
 - Le menu de départ se parcourt à la manette comme le menu pause, ce qui permet d'y choisir la carte
+- Routes, ponts, tunnels et ronds-points tirés de l'IGN (BD TOPO) : l'étape « Routes » de la génération prend quelques secondes, OpenStreetMap ne sert plus qu'en secours
+- Sous un pont, le sol suit la vraie vallée au lieu d'un remblai monté jusqu'à la route
+- Le chargement d'une spéciale se fait par étapes : l'écran ne se fige plus d'un seul bloc
+- L'onglet « Chicanes » de l'éditeur indique « (retirées) » quand elles sont désactivées
+- Sur un écran étroit, le choix du fond de carte de l'éditeur n'affiche plus que ses icônes
 - Nouvelles icônes du copilote : pilule colorée selon la note, badge « LONG », pastille bicolore et flèche qui se referme quand le virage se resserre, crêtes et bosses en rouge, et cadre autour des enfilades
 - Un virage qui se resserre s'annonce avec sa note d'entrée, et une enfilade annonce chacun de ses virages
 - Seuls les vrais sommets sont annoncés comme des crêtes : les petites ondulations de la route ne le sont plus
@@ -185,3 +192,13 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Chicanes annoncées à l'envers par la voix et l'icône du copilote : elles disent maintenant le même côté que le panneau au bord de la route
 - Navigation à la manette dans les menus : haut et bas suivent l'écran rangée par rangée, gauche et droite passent d'une grille à l'autre
 - Exemple de voix des options qui partait avec plusieurs secondes de retard après un changement de voix
+- Chicane qui sautait sur l'autre passage quand le tracé repasse sur sa propre route, dans l'éditeur comme en course
+- Bouton « Satellite » caché sous la recherche de lieu sur un écran étroit
+- Réouverture d'un tracé qui relançait une recherche de commune à chaque fois
+- Nappe d'eau qui passait devant la route sur les ponts bas
+- Message « données OSM indisponibles » à presque chaque génération, les serveurs d'OpenStreetMap étant saturés
+
+### Security
+
+- Next.js mis à jour en 16.4.6 pour corriger plusieurs failles
+- Le moteur de la carte de l'éditeur est servi par le site lui-même, et non plus par un CDN tiers

@@ -32,6 +32,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Généré par mapcn et gardé tel quel : ses écarts aux règles React ne sont pas les nôtres.
     "src/components/ui/map.tsx",
+    // Copié depuis node_modules par scripts/sync-maplibre-worker.ts.
+    "public/vendor/**",
   ]),
 ]);
 

@@ -30,8 +30,9 @@ function loadMapLibre() {
   maplibrePromise ??= import("maplibre-gl")
     .then((lib) => {
       if (!lib.getWorkerUrl()) {
+        // Servi par le site (scripts/sync-maplibre-worker.ts), pas par unpkg ; la version dans l'URL invalide le cache à chaque mise à jour.
         lib.setWorkerUrl(
-          `https://unpkg.com/maplibre-gl@${lib.getVersion()}/dist/maplibre-gl-worker.mjs`,
+          `/vendor/maplibre-gl-worker.mjs?v=${lib.getVersion()}`,
         );
       }
       return lib;
