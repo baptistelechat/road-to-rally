@@ -1,8 +1,12 @@
 // Cuit les spéciales de fixtures/stages/ dans public/stages/, sans réseau. À lancer depuis la racine du dépôt.
 // `--refresh` redemande les altitudes et les routes, puis réécrit fixtures/stages/<id>.inputs.json.
-// Un cache sans altitudes de couloir ne redemande que celles-ci.
+// Un cache sans altitudes de couloir ou sans décor ne redemande que ce qui manque.
+// Les chicanes automatiques sont recalculées à chaque cuisson, comme l'éditeur les propose.
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { computeAutoChicanes } from "../src/editor/autoChicanes";
+import { analyzeTrace } from "../src/geo/analyzeTrace";
+import { fetchDecor } from "../src/geo/decor";
 import { traceFromGpx } from "../src/geo/gpx";
 import {
   axisHash,
@@ -62,13 +66,23 @@ const main = async (): Promise<void> => {
       });
       writeFileSync(path, JSON.stringify(inputs));
     }
-    const stage = buildStage(inputs, name);
+    if (inputs.decor === undefined) {
+      inputs.decor = await fetchDecor(traceFromGpx(gpx), { fetch: bakeFetch });
+      if (inputs.decor === null)
+        console.warn(`${id} : décor IGN indisponible, décor inventé.`);
+      // Un décor manquant n'est pas mis en cache : il sera redemandé à la prochaine cuisson.
+      else writeFileSync(path, JSON.stringify(inputs));
+    }
+    const axis = analyzeTrace(gpx).axis;
+    const chicanes = axis ? computeAutoChicanes(axis).chicanes : [];
+    const stage = buildStage({ ...inputs, chicanes }, name);
     stage.hash = stageHash(stage);
     const json = JSON.stringify(stageToJson(stage));
     writeFileSync(join(output, `${id}.json`), json);
     console.log(
       `${id} : ${stage.points.length} points, ${Math.round(stage.finishS - stage.startS)} m, ` +
         `${(stage.terrain?.positions.length ?? 0) / 3} sommets et ${(stage.terrain?.indices.length ?? 0) / 3} triangles de terrain, ` +
+        `${chicanes.length} chicanes, ${inputs.decor ? "décor IGN" : "décor inventé"}, ` +
         `${(json.length / 1e6).toFixed(2)} Mo`,
     );
   }

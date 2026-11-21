@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PR-7 · Page téléphone</title>
+    <!-- Support de discussion jetable du studio, jamais importé dans le jeu. Polices de DESIGN.md, avec repli si hors ligne. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Michroma&family=Manrope:wght@500;700&family=Share+Tech+Mono&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0b1018;
+        --card: #121a26;
+        --fg: #e9edf3;
+        --muted: #93a0b4;
+        --brand: #ffd23f;
+        --brand-fg: #0b1018;
+        --border: #202c3f;
+        --sky-top: #05080f;
+        --sky-h: #1c2a45;
+        --m1: #2b3c5e;
+        --m2: #22304d;
+        --m3: #111b2c;
+        --road: #2a3346;
+        --red: #ff6b5e;
+        --display: Michroma, "Arial Black", sans-serif;
+        --body: Manrope, system-ui, sans-serif;
+        --mono: "Share Tech Mono", ui-monospace, monospace;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+      }
+      body {
+        background: #05070c;
+        color: var(--fg);
+        font-family: var(--body);
+        padding: 32px 16px 48px;
+      }
+      header {
+        max-width: 1240px;
+        margin: 0 auto 28px;
+      }
+      header h1 {
+        font-family: var(--display);
+        font-size: 18px;
+        letter-spacing: 0.04em;
+      }
+      header p {
+        color: var(--muted);
+        margin-top: 8px;
+        font-size: 14px;
+        max-width: 760px;
+        line-height: 1.5;
+      }
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 32px;
+        justify-content: center;
+        max-width: 1240px;
+        margin: 0 auto;
+      }
+      figure {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+      }
+      figcaption {
+        max-width: 340px;
+        font-size: 13px;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+      figcaption b {
+        color: var(--fg);
+        font-family: var(--display);
+        font-weight: 400;
+        font-size: 13px;
+        letter-spacing: 0.06em;
+        display: block;
+        margin-bottom: 4px;
+      }
+      .phone {
+        width: 340px;
+        height: 700px;
+        border-radius: 40px;
+        border: 10px solid #1b2230;
+        background: var(--bg);
+        overflow: hidden;
+        position: relative;
+        box-shadow: 0 20px 60px #0008;
+      }
+      .phone::before {
+        content: "";
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        width: 90px;
+        height: 24px;
+        transform: translateX(-50%);
+        background: #1b2230;
+        border-radius: 14px;
+        z-index: 5;
+      }
+      .screen {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+      }
+      .label {
+        font-family: var(--display);
+        font-size: 10px;
+        letter-spacing: 0.18em;
+        color: var(--muted);
+        text-transform: uppercase;
+      }
+      .title {
+        font-family: var(--display);
+        font-size: 21px;
+        line-height: 1.25;
+        letter-spacing: 0.03em;
+      }
+      .btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        height: 52px;
+        border-radius: 4px;
+        background: var(--brand);
+        color: var(--brand-fg);
+        font-family: var(--display);
+        font-size: 12px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        border: 0;
+        width: 100%;
+      }
+      .btn.ghost {
+        background: transparent;
+        color: var(--fg);
+        border: 1px solid var(--border);
+      }
+      .stage {
+        font-family: var(--mono);
+        color: var(--brand);
+        font-size: 15px;
+      }
+      svg {
+        display: block;
+      }
+
+      /* A · Parc fermé */
+      .a .scene {
+        height: 330px;
+        position: relative;
+      }
+      .a .body {
+        flex: 1;
+        padding: 22px 24px 30px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .a .body .spacer {
+        flex: 1;
+      }
+
+      /* B · Carton de pointage */
+      .b .screen {
+        padding: 56px 20px 28px;
+        gap: 18px;
+        background: radial-gradient(120% 60% at 50% 0%, #17223a, var(--bg));
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 5.6px;
+        overflow: hidden;
+      }
+      .card .head {
+        background: var(--brand);
+        color: var(--brand-fg);
+        padding: 10px 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-family: var(--display);
+        font-size: 11px;
+        letter-spacing: 0.14em;
+      }
+      .card .line {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        padding: 12px 14px;
+        border-top: 1px dashed var(--border);
+        align-items: center;
+      }
+      .card .line .v {
+        font-family: var(--mono);
+        font-size: 17px;
+      }
+      .stamp {
+        margin: 6px auto 0;
+        width: 150px;
+        height: 150px;
+        border: 3px solid var(--red);
+        border-radius: 50%;
+        color: var(--red);
+        display: grid;
+        place-items: center;
+        text-align: center;
+        transform: rotate(-12deg);
+        font-family: var(--display);
+        font-size: 11px;
+        letter-spacing: 0.14em;
+        line-height: 1.6;
+        opacity: 0.9;
+      }
+      .stamp span {
+        font-size: 22px;
+        letter-spacing: 0.06em;
+        display: block;
+      }
+
+      /* C · Feux de départ */
+      .c .screen {
+        align-items: center;
+        padding: 70px 24px 30px;
+        gap: 22px;
+        text-align: center;
+        background: linear-gradient(
+          var(--sky-top),
+          var(--sky-h) 55%,
+          var(--m3)
+        );
+      }
+      .gantry {
+        background: #0d131d;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 16px 18px;
+        display: flex;
+        gap: 14px;
+      }
+      .light {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        background: #2a0d0d;
+        border: 2px solid #3a1a1a;
+      }
+      .light.on {
+        background: radial-gradient(
+          circle at 40% 35%,
+          #ffb3ab,
+          var(--red) 55%,
+          #8a1f17
+        );
+        box-shadow: 0 0 24px #ff6b5e99;
+        border-color: #ff8f85;
+      }
+      .clock {
+        font-family: var(--mono);
+        font-size: 52px;
+        color: var(--brand);
+        letter-spacing: 0.04em;
+        line-height: 1;
+      }
+      .c .spacer {
+        flex: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>PR-7 · Page téléphone : trois directions</h1>
+      <p>
+        Cas visé : un ami ouvre sur son téléphone le lien d'une spéciale (epic
+        6). La page affiche le nom de la spéciale tiré de l'URL, et son action
+        principale renvoie le lien vers un ordinateur (partage natif du
+        téléphone : mail, SMS, messagerie). Texte réduit au minimum : un titre,
+        la spéciale, un bouton. Couleurs et polices de <code>DESIGN.md</code>,
+        thème nuit. Distance et temps à battre sont des valeurs d'exemple.
+      </p>
+    </header>
+
+    <div class="row">
+      <!-- A · Parc fermé -->
+      <figure>
+        <div class="phone a">
+          <div class="screen">
+            <div class="scene">
+              <svg
+                viewBox="0 0 320 330"
+                width="320"
+                height="330"
+                aria-hidden="true"
+              >
+                <defs>
+                  <linearGradient id="skyA" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="#05080f" />
+                    <stop offset="1" stop-color="#1c2a45" />
+                  </linearGradient>
+                </defs>
+                <rect width="320" height="330" fill="url(#skyA)" />
+                <polygon
+                  points="0,220 60,140 110,190 170,110 230,180 280,130 320,170 320,330 0,330"
+                  fill="#22304d"
+                />
+                <polygon points="60,140 110,190 80,200" fill="#2b3c5e" />
+                <polygon points="170,110 230,180 190,190" fill="#2b3c5e" />
+                <polygon points="0,260 320,240 320,330 0,330" fill="#0d1420" />
+                <polygon
+                  points="130,330 190,330 172,242 150,242"
+                  fill="#2a3346"
+                />
+                <!-- voiture bâchée -->
+                <polygon
+                  points="118,282 128,262 196,262 206,282 206,298 118,298"
+                  fill="#3b4760"
+                />
+                <polygon
+                  points="128,262 140,250 186,250 196,262"
+                  fill="#4a5774"
+                />
+                <polygon
+                  points="118,298 206,298 202,304 122,304"
+                  fill="#111b2c"
+                />
+                <!-- barrière rubalise -->
+                <line
+                  x1="40"
+                  y1="300"
+                  x2="280"
+                  y2="300"
+                  stroke="#ffd23f"
+                  stroke-width="5"
+                  stroke-dasharray="14 10"
+                />
+                <line
+                  x1="40"
+                  y1="300"
+                  x2="40"
+                  y2="268"
+                  stroke="#93a0b4"
+                  stroke-width="4"
+                />
+                <line
+                  x1="280"
+                  y1="300"
+                  x2="280"
+                  y2="268"
+                  stroke="#93a0b4"
+                  stroke-width="4"
+                />
+                <!-- panneau -->
+                <rect
+                  x="226"
+                  y="196"
+                  width="76"
+                  height="46"
+                  rx="3"
+                  fill="#ffd23f"
+                />
+                <text
+                  x="264"
+                  y="217"
+                  text-anchor="middle"
+                  font-family="Michroma, Arial Black"
+                  font-size="11"
+                  fill="#0b1018"
+                >
+                  PARC
+                </text>
+                <text
+                  x="264"
+                  y="233"
+                  text-anchor="middle"
+                  font-family="Michroma, Arial Black"
+                  font-size="11"
+                  fill="#0b1018"
+                >
+                  FERMÉ
+                </text>
+                <line
+                  x1="264"
+                  y1="242"
+                  x2="264"
+                  y2="290"
+                  stroke="#93a0b4"
+                  stroke-width="3"
+                />
+              </svg>
+            </div>
+            <div class="body">
+              <div class="label">Spéciale</div>
+              <div class="stage">Col de Turini · 12,4 km</div>
+              <div class="title">La voiture attend au parc fermé</div>
+              <div class="spacer"></div>
+              <button class="btn">↗ Envoyer sur mon ordinateur</button>
+              <button class="btn ghost">⌨ 🎮 Clavier ou manette</button>
+            </div>
+          </div>
+        </div>
+        <figcaption>
+          <b>A · Parc fermé</b>La voiture est bâchée derrière la rubalise : on
+          comprend qu'elle n'est pas disponible ici, sans le dire. Le bouton
+          secondaire montre l'équipement attendu, et ne fait rien d'autre
+          qu'afficher des icônes.
+        </figcaption>
+      </figure>
+
+      <!-- B · Carton de pointage -->
+      <figure>
+        <div class="phone b">
+          <div class="screen">
+            <div class="label">Contrôle horaire</div>
+            <div class="card">
+              <div class="head">
+                <span>CARTON DE POINTAGE</span><span>ES 1</span>
+              </div>
+              <div class="line">
+                <span class="label">Spéciale</span
+                ><span class="v" style="color: var(--brand)"
+                  >Col de Turini</span
+                >
+              </div>
+              <div class="line">
+                <span class="label">Distance</span
+                ><span class="v">12,4 km</span>
+              </div>
+              <div class="line">
+                <span class="label">Temps à battre</span
+                ><span class="v">06:42.318</span>
+              </div>
+              <div class="line">
+                <span class="label">Poste</span><span class="v">🖥 ⌨ 🎮</span>
+              </div>
+            </div>
+            <div class="stamp">
+              <div>POINTAGE<span>SUR PC</span>UNIQUEMENT</div>
+            </div>
+            <div style="flex: 1"></div>
+            <button class="btn">↗ Envoyer sur mon ordinateur</button>
+          </div>
+        </div>
+        <figcaption>
+          <b>B · Carton de pointage</b>Le carton qu'on tamponne à chaque
+          contrôle horaire. Il porte déjà le défi de l'ami (spéciale, distance,
+          temps à battre), et le tampon dit où se pointer. C'est la direction
+          qui sert le mieux le partage de l'epic 6.
+        </figcaption>
+      </figure>
+
+      <!-- C · Feux de départ -->
+      <figure>
+        <div class="phone c">
+          <div class="screen">
+            <div class="label">Départ · Col de Turini</div>
+            <div class="gantry">
+              <div class="light on"></div>
+              <div class="light on"></div>
+              <div class="light on"></div>
+              <div class="light on"></div>
+              <div class="light on"></div>
+            </div>
+            <div class="clock">--:--.---</div>
+            <div class="title">Départ donné sur ordinateur</div>
+            <div class="spacer"></div>
+            <svg
+              viewBox="0 0 280 90"
+              width="280"
+              height="90"
+              aria-hidden="true"
+            >
+              <polygon
+                points="0,90 60,40 120,70 180,20 240,60 280,35 280,90"
+                fill="#22304d"
+              />
+              <polygon points="120,90 160,90 146,55 136,55" fill="#2a3346" />
+            </svg>
+            <button class="btn">↗ Envoyer sur mon ordinateur</button>
+          </div>
+        </div>
+        <figcaption>
+          <b>C · Feux de départ</b>Les cinq feux rouges restent allumés et le
+          chrono est figé : la course attend. Reprend les feux et l'afficheur du
+          jeu, donc la page fait déjà partie de l'univers. C'est la plus simple
+          à intégrer.
+        </figcaption>
+      </figure>
+    </div>
+  </body>
+</html>

@@ -173,11 +173,7 @@ export interface StageBridge {
 
 /** Usage d'un bâtiment, pour sa couleur et son toit (epic 5) */
 export type DecorBuildingKind =
-  | "house"
-  | "farm"
-  | "industrial"
-  | "church"
-  | "other";
+  "house" | "farm" | "industrial" | "church" | "other";
 
 /**
  * Typologie déduite des données IGN (story 5.2, labo `decor-lab/buildings`). L'ordre fixe l'empreinte : n'ajouter qu'à la fin.
@@ -439,6 +435,13 @@ export type SceneryKind =
   /** Annonce de chicane, dessin d'un premier virage à gauche ou à droite (voir `chicaneSignKind`) */
   | "chicaneSignLeft"
   | "chicaneSignRight"
+  /**
+   * Panneau de freinage avant un virage serré au bout d'une ligne droite : 3, 2 puis 1 chevrons vers le virage
+   * (voir `brakeBoards.ts`). Dessiné des deux côtés : tourné d'un demi-tour, il pointe à gauche.
+   */
+  | "brakeBoard3"
+  | "brakeBoard2"
+  | "brakeBoard1"
   /** Spectateur : décor seul, sans collider (story 5.5) */
   | "spectator"
   | RallySceneryKind;

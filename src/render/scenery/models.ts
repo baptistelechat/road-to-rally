@@ -63,7 +63,7 @@ const merged = (...parts: BufferGeometry[]): BufferGeometry => {
 /** Objets du décor dessinés depuis `SCENERY_GEOMETRY` ; les annonces de chicane viennent de `CHICANE_GEOMETRY`. */
 export type StaticSceneryKind = Exclude<
   SceneryKind,
-  "chicaneSignLeft" | "chicaneSignRight" | RallySceneryKind
+  "chicaneSignLeft" | "chicaneSignRight" | BrakeBoardKind | RallySceneryKind
 >;
 
 export const SCENERY_GEOMETRY: Record<StaticSceneryKind, BufferGeometry> = {
@@ -393,6 +393,74 @@ export const CHICANE_GEOMETRY = {
   looseSignRight: warningSign(false, 0),
 };
 
+type BrakeBoardKind = "brakeBoard3" | "brakeBoard2" | "brakeBoard1";
+
+const BOARD_YELLOW: Rgb = [0.92, 0.72, 0.1];
+/** Panneau de freinage : largeur, hauteur, hauteur de son centre et épaisseur, en mètres */
+const BOARD_WIDTH = 1.5;
+const BOARD_HEIGHT = 0.62;
+const BOARD_Y = 1.58;
+const BOARD_DEPTH = 0.04;
+/** Chevron pointé vers +x, centré sur l'origine : 0,26 m de large, 0,46 m de haut */
+const BOARD_CHEVRON: Outline = [
+  [-0.13, 0.23],
+  [0.0, 0.23],
+  [0.13, 0],
+  [0.0, -0.23],
+  [-0.13, -0.23],
+  [0.0, 0],
+];
+/** Entraxe des chevrons, en mètres */
+const BOARD_CHEVRON_STEP = 0.36;
+
+/**
+ * Panneau jaune à `count` chevrons noirs sur deux poteaux, origine au pied. Face avant en +z, chevrons vers +x
+ * (la droite du pilote) ; au dos aussi vers +x, soit la gauche vue de derrière : tourné d'un demi-tour, il pointe à gauche.
+ */
+const brakeBoard = (count: number): BufferGeometry => {
+  const face = (back: boolean): BufferGeometry[] =>
+    Array.from({ length: count }, (_, i) => {
+      const x = (i - (count - 1) / 2) * BOARD_CHEVRON_STEP;
+      if (!back)
+        return part(polygon(BOARD_CHEVRON, 1), SIGN_BLACK, x, BOARD_Y).translate(
+          0,
+          0,
+          BOARD_DEPTH / 2 + 0.004,
+        );
+      // Au dos : dessiné pointé vers -x puis retourné, il pointe vers +x, soit la gauche de qui le regarde de derrière.
+      const mirrored: Outline = BOARD_CHEVRON.map(([px, py]) => [-px, py]);
+      return part(polygon(mirrored, 1), SIGN_BLACK, -x, BOARD_Y)
+        .rotateY(Math.PI)
+        .translate(0, 0, -BOARD_DEPTH / 2 - 0.004);
+    });
+  const post = (x: number): BufferGeometry =>
+    part(
+      new BoxGeometry(0.08, BOARD_Y + BOARD_HEIGHT / 2, 0.08),
+      SIGN_POLE,
+      x,
+      (BOARD_Y + BOARD_HEIGHT / 2) / 2,
+      -BOARD_DEPTH / 2 - 0.04,
+    );
+  return merged(
+    part(
+      new BoxGeometry(BOARD_WIDTH, BOARD_HEIGHT, BOARD_DEPTH),
+      BOARD_YELLOW,
+      0,
+      BOARD_Y,
+    ),
+    ...face(false),
+    ...face(true),
+    post(-BOARD_WIDTH / 2 + 0.12),
+    post(BOARD_WIDTH / 2 - 0.12),
+  );
+};
+
+const BRAKE_BOARD_GEOMETRY: Record<BrakeBoardKind, BufferGeometry> = {
+  brakeBoard3: brakeBoard(3),
+  brakeBoard2: brakeBoard(2),
+  brakeBoard1: brakeBoard(1),
+};
+
 export const SCENERY_MATERIAL = new MeshStandardMaterial({
   vertexColors: true,
   flatShading: true,
@@ -403,6 +471,8 @@ export const SCENERY_MATERIAL = new MeshStandardMaterial({
 export const lightPropGeometry = (kind: SceneryKind): BufferGeometry => {
   if (kind === "chicaneSignLeft") return CHICANE_GEOMETRY.looseSignLeft;
   if (kind === "chicaneSignRight") return CHICANE_GEOMETRY.looseSignRight;
+  if (kind === "brakeBoard3" || kind === "brakeBoard2" || kind === "brakeBoard1")
+    return BRAKE_BOARD_GEOMETRY[kind];
   // L'habillage rallye a ses modèles et sa vue (`rallyModels.ts`, `rallyView.tsx`).
   if (isRallyKind(kind)) return CHICANE_GEOMETRY.looseBarrier;
   return SCENERY_GEOMETRY[kind];

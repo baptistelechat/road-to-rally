@@ -104,6 +104,7 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Page `/decor-lab` pour comparer les modèles de bâtiments, de végétation, de public, les ambiances et les ponts
 - Ponts dessinés sous la route, avec garde-corps solides et trottoir : pierre à arches dans les bourgs et sur les petits ouvrages, viaduc dès 12 m de haut, poutres en treillis sur l'eau des petites routes, béton à piles ailleurs
 - Bouton « Régénérer » sur les spéciales générées par une ancienne version du jeu : le tracé se rouvre dans l'éditeur et la génération se lance seule
+- Panneaux de freinage jaunes à 3, 2 puis 1 chevrons, pointés vers le virage, avant chaque virage serré au bout d'une longue ligne droite, sur toutes les spéciales. On peut les renverser
 
 ### Changed
 
@@ -164,6 +165,7 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Boutons biseautés et focus en deux traits clairs, en haut et en bas, partout dans le jeu, le garage et l'éditeur, avec une barre de défilement fine qui s'élargit au survol
 - Notes du copilote redessinées : tuile inclinée et badge hexagonal
 - Mini-carte en rectangle plus large, et HUD de course masqué au menu de départ
+- Road et Mountain refaites avec la génération actuelle : vrais bâtiments, forêts, eau et ponts, et chicanes sur les longues lignes droites de Road. Les records et fantômes de ces deux cartes repartent de zéro
 
 ### Removed
 
@@ -172,6 +174,7 @@ project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- Arbres du bord de route qu'on traversait après une sortie large : ils ont un tronc solide jusqu'à 25 m de la route
 - Dans les options, bas à la manette passe de la mini-carte au compteur au lieu de faire défiler leurs cartes
 - Bavettes qui traversaient la route : elles sont plus courtes et restent au-dessus du sol à l'assiette de repos
 - Caméra du garage qui s'inversait à la manette en passant au-dessus de la voiture : elle se bloque au sommet, comme à la souris

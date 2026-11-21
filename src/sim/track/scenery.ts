@@ -7,7 +7,9 @@ import {
   VINE_HALF_LENGTH,
   VINE_HALF_WIDTH,
 } from "../lightProps";
+import { brakeBoardItems } from "./brakeBoards";
 import { chicaneSignItems } from "./chicaneSigns";
+import { signedCurvature } from "./curvature";
 import { createDecorFootprints } from "./decorFootprints";
 import { raceCourse, splitGates } from "../splits";
 import { isNearBlock } from "./obstacles";
@@ -77,9 +79,10 @@ const BEND_CROWD_SHARE = 0.25;
 
 /**
  * Un arbre réel porte un collider jusqu'à cette distance du bord de route, en mètres. Plus court que
- * `NEAR_SCENERY_DISTANCE` : une forêt fermée en aurait près de 10 000 sur 10 km, ici environ 2 500.
+ * `NEAR_SCENERY_DISTANCE` : une forêt fermée en aurait près de 10 000 sur 10 km, ici environ 4 000.
+ * Passé de 15 à 25 m le 2026-11-21 : au playtest, des arbres de bord de piste se traversaient après une sortie large.
  */
-const DECOR_TREE_COLLIDER_REACH = 15;
+const DECOR_TREE_COLLIDER_REACH = 25;
 /**
  * Au-delà de cette distance au bord de route, un rang de vigne prend la bande économique, en mètres.
  * ponytail: choix figé par la distance à la route (pas à la voiture), `SceneryView` ne change pas de géométrie en course.
@@ -87,7 +90,7 @@ const DECOR_TREE_COLLIDER_REACH = 15;
 const VINE_DETAIL_REACH = 100;
 /**
  * Buissons et rangs de vigne renversables jusqu'à cette distance du bord de route, en mètres. Plus court que les
- * arbres (15 m) : au-delà de 10 m la voiture est déjà en perdition, et la bande de 3 à 10 m garde la haie de bord
+ * arbres (25 m) : au-delà de 10 m la voiture est déjà en perdition, et la bande de 3 à 10 m garde la haie de bord
  * de route entière pour environ deux fois moins de corps qu'à 15 m dans un vignoble.
  */
 const LOOSE_VEGETATION_REACH = 10;
@@ -433,29 +436,7 @@ export const splitArches = (
   }));
 };
 
-/**
- * Courbure signée en chaque point sur une fenêtre de 10 pas : positive quand la route tourne à droite.
- * Par défaut sur tout le tracé, retour d'un aller-retour compris, car le copilote l'annonce aussi.
- */
-export const signedCurvature = (
-  track: Track,
-  points: Track["points"] = track.points,
-): number[] => {
-  const { closed } = track;
-  const n = points.length;
-  const span = 5;
-  return points.map((p, i) => {
-    if (!closed && (i < span || i >= n - span)) return 0;
-    const a = points[(i - span + n) % n];
-    const b = points[(i + span) % n];
-    const ux = p.x - a.x;
-    const uz = p.z - a.z;
-    const vx = b.x - p.x;
-    const vz = b.z - p.z;
-    const angle = Math.atan2(ux * vz - uz * vx, ux * vx + uz * vz);
-    return (2 * angle) / (Math.hypot(ux, uz) + Math.hypot(vx, vz));
-  });
-};
+export { signedCurvature };
 
 /**
  * Décor pseudo-aléatoire le long d'un tracé quelconque.
@@ -768,7 +749,7 @@ export const generateScenery = (track: Track, seed: number): SceneryItem[] => {
   for (const side of [-1, 1]) crowdAt(startIndex, side, groupSize(12, 20), 40);
   // Puis chaque virage à bottes, à l'extérieur et derrière elles : toujours aux épingles, parfois ailleurs.
   // ponytail: un virage qui chevauche l'indice 0 d'un circuit compte pour deux, sans gravité.
-  for (let i = 0; i < n; ) {
+  for (let i = 0; i < n;) {
     if (!isBend(i)) {
       i++;
       continue;
@@ -846,19 +827,39 @@ export const generateScenery = (track: Track, seed: number): SceneryItem[] => {
   const crowdKept = crowd.filter(clearOfBlocks);
   // Habillage rallye tout à la fin, générateur à part : seules les bottes devant le public des épingles cèdent la place.
   const keptCrowd = new Set(crowdKept);
+  // Panneaux de freinage après tout le reste : sans eux, le décor et le monde restent les mêmes au bit près.
+  // Un panneau posé sur un objet léger les ferait exploser au premier pas : il cède la place.
+  const withBoards = (base: SceneryItem[]): SceneryItem[] => {
+    const light = base.filter((item) => isLightProp(item.kind));
+    const boards = brakeBoardItems(track).filter(
+      (board) =>
+        clearOfBlocks(board) &&
+        clearOfDecor(board) &&
+        light.every(
+          (other) =>
+            Math.hypot(
+              other.position.x - board.position.x,
+              other.position.z - board.position.z,
+            ) > HAY_CLEARANCE,
+        ),
+    );
+    return [...base, ...boards];
+  };
   const dress = (base: SceneryItem[]): SceneryItem[] =>
-    rallyDressing({
-      track,
-      seed,
-      items: base,
-      hairpins: hairpinGroups.filter((group) =>
-        group.members.some((member) => keptCrowd.has(member)),
-      ),
-      startS: track.startS + ARCH_S,
-      inBuilding,
-      inWater,
-      clear: clearOfBlocks,
-    });
+    withBoards(
+      rallyDressing({
+        track,
+        seed,
+        items: base,
+        hairpins: hairpinGroups.filter((group) =>
+          group.members.some((member) => keptCrowd.has(member)),
+        ),
+        startS: track.startS + ARCH_S,
+        inBuilding,
+        inWater,
+        clear: clearOfBlocks,
+      }),
+    );
   if (looseClearance.size === 0)
     return dress([...kept, ...signs, ...crowdKept]);
 

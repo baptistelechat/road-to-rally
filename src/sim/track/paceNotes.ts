@@ -1,4 +1,4 @@
-import { signedCurvature } from "./scenery";
+import { signedCurvature } from "./curvature";
 import type { Track } from "../types";
 
 /** Sous ce rayon, la route est en virage, en mètres */

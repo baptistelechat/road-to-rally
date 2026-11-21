@@ -1,0 +1,95 @@
+# 🗺️ Plan — suites de l'audit du 2026-11-21
+
+- **Origine** : [AUDIT-2026-11-21-audit-initial](../audits/AUDIT-2026-11-21-audit-initial.md), propositions PR-1, PR-2, PR-3, PR-4
+- **Statut du plan** : validé le 2026-11-21
+
+Étapes du parcours studio sautées : fonction, raison d'être, cadre visuel, référence, white box, grey box et production ne s'appliquent pas. Ce plan ferme du travail existant, il n'ajoute pas de feature. Le jour où le gravier (étape 8) commencera, il aura son propre plan complet.
+
+## Étapes
+
+| #   | Étape                                           | Persona                          | Livrable                                                                                                 | Critère de fin                                                                                 | Coût si on saute                                                              | PR       | Validation                                                                                    | Fait |
+| --- | ----------------------------------------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | -------- | --------------------------------------------------------------------------------------------- | ---- |
+| 1   | Relire et valider le GDD                        | Game Designer                    | `GDD.md` relu, ❓ tranchés ou laissés ouverts                                                            | Statut du GDD : validé                                                                         | Les audits suivants s'appuieraient sur une référence fausse                   | PR-2     | ✅ validée                                                                                  | [x] |
+| 2   | Playtest de l'epic 4, parcours A à D ci-dessous | QA + 3C, au volant : Baptiste    | Chaque critère coché ✅ ou devenu un `B-n` dans `BUGS.md`                                                | Les 4 parcours faits                                                                           | Des stories 🟡 qui s'empilent, un bug du chrono découvert au milieu du décor  | PR-1     | ✅ validée                                                                                  | [ ]  |
+| 3   | Corriger les bugs bloquants et majeurs trouvés  | dev normal, hors studio          | Un correctif par `B-n`                                                                                   | Chaque `B-n` majeur passe en `corrigé`, puis `vérifié` au retest                               | On fermerait l'epic sur un bug connu                                          | PR-1     | ✅ validée                                                                                  | [ ]  |
+| 4   | Checks automatiques de l'epic 4                 | QA                               | `pnpm lint`, `pnpm build`, puis `pnpm check:determinism`                                                 | Les trois passent                                                                              | Une régression de déterminisme casserait le fantôme et le futur rejeu serveur | PR-1     | ✅ validée — **le check ne se lance qu'avec ton accord**, seul, jamais pendant que tu joues | [ ]  |
+| 5   | Fermer l'epic 4                                 | Game Designer                    | Stories 4.1 à 4.11 cochées, roadmap à ✅                                                                 | Critère de passage : « une spéciale complète se court du départ à l'arrivée, notes à l'heure » | La règle d'or de la roadmap reste cassée                                      | PR-1     | ✅ validée                                                                                  | [ ]  |
+| 6   | Mesurer le critère de l'epic 5 en production    | Tech Artist, tu lances           | Table de la story 5.6 remplie : `pnpm build`, `next start`, village, 10 s à l'arrêt puis 10 s en roulant | 60 FPS mesurés, ou un goulot identifié                                                         | Epic 5 impossible à fermer                                                    | PR-3     | ✅ validée — au moment de fermer l'epic 5, après l'étape 5                                  | [ ]  |
+| 7   | Noter les surfaces futures dans le GDD          | Game Designer                    | GDD § 9 : rien en v0, bas-côtés en gravier, puis surfaces variées                                        | Fait le 2026-11-21                                                                             | —                                                                             | PR-4 (C) | ✅ validée                                                                                  | [x]  |
+| 8   | Bas-côtés en gravier                            | Game Designer → 3C → Sound → VFX | Un plan complet dédié (fiche, adhérence chiffrée, son, poussière, couleur)                               | —                                                                                              | —                                                                             | PR-4 (B) | ⏸️ après la v0                                                                                | [ ]  |
+
+### Ajouts du tour 2 (2026-11-21)
+
+| # | Étape | Persona | Livrable | Critère de fin | Coût si on saute | PR | Validation | Fait |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 9 | Cartes livrées à jour et ouverture de `road` réveillée | Level Designer, dev normal | (A) `scripts/bake-stage.ts` ajoute le décor BD TOPO et les chicanes automatiques, `road` et `mountain` régénérées ; (B) dans le pipeline, pour **toute** génération : 3 panneaux de freinage à 150, 100 et 50 m avant un virage noté 1 à 3 qui suit une ligne droite de plus de 400 m, côté extérieur | `road` montre décor, chicane et panneaux au volant ; une spéciale créée dans l'éditeur aussi | Les cartes de vitrine restent figées à la version 6 du pipeline | PR-6 | ✅ validée, panneaux B · Chevrons rallye (jaune, chevrons noirs vers le virage, 3-2-1, sans chiffres) | [ ] |
+| 10 | Page téléphone « Parc fermé » | Directeur artistique, dev normal | `GameEntry.tsx` : la scène du parc fermé, le nom de la spéciale et le temps à battre lus dans l'URL, un bouton qui partage le lien (partage natif du téléphone) | Un lien de spéciale ouvert sur téléphone montre le défi et s'envoie vers un PC | L'ami qui reçoit le lien sur son téléphone abandonne | PR-7 | ✅ validée | [ ] |
+| 11 | Son du public | Sound Designer, dev normal | Échantillons CC0 (3 à 4 variantes par son) : murmure par groupe, clameur au passage, cris sur choc, cornes et applaudissements au départ et à l'arrivée | Yeux fermés, on entend le public approcher, réagir au passage et au choc ; le déterminisme ne bouge pas | Un public muet casse l'ambiance rallye | PR-8 | ✅ validée | [ ] |
+
+### Ajouts du tour 3 (2026-11-21)
+
+| # | Étape | Persona | Livrable | Critère de fin | Coût si on saute | PR | Validation | Fait |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 12 | Objets au niveau de la route | QA, dev normal | `rallyDressing.ts` (et le public de `scenery.ts`) : aucun objet dont le sol est à plus de ~2,5 m de la route ; la végétation reste libre | B-1 retesté sur `mountain` : plus de public ni de barrière perchés | Le public flotte sur le versant à chaque spéciale de montagne | B-1 | ✅ validée | [ ] |
+| 13 | Arche selon le terrain | DA + Level Designer, dev normal | `archAt` lit le sol sous chaque pied : arche à pieds ajustés par défaut (A), banderole sur deux mâts (C) quand un pied ne trouve pas le sol à moins de ~3 m ; colliders ajustés | B-2 retesté sur `mountain`, secteur 2 ; check de déterminisme sur autorisation (les arches ont des colliders) | Arches dans le talus et dans le vide | PR-10, B-2 | ✅ validée | [ ] |
+
+Ordre conseillé : 9 en entier (A et B ensemble), car B change le pipeline et forcerait sinon à régénérer `road` et `mountain` deux fois. L'étape 10 dépend du format du lien de partage (epic 6) pour le temps à battre : en attendant, elle lit ce que l'URL contient déjà.
+
+## Checklist de playtest de l'epic 4 (étape 2)
+
+Seuls les critères qui demandent tes yeux et tes mains. Les critères `lint`, `build` et `check` sont à l'étape 4. Prévoir environ 10 à 15 min par parcours, clavier **et** manette si possible.
+
+### Parcours A — Départ, arrivée, pénalités, record (stories 4.1, 4.3, 4.4) · carte `road`
+
+- [ ] Le décompte se lit d'un coup d'œil et ne cache pas la route.
+- [ ] Gaz à fond pendant le décompte : la voiture ne bouge pas, puis part franchement au GO.
+- [ ] Les feux se voient depuis la grille, et les bips tombent avec eux.
+- [ ] Relancer depuis la pause ou depuis le résultat relance le décompte.
+- [ ] L'écran de résultat se pilote à la souris, au clavier et à la manette.
+- [ ] Une remise en piste ajoute 5 s, visibles sur le chrono et sur le résultat.
+- [ ] Rester bloqué puis demander la remise reste préférable à insister dans le décor.
+- [ ] Aucune pénalité pendant le décompte ni après l'arrivée.
+- [ ] Un temps plus lent n'écrit rien.
+- [ ] Deux spéciales de l'éditeur gardent chacune leur record ; une spéciale modifiée repart sans record.
+- [ ] L'ancien record du circuit s'affiche toujours.
+- [ ] En navigation privée, le jeu tourne et le record vit le temps de la session.
+- [ ] Le circuit roule exactement comme avant (pas de décompte).
+
+### Parcours B — Intermédiaires et fantôme (stories 4.2, 4.5) · carte `mountain`, deux courses de suite
+
+- [ ] 3 intermédiaires, chacun annoncé une seule fois.
+- [ ] Le premier essai affiche les temps de passage sans écart ; les suivants affichent l'écart.
+- [ ] L'écart reste lisible sans masquer les icônes de virage.
+- [ ] La frise colore chaque secteur fini en vert ou en rouge.
+- [ ] Les intermédiaires se voient sur la mini-carte (essayer les 4 styles).
+- [ ] Une remise en piste en arrière ne réannonce pas un intermédiaire déjà franchi.
+- [ ] Sur un aller-retour, un intermédiaire de l'aller n'est pas validé au retour.
+- [ ] Après un record, la course suivante montre le fantôme dès le GO.
+- [ ] Une remise en piste du fantôme le fait sauter, sans traverser le décor.
+- [ ] Aucune baisse de fluidité sensible avec le fantôme affiché.
+
+### Parcours C — Copilote (stories 4.6, 4.7, 4.8, 4.9, 4.11) · cartes `mountain` puis `track`
+
+- [ ] À allure de course, on a le temps d'entendre la note avant le virage.
+- [ ] Sur `track`, l'épingle est annoncée « 1 » ; la crête, la bosse et le virage qui se resserre sont reconnus.
+- [ ] Les mots s'enchaînent sans trou gênant, au même volume.
+- [ ] `M` coupe aussitôt la voix, une seconde pression la rétablit.
+- [ ] Une phrase coupée par la pause est redite à la reprise ; relancer coupe la phrase en cours.
+- [ ] Après une remise en piste, l'annonce suivante est celle du prochain virage ; aucune annonce n'est dite deux fois.
+- [ ] Rien n'est annoncé dans les menus ni après l'arrivée.
+- [ ] Les icônes se comprennent sans texte et se lisent d'un coup d'œil ; dans une enfilade, elles sont dans l'ordre de la route.
+- [ ] Les icônes restent lisibles sur tous les décors et toutes les ambiances.
+- [ ] Les options fonctionnent souris, clavier et manette, et survivent à un rechargement.
+- [ ] Tout couper donne une course sans voix ni icône, sans erreur.
+- [ ] Changer la vitesse de diction change aussi le moment de l'annonce.
+
+### Parcours D — Mini-carte (story 4.10) · `track`, `road`, `mountain`, puis une spéciale de 15 km
+
+- [ ] La forme du tracé se reconnaît.
+- [ ] Le marqueur suit la voiture sans saccade et se recale après une remise en piste.
+- [ ] La mini-carte ne cache ni le chrono, ni les icônes, ni la route.
+- [ ] Une spéciale de 15 km reste lisible et fluide.
+
+## À noter
+
+La story 4.5 a encore la case « Brancher dans `useGameLoop.ts`, `Game.tsx` et les options » non cochée, alors que le fantôme y est branché (`GhostCar`, `ghostOutlet`). Elle a l'air faite : à cocher dans la story.

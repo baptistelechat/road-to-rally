@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PR-10 · Arche sur route étroite</title>
+    <!-- Support de discussion jetable du studio, jamais importé dans le jeu. -->
+    <style>
+      :root {
+        --bg: #0b1018;
+        --card: #121a26;
+        --fg: #e9edf3;
+        --muted: #93a0b4;
+        --brand: #ffd23f;
+        --border: #202c3f;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+      }
+      body {
+        background: var(--bg);
+        color: var(--fg);
+        font-family: system-ui, sans-serif;
+        padding: 28px 16px 48px;
+      }
+      .wrap {
+        max-width: 1180px;
+        margin: 0 auto;
+      }
+      h1 {
+        font-size: 20px;
+      }
+      h2 {
+        font-size: 14px;
+        margin: 30px 0 12px;
+        color: var(--brand);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+      p.lead {
+        color: var(--muted);
+        margin-top: 8px;
+        font-size: 14px;
+        line-height: 1.55;
+        max-width: 860px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+        gap: 20px;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 16px;
+      }
+      .card h3 {
+        font-size: 15px;
+        margin-bottom: 4px;
+      }
+      .card .tag {
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 10px;
+      }
+      .card ul {
+        margin: 12px 0 0 18px;
+        font-size: 13px;
+        line-height: 1.55;
+        color: var(--muted);
+      }
+      .card ul b {
+        color: var(--fg);
+      }
+      .reco {
+        outline: 2px solid var(--brand);
+      }
+      .reco h3::after {
+        content: "  👉 recommandé";
+        color: var(--brand);
+        font-size: 12px;
+      }
+      svg {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>PR-10 · L'arche quand la route est étroite</h1>
+      <p class="lead">
+        Aujourd'hui l'arche est posée à la hauteur de la route, pieds à 1,5 m du
+        bord, sans regarder le terrain : sur une route de montagne, un pied
+        s'enfonce dans le talus et l'autre flotte au-dessus du ravin (capture du
+        secteur 2 sur <code>mountain</code>). On garde l'arche partout où elle
+        tient, et on prévoit une alternative. Vues en coupe, face au pilote :
+        talus à gauche, ravin à droite.
+      </p>
+
+      <h2>Le problème aujourd'hui</h2>
+      <div class="card" style="max-width: 560px">
+        <svg viewBox="0 0 340 200">
+          <rect width="340" height="200" fill="#cfdbe6" />
+          <polygon points="0,40 110,150 230,150 340,200 0,200" fill="#7a9a55" />
+          <polygon points="230,150 340,200 340,200 230,200" fill="#5d7a40" />
+          <rect x="110" y="146" width="120" height="8" fill="#3a4152" />
+          <path
+            d="M86 150 L86 72 Q170 30 254 72 L254 150"
+            fill="none"
+            stroke="#c99a1a"
+            stroke-width="10"
+          />
+          <rect x="140" y="44" width="60" height="16" fill="#111" />
+          <circle
+            cx="86"
+            cy="118"
+            r="14"
+            fill="none"
+            stroke="#ff6b5e"
+            stroke-width="3"
+          />
+          <circle
+            cx="254"
+            cy="160"
+            r="14"
+            fill="none"
+            stroke="#ff6b5e"
+            stroke-width="3"
+          />
+          <text x="20" y="190" fill="#7a1a10" font-size="12">
+            pied dans le talus
+          </text>
+          <text x="230" y="190" fill="#7a1a10" font-size="12">
+            pied dans le vide
+          </text>
+        </svg>
+      </div>
+
+      <h2>Trois réponses</h2>
+      <div class="grid">
+        <div class="card reco">
+          <h3>A · Arche à pieds ajustés</h3>
+          <div class="tag">
+            Même arche, chaque pied descend ou se raccourcit jusqu'au sol, socle
+            lesté
+          </div>
+          <svg viewBox="0 0 340 200">
+            <rect width="340" height="200" fill="#cfdbe6" />
+            <polygon
+              points="0,40 110,150 230,150 300,175 340,200 0,200"
+              fill="#7a9a55"
+            />
+            <rect x="110" y="146" width="120" height="8" fill="#3a4152" />
+            <path
+              d="M92 132 L92 72 Q170 30 248 72 L248 166"
+              fill="none"
+              stroke="#c99a1a"
+              stroke-width="10"
+            />
+            <rect x="82" y="128" width="20" height="8" fill="#222" />
+            <rect x="238" y="164" width="20" height="8" fill="#222" />
+            <rect x="140" y="44" width="60" height="16" fill="#111" />
+          </svg>
+          <ul>
+            <li>
+              <b>Quand :</b> chaque pied trouve le sol à moins de ~3 m au-dessus
+              ou en dessous de la route.
+            </li>
+            <li>
+              <b>Lecture :</b> la silhouette de l'arche reste la même partout,
+              le joueur la reconnaît.
+            </li>
+            <li>
+              <b>Coût :</b> S, une hauteur de pied par côté, collider ajusté de
+              même.
+            </li>
+          </ul>
+        </div>
+
+        <div class="card reco">
+          <h3>B · Potence</h3>
+          <div class="tag">
+            Un seul mât côté talus, un bras au-dessus de la route avec le
+            panneau du secteur
+          </div>
+          <svg viewBox="0 0 340 200">
+            <rect width="340" height="200" fill="#cfdbe6" />
+            <polygon
+              points="0,40 110,150 230,150 340,200 0,200"
+              fill="#7a9a55"
+            />
+            <polygon points="230,150 340,200 230,200" fill="#5d7a40" />
+            <rect x="110" y="146" width="120" height="8" fill="#3a4152" />
+            <rect x="94" y="40" width="10" height="94" fill="#c99a1a" />
+            <rect x="94" y="40" width="130" height="9" fill="#c99a1a" />
+            <line
+              x1="104"
+              y1="70"
+              x2="150"
+              y2="49"
+              stroke="#c99a1a"
+              stroke-width="5"
+            />
+            <rect x="140" y="49" width="70" height="18" fill="#111" />
+            <text
+              x="175"
+              y="62"
+              text-anchor="middle"
+              fill="#ffd23f"
+              font-size="10"
+              font-family="Arial Black,sans-serif"
+            >
+              SECTEUR 2
+            </text>
+            <rect x="84" y="130" width="30" height="8" fill="#222" />
+          </svg>
+          <ul>
+            <li>
+              <b>Quand :</b> un côté n'a pas de sol (ravin, eau, mur) : la
+              potence se pose de l'autre côté.
+            </li>
+            <li>
+              <b>Lecture :</b> même jaune, même panneau noir : on comprend que
+              c'est la même porte.
+            </li>
+            <li>
+              <b>Coût :</b> M, un nouveau modèle et son collider (le mât seul).
+            </li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>C · Banderole sur deux mâts</h3>
+          <div class="tag">
+            Pas d'arche : deux mâts fins au ras du bas-côté, banderole tendue
+          </div>
+          <svg viewBox="0 0 340 200">
+            <rect width="340" height="200" fill="#cfdbe6" />
+            <polygon
+              points="0,40 110,150 230,150 340,200 0,200"
+              fill="#7a9a55"
+            />
+            <polygon points="230,150 340,200 230,200" fill="#5d7a40" />
+            <rect x="110" y="146" width="120" height="8" fill="#3a4152" />
+            <rect x="104" y="56" width="5" height="90" fill="#93a0b4" />
+            <rect x="231" y="56" width="5" height="96" fill="#93a0b4" />
+            <path
+              d="M109 60 Q170 72 231 60 L231 80 Q170 92 109 80 Z"
+              fill="#111"
+            />
+            <text
+              x="170"
+              y="80"
+              text-anchor="middle"
+              fill="#ffd23f"
+              font-size="10"
+              font-family="Arial Black,sans-serif"
+            >
+              SECTEUR 2
+            </text>
+          </svg>
+          <ul>
+            <li><b>Quand :</b> partout où l'arche ne tient pas.</li>
+            <li>
+              <b>Lecture :</b> plus discrète, le passage du secteur se repère
+              moins bien.
+            </li>
+            <li><b>Coût :</b> S, la banderole existe déjà dans l'habillage.</li>
+          </ul>
+        </div>
+      </div>
+      <p class="lead" style="margin-top: 20px">
+        Proposition : <b>A par défaut</b>,
+        <b>B quand un pied ne trouve pas de sol à moins de ~3 m</b>. Les deux
+        gardent le jaune et le panneau noir : la porte du secteur se lit pareil
+        partout.
+      </p>
+    </div>
+  </body>
+</html>

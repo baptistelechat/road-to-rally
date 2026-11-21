@@ -14,6 +14,11 @@ const SIGN_HALF_HEIGHT = 1.2;
 const SIGN_HALF_WIDTH = 0.08;
 /** Mât du panneau d'annonce de chicane, jusqu'au haut du panneau */
 const CHICANE_SIGN_HALF_HEIGHT = 1.4;
+/** Panneau de freinage (`brakeBoards.ts`) : 1,5 m de large, haut du panneau à 1,9 m */
+const BRAKE_BOARD_MASS = 20;
+const BRAKE_BOARD_HALF_WIDTH = 0.78;
+const BRAKE_BOARD_HALF_HEIGHT = 0.95;
+const BRAKE_BOARD_HALF_DEPTH = 0.06;
 /** Amortissement des objets légers d'origine : inchangé, le monde sans décor reste le même au bit près */
 const PROP_LINEAR_DAMPING = 0.25;
 const PROP_ANGULAR_DAMPING = 0.6;
@@ -59,6 +64,9 @@ export const isHay = (kind: SceneryKind): boolean =>
 export const isChicaneSign = (kind: SceneryKind): boolean =>
   kind === "chicaneSignLeft" || kind === "chicaneSignRight";
 
+export const isBrakeBoard = (kind: SceneryKind): boolean =>
+  kind === "brakeBoard3" || kind === "brakeBoard2" || kind === "brakeBoard1";
+
 /** Buisson ou rang de vigne renversable : placé en fin de décor par `generateScenery`, donc créé après les autres. */
 export const isLooseVegetation = (kind: SceneryKind): boolean =>
   kind === "bushProp" || kind === "vineRowProp";
@@ -95,6 +103,7 @@ export const isLightProp = (kind: SceneryKind): boolean =>
   kind === "post" ||
   kind === "sign" ||
   isChicaneSign(kind) ||
+  isBrakeBoard(kind) ||
   isLooseVegetation(kind);
 
 const CENTER_HEIGHT: Partial<Record<SceneryKind, number>> = {
@@ -103,6 +112,9 @@ const CENTER_HEIGHT: Partial<Record<SceneryKind, number>> = {
   sign: SIGN_HALF_HEIGHT,
   chicaneSignLeft: CHICANE_SIGN_HALF_HEIGHT,
   chicaneSignRight: CHICANE_SIGN_HALF_HEIGHT,
+  brakeBoard3: BRAKE_BOARD_HALF_HEIGHT,
+  brakeBoard2: BRAKE_BOARD_HALF_HEIGHT,
+  brakeBoard1: BRAKE_BOARD_HALF_HEIGHT,
   bushProp: BUSH_HALF_HEIGHT,
   vineRowProp: VINE_HALF_HEIGHT,
 };
@@ -190,6 +202,12 @@ const colliderFor = (item: SceneryItem): RAPIER_TYPES.ColliderDesc => {
       .setRotation({ x: 0, y: 0, z: quarterTurn, w: quarterTurn })
       .setMass(HAY_MASS);
   }
+  if (isBrakeBoard(item.kind))
+    return RAPIER.ColliderDesc.cuboid(
+      BRAKE_BOARD_HALF_WIDTH * item.scale,
+      BRAKE_BOARD_HALF_HEIGHT * item.scale,
+      BRAKE_BOARD_HALF_DEPTH * item.scale,
+    ).setMass(BRAKE_BOARD_MASS);
   if (isChicaneSign(item.kind))
     return RAPIER.ColliderDesc.cuboid(
       SIGN_HALF_WIDTH * item.scale,
