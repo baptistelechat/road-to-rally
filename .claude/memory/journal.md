@@ -451,3 +451,15 @@ Le message « données OSM indisponibles » venait d'Overpass saturé (26 s pour
 - [BDR-261121_1601-2](decisions/BDR-261121_1601-2.md) — Ponts dessinés : règle mixte de style et terrain libre dessous
 - [LRN-261121_1601-7](learnings/LRN-261121_1601-7.md) — Un check qui échoue tôt masque tous les suivants
 - [BLK-261121_1601-8](blockers/BLK-261121_1601-8.md) — Calcul de l'eau : 58 s sur 75 s de génération
+
+---
+
+Premier audit `/game-studio` de Road to Rally, avec le jeu observé en mode dev : 20 à 40 FPS dans le panneau navigateur, ~100 appels de dessin, 153 km/h au bout de la ligne droite de `road`. Le studio est créé dans `docs/gamedev/` (journal, audit, GDD, registre des bugs, plan, visuels). Décisions : fermer l'epic 4 par un playtest avant tout nouveau code ; GDD écrit puis validé ; mesure FPS en production reportée à la fermeture de l'epic 5 ; surfaces de rallye après la v0 (bas-côtés en gravier d'abord) ; aide aux commandes inchangée, l'option existe déjà ; ambiance `afternoon` verrouillée ; téléphone bloqué avec une future page « Parc fermé » ; son du public en échantillons CC0 ; ressenti de Baptiste : vitesse « juste », ouverture de `road` ennuyeuse.
+
+Dev de l'étape 9 : panneaux de freinage jaunes à chevrons 3-2-1 calculés par la simulation, `bake-stage.ts` qui ajoute décor IGN et chicanes automatiques, puis `road` (4 chicanes) et `mountain` régénérées en version 21 après un premier échec (« l'axe a changé », résolu par `--refresh`). Au volant, Baptiste relève sur `mountain` du public et des barrières perchés sur le versant (B-1) et une arche de secteur dans le talus et dans le vide (B-2) : correctifs validés, pas codés (objets à moins de ~2,5 m de la hauteur de la route ; arche à pieds ajustés, banderole sur route étroite). Arbres réels avec collider jusqu'à 25 m du bord au lieu de 15 (B-3). Lint, build et react-doctor (100/100) passent, commit `98fb044` poussé ; `check:determinism` non lancé, à faire sur autorisation.
+
+**Entrées clés :**
+
+- [BDR-261121_1824-1](decisions/BDR-261121_1824-1.md) — Panneaux de freinage calculés par la simulation
+- [BDR-261121_1824-2](decisions/BDR-261121_1824-2.md) — Studio de jeu : docs/gamedev et GDD de référence
+- [LRN-20261102162710-3](learnings/LRN-20261102162710-3.md) — Changer PIPELINE_VERSION impose pnpm bake:stages (enrichi)

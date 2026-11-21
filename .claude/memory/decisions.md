@@ -40,6 +40,8 @@ register: decisions
 | [BDR-261121_1601-1](decisions/BDR-261121_1601-1.md) | 2026-11-21 | Routes et ponts tirés de la BD TOPO, Overpass en secours | #ign #bd-topo #wfs #overpass #osm #pipeline #ponts | actif |
 | [BDR-261121_1601-2](decisions/BDR-261121_1601-2.md) | 2026-11-21 | Ponts dessinés : règle mixte de style et terrain libre dessous | #ponts #bridges #terrain #rendu #rapier #colliders #decor-lab | actif |
 | [BDR-261121_1601-3](decisions/BDR-261121_1601-3.md) | 2026-11-21 | Chicane : distance au départ pour garder son passage | #chicanes #editor #pipeline #aller-retour #nearest-index #cache | actif |
+| [BDR-261121_1824-1](decisions/BDR-261121_1824-1.md) | 2026-11-21 | Panneaux de freinage calculés par la simulation | #panneaux #freinage #chicanes #pace-notes #light-props #determinisme #scenery | actif |
+| [BDR-261121_1824-2](decisions/BDR-261121_1824-2.md) | 2026-11-21 | Studio de jeu : docs/gamedev et GDD de référence | #game-studio #gdd #audit #roadmap #playtest #bugs #docs | actif |
 | [BDR-20261101115222-1](decisions/BDR-20261101115222-1.md) | 2026-11-01 | L'IGN est la seule source d'altitude en jeu | #ign #brouter #srtm #relief #altitude #epic-2 | actif |
 | [BDR-20261101115222-2](decisions/BDR-20261101115222-2.md) | 2026-11-01 | Circuit conservé et trois cartes de test | #sandbox #cartes #url #selecteur #localstorage #epic-2 | actif |
 | [BDR-20261101115222-3](decisions/BDR-20261101115222-3.md) | 2026-11-01 | Les tracés qui se croisent sont refusés en v0 | #ribbon #nearest #croisement #maillage #scope #epic-2 | actif |
