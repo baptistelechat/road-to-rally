@@ -19,3 +19,7 @@ register: archive-blockers
 | [ZBLK-20261103202354-5](blockers/ZBLK-20261103202354-5.md) | 2026-11-03 | Modèles Kokoro absents : « long » non régénéré | #voix #kokoro #copilote #audio #wav #installation | résolu le 2026-11-05 |
 | [ZBLK-261104_1546-5](blockers/ZBLK-261104_1546-5.md) | 2026-11-04 | Deux chaussées : alerte persistante sur le tracé du Mans | #aller-retour #osm #validation #editor #dual-carriageway | résolu le 2026-11-04 |
 | [ZBLK-261105_2313-5](blockers/ZBLK-261105_2313-5.md) | 2026-11-05 | `development` en retard sur la prod epic 4, HUD en conflit | #git #branches #hud #merge-conflict | résolu le 2026-11-14 |
+| [ZBLK-20261103211811-5](blockers/ZBLK-20261103211811-5.md) | 2026-11-03 | Défauts relevés à la passe navigateur de l'epic 3 | #epic-3 #editor #verification #performance #layout #chicanes | résolu le 2026-11-21 |
+| [ZBLK-20261102122033-11](blockers/ZBLK-20261102122033-11.md) | 2026-11-02 | Worker MapLibre chargé depuis unpkg par mapcn | #mapcn #maplibre #unpkg #securite #worker #supply-chain | résolu le 2026-11-21 |
+| [ZBLK-261115_2236-5](blockers/ZBLK-261115_2236-5.md) | 2026-11-15 | Overpass et ses deux miroirs ne répondent pas | #overpass #osm #miroirs #reseau #ponts #diagnostic | résolu le 2026-11-21 |
+| [ZBLK-261115_2236-6](blockers/ZBLK-261115_2236-6.md) | 2026-11-15 | Ponts : la route est remplacée par une surface plate | #ponts #eau #terrain #story-5-9 #collider #rendu | résolu le 2026-11-21 |

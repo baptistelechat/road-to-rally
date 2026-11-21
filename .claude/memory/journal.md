@@ -162,7 +162,7 @@ Cadrage puis développement de l'epic 3, l'éditeur de spéciales. Baptiste a de
 - [BDR-20261102122033-1](decisions/BDR-20261102122033-1.md) — Aller-retour autorisé, sans plateforme
 - [BDR-20261102122033-2](decisions/BDR-20261102122033-2.md) — Lignes à 250 m des bouts du tracé dessiné
 - [BDR-20261102122033-4](decisions/BDR-20261102122033-4.md) — Chicane en barrière de rubalise
-- [BLK-20261102122033-11](blockers/BLK-20261102122033-11.md) — Worker MapLibre chargé depuis unpkg
+- [ZBLK-20261102122033-11](archive/blockers/ZBLK-20261102122033-11.md) — Worker MapLibre chargé depuis unpkg
 
 ---
 
@@ -251,7 +251,7 @@ Point d'avancement de l'epic 3, puis nettoyage des warnings du terminal de dev. 
 **Entrées clés :**
 
 - [BDR-20261103211811-1](decisions/BDR-20261103211811-1.md) — Epic 3 validé sans son critère de passage
-- [BLK-20261103211811-5](blockers/BLK-20261103211811-5.md) — Défauts relevés à la passe navigateur de l'epic 3
+- [ZBLK-20261103211811-5](archive/blockers/ZBLK-20261103211811-5.md) — Défauts relevés à la passe navigateur de l'epic 3
 
 ---
 
@@ -428,7 +428,7 @@ Epic 5 (décor) de bout en bout. Stories 5.1 à 5.8 rédigées, contrat partagé
 
 - [BDR-261115_2236-1](decisions/BDR-261115_2236-1.md) — Décor réel tiré de la Géoplateforme IGN, sans Overpass
 - [LRN-261115_2236-4](learnings/LRN-261115_2236-4.md) — Les surfaces d'eau BD TOPO couvrent toute la vallée
-- [BLK-261115_2236-6](blockers/BLK-261115_2236-6.md) — Ponts : la route est remplacée par une surface plate
+- [ZBLK-261115_2236-6](archive/blockers/ZBLK-261115_2236-6.md) — Ponts : la route est remplacée par une surface plate
 
 ---
 
@@ -436,5 +436,18 @@ Session dédiée au bug des ponts (story 5.9). Lecture du terrain sous les ponts
 
 **Entrées clés :**
 
-- [BLK-261115_2236-6](blockers/BLK-261115_2236-6.md) — Ponts : la route est remplacée par une surface plate
+- [ZBLK-261115_2236-6](archive/blockers/ZBLK-261115_2236-6.md) — Ponts : la route est remplacée par une surface plate
 - [LRN-261115_2244-1](learnings/LRN-261115_2244-1.md) — Banc synthétique hors navigateur pour le pipeline géo
+
+## 2026-11-21
+
+Longue session de corrections puis d'ajout des ponts. État des lieux en ouverture (epics 1 à 3 validés, 4 et 5 au volant), puis correction des défauts laissés à l'epic 3 : sélecteur de fond en icônes sous 1024 px, plus de géocodage inverse pour un tracé déjà nommé (le nom retenu est enregistré au premier « Rouler »), et chicane qui sautait sur l'autre passage d'une route parcourue deux fois, corrigée par une distance au départ portée jusqu'au pipeline. Mise à jour de Next.js en 16.4.6 (faille signalée par le build), de hono, worker MapLibre servi depuis `public/vendor/`, exception ESLint documentée sur `window.location.assign`. Le check `stage` (lancé avec l'accord de Baptiste) échouait sur un glissement de 0,9 mm : ce n'était pas une régression (même valeur sur le code d'avant, vérifié par `git stash`), mais un test resté sur l'ancien départ depuis le décompte, qui masquait toutes les vérifications suivantes ; une fois réaligné, `stage` passe en entier. Le gel de 1,1 s au chargement n'a pas de point chaud (piste, décor, colliders à parts égales) : chargement découpé en trois étapes avec un rendu entre chacune.
+
+Le message « données OSM indisponibles » venait d'Overpass saturé (26 s pour une requête minuscule, miroirs muets) : routes, ponts et tunnels sont maintenant tirés de la BD TOPO de l'IGN, Overpass en secours. Les ponts de l'IGN ont aussitôt montré que le jeu n'en dessinait aucun (route qui flotte à Clisson, plateau de remblai sous le viaduc). Quatre styles proposés au labo `/decor-lab`, règle mixte choisie avec Baptiste puis corrigée quand il a précisé que les deux ponts de Clisson sont en pierre (indice `urbain` de la BD TOPO). Intégration : style par pont dans le pipeline, terrain libre sous l'ouvrage, rendu, garde-corps solides, `PIPELINE_VERSION` 21. Allers-retours au volant : murs posés à côté de la route (bas-côté resté en herbe, recouvert d'un trottoir), arches trouées au-dessus des piles, bouts de murs ouverts, voiture qui entrait dans le parapet puis accrochait en le longeant (blocs droits remplacés par une paroi trimesh continue, puis rapprochée de 15 cm). Ajouts annexes : bouton ↻ « Régénérer » sur les spéciales anciennes (style B choisi sur maquette) qui rouvre le tracé et roule seul, onglet « Chicanes (retirées) » après que Baptiste a cru à un bug (interrupteur coupé à la main sur Clisson), règle des chicanes rappelée. Signalé à part : le calcul de l'eau prend 58 s sur 75 s à Clisson. React-doctor sans problème, build passé, commit `21c697c` poussé sur `main`.
+
+**Entrées clés :**
+
+- [BDR-261121_1601-1](decisions/BDR-261121_1601-1.md) — Routes et ponts tirés de la BD TOPO, Overpass en secours
+- [BDR-261121_1601-2](decisions/BDR-261121_1601-2.md) — Ponts dessinés : règle mixte de style et terrain libre dessous
+- [LRN-261121_1601-7](learnings/LRN-261121_1601-7.md) — Un check qui échoue tôt masque tous les suivants
+- [BLK-261121_1601-8](blockers/BLK-261121_1601-8.md) — Calcul de l'eau : 58 s sur 75 s de génération
