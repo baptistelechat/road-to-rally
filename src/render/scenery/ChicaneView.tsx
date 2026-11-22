@@ -17,14 +17,27 @@ import type {
   ChicaneSide,
   MedianBarrier,
   RoundaboutIsland,
+  StageDecor,
   Track,
+  Vec3,
 } from "@/sim/types";
+import {
+  emptyPlanting,
+  groundPlane,
+  hasPlanting,
+  ISLAND_SINK,
+  islandSetting,
+  plantIsland,
+} from "./islandCenter";
 import {
   CHICANE_BARRIER_MODULE,
   CHICANE_CHEVRON_MODULE,
   CHICANE_GEOMETRY,
   CHICANE_STACK_MODULE,
+  ISLAND_FLOWERS_GEOMETRY,
   ISLAND_GRAVEL_GEOMETRY,
+  ISLAND_LAWN_GEOMETRY,
+  ISLAND_MOUND_GEOMETRY,
   ISLAND_PLANTER_GEOMETRY,
   SCENERY_GEOMETRY,
   SCENERY_MATERIAL,
@@ -184,26 +197,47 @@ export const ChicaneView = ({
 export const IslandBarriers = ({
   islands,
   groundAt,
+  decor,
+  points,
 }: {
   islands: RoundaboutIsland[];
   groundAt: Track["groundAt"];
+  /** Bâtiments réels, pour reconnaître un rond-point de ville */
+  decor?: StageDecor;
+  /** Axe de la route, pour reconnaître un rond-point de montagne au relief */
+  points: Vec3[];
 }) => {
   // Cœur solide de chaque îlot, à la taille de son collider : jardinière ou rochers, ce qui ne se renverse pas en a l'air.
   const cores = useMemo(() => {
-    const planters: Matrix4[] = [];
+    // Grands îlots : massif selon le milieu (PR-20). Les autres gardent leur cœur de jardinière ou de rochers (PR-16).
+    const planting = emptyPlanting();
+    const { planters, stones } = planting;
     const gravels: Matrix4[] = [];
     const shrubs: Matrix4[] = [];
-    const stones: Matrix4[] = [];
-    const flat = new Quaternion();
     const turn = new Quaternion();
     for (const island of islands) {
       if (isRock(island.radius)) continue;
+      if (hasPlanting(island)) {
+        plantIsland(
+          island,
+          islandSetting(island, decor, points),
+          groundAt,
+          planting,
+        );
+        continue;
+      }
       const core = islandCoreRadius(island);
       const { x, z } = island.position;
-      const y = groundAt(x, z) ?? island.position.y;
+      const { y, tilt, normal } = groundPlane(
+        groundAt,
+        x,
+        z,
+        core,
+        island.position.y,
+      );
       const disc = new Matrix4().compose(
-        new Vector3(x, y, z),
-        flat,
+        new Vector3(x, y - ISLAND_SINK, z),
+        tilt,
         new Vector3(core, 1, core),
       );
       // Tirage stable d'un chargement à l'autre : la parité des décimètres du centre.
@@ -212,8 +246,8 @@ export const IslandBarriers = ({
         const size = Math.min(core * 0.5, 2);
         shrubs.push(
           new Matrix4().compose(
-            new Vector3(x, y + 0.7, z),
-            flat,
+            new Vector3(x, y, z).addScaledVector(normal, 0.7 - ISLAND_SINK),
+            tilt,
             new Vector3(size, size, size),
           ),
         );
@@ -245,8 +279,8 @@ export const IslandBarriers = ({
         );
       }
     }
-    return { planters, gravels, shrubs, stones };
-  }, [islands, groundAt]);
+    return { ...planting, gravels, shrubs };
+  }, [islands, groundAt, decor, points]);
   // Un giratoire trop petit pour une barrière : un rocher à la taille de son collider.
   const rocks = useMemo(
     () =>
@@ -272,6 +306,20 @@ export const IslandBarriers = ({
       <Batch geometry={SCENERY_GEOMETRY.bush} matrices={cores.shrubs} />
       <Batch geometry={ISLAND_GRAVEL_GEOMETRY} matrices={cores.gravels} />
       <Batch geometry={SCENERY_GEOMETRY.rock} matrices={cores.stones} />
+      <Batch geometry={ISLAND_LAWN_GEOMETRY} matrices={cores.lawns} />
+      <Batch geometry={ISLAND_MOUND_GEOMETRY} matrices={cores.mounds} />
+      <Batch
+        geometry={ISLAND_FLOWERS_GEOMETRY[0]}
+        matrices={cores.flowersPink}
+      />
+      <Batch
+        geometry={ISLAND_FLOWERS_GEOMETRY[1]}
+        matrices={cores.flowersYellow}
+      />
+      <Batch geometry={SCENERY_GEOMETRY.bush} matrices={cores.bushes} />
+      <Batch geometry={SCENERY_GEOMETRY.tree} matrices={cores.oaks} />
+      <Batch geometry={SCENERY_GEOMETRY.birch} matrices={cores.birches} />
+      <Batch geometry={SCENERY_GEOMETRY.pine} matrices={cores.pines} />
     </>
   );
 };

@@ -9,6 +9,8 @@ import { IGN_NO_DATA } from "./config";
 import { StageError } from "./errors";
 import { unproject } from "./gpx";
 import { fetchAltitudes } from "./ign";
+import { fetchIgnWays } from "./ignRoads";
+import { deduceRoadAttributes } from "./osm";
 import { buildPreviewProfile, previewSampleIndices } from "./previewProfile";
 
 /** `lib.dom` et `lib.webworker` ne cohabitent pas : seul le nécessaire est décrit. */
@@ -33,16 +35,29 @@ const buildResponse = async (
     };
   }
 
-  const { axis, origin, runoffPoints } = request;
+  const { trace } = request;
+  const { points: axis, origin, runoffPoints } = trace;
   const indices = previewSampleIndices(axis.length);
-  const altitudes = await fetchAltitudes(
-    indices.map((i) => unproject(axis[i], origin)),
-    {},
-  );
+  // Ponts et tunnels lus comme le pipeline (B-13) : sans la BD TOPO, le profil plongeait sous chaque pont.
+  // Une panne de la Géoplateforme n'empêche pas le profil : il suit alors le relief, comme avant.
+  const [altitudes, ways] = await Promise.all([
+    fetchAltitudes(
+      indices.map((i) => unproject(axis[i], origin)),
+      {},
+    ),
+    fetchIgnWays(trace, {}).catch(() => null),
+  ]);
+  const attributes = ways ? deduceRoadAttributes(trace, ways) : null;
   try {
     return {
       kind: "profile",
-      profile: buildPreviewProfile(altitudes, axis.length, runoffPoints),
+      profile: buildPreviewProfile(
+        altitudes,
+        axis.length,
+        runoffPoints,
+        attributes?.structures,
+        attributes?.bridgeTags.map((tags) => tags !== null),
+      ),
     };
   } catch (error) {
     if (error instanceof StageError && error.code === "outOfFrance")

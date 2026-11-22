@@ -107,6 +107,8 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Panneaux de freinage jaunes à 3, 2 puis 1 chevrons, pointés vers le virage, avant chaque virage serré au bout d'une longue ligne droite, sur toutes les spéciales. On peut les renverser
 - Séparateurs en plastique rouge et blanc autour des ronds-points, qu'on pousse et fait pivoter, autour d'un îlot solide en jardinière béton ou en rochers
 - Onglet « Obstacles » dans `/decor-lab` pour comparer les habillages des chicanes, des terre-pleins et des îlots
+- Massifs au centre des grands ronds-points selon le lieu : jardin fleuri en ville, rocaille et pins en montagne, bosquet à la campagne
+- Ponts repérés en bleu sur le profil d'altitude de l'éditeur, cliquables pour centrer la carte
 
 ### Changed
 
@@ -175,6 +177,7 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Glissière métallique devant les blocs de chicane et séparateur en béton sur les terre-pleins, pour ne plus les confondre avec les barrières renversables
 - Sur une route étroite à flanc de montagne, l'arche de secteur devient une banderole tendue entre deux mâts ; ailleurs, ses pieds descendent jusqu'au sol
 - Tous les records et fantômes repartent de zéro : routes, obstacles et physique des chocs ont changé
+- Pendant le décompte, le moteur monte dans les tours et le compteur suit les gaz ; au GO, le régime redescend comme un embrayage qu'on relâche au lieu de retomber au ralenti
 
 ### Removed
 
@@ -214,6 +217,9 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Réouverture d'un tracé qui relançait une recherche de commune à chaque fois
 - Nappe d'eau qui passait devant la route sur les ponts bas
 - Message « données OSM indisponibles » à presque chaque génération, les serveurs d'OpenStreetMap étant saturés
+- Pied d'arche planté dans la glissière d'un terre-plein : l'arche se resserre, ou devient une banderole quand la place manque
+- Îlot de rond-point qui flottait au-dessus de la route en pente
+- Profil d'altitude de l'éditeur qui plongeait sous les ponts
 
 ### Security
 

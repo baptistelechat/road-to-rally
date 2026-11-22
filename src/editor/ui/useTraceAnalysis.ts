@@ -24,12 +24,7 @@ const loadProfile = async (
 ): Promise<void> => {
   editorStore.setState({ profileStatus: "loading", profileMessage: null });
   try {
-    const result = await runProfileWorker(
-      axis.points,
-      axis.origin,
-      axis.runoffPoints,
-      signal,
-    );
+    const result = await runProfileWorker(axis, signal);
     if (signal.aborted) return;
     if (!("kind" in result)) {
       editorStore.setState({ profile: result, profileStatus: "idle" });

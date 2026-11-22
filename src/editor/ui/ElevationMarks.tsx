@@ -7,6 +7,7 @@ import type {
   ProfileMarker,
 } from "../profileMarkers";
 import {
+  BridgeSymbol,
   ChicaneSymbol,
   MedianSymbol,
   PointSymbol,
@@ -26,6 +27,7 @@ const BAND_COLORS: Record<ProfileBandKind, string> = {
   roundabout: "bg-red-500/25",
   rock: "bg-stone-400/35",
   median: "bg-pink-400/25",
+  bridge: "bg-blue-500/25",
 };
 
 /** Repère au centre de sa bande, en haut : la rangée du bas est celle des points et des chicanes. */
@@ -47,6 +49,12 @@ const BandIcon = ({ kind }: { kind: ProfileBandKind }) => {
     return (
       <span className={place}>
         <MedianSymbol />
+      </span>
+    );
+  if (kind === "bridge")
+    return (
+      <span className={place}>
+        <BridgeSymbol />
       </span>
     );
   return null;

@@ -25,7 +25,15 @@ export interface CarAudio {
   isBlocked: () => boolean;
   /** Menu pause : coupe tout le son, sans toucher au réglage du joueur. Appelable à chaque image. */
   setPaused: (paused: boolean) => void;
-  update: (state: CarState, dt: number) => void;
+  /**
+   * @param shown régime et charge montrés au joueur autour du départ (`startRev.ts`), à la place de ceux de la
+   * simulation. `null` : le son suit la simulation.
+   */
+  update: (
+    state: CarState,
+    dt: number,
+    shown?: { rpm: number; throttle: number } | null,
+  ) => void;
   /** Prévient à chaque détonation d'échappement, même son coupé : les flammes partent en même temps. */
   setPopListener: (listener: PopListener | null) => void;
   /** Point d'entrée de la voix du copilote : le son coupé et la pause s'y appliquent. `null` avant le premier `start()`. */
@@ -339,7 +347,11 @@ export const createCarAudio = (
       ctx.resume().catch(() => undefined);
   };
 
-  const update = (state: CarState, dt: number): void => {
+  const update = (
+    state: CarState,
+    dt: number,
+    shown: { rpm: number; throttle: number } | null = null,
+  ): void => {
     if (!ctx || !graph) return;
     // Contexte suspendu : son horloge est figée, les chocs planifiés partiraient tous à la reprise.
     if (ctx.state !== "running") return;
@@ -352,7 +364,9 @@ export const createCarAudio = (
     const now = ctx.currentTime;
     analyzeWheels(state);
     const { maxAsphaltSlip, grassShare, contacts, compression } = ANALYSIS;
-    const { speed, throttle, rpm, gear, impact } = state;
+    const { speed, gear, impact } = state;
+    const rpm = shown?.rpm ?? state.rpm;
+    const throttle = shown?.throttle ?? state.throttle;
 
     // Coupure au passage de rapport. Le délai minimal évite de couper deux fois si le rapport passe par le point mort.
     if (

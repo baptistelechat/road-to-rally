@@ -285,7 +285,12 @@ export const TrackView = ({ track }: { track: Track }) => {
       )}
       <RallyArches track={track} />
       <ChicaneView blocks={track.obstacles} />
-      <IslandBarriers islands={track.islands} groundAt={track.groundAt} />
+      <IslandBarriers
+        islands={track.islands}
+        groundAt={track.groundAt}
+        decor={track.decor}
+        points={track.unique.points}
+      />
       <MedianBarriers medians={track.medians} groundAt={track.groundAt} />
     </group>
   );

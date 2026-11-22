@@ -218,7 +218,12 @@ const concreteBarrier = (): BufferGeometry => {
       0,
       (0.3 - CHICANE_SKIRT) / 2,
     ),
-    part(new BoxGeometry(CHICANE_BARRIER_MODULE, 0.55, 0.24), CONCRETE, 0, 0.575),
+    part(
+      new BoxGeometry(CHICANE_BARRIER_MODULE, 0.55, 0.24),
+      CONCRETE,
+      0,
+      0.575,
+    ),
     ...[-1, 1].map((side) =>
       part(
         new BoxGeometry(half, 0.1, 0.25),
@@ -490,11 +495,12 @@ const brakeBoard = (count: number): BufferGeometry => {
     Array.from({ length: count }, (_, i) => {
       const x = (i - (count - 1) / 2) * BOARD_CHEVRON_STEP;
       if (!back)
-        return part(polygon(BOARD_CHEVRON, 1), SIGN_BLACK, x, BOARD_Y).translate(
-          0,
-          0,
-          BOARD_DEPTH / 2 + 0.004,
-        );
+        return part(
+          polygon(BOARD_CHEVRON, 1),
+          SIGN_BLACK,
+          x,
+          BOARD_Y,
+        ).translate(0, 0, BOARD_DEPTH / 2 + 0.004);
       // Au dos : dessiné pointé vers -x puis retourné, il pointe vers +x, soit la gauche de qui le regarde de derrière.
       const mirrored: Outline = BOARD_CHEVRON.map(([px, py]) => [-px, py]);
       return part(polygon(mirrored, 1), SIGN_BLACK, -x, BOARD_Y)
@@ -559,6 +565,24 @@ export const ISLAND_GRAVEL_GEOMETRY = part(
   0,
   0.06,
 );
+/** Centre des grands îlots (PR-20) : pelouse du bosquet (A1), butte de gravier ocre de la rocaille (A3) */
+export const ISLAND_LAWN_GEOMETRY = part(
+  new CylinderGeometry(1, 1, 0.15, 24),
+  [0.36, 0.52, 0.25],
+  0,
+  0.075,
+);
+export const ISLAND_MOUND_GEOMETRY = part(
+  new CylinderGeometry(0.85, 1, 0.5, 20),
+  [0.66, 0.6, 0.45],
+  0,
+  0.25,
+);
+/** Massifs de fleurs du jardin municipal (A2), rose puis jaune */
+export const ISLAND_FLOWERS_GEOMETRY = [
+  part(new CylinderGeometry(0.45, 0.55, 0.3, 8), [0.86, 0.42, 0.6], 0, 0.15),
+  part(new CylinderGeometry(0.45, 0.55, 0.3, 8), [0.93, 0.8, 0.25], 0, 0.15),
+] as const;
 
 const SEPARATOR_GEOMETRY: Record<SeparatorKind, BufferGeometry> = {
   islandSeparatorRed: islandSeparator([0.72, 0.12, 0.08]),
@@ -575,7 +599,11 @@ export const SCENERY_MATERIAL = new MeshStandardMaterial({
 export const lightPropGeometry = (kind: SceneryKind): BufferGeometry => {
   if (kind === "chicaneSignLeft") return CHICANE_GEOMETRY.looseSignLeft;
   if (kind === "chicaneSignRight") return CHICANE_GEOMETRY.looseSignRight;
-  if (kind === "brakeBoard3" || kind === "brakeBoard2" || kind === "brakeBoard1")
+  if (
+    kind === "brakeBoard3" ||
+    kind === "brakeBoard2" ||
+    kind === "brakeBoard1"
+  )
     return BRAKE_BOARD_GEOMETRY[kind];
   if (kind === "islandSeparatorRed" || kind === "islandSeparatorWhite")
     return SEPARATOR_GEOMETRY[kind];

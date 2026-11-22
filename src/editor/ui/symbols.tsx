@@ -84,6 +84,17 @@ export const MedianSymbol = () => (
   />
 );
 
+/** Un pont : tablier, arche et deux piles, dans le bleu de sa bande sur la courbe. */
+export const BridgeSymbol = () => (
+  <svg
+    aria-hidden="true"
+    viewBox="0 0 20 14"
+    className="block h-3.5 w-5 fill-none stroke-blue-300 stroke-[1.6] drop-shadow"
+  >
+    <path d="M0 6h20M2 6q8-8 16 0M5 6v6M15 6v6" />
+  </svg>
+);
+
 /** Un intermédiaire du chrono, numéroté : la frise et la mini-carte de la course le montrent au même endroit. */
 export const SplitSymbol = ({ rank }: { rank: number | string }) => (
   <span className="inline-flex items-center gap-0.5">

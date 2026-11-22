@@ -5,6 +5,7 @@ import { type RefObject, useEffect, useMemo, useRef, useState } from "react";
 import { Quaternion } from "three";
 import type { CarAudio } from "@/audio/engineAudio";
 import { createCountdownBeep } from "@/audio/countdownBeep";
+import { createStartRev } from "./startRev";
 import { updateRumble } from "@/audio/gamepadRumble";
 import {
   createInputController,
@@ -136,6 +137,7 @@ export const useGameLoop = ({
   const carS = useRef(course.startS);
   const splitLeft = useRef(0);
   const [beep] = useState(() => createCountdownBeep(audio.effectsBus));
+  const [startRev] = useState(createStartRev);
   useEffect(() => () => beep.dispose(), [beep]);
   const penaltyLeft = useRef(0);
   const lastPenaltyId = useRef(0);
@@ -390,14 +392,21 @@ export const useGameLoop = ({
       ghostS.current = circuit ? lapS(sim.track, course, s) : s;
     }
 
-    audio.update(to, delta);
+    const countdown = sim.countdown();
+    // Pendant le décompte, la simulation retient la voiture : compteur et son suivent la pédale du joueur.
+    const shown = startRev.update(
+      to,
+      countdown !== null && screen === "race",
+      info.current.applied.throttle,
+      screen === "race" ? delta : 0,
+    );
+    audio.update(to, delta, shown);
     copilot.update(delta, screen);
     // Hors course, l'état figé vibrerait sans fin.
     if (screen === "race") updateRumble(to);
-    pushHud(to);
+    pushHud(shown ? { ...to, ...shown } : to);
     setHudRecovery(sim.recovery());
     if (input) setHudDevice(input.activeDevice());
-    const countdown = sim.countdown();
     beep.update(countdown);
     setHudCountdown(countdown);
     if (finishMs.current === null) setHudStrip(stripNow(best.current));

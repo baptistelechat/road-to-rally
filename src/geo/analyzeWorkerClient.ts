@@ -2,16 +2,15 @@
 import type { AutoChicanes } from "../editor/types";
 import type { AnalyzeOptions, TraceAnalysis } from "./analyzeTrace";
 import { StageError } from "./errors";
-import type { LatLon, PlanePoint } from "./gpx";
+import type { TracePoints } from "./gpx";
 import type { PreviewProfile } from "./previewProfile";
 
 export type AnalyzeWorkerRequest =
   | { kind: "analyze"; gpx: string; options: AnalyzeOptions }
   | {
       kind: "profile";
-      axis: PlanePoint[];
-      origin: LatLon;
-      runoffPoints: number;
+      /** Toute la trace : les ponts de la BD TOPO se cherchent sur son couloir (B-13) */
+      trace: TracePoints;
     };
 
 /** L'axe sort de la zone couverte par l'IGN : un refus du tracé, pas une panne. */
@@ -79,15 +78,19 @@ export const runAnalyzeWorker = async (
   return response;
 };
 
-/** Les altitudes de l'IGN et le filtre de `buildProfile`, 2 s sur 15 km : hors du fil principal. */
+/** Les altitudes de l'IGN, les ponts de la BD TOPO et le filtre de `buildProfile`, 2 s sur 15 km : hors du fil principal. */
 export const runProfileWorker = async (
-  axis: PlanePoint[],
-  origin: LatLon,
-  runoffPoints: number,
+  trace: TracePoints,
   signal?: AbortSignal,
 ): Promise<PreviewProfile | OutOfFrance> => {
+  // Seuls les champs de `TracePoints` traversent : l'axe analysé porte aussi ses points en lat/lon.
+  const { origin, points, runoffPoints, realRunoff, length, roundTrip, dual } =
+    trace;
   const response = await runWorker(
-    { kind: "profile", axis, origin, runoffPoints },
+    {
+      kind: "profile",
+      trace: { origin, points, runoffPoints, realRunoff, length, roundTrip, dual },
+    },
     signal,
   );
   if (response.kind === "profile") return response.profile;

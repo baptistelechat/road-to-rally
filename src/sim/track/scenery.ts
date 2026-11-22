@@ -399,6 +399,36 @@ const ARCH_MAX_LEG = 3;
 /** Mâts de la banderole au ras du bas-côté : distance au bord de route, en mètres */
 const BANNER_MAST_EDGE = 0.4;
 const BANNER_MAST_RADIUS = 0.1;
+/** Rayon des pieds d'une arche de départ ou d'arrivée, comme leur collider (`colliders.ts`) */
+const ARCH_FOOT_RADIUS = 0.3;
+/** Demi-épaisseur de la glissière d'un terre-plein, comme son collider (`colliders.ts`), plus un jour entre pied et béton */
+const MEDIAN_CLEARANCE = 0.15 + 0.2;
+/** Une glissière plus loin que ça devant ou derrière l'arche ne la gêne pas, en mètres */
+const MEDIAN_BAND = 4;
+
+/**
+ * Demi-écartement maximal des pieds avant de toucher la glissière d'un terre-plein (PR-19, B-12), `null` sans
+ * terre-plein dans l'emprise de l'arche. `right` est le côté droit de la route, unitaire.
+ */
+const medianLimit = (
+  track: Track,
+  point: Vec3,
+  right: { x: number; z: number },
+  reach: number,
+  footRadius: number,
+): number | null => {
+  let nearest = Number.POSITIVE_INFINITY;
+  for (const { points } of track.medians)
+    for (const m of points) {
+      const dx = m.x - point.x;
+      const dz = m.z - point.z;
+      const lateral = Math.abs(dx * right.x + dz * right.z);
+      const along = Math.abs(dx * right.z - dz * right.x);
+      if (along <= MEDIAN_BAND && lateral < nearest) nearest = lateral;
+    }
+  const limit = nearest - MEDIAN_CLEARANCE - footRadius;
+  return limit < reach ? limit : null;
+};
 
 export interface RallyArch extends Pose {
   /** Demi-écartement des pieds, ou des mâts de la banderole */
@@ -410,8 +440,16 @@ export interface RallyArch extends Pose {
   postRadius?: number;
 }
 
-/** Centre, côté droit et cap d'une arche à l'abscisse `s`. */
-const archAt = (track: Track, s: number, allowBanner: boolean): RallyArch => {
+/**
+ * Centre, côté droit et cap d'une arche à l'abscisse `s`.
+ * @param footRadius rayon des pieds, pour qu'ils restent hors de la glissière d'un terre-plein
+ */
+const archAt = (
+  track: Track,
+  s: number,
+  allowBanner: boolean,
+  footRadius = ARCH_FOOT_RADIUS,
+): RallyArch => {
   const n = track.points.length;
   // Le circuit garde son pas moyen, et ses colliders d'arche au bit près.
   const index = track.closed
@@ -424,7 +462,16 @@ const archAt = (track: Track, s: number, allowBanner: boolean): RallyArch => {
   const to = atEnd ? point : track.points[(index + 1) % n];
   const yaw = Math.atan2(from.x - to.x, from.z - to.z);
   const rotation = { x: 0, y: Math.sin(yaw / 2), z: 0, w: Math.cos(yaw / 2) };
-  const halfSpan = track.widths[index] / 2 + 1.5;
+  const halfWidth = track.widths[index] / 2;
+  // Sur une 2×2 voies, les pieds se rapprochent pour rester avant la glissière du terre-plein (PR-19, option B).
+  const median = medianLimit(
+    track,
+    point,
+    { x: Math.cos(yaw), z: -Math.sin(yaw) },
+    halfWidth + 1.5,
+    footRadius,
+  );
+  const halfSpan = Math.min(halfWidth + 1.5, median ?? Number.POSITIVE_INFINITY);
   // Même placement des pieds que leurs colliders (`colliders.ts`) : gauche puis droite.
   const groundUnder = (side: number): number | null =>
     track.terrain
@@ -434,14 +481,20 @@ const archAt = (track: Track, s: number, allowBanner: boolean): RallyArch => {
         )
       : point.y;
   const grounds = [groundUnder(-1), groundUnder(1)];
+  // Pas la place entre la voie et le terre-plein : banderole, comme un pied sans sol (PR-19, option C).
+  const cramped = median !== null && median < halfWidth + BANNER_MAST_EDGE;
   const banner =
     allowBanner &&
-    grounds.some((g) => g === null || Math.abs(g - point.y) > ARCH_MAX_LEG);
+    (cramped ||
+      grounds.some((g) => g === null || Math.abs(g - point.y) > ARCH_MAX_LEG));
   if (banner)
     return {
       position: point,
       rotation,
-      halfSpan: track.widths[index] / 2 + BANNER_MAST_EDGE,
+      halfSpan: Math.min(
+        halfWidth + BANNER_MAST_EDGE,
+        (median ?? Number.POSITIVE_INFINITY) + footRadius - BANNER_MAST_RADIUS,
+      ),
       feet: [point.y, point.y],
       banner,
       postRadius: BANNER_MAST_RADIUS,
@@ -474,7 +527,7 @@ export const splitArches = (track: Track): RallyArch[] => {
   const course = raceCourse(track);
   return splitGates(course.startS, course.finishS - course.startS).map((s) => ({
     postRadius: SPLIT_ARCH_TUBE,
-    ...archAt(track, track.closed ? s % track.length : s, true),
+    ...archAt(track, track.closed ? s % track.length : s, true, SPLIT_ARCH_TUBE),
   }));
 };
 
