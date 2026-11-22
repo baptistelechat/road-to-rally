@@ -33,6 +33,7 @@ register: learnings
 | [LRN-261122_0500-6](learnings/LRN-261122_0500-6.md) | 2026-11-22 | `cat > fichier` sans entrée bloque la commande sur stdin | #bash #heredoc #stdin #hang #claude-code #debug-script |
 | [LRN-261122_0500-7](learnings/LRN-261122_0500-7.md) | 2026-11-22 | Distance d'ombre des tranches liée à la zone d'ombre | #three #shadows #chunks #atmosphere #pop-in #r3f |
 | [LRN-261122_0721-3](learnings/LRN-261122_0721-3.md) | 2026-11-22 | Rayons de contrôle du sol faussés par les objets posés | #checks #rapier #raycast #terrain #chicane #bridges #ign-buildings |
+| [LRN-261122_1907-3](learnings/LRN-261122_1907-3.md) | 2026-11-22 | L'aperçu de l'éditeur lit les sources de la génération | #editor #preview #bdtopo #bridges #profile #data-source |
 | [LRN-20261101115222-4](learnings/LRN-20261101115222-4.md) | 2026-11-01 | Pièges de l'API altimétrie de l'IGN | #ign #geoplateforme #altimetrie #api #cors #rge-alti |
 | [LRN-20261101115222-5](learnings/LRN-20261101115222-5.md) | 2026-11-01 | Plusieurs itinéraires : BRouter et OSRM diffèrent | #brouter #osrm #routing #itineraires #mapcn #maplibre |
 | [LRN-20261101115222-6](learnings/LRN-20261101115222-6.md) | 2026-11-01 | Le filtre rtk peut faire croire à un diff vide | #rtk #git #diff #hooks #claude-code #commit |

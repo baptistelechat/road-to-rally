@@ -495,3 +495,12 @@ Reprise du studio de jeu (`/game-studio`) sur le plan de l'audit du 21/11 : play
 **Entrées clés :**
 
 - [BDR-261104_2153-3](decisions/BDR-261104_2153-3.md) — décompte partout, confirmé pour le circuit
+
+---
+
+Lancement du dev du planning `/game-studio` (le skill ne codant pas, passage en dev normal). Étape 20 : le moteur monte pendant le décompte ; sur retour de Baptiste, le compteur suit aussi la pédale et, au GO, le régime rejoint celui de la simulation en 0,35 s au lieu de retomber au ralenti, sans toucher à la simulation. Étape 21 : les pieds d'arche se rapprochent pour rester avant la glissière d'un terre-plein, banderole sur deux mâts faute de place (B-12). B-14 : le cœur d'îlot s'incline sur la pente. Étape 22 : massifs au centre des grands ronds-points selon le lieu (ville, montagne, campagne), rendu seul sous le collider du cœur. B-13 : le profil de l'éditeur lit désormais les ponts de la BD TOPO comme la génération, et les ponts y sont repérés par une bande bleue (piste A choisie parmi 4 maquettes). Tout testé et validé par Baptiste, étapes 20 à 22 cochées, B-11 à B-14 vérifiés. react-doctor 96/100 sans problème, commit `2992d80` poussé. Prochaine étape : parcours B, C, D du playtest de l'epic 4.
+
+**Entrées clés :**
+
+- [BDR-261122_1907-1](decisions/BDR-261122_1907-1.md) — Régime du départ affiché hors simulation
+- [LRN-261122_1907-3](learnings/LRN-261122_1907-3.md) — L'aperçu de l'éditeur lit les sources de la génération

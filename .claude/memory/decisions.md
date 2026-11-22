@@ -48,6 +48,8 @@ register: decisions
 | [BDR-261122_0500-4](decisions/BDR-261122_0500-4.md) | 2026-11-22 | Routes ou physique changées : records et fantômes à zéro | #records #fantome #stage-records #ghost #versioning #localstorage | actif |
 | [BDR-261122_0721-1](decisions/BDR-261122_0721-1.md) | 2026-11-22 | Bascule par-dessus un bloc de chicane acceptée | #chicane #crash-physics #impact-lift #rapier #checks #game-design | actif |
 | [BDR-261122_0721-2](decisions/BDR-261122_0721-2.md) | 2026-11-22 | Horloge permise pour le rythme réseau de src/geo | #geo #determinism #web-worker #ign #wfs #portability | actif |
+| [BDR-261122_1907-1](decisions/BDR-261122_1907-1.md) | 2026-11-22 | Régime du départ affiché hors simulation | #countdown #rpm #audio #hud #start #simulation | actif |
+| [BDR-261122_1907-2](decisions/BDR-261122_1907-2.md) | 2026-11-22 | Centre des grands îlots selon le milieu, rendu seul | #roundabout #island #decor #render #setting #collider | actif |
 | [BDR-20261101115222-1](decisions/BDR-20261101115222-1.md) | 2026-11-01 | L'IGN est la seule source d'altitude en jeu | #ign #brouter #srtm #relief #altitude #epic-2 | actif |
 | [BDR-20261101115222-2](decisions/BDR-20261101115222-2.md) | 2026-11-01 | Circuit conservé et trois cartes de test | #sandbox #cartes #url #selecteur #localstorage #epic-2 | actif |
 | [BDR-20261101115222-3](decisions/BDR-20261101115222-3.md) | 2026-11-01 | Les tracés qui se croisent sont refusés en v0 | #ribbon #nearest #croisement #maillage #scope #epic-2 | actif |
