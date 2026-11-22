@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PR-20 · Centre des grands ronds-points</title>
+    <style>
+      :root {
+        --bg: #14171c;
+        --card: #1d2128;
+        --ink: #e8e6e1;
+        --dim: #9aa0a8;
+        --accent: #f2b705;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font:
+          15px/1.45 system-ui,
+          sans-serif;
+        padding: 24px 16px 48px;
+      }
+      h1 {
+        font-size: 22px;
+        margin: 0 0 4px;
+      }
+      .lead {
+        color: var(--dim);
+        margin: 0 0 20px;
+        max-width: 900px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(min(380px, 100%), 1fr));
+        gap: 18px;
+      }
+      .card {
+        background: var(--card);
+        border-radius: 10px;
+        padding: 14px;
+        border: 1px solid #2a2f38;
+      }
+      .card h2 {
+        font-size: 17px;
+        margin: 0 0 2px;
+      }
+      .tag {
+        display: inline-block;
+        font-size: 12px;
+        padding: 1px 8px;
+        border-radius: 99px;
+        background: #2c323c;
+        color: var(--accent);
+        margin-bottom: 8px;
+      }
+      .card p {
+        color: var(--dim);
+        margin: 8px 0 0;
+        font-size: 14px;
+      }
+      .views {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      .views figure {
+        margin: 0;
+      }
+      .views figcaption {
+        font-size: 11px;
+        color: var(--dim);
+        text-align: center;
+        margin-top: 2px;
+      }
+      svg {
+        width: 100%;
+        height: auto;
+        display: block;
+        border-radius: 6px;
+      }
+      .scale {
+        margin-top: 28px;
+      }
+      ul {
+        color: var(--dim);
+        font-size: 14px;
+        padding-left: 18px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>PR-20 · Remplir le centre des grands ronds-points</h1>
+    <p class="lead">
+      Direction validée : A (massif planté selon le rayon), B (objet repère) sur
+      les très grands îlots. Voici 5 variantes à comparer. Vue de dessus à
+      gauche, silhouette vue de la route à droite (la voiture de rallye sert
+      d'échelle). L'anneau de séparateurs rouge et blanc et le cœur actuel
+      (jardinière ou rochers) restent ; seul le centre change.
+    </p>
+
+    <svg width="0" height="0" style="position: absolute">
+      <defs>
+        <!-- arbre feuillu vu de dessus -->
+        <g id="treeTop">
+          <polygon points="0,-16 14,-8 14,8 0,16 -14,8 -14,-8" fill="#4f7d3a" />
+          <polygon points="0,-16 14,-8 0,0 -14,-8" fill="#5f9446" />
+        </g>
+        <g id="pineTop">
+          <polygon points="0,-11 10,-4 6,9 -6,9 -10,-4" fill="#2f5a3a" />
+          <polygon points="0,-11 10,-4 0,1 -10,-4" fill="#3a6b45" />
+        </g>
+        <g id="bushTop">
+          <polygon points="0,-7 6,-3 6,4 0,7 -6,4 -6,-3" fill="#5c8a3e" />
+        </g>
+        <g id="rockTop">
+          <polygon points="-8,-4 -2,-8 7,-5 8,3 1,7 -7,5" fill="#8a8a86" />
+          <polygon points="-8,-4 -2,-8 7,-5 0,0" fill="#a3a39e" />
+        </g>
+        <!-- anneau et route communs -->
+        <g id="ringTop">
+          <circle r="118" fill="#3a3d42" />
+          <circle
+            r="80"
+            fill="none"
+            stroke="#e9e9e9"
+            stroke-width="1"
+            stroke-dasharray="4 6"
+            opacity=".35"
+          />
+          <circle r="66" fill="#6f9a4d" />
+          <circle
+            r="64"
+            fill="none"
+            stroke="#d8392b"
+            stroke-width="4"
+            stroke-dasharray="8 8"
+          />
+          <circle
+            r="64"
+            fill="none"
+            stroke="#f2f2f2"
+            stroke-width="4"
+            stroke-dasharray="8 8"
+            stroke-dashoffset="8"
+          />
+        </g>
+        <!-- silhouette : sol + voiture -->
+        <g id="ground">
+          <rect x="0" y="150" width="380" height="60" fill="#3a3d42" />
+          <rect x="0" y="150" width="380" height="3" fill="#2c2f33" />
+        </g>
+        <g id="car">
+          <polygon
+            points="20,150 24,138 34,132 56,132 64,139 70,140 70,150"
+            fill="#a3141b"
+          />
+          <rect x="36" y="134" width="18" height="6" fill="#1b2330" />
+          <circle cx="30" cy="150" r="4" fill="#111" />
+          <circle cx="60" cy="150" r="4" fill="#111" />
+        </g>
+        <g id="separators">
+          <g fill="#d8392b">
+            <rect x="95" y="141" width="12" height="9" />
+            <rect x="131" y="141" width="12" height="9" />
+            <rect x="167" y="141" width="12" height="9" />
+            <rect x="203" y="141" width="12" height="9" />
+            <rect x="239" y="141" width="12" height="9" />
+            <rect x="275" y="141" width="12" height="9" />
+          </g>
+          <g fill="#f2f2f2">
+            <rect x="113" y="141" width="12" height="9" />
+            <rect x="149" y="141" width="12" height="9" />
+            <rect x="185" y="141" width="12" height="9" />
+            <rect x="221" y="141" width="12" height="9" />
+            <rect x="257" y="141" width="12" height="9" />
+          </g>
+        </g>
+        <g id="treeSide">
+          <rect x="-2" y="-28" width="4" height="28" fill="#5b4330" />
+          <polygon
+            points="0,-74 20,-56 18,-32 0,-24 -18,-32 -20,-56"
+            fill="#4f7d3a"
+          />
+          <polygon points="0,-74 20,-56 0,-48 -20,-56" fill="#5f9446" />
+        </g>
+        <g id="pineSide">
+          <rect x="-2" y="-14" width="4" height="14" fill="#5b4330" />
+          <polygon points="0,-70 14,-14 -14,-14" fill="#2f5a3a" />
+          <polygon points="0,-70 14,-14 0,-14" fill="#3a6b45" />
+        </g>
+        <g id="bushSide">
+          <polygon
+            points="-10,0 -12,-8 -4,-15 6,-14 12,-7 10,0"
+            fill="#5c8a3e"
+          />
+        </g>
+        <g id="rockSide">
+          <polygon points="-12,0 -10,-10 -2,-15 9,-11 13,0" fill="#8a8a86" />
+          <polygon points="-10,-10 -2,-15 9,-11 0,-6" fill="#a3a39e" />
+        </g>
+      </defs>
+    </svg>
+
+    <div class="grid">
+      <!-- A1 -->
+      <div class="card">
+        <span class="tag">A1 · massif</span>
+        <h2>Bosquet bocager</h2>
+        <div class="views">
+          <figure>
+            <svg viewBox="-125 -125 250 250">
+              <use href="#ringTop" />
+              <circle r="44" fill="#4d6e34" opacity=".55" />
+              <circle r="48" fill="none" stroke="#3f6a2d" stroke-width="6" />
+              <use href="#treeTop" x="-14" y="-12" />
+              <use href="#treeTop" x="16" y="-4" />
+              <use href="#treeTop" x="-2" y="18" />
+              <use href="#bushTop" x="30" y="22" />
+              <use href="#bushTop" x="-32" y="14" />
+              <use href="#bushTop" x="-24" y="-30" />
+              <use href="#bushTop" x="26" y="-28" />
+            </svg>
+            <figcaption>dessus</figcaption>
+          </figure>
+          <figure>
+            <svg viewBox="0 0 380 210">
+              <rect width="380" height="210" fill="#b8cad6" />
+              <use href="#ground" />
+              <rect x="120" y="140" width="140" height="10" fill="#6f9a4d" />
+              <rect x="120" y="136" width="140" height="6" fill="#3f6a2d" />
+              <use href="#treeSide" x="165" y="140" />
+              <use href="#treeSide" x="205" y="138" />
+              <use href="#treeSide" x="238" y="140" />
+              <use href="#bushSide" x="140" y="140" />
+              <use href="#bushSide" x="255" y="140" />
+              <use href="#separators" />
+              <use href="#car" />
+            </svg>
+            <figcaption>vue de la route</figcaption>
+          </figure>
+        </div>
+        <p>
+          Haie basse en couronne, 3 arbres feuillus, buissons. Le plus «
+          campagne », reprend les essences IGN des haies. Masque bien la sortie
+          d'en face : on lit le rond-point comme un obstacle.
+        </p>
+      </div>
+
+      <!-- A2 -->
+      <div class="card">
+        <span class="tag">A2 · massif</span>
+        <h2>Jardin municipal fleuri</h2>
+        <div class="views">
+          <figure>
+            <svg viewBox="-125 -125 250 250">
+              <use href="#ringTop" />
+              <circle r="50" fill="#c9a24a" />
+              <circle r="44" fill="none" stroke="#c94a6b" stroke-width="8" />
+              <circle r="34" fill="none" stroke="#e6b62a" stroke-width="6" />
+              <circle r="26" fill="#6f9a4d" />
+              <use href="#treeTop" x="-8" y="-6" />
+              <use href="#treeTop" x="12" y="10" />
+              <use href="#bushTop" x="-38" y="0" />
+              <use href="#bushTop" x="38" y="0" />
+              <use href="#bushTop" x="0" y="-38" />
+              <use href="#bushTop" x="0" y="38" />
+            </svg>
+            <figcaption>dessus</figcaption>
+          </figure>
+          <figure>
+            <svg viewBox="0 0 380 210">
+              <rect width="380" height="210" fill="#b8cad6" />
+              <use href="#ground" />
+              <rect x="115" y="142" width="150" height="8" fill="#c9a24a" />
+              <rect x="120" y="137" width="140" height="5" fill="#c94a6b" />
+              <rect x="140" y="133" width="100" height="5" fill="#e6b62a" />
+              <use href="#treeSide" x="180" y="134" />
+              <use href="#treeSide" x="210" y="134" />
+              <use href="#bushSide" x="128" y="140" />
+              <use href="#bushSide" x="252" y="140" />
+              <use href="#separators" />
+              <use href="#car" />
+            </svg>
+            <figcaption>vue de la route</figcaption>
+          </figure>
+        </div>
+        <p>
+          Bordure de gravier clair, couronnes de fleurs rose et jaune, buissons
+          taillés aux quatre points cardinaux, 2 arbres. Très « entrée de bourg
+          » : de la couleur qui tranche, mais de la vue au-delà.
+        </p>
+      </div>
+
+      <!-- A3 -->
+      <div class="card">
+        <span class="tag">A3 · massif</span>
+        <h2>Rocaille et pins</h2>
+        <div class="views">
+          <figure>
+            <svg viewBox="-125 -125 250 250">
+              <use href="#ringTop" />
+              <circle r="46" fill="#a89a74" />
+              <use href="#rockTop" x="-20" y="-18" />
+              <use href="#rockTop" x="24" y="-10" />
+              <use href="#rockTop" x="-6" y="26" />
+              <use href="#rockTop" x="30" y="24" />
+              <use href="#rockTop" x="-34" y="10" />
+              <use href="#pineTop" x="0" y="-4" />
+              <use href="#pineTop" x="-18" y="8" />
+              <use href="#pineTop" x="14" y="14" />
+              <use href="#bushTop" x="10" y="-30" />
+            </svg>
+            <figcaption>dessus</figcaption>
+          </figure>
+          <figure>
+            <svg viewBox="0 0 380 210">
+              <rect width="380" height="210" fill="#b8cad6" />
+              <use href="#ground" />
+              <polygon
+                points="118,150 150,138 230,136 262,150"
+                fill="#a89a74"
+              />
+              <use href="#rockSide" x="150" y="142" />
+              <use href="#rockSide" x="236" y="142" />
+              <use href="#rockSide" x="196" y="140" />
+              <use href="#pineSide" x="176" y="138" />
+              <use href="#pineSide" x="212" y="138" />
+              <use href="#pineSide" x="192" y="136" />
+              <use href="#separators" />
+              <use href="#car" />
+            </svg>
+            <figcaption>vue de la route</figcaption>
+          </figure>
+        </div>
+        <p>
+          Butte de gravier ocre, rochers et pins. Prolonge le cœur « rochers »
+          de PR-16. Taillé pour la montagne et le sud ; à réserver à ces
+          régions, ou à tirer au sort avec A1.
+        </p>
+      </div>
+
+      <!-- B1 -->
+      <div class="card">
+        <span class="tag">B1 · repère (très grand îlot)</span>
+        <h2>Vieille machine agricole</h2>
+        <div class="views">
+          <figure>
+            <svg viewBox="-125 -125 250 250">
+              <use href="#ringTop" />
+              <circle r="34" fill="#c9a24a" />
+              <rect x="-16" y="-10" width="30" height="18" fill="#b03a22" />
+              <rect x="-16" y="-10" width="12" height="18" fill="#c8482c" />
+              <circle cx="-12" cy="12" r="6" fill="#222" />
+              <circle cx="10" cy="12" r="8" fill="#222" />
+              <use href="#treeTop" x="-40" y="-28" />
+              <use href="#treeTop" x="40" y="26" />
+              <use href="#bushTop" x="40" y="-30" />
+              <use href="#bushTop" x="-40" y="30" />
+            </svg>
+            <figcaption>dessus</figcaption>
+          </figure>
+          <figure>
+            <svg viewBox="0 0 380 210">
+              <rect width="380" height="210" fill="#b8cad6" />
+              <use href="#ground" />
+              <rect x="140" y="144" width="100" height="6" fill="#c9a24a" />
+              <polygon
+                points="166,144 168,118 196,116 200,128 214,128 214,144"
+                fill="#b03a22"
+              />
+              <rect x="172" y="120" width="14" height="10" fill="#1b2330" />
+              <circle cx="176" cy="140" r="9" fill="#222" />
+              <circle cx="206" cy="136" r="13" fill="#222" />
+              <circle cx="206" cy="136" r="5" fill="#c9a24a" />
+              <use href="#treeSide" x="132" y="140" />
+              <use href="#treeSide" x="252" y="140" />
+              <use href="#separators" />
+              <use href="#car" />
+            </svg>
+            <figcaption>vue de la route</figcaption>
+          </figure>
+        </div>
+        <p>
+          Vieux tracteur rouge sur un lit de gravier, encadré de 2 arbres. Un
+          clin d'œil très français, mémorisable : « au tracteur, je sors à
+          droite ». Une seule pièce à modéliser.
+        </p>
+      </div>
+
+      <!-- B2 -->
+      <div class="card">
+        <span class="tag">B2 · repère (très grand îlot)</span>
+        <h2>Sculpture monumentale</h2>
+        <div class="views">
+          <figure>
+            <svg viewBox="-125 -125 250 250">
+              <use href="#ringTop" />
+              <circle r="40" fill="#8f8a80" />
+              <polygon points="0,-20 18,10 -18,10" fill="#2a6fb5" />
+              <polygon points="0,-20 18,10 0,2" fill="#3a85d0" />
+              <circle r="52" fill="none" stroke="#3f6a2d" stroke-width="6" />
+              <use href="#bushTop" x="-30" y="-30" />
+              <use href="#bushTop" x="30" y="30" />
+              <use href="#bushTop" x="30" y="-30" />
+              <use href="#bushTop" x="-30" y="30" />
+            </svg>
+            <figcaption>dessus</figcaption>
+          </figure>
+          <figure>
+            <svg viewBox="0 0 380 210">
+              <rect width="380" height="210" fill="#b8cad6" />
+              <use href="#ground" />
+              <rect x="130" y="142" width="120" height="8" fill="#8f8a80" />
+              <rect x="118" y="137" width="144" height="5" fill="#3f6a2d" />
+              <polygon points="190,40 214,142 166,142" fill="#2a6fb5" />
+              <polygon points="190,40 214,142 192,142" fill="#3a85d0" />
+              <use href="#bushSide" x="140" y="140" />
+              <use href="#bushSide" x="242" y="140" />
+              <use href="#separators" />
+              <use href="#car" />
+            </svg>
+            <figcaption>vue de la route</figcaption>
+          </figure>
+        </div>
+        <p>
+          Grande forme géométrique colorée sur dalle, haie basse autour.
+          Silhouette visible de très loin : le rond-point s'annonce bien avant
+          le freinage (P12). Le plus « ville ».
+        </p>
+      </div>
+    </div>
+
+    <div class="card scale">
+      <h2>Selon la taille de l'îlot (proposition, à chiffrer en dev)</h2>
+      <ul>
+        <li>
+          <b>Rayon &lt; 2,5 m</b> : cœur actuel seul (jardinière ou rochers,
+          PR-16), sans changement.
+        </li>
+        <li>
+          <b>2,5 à 8 m</b> : variante A, 1 à 2 arbres et quelques buissons.
+        </li>
+        <li>
+          <b>8 à 15 m</b> : variante A complète (3 à 4 arbres, haie en
+          couronne).
+        </li>
+        <li><b>&gt; 15 m</b> : variante A + un repère B au centre.</li>
+      </ul>
+      <p>
+        Les plantations du centre n'ont pas de collider sauf les troncs et le
+        repère B : la butte solide arrête déjà la voiture (PR-13).
+      </p>
+    </div>
+  </body>
+</html>

@@ -44,6 +44,14 @@
 | 18 | Séparateurs autour des îlots | Level Designer + DA, dev normal | `islandSeparators.ts` : séparateurs plastique rouge et blanc (80 kg, renversables) sur l'anneau, butte d'herbe solide derrière (collider réduit de 0,8 m) ; sommet de la butte arrondi ; sous 2,5 m de rayon, la butte seule, sans barrière fixe (« deux réactions au choc pour les barrières, c'est pas logique ») | Un choc pousse et fait pivoter les séparateurs, la butte arrête la voiture, on ne coupe pas le rond-point | Barrières de rond-point indestructibles, à l'inverse des bas-côtés | PR-13 | ✅ validée (B) | [x] |
 | 19 | Obstacles fixes lisibles comme fixes | DA + Level Designer, dev normal | `models.ts`, `ChicaneView.tsx` : glissière métallique sur les faces des chicanes, béton profilé sur les terre-pleins, cœur d'îlot en jardinière ou en rochers ; colliders inchangés | En jeu, rien de fixe ne ressemble à une barrière renversable | Deux réactions au choc pour des barrières qui se ressemblent | PR-15, PR-16 | ✅ validée | [x] |
 
+### Ajouts du tour 8 (2026-11-22)
+
+| # | Étape | Persona | Livrable | Critère de fin | Coût si on saute | PR | Validation | Fait |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 20 | Moteur qui monte pendant le décompte | Sound Designer, dev normal | `src/audio/` : pendant le décompte, le son suit un régime libre calculé à partir de la pédale (modèle `stepRev` du labo son) ; `simulation.ts` intact | B-11 retesté sur `road` : gaz à fond pendant le décompte, le moteur monte, la voiture ne bouge pas | Chaque départ reste silencieux | PR-17, B-11 | ✅ validée (A) | [ ] |
+| 21 | Arche hors du terre-plein | Level Designer, dev normal | `archAt` (`scenery.ts`) : pieds ramenés au bord de la voie, avant la glissière du terre-plein (B) ; banderole sur deux mâts (C) quand il n'y a pas la place ; colliders suivent | B-12 retesté : l'arche « Secteur 2 » de la spéciale de ville n'est plus dans la glissière | Arches plantées dans le béton sur chaque 2×2 voies | PR-19, B-12 | ✅ validée (B, C en repli) | [ ] |
+| 22 | Centre des grands ronds-points | DA + Level Designer, dev normal | Centre d'îlot selon le rayon (cœur PR-16 seul sous 2,5 m, A léger jusqu'à 8 m, A complet au-delà) et selon le milieu : A2 jardin fleuri en ville, A3 rocaille et pins en montagne, A1 bosquet en campagne ; pas d'objet repère ; troncs seuls avec collider | Un grand rond-point de `Clisson` n'a plus l'air vide | Grands îlots qui se lisent comme un oubli | PR-20 | ✅ validée (A2 ville, A3 montagne, A1 campagne) — **après l'étape B-14** | [ ] |
+
 Ordre conseillé : 9 en entier (A et B ensemble), car B change le pipeline et forcerait sinon à régénérer `road` et `mountain` deux fois. L'étape 10 dépend du format du lien de partage (epic 6) pour le temps à battre : en attendant, elle lit ce que l'URL contient déjà.
 
 ## Checklist de playtest de l'epic 4 (étape 2)
@@ -52,19 +60,19 @@ Seuls les critères qui demandent tes yeux et tes mains. Les critères `lint`, `
 
 ### Parcours A — Départ, arrivée, pénalités, record (stories 4.1, 4.3, 4.4) · carte `road`
 
-- [ ] Le décompte se lit d'un coup d'œil et ne cache pas la route.
-- [ ] Gaz à fond pendant le décompte : la voiture ne bouge pas, puis part franchement au GO.
-- [ ] Les feux se voient depuis la grille, et les bips tombent avec eux.
-- [ ] Relancer depuis la pause ou depuis le résultat relance le décompte.
-- [ ] L'écran de résultat se pilote à la souris, au clavier et à la manette.
-- [ ] Une remise en piste ajoute 5 s, visibles sur le chrono et sur le résultat.
-- [ ] Rester bloqué puis demander la remise reste préférable à insister dans le décor.
-- [ ] Aucune pénalité pendant le décompte ni après l'arrivée.
-- [ ] Un temps plus lent n'écrit rien.
-- [ ] Deux spéciales de l'éditeur gardent chacune leur record ; une spéciale modifiée repart sans record.
-- [ ] L'ancien record du circuit s'affiche toujours.
-- [ ] En navigation privée, le jeu tourne et le record vit le temps de la session.
-- [ ] Le circuit roule exactement comme avant (pas de décompte).
+- [x] Le décompte se lit d'un coup d'œil et ne cache pas la route.
+- [x] Gaz à fond pendant le décompte : la voiture ne bouge pas, puis part franchement au GO.
+- [x] Les feux se voient depuis la grille, et les bips tombent avec eux.
+- [x] Relancer depuis la pause ou depuis le résultat relance le décompte.
+- [x] L'écran de résultat se pilote à la souris, au clavier et à la manette.
+- [x] Une remise en piste ajoute 5 s, visibles sur le chrono et sur le résultat.
+- [x] Rester bloqué puis demander la remise reste préférable à insister dans le décor.
+- [x] Aucune pénalité pendant le décompte ni après l'arrivée.
+- [x] Un temps plus lent n'écrit rien.
+- [x] Deux spéciales de l'éditeur gardent chacune leur record ; une spéciale modifiée repart sans record.
+- [x] L'ancien record du circuit s'affiche toujours.
+- [x] En navigation privée, le jeu tourne et le record vit le temps de la session.
+- [x] Circuit : décompte au premier départ, puis les tours s'enchaînent sans interruption (critère réécrit le 2026-11-22 sur décision de Baptiste ; c'est déjà le comportement du code, `simulation.ts`).
 
 ### Parcours B — Intermédiaires et fantôme (stories 4.2, 4.5) · carte `mountain`, deux courses de suite
 
@@ -104,3 +112,5 @@ Seuls les critères qui demandent tes yeux et tes mains. Les critères `lint`, `
 ## À noter
 
 La story 4.5 a encore la case « Brancher dans `useGameLoop.ts`, `Game.tsx` et les options » non cochée, alors que le fantôme y est branché (`GhostCar`, `ghostOutlet`). Elle a l'air faite : à cocher dans la story.
+
+La story 4.1 dit encore « Le circuit roule exactement comme avant : pas de décompte » (critère et `sim.countdown()` « `null` sur le circuit ») : à réécrire en dev normal, d'après la décision du 2026-11-22 sur A13.

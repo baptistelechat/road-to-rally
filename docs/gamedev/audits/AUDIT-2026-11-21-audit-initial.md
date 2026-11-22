@@ -127,26 +127,28 @@ Captures de Baptiste sur `mountain` régénérée (décor IGN, version 21).
 Retour de Baptiste après T-4 : « à haute vitesse les chicanes ne sont pas annoncées assez tôt… je pense que la vitesse n'est pas prise en compte dans les annonces des virages, uniquement la distance ».
 
 **🎮 3C** — La vitesse est bien prise en compte : une phrase part à `vitesse × (durée + ANTICIPATION)` du virage (`src/sim/paceNoteCue.ts`, story 4.8). Le défaut est ailleurs : la marge `ANTICIPATION` vaut 1 s fixe, alors que la distance de freinage grandit avec le carré de la vitesse. À 150 km/h, la phrase finit ~42 m avant la chicane, il en faudrait ~80 pour freiner (📖 déduit, décélération estimée à ~9 m/s², non mesurée). Les chicanes souffrent le plus car elles coupent les lignes droites les plus longues, donc les plus rapides.
-  - ⚠️ Note finie après le point de freinage à haute vitesse · viole P6 et P12 · gravité 🟠 important · source 🧑 ressenti + 📖 déduit → B-4
-  - ✅ Le planning à rebours (8 annonces) et la version courte en cas de retard sont solides
 
-| PR | Titre | Persona | Options | Recommandation | Décision |
-| --- | --- | --- | --- | --- | --- |
-| PR-11 | Annonce finie avant le freinage | 3C | A : `ANTICIPATION` de 1 à 2 s · B : marge = 1 s + temps de freinage jusqu'à la vitesse de la note (vitesse cible par sévérité) · C : marge = 1 s + vitesse ÷ (2 × décélération) | C | ✅ **C** (2026-11-21) → étape 14 du plan |
+- ⚠️ Note finie après le point de freinage à haute vitesse · viole P6 et P12 · gravité 🟠 important · source 🧑 ressenti + 📖 déduit → B-4
+- ✅ Le planning à rebours (8 annonces) et la version courte en cas de retard sont solides
+
+| PR    | Titre                           | Persona | Options                                                                                                                                                                         | Recommandation | Décision                                 |
+| ----- | ------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- | ---------------------------------------- |
+| PR-11 | Annonce finie avant le freinage | 3C      | A : `ANTICIPATION` de 1 à 2 s · B : marge = 1 s + temps de freinage jusqu'à la vitesse de la note (vitesse cible par sévérité) · C : marge = 1 s + vitesse ÷ (2 × décélération) | C              | ✅ **C** (2026-11-21) → étape 14 du plan |
 
 ### Tour 4 bis — remarque de Baptiste sur les chocs
 
 « Il y a une logique d'antiretournement : lors d'un choc (sur une chicane par exemple), la voiture semble rester collée à la route. Le choc n'est pas naturel. »
 
 **🎮 3C** — Trois aides de `applyAssists` (`src/sim/vehicle.ts`) agissent à pleine force à chaque pas, y compris pendant un choc et en l'air : l'anti-tonneau (0,5, redresse dès 10° d'inclinaison), la limite de lacet (2,2 rad/s, freine net la rotation que donne un impact) et le rappel de glisse (16). Le code mesure déjà la violence d'un choc (`impact`, de 0 à 1, qui retombe en ~0,3 s), mais ne s'en sert pas pour relâcher ces aides. C'est cohérent avec ton ressenti : l'impact est absorbé au lieu d'envoyer la voiture valser.
-  - ⚠️ Choc gommé par les aides · viole P6 et P12 · gravité 🟠 important · source 🧑 ressenti + 📖 déduit
-  - ✅ Les aides font leur travail en conduite normale : glisse lisible, pas de toupie (T-1 « juste »)
+
+- ⚠️ Choc gommé par les aides · viole P6 et P12 · gravité 🟠 important · source 🧑 ressenti + 📖 déduit
+- ✅ Les aides font leur travail en conduite normale : glisse lisible, pas de toupie (T-1 « juste »)
 
 **🧪 QA** — Toucher à `vehicle.ts` change la physique : les records et les fantômes enregistrés avant le changement risquent de ne plus coller (📖 à vérifier dans le format du fantôme). Il faudra un `check:determinism`, avec ton accord.
 
-| PR | Titre | Persona | Options | Recommandation | Décision |
-| --- | --- | --- | --- | --- | --- |
-| PR-12 | Laisser vivre les chocs | 3C | A : baisser les aides partout · B : relâcher les trois aides selon `impact` (forces × (1 − impact)), elles reviennent d'elles-mêmes en ~0,3 s · C : B + couper l'anti-tonneau en l'air, quitte à accepter un vrai tonneau, rattrapé par la remise en piste (+5 s) | B | ✅ **C ✏️ étendue** (2026-11-21) : en plus de B, l'anti-tonneau **et** le rappel de glisse coupés dès qu'aucune roue ne touche, sauts et chutes dans un ravin compris (`mountain` : la voiture « plane » en tombant dans le vide) → étape 15 du plan |
+| PR    | Titre                   | Persona | Options                                                                                                                                                                                                                                                           | Recommandation | Décision                                                                                                                                                                                                                                             |
+| ----- | ----------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| PR-12 | Laisser vivre les chocs | 3C      | A : baisser les aides partout · B : relâcher les trois aides selon `impact` (forces × (1 − impact)), elles reviennent d'elles-mêmes en ~0,3 s · C : B + couper l'anti-tonneau en l'air, quitte à accepter un vrai tonneau, rattrapé par la remise en piste (+5 s) | B              | ✅ **C ✏️ étendue** (2026-11-21) : en plus de B, l'anti-tonneau **et** le rappel de glisse coupés dès qu'aucune roue ne touche, sauts et chutes dans un ravin compris (`mountain` : la voiture « plane » en tombant dans le vide) → étape 15 du plan |
 
 T-5 répondu : tonneau possible → option C.
 
@@ -164,10 +166,10 @@ T-5 répondu : tonneau possible → option C.
 - Ombres : « elles apparaissent en avançant, l'apparition saccade ». **🎨 Lighting** : la zone d'ombre fait 45 m de demi-côté autour de la voiture (`Atmosphere.tsx`) et le décor à plus de 40 m de la route n'en a jamais : chaque ombre surgit d'un coup au bord de la zone · viole P12 · 🟡 mineur · 🧑 + 📖.
 - Ronds-points : la barrière fait corps avec l'îlot fixe. Baptiste : « au lieu de faire des barrières autour des ronds-points, créer d'autres objets, fais-moi des propositions (plot, élément béton…) ».
 
-| PR | Titre | Persona | Options | Recommandation | Décision |
-| --- | --- | --- | --- | --- | --- |
-| PR-13 | Ce qui entoure l'îlot de rond-point | Level Designer + DA | A : piles de pneus · B : séparateurs plastique lestés · C : bottes de paille existantes · D : blocs béton fixes ([visuel](../visuels/PR-13-ilot-rond-point.html)) ; îlot solide dans tous les cas | A | ✅ **B · séparateurs plastique** (2026-11-21) → étape 18 du plan |
-| PR-14 | Ombres sans apparition brutale | Lighting Artist | A : zone de 45 à 80 m, carte 4096 · B : ombres en cascade (CSM), nettes près et grossières loin · C : ombre qui s'estompe au bord de la zone | A, puis B si l'apparition reste visible ; FPS à mesurer (P10) | ✅ **A** (2026-11-21, corrigé : « uniquement b » visait PR-13) : zone de 80 m, carte 4096 → étape 17 du plan |
+| PR    | Titre                               | Persona             | Options                                                                                                                                                                                           | Recommandation                                                | Décision                                                                                                     |
+| ----- | ----------------------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| PR-13 | Ce qui entoure l'îlot de rond-point | Level Designer + DA | A : piles de pneus · B : séparateurs plastique lestés · C : bottes de paille existantes · D : blocs béton fixes ([visuel](../visuels/PR-13-ilot-rond-point.html)) ; îlot solide dans tous les cas | A                                                             | ✅ **B · séparateurs plastique** (2026-11-21) → étape 18 du plan                                             |
+| PR-14 | Ombres sans apparition brutale      | Lighting Artist     | A : zone de 45 à 80 m, carte 4096 · B : ombres en cascade (CSM), nettes près et grossières loin · C : ombre qui s'estompe au bord de la zone                                                      | A, puis B si l'apparition reste visible ; FPS à mesurer (P10) | ✅ **A** (2026-11-21, corrigé : « uniquement b » visait PR-13) : zone de 80 m, carte 4096 → étape 17 du plan |
 
 ### Tour 7 — 2026-11-21 · îlots, obstacles fixes, ombres
 
@@ -176,10 +178,28 @@ T-5 répondu : tonneau possible → option C.
 - Ombres : « encore des lags sur l'apparition » → B-8.
 - Annonces : départ en virage annoncé, et voix pendant le décompte → B-7.
 
-| PR | Titre | Persona | Options | Recommandation | Décision |
-| --- | --- | --- | --- | --- | --- |
-| PR-15 | Aspect des obstacles fixes (chicanes, terre-pleins) | DA + Level Designer | A : béton profilé · B : glissière métallique · C : mur de pneus cerclé · D : gabions (labo, onglet Obstacles) | A pour les chicanes et B pour les terre-pleins : deux codes routiers que tout le monde lit comme fixes | ✅ **B devant les chicanes, A sur les terre-pleins** (2026-11-21) → étape 19 |
-| PR-16 | Petit îlot de rond-point solide | DA | 1 : jardinière béton · 2 : îlot pavé et panneau giratoire · 3 : pelouse et arbre · 4 : rochers (labo, onglet Obstacles, avec le dôme actuel pour comparer) | 3, la même butte basse servant aussi de cœur aux grands îlots | ✅ **1 et 4 au hasard** (2026-11-21), pour tous les îlots → étape 19 |
+| PR    | Titre                                               | Persona             | Options                                                                                                                                                    | Recommandation                                                                                         | Décision                                                                     |
+| ----- | --------------------------------------------------- | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------- |
+| PR-15 | Aspect des obstacles fixes (chicanes, terre-pleins) | DA + Level Designer | A : béton profilé · B : glissière métallique · C : mur de pneus cerclé · D : gabions (labo, onglet Obstacles)                                              | A pour les chicanes et B pour les terre-pleins : deux codes routiers que tout le monde lit comme fixes | ✅ **B devant les chicanes, A sur les terre-pleins** (2026-11-21) → étape 19 |
+| PR-16 | Petit îlot de rond-point solide                     | DA                  | 1 : jardinière béton · 2 : îlot pavé et panneau giratoire · 3 : pelouse et arbre · 4 : rochers (labo, onglet Obstacles, avec le dôme actuel pour comparer) | 3, la même butte basse servant aussi de cœur aux grands îlots                                          | ✅ **1 et 4 au hasard** (2026-11-21), pour tous les îlots → étape 19         |
+
+### Tour 8 — 2026-11-22 · playtest de l'epic 4, parcours A sur `road`
+
+- A1 à A8 : « ok ».
+- Départ : « je peux accélérer et la voiture n'avance pas. Cependant je n'entends pas le moteur monter » → B-11. **🔊 Sound Designer** : le départ est le moment le plus tendu de la spéciale et le moteur y est muet ; `simulation.ts:199` coupe les gaz pendant le décompte, régime et son restent au ralenti · viole P13 · 🟡 mineur · 🧑 + 📖. ✅ La voiture tenue sur la ligne fonctionne.
+- Spéciale de l'éditeur (ville, aller-retour à terre-plein), arche « Secteur 2 » : « l'arche est dans la glissière » (capture) → B-12. **🗺️ Level Designer** : `archAt` (`scenery.ts:414`) pose les pieds à 1,5 m du bord de la voie sans connaître le terre-plein ; le pied gauche tombe dans la glissière béton · viole P1 · 🟠 important (pied et glissière ont chacun un collider) · 🧑 + 📖. La capture montre aussi 33 FPS (0-42) en ville : à garder pour l'étape 6.
+- A9 à A13 : « ok ». Parcours A terminé. A13 réécrit : décompte au premier départ du circuit, puis les tours s'enchaînent.
+- Profil d'altitude de l'éditeur (`Clisson`) : des creux sous les ponts → B-13. `profile.ts` interpole pourtant l'altitude sur les ponts : soit le pont n'est pas reconnu comme ouvrage, soit le panneau affiche une autre courbe · viole P12 · 🟡 mineur · 🧑 + 📖.
+  - Baptiste : « la route est bonne mais pas le tracé » → B-13 reste 🟡, affichage seul.
+- Rond-point de `Clisson` : « il flotte au-dessus de la route ; le rond-point monte et la modélisation est plate » → B-14. **🗺️ Level Designer** : les séparateurs lisent le sol un par un (`islandSeparators.ts:45`), l'îlot reste à une seule hauteur · viole P1 · 🟠 important · 🧑 + 📖.
+- Centre des grands ronds-points : « l'arbre unique fait un peu léger, il faudrait plus remplir le centre » → PR-20 · viole P7 · 🟡 mineur · 🧑.
+
+| PR    | Titre                                | Persona             | Options                                                                                                                                                                         | Recommandation | Décision         |
+| ----- | ------------------------------------ | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- | ---------------- |
+| PR-17 | Moteur qui monte pendant le décompte | Sound Designer + 3C | A : son seul, régime libre calculé côté audio (modèle déjà utilisé par le labo son), simulation intacte · B : point mort dans la simulation, le régime suit les gaz sans couple | A              | ✅ **A** (2026-11-22) → étape 20 du plan |
+| PR-18 | Régime idéal au départ | Game Designer + 3C | Idée de Baptiste en répondant à PR-17 : « l'idée d'un régime optimal est vraiment cool, ça ajoute une interaction au départ, c'est plus intéressant que juste attendre » | — | ⏸️ **plus tard** (2026-11-22) |
+| PR-19 | Arche posée sur une route à terre-plein | Level Designer + DA | A : arche par-dessus toute la chaussée, terre-plein compris · B : pieds ramenés au bord de la voie, avant la glissière · C : banderole sur deux mâts dès qu'un pied tombe sur le terre-plein | B | ✅ **B, et C quand la place manque** (2026-11-22) → étape 21 du plan |
+| PR-20 | Remplir le centre des grands ronds-points | DA + Level Designer | A : massif planté selon le rayon (2 à 4 arbres, buissons, haie basse en couronne) · B : objet repère au centre (sculpture, vieille machine agricole) sur une pelouse · C : butte de pelouse plus haute avec un bouquet d'arbres | A, et B en option pour les très grands îlots | ✅ **A** (2026-11-22) · variantes : A2 en ville, A3 en montagne, A1 en campagne ; B (repère) abandonné : sculpture et tracteur rejetés ([visuel](../visuels/PR-20-centre-rond-point.html)) |
 
 ## Statut
 
