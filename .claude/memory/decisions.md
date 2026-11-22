@@ -42,6 +42,10 @@ register: decisions
 | [BDR-261121_1601-3](decisions/BDR-261121_1601-3.md) | 2026-11-21 | Chicane : distance au départ pour garder son passage | #chicanes #editor #pipeline #aller-retour #nearest-index #cache | actif |
 | [BDR-261121_1824-1](decisions/BDR-261121_1824-1.md) | 2026-11-21 | Panneaux de freinage calculés par la simulation | #panneaux #freinage #chicanes #pace-notes #light-props #determinisme #scenery | actif |
 | [BDR-261121_1824-2](decisions/BDR-261121_1824-2.md) | 2026-11-21 | Studio de jeu : docs/gamedev et GDD de référence | #game-studio #gdd #audit #roadmap #playtest #bugs #docs | actif |
+| [BDR-261122_0500-1](decisions/BDR-261122_0500-1.md) | 2026-11-22 | Chocs : aides relâchées par l'impact, coupées en l'air | #physique #vehicle #assists #impact #tonneau #rapier | actif |
+| [BDR-261122_0500-2](decisions/BDR-261122_0500-2.md) | 2026-11-22 | Annonce finie avant le freinage, rien avant le GO | #copilote #pace-notes #freinage #decompte #depart | actif |
+| [BDR-261122_0500-3](decisions/BDR-261122_0500-3.md) | 2026-11-22 | Ce qui est fixe a l'air fixe : glissière, béton, îlot | #chicanes #terre-plein #rond-point #light-props #lisibilite #models | actif |
+| [BDR-261122_0500-4](decisions/BDR-261122_0500-4.md) | 2026-11-22 | Routes ou physique changées : records et fantômes à zéro | #records #fantome #stage-records #ghost #versioning #localstorage | actif |
 | [BDR-20261101115222-1](decisions/BDR-20261101115222-1.md) | 2026-11-01 | L'IGN est la seule source d'altitude en jeu | #ign #brouter #srtm #relief #altitude #epic-2 | actif |
 | [BDR-20261101115222-2](decisions/BDR-20261101115222-2.md) | 2026-11-01 | Circuit conservé et trois cartes de test | #sandbox #cartes #url #selecteur #localstorage #epic-2 | actif |
 | [BDR-20261101115222-3](decisions/BDR-20261101115222-3.md) | 2026-11-01 | Les tracés qui se croisent sont refusés en v0 | #ribbon #nearest #croisement #maillage #scope #epic-2 | actif |

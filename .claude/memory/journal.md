@@ -463,3 +463,15 @@ Dev de l'étape 9 : panneaux de freinage jaunes à chevrons 3-2-1 calculés par 
 - [BDR-261121_1824-1](decisions/BDR-261121_1824-1.md) — Panneaux de freinage calculés par la simulation
 - [BDR-261121_1824-2](decisions/BDR-261121_1824-2.md) — Studio de jeu : docs/gamedev et GDD de référence
 - [LRN-20261102162710-3](learnings/LRN-20261102162710-3.md) — Changer PIPELINE_VERSION impose pnpm bake:stages (enrichi)
+
+## 2026-11-22
+
+Longue session de studio puis de dev, commencée le 21 au soir. Le studio a repris l'audit du 21 : `road` jugée au volant après les panneaux de freinage (T-4, « plus ennuyeuse »), puis une série de retours de Baptiste en jeu, chacun noté en bug ou en proposition et décidé : annonces trop tardives à haute vitesse (PR-11 C, marge selon la distance de freinage), chocs collés à la route et voiture qui plane dans le vide (PR-12 C étendue, aides relâchées par l'impact, coupées en l'air, coup de tangage au choc de face), pont aux rambardes en « cordes » (lisses segmentées), public et barrières perchés sur la montagne, arches dans le talus (pieds au sol ou banderole sur deux mâts), ombres qui surgissent (zone de 80 m, puis distance des tranches liée à la zone), ronds-points (séparateurs plastique renversables, cœur en jardinière ou rochers, centre recalé sur l'anneau roulé en deux temps après lecture des données de `Le Mans` dans son Chrome), obstacles fixes lisibles comme fixes (glissière devant les chicanes, béton sur les terre-pleins, choisis dans un nouvel onglet du labo), mur invisible le long du terre-plein (parois continues en trimesh), voix pendant le décompte et virage de départ annoncé. Tout a été retesté par Baptiste en jeu. Les records et fantômes repartent de zéro. Confusion à retenir : un « uniquement b » visait PR-13 et non PR-14, corrigé après coup.
+
+En fin de session, les checks : `pace-note-cue` réparé (annonce sur la ligne d'arrivée, virage de départ muet, boucle infinie, bot coincé sur les chicanes), `fingerprint` réparé (cuisson et checks alignés, `-0` du décor), longueur minimale de 500 m dans `geo` et `guards`. Il reste une douzaine de checks en retard, notés pour une session dédiée. Commit `dcb554a` poussé sur `main`. Tunnels à tester plus tard, un éclairage sera peut-être nécessaire.
+
+**Entrées clés :**
+
+- [BDR-261122_0500-1](decisions/BDR-261122_0500-1.md) — chocs : aides relâchées par l'impact, coupées en l'air
+- [BDR-261122_0500-3](decisions/BDR-261122_0500-3.md) — ce qui est fixe a l'air fixe
+- [BLK-261122_0500-8](blockers/BLK-261122_0500-8.md) — 12 checks en échec, tests en retard sur le jeu

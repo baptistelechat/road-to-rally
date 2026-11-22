@@ -29,6 +29,9 @@ register: learnings
 | [LRN-261115_2236-4](learnings/LRN-261115_2236-4.md) | 2026-11-15 | Les surfaces d'eau BD TOPO couvrent toute la vallée | #decor #eau #bdtopo #terrain #hydrographie #epic-5 |
 | [LRN-261115_2244-1](learnings/LRN-261115_2244-1.md) | 2026-11-15 | Banc synthétique hors navigateur pour le pipeline géo | #tsx #windows #geo #repro #terrain #eau |
 | [LRN-261121_1601-7](learnings/LRN-261121_1601-7.md) | 2026-11-21 | Un check qui échoue tôt masque tous les suivants | #check-determinism #tests #regression #git-stash #decompte #stage-check |
+| [LRN-261122_0500-5](learnings/LRN-261122_0500-5.md) | 2026-11-22 | Empreinte sur octets de floats : -0 casse après JSON | #hash #json #float #negative-zero #determinisme #typed-array #stage-hash |
+| [LRN-261122_0500-6](learnings/LRN-261122_0500-6.md) | 2026-11-22 | `cat > fichier` sans entrée bloque la commande sur stdin | #bash #heredoc #stdin #hang #claude-code #debug-script |
+| [LRN-261122_0500-7](learnings/LRN-261122_0500-7.md) | 2026-11-22 | Distance d'ombre des tranches liée à la zone d'ombre | #three #shadows #chunks #atmosphere #pop-in #r3f |
 | [LRN-20261101115222-4](learnings/LRN-20261101115222-4.md) | 2026-11-01 | Pièges de l'API altimétrie de l'IGN | #ign #geoplateforme #altimetrie #api #cors #rge-alti |
 | [LRN-20261101115222-5](learnings/LRN-20261101115222-5.md) | 2026-11-01 | Plusieurs itinéraires : BRouter et OSRM diffèrent | #brouter #osrm #routing #itineraires #mapcn #maplibre |
 | [LRN-20261101115222-6](learnings/LRN-20261101115222-6.md) | 2026-11-01 | Le filtre rtk peut faire croire à un diff vide | #rtk #git #diff #hooks #claude-code #commit |
