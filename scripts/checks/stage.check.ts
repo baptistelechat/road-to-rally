@@ -171,7 +171,10 @@ const checkRun = (name: string, stage: StageData): number => {
   assert.equal(later, null, "arrivée validée deux fois");
   assert.equal(lap.currentMs(), frozen, "chrono non figé");
   const stopped = sim.state();
-  assert.ok(stopped.speed < 0.01, `encore à ${stopped.speed} m/s après l'arrivée`);
+  assert.ok(
+    stopped.speed < 0.01,
+    `encore à ${stopped.speed} m/s après l'arrivée`,
+  );
   assert.ok(stopped.gear > 0, `rapport ${stopped.gear} après l'arrivée`);
   const end = track.nearest(stopped.position.x, stopped.position.z);
   // Le tracé synthétique ne garde que 30 m : seules les fixtures ont la place de s'arrêter à fond.
@@ -338,7 +341,8 @@ export default async function check(): Promise<void> {
     const stage = parseStage(JSON.parse(readFileSync(path, "utf8")));
     checkShortcut(stage);
     checkStartLine(stage);
-    checkRun(fixture, stage);
+    // Le bot suit l'axe sans contourner les chicanes : leur passage est vérifié par `chicane-physics`.
+    checkRun(fixture, { ...stage, obstacles: undefined });
     checkSlopeRespawn(stage);
   }
 }

@@ -24,6 +24,7 @@ import {
   generateScenery,
   startArch,
 } from "../../src/sim/track/scenery";
+import { isNearBlock } from "../../src/sim/track/obstacles";
 import { createStageTrack } from "../../src/sim/track/stage";
 import { parseStage } from "../../src/sim/track/stageCodec";
 import type { MeshData, Pose, Track, Vec3 } from "../../src/sim/types";
@@ -335,6 +336,9 @@ const checkColliders = async (track: Track): Promise<void> => {
     return top + 6 - hit.timeOfImpact;
   };
 
+  // Sous un bloc de chicane (jupe comprise), le rayon touche le bloc posé sur la chaussée, pas la route.
+  const underBlock = (x: number, z: number): boolean =>
+    track.obstacles.some((block) => isNearBlock(block, x, z, 1));
   const ribbonPositions = track.ribbon.positions;
   const tolerance = 0.01;
   let edgeFallbacks = 0;
@@ -344,6 +348,7 @@ const checkColliders = async (track: Track): Promise<void> => {
       ribbonPositions[i + 1],
       ribbonPositions[i + 2],
     ];
+    if (underBlock(x, z)) continue;
     // Un rayon pile sur une arête du trimesh peut passer entre deux triangles (arrondi Float32, environ 15 cas par million) :
     // il doit alors retomber sur le sol ou le talus juste dessous, jamais plus bas.
     const station = Math.floor(i / 6);
@@ -382,6 +387,7 @@ const checkColliders = async (track: Track): Promise<void> => {
     ];
     const c = (axis: number): number =>
       ids.reduce((sum, id) => sum + ribbonPositions[id * 3 + axis], 0) / 3;
+    if (underBlock(c(0), c(2))) continue;
     assert.ok(
       Math.abs(heightAt(c(0), c(2), c(1)) - c(1)) < tolerance,
       `triangle ${t / 3}`,

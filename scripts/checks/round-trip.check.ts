@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { analyzeTrace } from "../../src/geo/analyzeTrace";
+import { MIN_RADIUS } from "../../src/geo/config";
 import { StageError } from "../../src/geo/errors";
 import {
   parseGpx,
@@ -450,8 +451,8 @@ const checkRefusals = (): void => {
     `cul-de-sac signalé à ${dead?.s}`,
   );
 
-  // Boucle sous 8 m : le rayon reste trop serré une fois la jonction épinglée.
-  const tightGpx = gpxOf(syntheticPath(6, REFUSAL_ARM), 250);
+  // Boucle sous le rayon minimal : le rayon reste trop serré une fois la jonction épinglée.
+  const tightGpx = gpxOf(syntheticPath(MIN_RADIUS - 1, REFUSAL_ARM), 250);
   refused(() => traceFromGpx(tightGpx), /trop serré/);
   const tight = analyzeTrace(tightGpx).issues.find(
     (issue) => issue.code === "tightLoop",

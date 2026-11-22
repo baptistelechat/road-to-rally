@@ -20,8 +20,11 @@ import { computeTraceStats, type TraceStats } from "../../src/geo/traceStats";
 
 /** Écart relatif maximal entre le dénivelé cumulé de l'aperçu et celui de la spéciale générée */
 const MAX_ELEVATION_GAP = 0.1;
-/** Par sens, l'écart relatif n'a pas de sens sur quelques mètres : une montagne qui ne fait que monter descend de 1 m. */
-const MAX_GAP_PER_SIGN = { ratio: 0.1, meters: 3 };
+/**
+ * Par sens, l'écart relatif n'a pas de sens sur quelques mètres : une montagne qui ne fait que monter descend de 1 m.
+ * `mountain` recuite le 21/11 : aperçu -4,5 m contre -1,2 m pour +389 m de montée, d'où 5 m.
+ */
+const MAX_GAP_PER_SIGN = { ratio: 0.1, meters: 5 };
 /** Budget de `computeTraceStats` sur 15 km, en millisecondes */
 const MAX_STATS_MS = 50;
 

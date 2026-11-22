@@ -13,6 +13,7 @@ import { withSkirt } from "../../src/render/track/groundMesh";
 import { initRapier, RAPIER } from "../../src/sim/rapier";
 import { addTrackColliders } from "../../src/sim/track/colliders";
 import { createMeshHeight } from "../../src/sim/track/meshHeight";
+import { isNearBlock } from "../../src/sim/track/obstacles";
 import { shoulderStrips } from "../../src/sim/track/ribbon";
 import { createStageTrack } from "../../src/sim/track/stage";
 import { parseStage } from "../../src/sim/track/stageCodec";
@@ -31,6 +32,21 @@ const STEEP_SLOPE = Math.tan((60 * Math.PI) / 180);
 
 const vertexKey = (m: MeshData, v: number): string =>
   `${m.positions[v * 3]},${m.positions[v * 3 + 1]},${m.positions[v * 3 + 2]}`;
+
+/** Sous un pont et à ses abords immédiats (un point de chaque côté), le terrain est creusé pour le lit de la rivière. */
+const isBridged = (track: Track, i: number): boolean =>
+  (track.bridges ?? []).some(({ from, to }) => i >= from - 1 && i <= to + 1);
+
+/** Abords d'un pont pour les rayons du couloir, en mètres : le lit creusé déborde de quelques mètres autour du tablier. */
+const BRIDGE_REACH = 15;
+const nearBridge = (track: Track, x: number, z: number): boolean =>
+  (track.bridges ?? []).some(({ from, to }) => {
+    for (let k = Math.max(0, from - 1); k <= Math.min(track.points.length - 1, to + 1); k++) {
+      const p = track.points[k];
+      if (Math.hypot(p.x - x, p.z - z) < BRIDGE_REACH) return true;
+    }
+    return false;
+  });
 
 /** Les bords des bas-côtés sont des arêtes du terrain, aux mêmes sommets au bit près, et aucun triangle ne dégénère. */
 const checkMesh = (name: string, track: Track, terrain: MeshData): void => {
@@ -76,6 +92,7 @@ const checkMesh = (name: string, track: Track, terrain: MeshData): void => {
   const hasEdge = (a: number, b: number): boolean =>
     edges.has(a * count + b) || edges.has(b * count + a);
   for (let i = 0; i + 1 < n; i++) {
+    if (isBridged(track, i) || isBridged(track, i + 1)) continue;
     assert.ok(
       hasEdge(lookup(left, i * 2), lookup(left, (i + 1) * 2)),
       `${name} : bord gauche ouvert au point ${i}`,
@@ -157,6 +174,10 @@ const checkRays = (name: string, track: Track, stage: StageData): void => {
     return null;
   };
 
+  // Sous un bloc de chicane (jupe comprise), le premier contact est le bloc posé sur la chaussée.
+  const underBlock = (x: number, z: number): boolean =>
+    track.obstacles.some((block) => isNearBlock(block, x, z, 1));
+
   // Sur toute la longueur : d'une hauteur où rien ne peut être au-dessus, le premier contact est la chaussée.
   const n = track.points.length;
   let rays = 0;
@@ -170,7 +191,7 @@ const checkRays = (name: string, track: Track, stage: StageData): void => {
       const x = p.x + (q.x - p.x) * 0.37 - ((q.z - p.z) / len) * lateral;
       const z = p.z + (q.z - p.z) * 0.37 + ((q.x - p.x) / len) * lateral;
       const expected = roadHeight(x, z);
-      if (expected === null) continue;
+      if (expected === null || underBlock(x, z)) continue;
       const hit = castDown(x, p.y + 2000, z);
       assert.notEqual(hit, null, `${name} : rien sous le point ${i}`);
       assert.ok(
@@ -183,6 +204,16 @@ const checkRays = (name: string, track: Track, stage: StageData): void => {
 
   // Tout le couloir : pas de trou, et `groundAt` donne la hauteur que voient les roues.
   let samples = 0;
+  // Bâtiment ou bloc posé sur le sol : le rayon partirait de l'intérieur. Le terrain, simple maillage, ne contient aucun point.
+  let insideObject = 0;
+  const inside = (x: number, y: number, z: number): boolean => {
+    let found = false;
+    world.intersectionsWithPoint({ x, y, z }, () => {
+      found = true;
+      return false;
+    });
+    return found;
+  };
   let worst = 0;
   for (let i = 0; i < n; i += 25) {
     const p = track.points[i];
@@ -191,8 +222,15 @@ const checkRays = (name: string, track: Track, stage: StageData): void => {
         const x = p.x + Math.cos(angle * 1.05 + i) * radius;
         const z = p.z + Math.sin(angle * 1.05 + i) * radius;
         const ground = track.groundAt(x, z);
-        if (track.nearest(x, z).distance > CORRIDOR_HALF_WIDTH - 20) continue;
+        const near = track.nearest(x, z);
+        if (near.distance > CORRIDOR_HALF_WIDTH - 20) continue;
+        if (underBlock(x, z) || nearBridge(track, x, z)) continue;
         assert.notEqual(ground, null, `${name} : trou en (${x}, ${z})`);
+        // Au ras du sol, tout bâtiment est plein, même un bas dont le toit passe sous le départ du rayon.
+        if (inside(x, (ground ?? 0) + 0.5, z) || inside(x, (ground ?? 0) + 3, z)) {
+          insideObject++;
+          continue;
+        }
         const hit = castDown(x, (ground ?? 0) + 3, z);
         assert.notEqual(hit, null, `${name} : pas de collider en (${x}, ${z})`);
         const gap = Math.abs((hit ?? 0) - (ground ?? 0));
@@ -224,7 +262,7 @@ const checkRays = (name: string, track: Track, stage: StageData): void => {
   assert.ok(outside > 0, `${name} : aucun point hors couloir testé`);
   world.free();
   console.log(
-    `     ${name} : ${rays} rayons sur le ruban, ${samples} sur le couloir (écart max ${worst.toFixed(4)} m), ${outside} dehors, ` +
+    `     ${name} : ${rays} rayons sur le ruban, ${samples} sur le couloir (écart max ${worst.toFixed(4)} m, ${insideObject} dans un objet), ${outside} dehors, ` +
       `colliders créés en ${colliderMs.toFixed(0)} ms, ${(stage.terrain?.indices.length ?? 0) / 3} triangles`,
   );
 };

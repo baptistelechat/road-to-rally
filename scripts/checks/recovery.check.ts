@@ -189,9 +189,16 @@ const checkRouteTracker = (): void => {
   assert.equal(fall.update(101, 0, 0).offRoute, false);
 };
 
-/** Sortie réelle à grande vitesse sur la Départementale : le décompte s'efface dès le retour sur la route. */
+/**
+ * Sortie réelle à grande vitesse sur la Départementale : le décompte s'efface dès le retour sur la route.
+ * Sans décor ni chicanes : arbres et blocs semés le long du bord arrêteraient la voiture au hasard de leur placement.
+ */
 const checkHighSpeedExcursion = (stage: StageData): void => {
-  const sim = createSimulation(carConfig, stage);
+  const sim = createSimulation(
+    carConfig,
+    { ...stage, obstacles: undefined },
+    { scenery: [] },
+  );
   const steerTo = (lateral: number): void => {
     const state = sim.state();
     const here = sim.track.nearest(state.position.x, state.position.z);
@@ -217,7 +224,8 @@ const checkHighSpeedExcursion = (stage: StageData): void => {
   const respawnsBefore = sim.respawnCount();
   let outside = 0;
   for (let i = 0; i < 60 * 2; i++) {
-    steerTo(12);
+    // 8 m de l'axe : bien au-delà du bas-côté (5,5 m), et assez près pour revenir avant la fin du décompte.
+    steerTo(8);
     if (sim.recovery()?.kind === "offroad") outside++;
   }
   assert.ok(outside >= 10, "la voiture n'a pas quitté la route");
@@ -393,8 +401,10 @@ const checkRideHeight = (): void => {
   assert.ok(peak < carConfig.ride.sag + 0.03, `pic de suspension : ${peak}`);
   assert.ok(sim.state().speed < 0.2);
 
-  // L'entrée `respawn` passe bien par la simulation, et coûte 3 s de chrono.
+  // L'entrée `respawn` passe bien par la simulation, et ses 3 s de maintien comptent au chrono.
+  // Le chrono ne part qu'au GO : on laisse d'abord filer le décompte.
   sim.restart();
+  while (sim.countdown() !== null) sim.step(NEUTRAL_INPUT);
   for (let i = 0; i < 180; i++)
     sim.step({ steer: 0.2, throttle: 1, brake: 0, handbrake: false });
   const before = sim.respawnCount();

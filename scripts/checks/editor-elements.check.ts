@@ -464,10 +464,14 @@ const checkChicaneEdits = (): void => {
     );
   assert.ok(added.length >= 3);
 
-  // Ce que « Rouler » envoie : des positions géographiques et des côtés, rien de plus.
+  // Ce que « Rouler » envoie : positions géographiques, côtés et distance au départ (passages d'une route parcourue deux fois), rien de plus.
   const requests = chicaneRequests(list());
   assert.equal(requests.length, list().length);
-  assert.deepEqual(Object.keys(requests[0]).sort(), ["position", "side"]);
+  assert.deepEqual(Object.keys(requests[0]).sort(), [
+    "along",
+    "position",
+    "side",
+  ]);
 
   // L'interrupteur retire tout et ne perd rien.
   const chosen = present().chicanes;
@@ -500,9 +504,11 @@ const checkSettle = async (): Promise<void> => {
   for (let x = 0; x <= 6000; x += 20) road.push(toLatLon({ x, z: 0 }));
   const mid = Math.floor(road.length / 2);
   const trace = traceOn(road, [0, mid, road.length - 1]);
+  // Comme dans l'éditeur, chaque chicane porte sa distance au départ (route tout droit depuis x = 0).
   const element = (id: string, index: number, zOffset = 0) => ({
     id,
     position: toLatLon({ x: index * 20, z: zOffset }),
+    along: index * 20,
     side: "left" as const,
     origin: "player" as const,
   });

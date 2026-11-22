@@ -185,9 +185,12 @@ export default async function chicanesCheck(): Promise<void> {
   const narrow = place(straightFixture(3000, 4));
   assert.equal(narrow.chicanes.length, 0);
   assert.ok(narrow.tooNarrow.length >= 1, "chicane retirée non signalée");
+  // `road` garde la même largeur sur tout le tracé : la chicane lit celle-là, quelle que soit la cuisson.
+  const roadWidth = road.widths[0];
+  assert.ok(road.widths.every((width) => width === roadWidth));
   assert.equal(
     chicaneWidth(roadPlacement.chicanes[0].s, road.points, road.widths),
-    6.5,
+    roadWidth,
   );
   // Largeur qui se resserre sur la chicane : c'est le point le plus étroit qui compte.
   const pinched = straightFixture(3000, 6.5);

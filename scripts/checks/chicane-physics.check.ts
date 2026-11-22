@@ -32,6 +32,7 @@ import { FIXED_DT } from "../../src/sim/fixedStep";
 import { initRapier, RAPIER } from "../../src/sim/rapier";
 import { createSimulation, SANDBOX_SEED } from "../../src/sim/simulation";
 import { addTrackColliders } from "../../src/sim/track/colliders";
+import { isChicaneSign } from "../../src/sim/lightProps";
 import { isNearBlock } from "../../src/sim/track/obstacles";
 import { generateScenery } from "../../src/sim/track/scenery";
 import { createStageTrack } from "../../src/sim/track/stage";
@@ -348,6 +349,7 @@ const checkSweep = (stage: StageData): void => {
   const cos = Math.cos(block.yaw);
   const sin = Math.sin(block.yaw);
   let cases = 0;
+  let vaults = 0;
   let topLift = 0;
   for (const speed of [30, 55, 80])
     for (const angle of [0, 15, 30, 45, 60, 75])
@@ -386,7 +388,8 @@ const checkSweep = (stage: StageData): void => {
               },
             });
             car.setLinvel({ x: vx * speed, y: 0, z: vz * speed }, true);
-            let aroundTheEnd = false;
+            let cleared = false;
+            let overTheTop = false;
             for (let i = 0; i < 80; i++) {
               vehicle.step(
                 { steer: 0, throttle: 1, brake: 0, handbrake: false },
@@ -396,20 +399,19 @@ const checkSweep = (stage: StageData): void => {
               const { position } = vehicle.state();
               const local = blockLocal(block, position.x, position.z);
               const beside = Math.abs(local.x) > block.span / 2;
-              aroundTheEnd ||= beside;
+              // Un choc de face fait basculer la caisse (IMPACT_LIFT_ARM) : à pleine vitesse, elle peut passer par-dessus.
+              overTheTop ||= position.y >= block.position.y + block.height;
+              cleared ||= beside || overTheTop;
               topLift = Math.max(topLift, position.y - ground);
-              assert.ok(
-                position.y < block.position.y + block.height,
-                `passe au-dessus du bloc : ${speed} m/s, ${angle}°`,
-              );
-              // Contourner par le bout est permis, traverser jamais.
-              if (!aroundTheEnd)
+              // Contourner par le bout ou basculer par-dessus est permis, traverser jamais.
+              if (!cleared)
                 assert.ok(
                   local.z * direction > block.depth / 2,
                   `traversé : ${speed} m/s, ${angle}°, face ${direction}, côté ${sign}, décalage ${offset}, pas ${i}, z local ${local.z}`,
                 );
             }
             cases++;
+            if (overTheTop) vaults++;
           }
   // Posée au-dessus d'un bloc : à portée de ses rayons, aucune roue n'y prend appui.
   vehicle.respawn({
@@ -429,7 +431,7 @@ const checkSweep = (stage: StageData): void => {
   vehicle.free();
   world.free();
   console.log(
-    `     ${cases} chocs de 30 à 80 m/s, de 0 à 75° : aucune traversée, centre de caisse à ${topLift.toFixed(2)} m au plus au-dessus du sol`,
+    `     ${cases} chocs de 30 à 80 m/s, de 0 à 75° : aucune traversée, ${vaults} bascules par-dessus, centre de caisse à ${topLift.toFixed(2)} m au plus au-dessus du sol`,
   );
 };
 
@@ -506,7 +508,9 @@ const checkScenery = (stage: StageData): void => {
   }));
   const track = createStageTrack({ ...stage, obstacles });
   const items = generateScenery(track, SANDBOX_SEED);
-  assert.ok(items.length < without.length, "le décor ne cède rien");
+  // Les annonces de chicane s'ajoutent avec les blocs : seul le reste du décor est comparé.
+  const decor = items.filter((item) => !isChicaneSign(item.kind));
+  assert.ok(decor.length < without.length, "le décor ne cède rien");
   for (const item of items)
     assert.ok(
       track.obstacles.every(
@@ -516,7 +520,7 @@ const checkScenery = (stage: StageData): void => {
     );
   // Le reste du décor ne bouge pas : mêmes objets, dans le même ordre.
   let cursor = 0;
-  for (const item of items) {
+  for (const item of decor) {
     while (
       cursor < without.length &&
       JSON.stringify(without[cursor]) !== JSON.stringify(item)

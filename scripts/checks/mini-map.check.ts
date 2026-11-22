@@ -33,6 +33,8 @@ export default async function check(): Promise<void> {
   const line = {
     points,
     closed: false,
+    // Les portes de secteur se placent sur la longueur de l'axe.
+    length: 400,
     startS: 0,
     finishS: 400,
     indexAt: (s: number) => Math.round(s / 4),

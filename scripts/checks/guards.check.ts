@@ -255,15 +255,15 @@ const checkLines = (): void => {
 };
 
 const checkWidened = (): void => {
-  // Angle de 40° à x = 1500 : le rayon minimal écarte l'axe de bien plus de 5 m de la pointe.
+  // Angle de 20° à x = 1500 : le rayon minimal (5 m) écarte l'axe de plus de 5 m de la pointe. À 25°, il reste en deçà.
   const corner = analyzeTrace(
     toGpx(
       path(
         { x: 0, z: 0 },
         { x: 1500, z: 0 },
         {
-          x: 1500 - 1500 * Math.cos((40 * Math.PI) / 180),
-          z: 1500 * Math.sin((40 * Math.PI) / 180),
+          x: 1500 - 1500 * Math.cos((20 * Math.PI) / 180),
+          z: 1500 * Math.sin((20 * Math.PI) / 180),
         },
       ),
     ),

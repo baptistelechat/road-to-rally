@@ -52,7 +52,14 @@ const checkStructure = (result: PaceNotes, track: Track): void => {
       assert.ok(item.startS >= list[i].startS, "annonces mal triées");
     });
   for (const note of notes) {
-    assert.ok(note.endS > note.startS, "note vide");
+    // L'arrivée est un point : la ligne elle-même.
+    if (note.kind === "finish")
+      assert.ok(
+        note.startS === track.finishS && note.endS === track.finishS,
+        "arrivée hors de la ligne",
+      );
+    else
+      assert.ok(note.endS > note.startS, `note vide : ${JSON.stringify(note)}`);
     assert.ok(note.startS >= track.startS, "note avant le départ");
     if (!track.closed)
       assert.ok(note.endS <= track.finishS, "note après l'arrivée");
@@ -98,6 +105,8 @@ const checkBench = async (): Promise<void> => {
     "single: bump",
     "pair: left 3, right 4",
     "chain: left 2, right 2, left 2",
+    // Spéciale ouverte : le copilote annonce l'arrivée.
+    "single: finish",
   ]);
 
   // La carte se roule comme toute spéciale.

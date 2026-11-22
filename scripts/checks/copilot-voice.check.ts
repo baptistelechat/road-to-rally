@@ -78,11 +78,12 @@ const checkWords = (): void => {
   assert.deepEqual(
     callToClips(
       call("pair", [
+        // `direction` est le côté libre : le premier virage, celui annoncé comme sur le panneau, est à l'opposé.
         { kind: "chicane", direction: "right", startS: 0, endS: 1 },
         turn("left", 3),
       ]),
     ),
-    ["chicane droite", "puis gauche trois"],
+    ["chicane gauche", "puis gauche trois"],
   );
   assert.deepEqual(
     callToClips(call("single", [{ kind: "finish", startS: 0, endS: 0 }])),

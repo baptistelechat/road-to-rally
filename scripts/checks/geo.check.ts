@@ -8,6 +8,7 @@ import {
   MIN_RADIUS,
   MIN_VERTICAL_RADIUS,
   MIN_WIDTH,
+  OVERPASS_MIRRORS,
   OVERPASS_RETRY_DELAY,
   STEP,
   MIN_STAGE_LENGTH,
@@ -86,7 +87,7 @@ const countHairpins = (points: PlanePoint[]): number => {
   const heading = (i: number): number =>
     Math.atan2(points[i + 1].z - points[i].z, points[i + 1].x - points[i].x);
   let count = 0;
-  for (let i = 0; i + 40 < points.length - 1; ) {
+  for (let i = 0; i + 40 < points.length - 1;) {
     let turn = 0;
     let end = i;
     for (; end < i + 40; end++) {
@@ -746,12 +747,18 @@ const checkNetwork = async (): Promise<void> => {
     "decor",
     "finalisation",
   ]);
-  // Overpass indisponible : attente de 30 s, une seule reprise, puis on continue avec 5 m et un avertissement.
-  assert.equal(overpassCalls.length, 2);
-  assert.deepEqual(waits, [OVERPASS_RETRY_DELAY]);
+  // Overpass indisponible : une tentative par serveur (principal puis miroirs), sans attente, puis on continue avec 5 m et un avertissement.
+  assert.equal(overpassCalls.length, 1 + OVERPASS_MIRRORS.length);
+  // Les seules attentes viennent des reprises du décor, qui reçoit ici une réponse factice : plus jamais les 30 s d'Overpass.
+  assert.ok(
+    waits.every((ms) => ms < OVERPASS_RETRY_DELAY),
+    `attentes : ${waits.join(", ")}`,
+  );
   assert.equal(inputs.ways, null);
-  assert.equal(warnings.length, 1);
+  // Hors ligne, le décor IGN manque aussi : décor inventé, avec son propre avertissement.
+  assert.equal(warnings.length, 2, warnings.join(" | "));
   assert.match(warnings[0], /5 m/);
+  assert.match(warnings[1], /décor/);
   const stage = buildStage(inputs, "Test");
   assert.ok(stage.widths.every((w) => w === 5));
   assert.ok(stage.points.every((p) => p.y === 0));
@@ -809,12 +816,28 @@ const checkNetwork = async (): Promise<void> => {
   );
 };
 
+/**
+ * Fichiers réseau dont l'horloge ne règle que le rythme des requêtes (une par seconde pour l'IGN) et leur abandon :
+ * elle choisit quand télécharger, jamais ce que devient la spéciale une fois les données reçues.
+ */
+const NETWORK_PACING = new Set(["ignRoads.ts", "decor/fetchDecor.ts"]);
+
 const checkPortability = (): void => {
-  for (const file of readdirSync(join("src", "geo"))) {
-    const source = readFileSync(join("src", "geo", file), "utf8");
+  // Sous-dossiers compris (`decor/`) : ils tournent dans le même Worker.
+  const files = readdirSync(join("src", "geo"), { recursive: true })
+    .map((file) => String(file).replaceAll("\\", "/"))
+    .filter((file) => file.endsWith(".ts"));
+  for (const file of files) {
+    // Les commentaires peuvent citer ce qui est interdit (« jamais Math.random »).
+    const code = readFileSync(join("src", "geo", file), "utf8")
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .replace(/\/\/.*$/gm, "");
+    const forbidden = NETWORK_PACING.has(file)
+      ? /\bDOMParser\b|from "(node:)?fs"|\bwindow\.|Math\.random/
+      : /\bDOMParser\b|from "(node:)?fs"|\bwindow\.|Math\.random|Date\.now/;
     assert.doesNotMatch(
-      source,
-      /\bDOMParser\b|from "(node:)?fs"|\bwindow\.|Math\.random|Date\.now/,
+      code,
+      forbidden,
       `${file} doit tourner dans un Web Worker comme dans Node`,
     );
   }
