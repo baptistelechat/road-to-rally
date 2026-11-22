@@ -105,12 +105,13 @@ const assertPipelineRefuses = (gpx: string, code: string): void => {
 };
 
 const checkLength = (): void => {
-  const short = toGpx(path({ x: 0, z: 0 }, { x: 2400, z: 0 }));
+  // Spéciale de 400 m, sous le minimum de 500 m, prolongements de 250 m compris dans le tracé.
+  const short = toGpx(path({ x: 0, z: 0 }, { x: 900, z: 0 }));
   const tooShort = issue(analyzeTrace(short), "tooShort");
   assert.equal(tooShort.blocking, true);
-  assertNear(tooShort.s, 1900, "trop court");
-  assertAt(tooShort.position, { x: 2150, z: 0 }, "trop court");
-  assert.match(tooShort.message, /1,9\d km.*au moins 2/);
+  assertNear(tooShort.s, 400, "trop court");
+  assertAt(tooShort.position, { x: 650, z: 0 }, "trop court");
+  assert.match(tooShort.message, /0,[34]\d km.*au moins 0,5/);
   assertPipelineRefuses(short, "tooShort");
 
   const long = toGpx(path({ x: 0, z: 0 }, { x: 15600, z: 0 }));
@@ -120,14 +121,13 @@ const checkLength = (): void => {
   assertPipelineRefuses(long, "tooLong");
 
   // Sans espoir : pas d'axe, mais toujours un endroit.
+  // Moins de la moitié du minimum : plus rien à lisser.
   const hopelessShort = analyzeTrace(
-    toGpx(line({ x: 0, z: 0 }, { x: 900, z: 0 })),
+    toGpx(line({ x: 0, z: 0 }, { x: 200, z: 0 })),
   );
   assert.equal(hopelessShort.axis, null);
   const stub = issue(hopelessShort, "tooShort");
-  assertNear(stub.s, 400, "très court");
-  assertAt(stub.position, { x: 900, z: 0 }, "très court");
-  assert.match(stub.message, /0,40 km/);
+  assertAt(stub.position, { x: 200, z: 0 }, "très court");
 
   const hopelessLong = analyzeTrace(
     toGpx(line({ x: 0, z: 0 }, { x: 40000, z: 0 }, 100)),

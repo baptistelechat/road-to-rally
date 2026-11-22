@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <title>PR-13 · Îlot de rond-point</title>
+    <style>
+      :root {
+        --bg: #0b1018;
+        --card: #121a26;
+        --fg: #e9edf3;
+        --muted: #93a0b4;
+        --brand: #ffd23f;
+        --border: #202c3f;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+      }
+      body {
+        background: var(--bg);
+        color: var(--fg);
+        font-family: system-ui, sans-serif;
+        padding: 28px 16px 48px;
+      }
+      .wrap {
+        max-width: 1180px;
+        margin: 0 auto;
+      }
+      h1 {
+        font-size: 20px;
+      }
+      p.lead {
+        color: var(--muted);
+        margin-top: 8px;
+        font-size: 14px;
+        line-height: 1.55;
+        max-width: 860px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 18px;
+        margin-top: 22px;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 14px;
+      }
+      .card.reco {
+        border-color: var(--brand);
+      }
+      h3 {
+        font-size: 15px;
+      }
+      .tag {
+        font-size: 12px;
+        color: var(--muted);
+        margin: 4px 0 10px;
+      }
+      ul {
+        font-size: 13px;
+        line-height: 1.5;
+        padding-left: 18px;
+        margin-top: 10px;
+        color: #c9d1dc;
+      }
+      svg {
+        width: 100%;
+        border-radius: 4px;
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>PR-13 · Ce qui entoure l'îlot d'un rond-point</h1>
+      <p class="lead">
+        Dans les quatre cas, l'îlot reste <b>solide</b> : bordure béton basse et
+        butte d'herbe, collider fixe un peu plus petit qu'aujourd'hui. On ne
+        coupe donc jamais le rond-point. Seul l'anneau posé autour change. En
+        haut : vue de dessus. En bas : vue de profil, depuis la route.
+      </p>
+      <div class="grid">
+        <div class="card reco">
+          <h3>A · Piles de pneus</h3>
+          <div class="tag">
+            3 pneus par pile, une sur deux à bande blanche · renversables, ~40
+            kg
+          </div>
+          <svg viewBox="0 0 260 230">
+            <rect width="260" height="230" fill="#3a4152" />
+            <circle
+              cx="130"
+              cy="80"
+              r="46"
+              fill="#7a9a55"
+              stroke="#b9b4a8"
+              stroke-width="4"
+            />
+            <g fill="#1a1d22" stroke="#f4f2ec" stroke-width="1.5">
+              <circle cx="130" cy="22" r="7" />
+              <circle cx="171" cy="39" r="7" stroke="#1a1d22" />
+              <circle cx="188" cy="80" r="7" />
+              <circle cx="171" cy="121" r="7" stroke="#1a1d22" />
+              <circle cx="130" cy="138" r="7" />
+              <circle cx="89" cy="121" r="7" stroke="#1a1d22" />
+              <circle cx="72" cy="80" r="7" />
+              <circle cx="89" cy="39" r="7" stroke="#1a1d22" />
+            </g>
+            <rect x="0" y="160" width="260" height="70" fill="#cfdbe6" />
+            <rect x="0" y="210" width="260" height="20" fill="#3a4152" />
+            <path d="M60 210 Q130 168 200 210 Z" fill="#7a9a55" />
+            <g fill="#1a1d22">
+              <rect x="40" y="186" width="18" height="24" rx="3" />
+              <rect x="92" y="186" width="18" height="24" rx="3" />
+              <rect x="150" y="186" width="18" height="24" rx="3" />
+              <rect x="202" y="186" width="18" height="24" rx="3" />
+            </g>
+            <g fill="#f4f2ec">
+              <rect x="40" y="195" width="18" height="4" />
+              <rect x="150" y="195" width="18" height="4" />
+            </g>
+          </svg>
+          <ul>
+            <li>
+              <b>Lecture :</b> vocabulaire rallye, silhouette noire qui ressort
+              sur l'herbe.
+            </li>
+            <li>
+              <b>Au choc :</b> les pneus du haut tombent, la pile se décale.
+            </li>
+            <li><b>Coût :</b> M, un nouveau modèle et son corps léger.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>B · Séparateurs plastique lestés</h3>
+          <div class="tag">
+            Modules rouge et blanc remplis d'eau, bout à bout · se poussent, ~80
+            kg
+          </div>
+          <svg viewBox="0 0 260 230">
+            <rect width="260" height="230" fill="#3a4152" />
+            <circle
+              cx="130"
+              cy="80"
+              r="46"
+              fill="#7a9a55"
+              stroke="#b9b4a8"
+              stroke-width="4"
+            />
+            <circle
+              cx="130"
+              cy="80"
+              r="58"
+              fill="none"
+              stroke="#d9472b"
+              stroke-width="9"
+              stroke-dasharray="18 4"
+            />
+            <circle
+              cx="130"
+              cy="80"
+              r="58"
+              fill="none"
+              stroke="#f4f2ec"
+              stroke-width="9"
+              stroke-dasharray="18 4"
+              stroke-dashoffset="22"
+              opacity=".95"
+            />
+            <rect x="0" y="160" width="260" height="70" fill="#cfdbe6" />
+            <rect x="0" y="210" width="260" height="20" fill="#3a4152" />
+            <path d="M60 210 Q130 168 200 210 Z" fill="#7a9a55" />
+            <g>
+              <path d="M20 210 L26 188 L70 188 L76 210 Z" fill="#d9472b" />
+              <path d="M78 210 L84 188 L128 188 L134 210 Z" fill="#f4f2ec" />
+              <path d="M136 210 L142 188 L186 188 L192 210 Z" fill="#d9472b" />
+              <path d="M194 210 L200 188 L244 188 L250 210 Z" fill="#f4f2ec" />
+            </g>
+          </svg>
+          <ul>
+            <li>
+              <b>Lecture :</b> très claire, mais plus « chantier » que rallye.
+            </li>
+            <li><b>Au choc :</b> le module glisse et pivote, sans voler.</li>
+            <li><b>Coût :</b> M, un modèle, et une chaîne de corps à tenir.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>C · Bottes de paille</h3>
+          <div class="tag">
+            Les bottes déjà en jeu dans les virages · renversables
+          </div>
+          <svg viewBox="0 0 260 230">
+            <rect width="260" height="230" fill="#3a4152" />
+            <circle
+              cx="130"
+              cy="80"
+              r="46"
+              fill="#7a9a55"
+              stroke="#b9b4a8"
+              stroke-width="4"
+            />
+            <g fill="#d8b65a" stroke="#a8853a" stroke-width="1.5">
+              <rect x="120" y="14" width="20" height="13" rx="3" />
+              <rect x="176" y="72" width="13" height="20" rx="3" />
+              <rect x="120" y="133" width="20" height="13" rx="3" />
+              <rect x="71" y="72" width="13" height="20" rx="3" />
+              <rect
+                x="160"
+                y="30"
+                width="18"
+                height="13"
+                rx="3"
+                transform="rotate(45 169 36)"
+              />
+              <rect
+                x="160"
+                y="117"
+                width="18"
+                height="13"
+                rx="3"
+                transform="rotate(-45 169 123)"
+              />
+              <rect
+                x="82"
+                y="117"
+                width="18"
+                height="13"
+                rx="3"
+                transform="rotate(45 91 123)"
+              />
+              <rect
+                x="82"
+                y="30"
+                width="18"
+                height="13"
+                rx="3"
+                transform="rotate(-45 91 36)"
+              />
+            </g>
+            <rect x="0" y="160" width="260" height="70" fill="#cfdbe6" />
+            <rect x="0" y="210" width="260" height="20" fill="#3a4152" />
+            <path d="M60 210 Q130 168 200 210 Z" fill="#7a9a55" />
+            <g fill="#d8b65a">
+              <rect x="34" y="194" width="34" height="16" rx="4" />
+              <rect x="96" y="194" width="34" height="16" rx="4" />
+              <rect x="150" y="194" width="34" height="16" rx="4" />
+              <rect x="206" y="194" width="34" height="16" rx="4" />
+            </g>
+          </svg>
+          <ul>
+            <li>
+              <b>Lecture :</b> cohérente avec les virages, mais se confond avec
+              eux.
+            </li>
+            <li><b>Au choc :</b> comme dans les virages, la botte roule.</li>
+            <li><b>Coût :</b> S, tout existe déjà.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>D · Blocs béton</h3>
+          <div class="tag">Séparateurs en béton à bandes rouges · fixes</div>
+          <svg viewBox="0 0 260 230">
+            <rect width="260" height="230" fill="#3a4152" />
+            <circle
+              cx="130"
+              cy="80"
+              r="46"
+              fill="#7a9a55"
+              stroke="#b9b4a8"
+              stroke-width="4"
+            />
+            <circle
+              cx="130"
+              cy="80"
+              r="56"
+              fill="none"
+              stroke="#b9b4a8"
+              stroke-width="10"
+              stroke-dasharray="26 3"
+            />
+            <rect x="0" y="160" width="260" height="70" fill="#cfdbe6" />
+            <rect x="0" y="210" width="260" height="20" fill="#3a4152" />
+            <path d="M60 210 Q130 168 200 210 Z" fill="#7a9a55" />
+            <g fill="#b9b4a8">
+              <path d="M14 210 L24 190 L76 190 L86 210 Z" />
+              <path d="M88 210 L98 190 L150 190 L160 210 Z" />
+              <path d="M162 210 L172 190 L224 190 L234 210 Z" />
+            </g>
+            <g fill="#d9472b">
+              <rect x="40" y="194" width="10" height="6" />
+              <rect x="114" y="194" width="10" height="6" />
+              <rect x="188" y="194" width="10" height="6" />
+            </g>
+          </svg>
+          <ul>
+            <li>
+              <b>Lecture :</b> massive, on comprend qu'il ne faut pas toucher.
+            </li>
+            <li><b>Au choc :</b> arrêt net, comme aujourd'hui.</li>
+            <li><b>Coût :</b> S à M, mais ne répond pas à ta remarque.</li>
+          </ul>
+        </div>
+      </div>
+      <p class="lead" style="margin-top: 20px">
+        Recommandation : <b>A · piles de pneus</b>. C'est un vrai code du
+        rallye, différent des bottes de virage, et le joueur lit d'un coup d'œil
+        « contourne ». <b>C</b> si tu veux un résultat tout de suite, sans
+        nouveau modèle.
+      </p>
+    </div>
+  </body>
+</html>

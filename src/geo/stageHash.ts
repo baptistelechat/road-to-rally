@@ -35,9 +35,12 @@ const createHasher = () => {
   /** La longueur d'abord : deux découpes d'une même suite d'octets ne se confondent pas. */
   const add = (values: Numbers): void => {
     addBytes(new Uint8Array(new Float64Array([values.length]).buffer));
-    addBytes(
-      new Uint8Array(values.buffer, values.byteOffset, values.byteLength),
-    );
+    // -0 s'écrit 0 en JSON mais pas en octets : sans ça, une spéciale relue de son fichier change d'empreinte.
+    const bytes =
+      values instanceof Uint32Array
+        ? values
+        : (values as Float64Array).map((value) => value + 0);
+    addBytes(new Uint8Array(bytes.buffer, bytes.byteOffset, bytes.byteLength));
   };
   const digest = (): string => {
     const a =

@@ -295,7 +295,7 @@ export const useGameLoop = ({
         const isBest = isNewRecord(previous, lapMs);
         if (isBest) {
           const next: StageRecord = {
-            version: 1,
+            version: 2,
             totalMs: lapMs,
             splitsMs: [...splits.times()],
             date: new Date().toISOString(),

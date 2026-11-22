@@ -3,12 +3,13 @@
 import type { GameMap } from "./maps";
 
 export interface StageRecord {
-  version: 1;
+  /** 2 : routes, obstacles et physique des chocs revus le 2026-11-21. Un record plus ancien est ignoré : les chronos repartent de zéro. */
+  version: 2;
   /** Pénalités comprises */
   totalMs: number;
   /** Temps de passage aux intermédiaires, vide sur le circuit */
   splitsMs: readonly number[];
-  /** ISO, vide pour un record repris de l'ancienne clé */
+  /** ISO */
   date: string;
   /** Rempli par le fantôme, typé plus tard */
   ghost?: unknown;
@@ -38,10 +39,10 @@ const parseRecord = (text: string | null): StageRecord | null => {
     string,
     unknown
   >;
-  if (version !== 1 || !isPositive(totalMs)) return null;
+  if (version !== 2 || !isPositive(totalMs)) return null;
   if (!Array.isArray(splitsMs) || !splitsMs.every(isPositive)) return null;
   return {
-    version: 1,
+    version: 2,
     totalMs,
     splitsMs,
     date: typeof date === "string" ? date : "",
@@ -49,15 +50,10 @@ const parseRecord = (text: string | null): StageRecord | null => {
   };
 };
 
-/** Record de la spéciale, ou à défaut l'ancien meilleur temps seul. `null` si rien, ou stockage bloqué. */
+/** Record de la spéciale. `null` si rien, ou stockage bloqué. L'ancien meilleur temps seul (`bestLapKey`) ne compte plus. */
 export const readStageRecord = (map: RecordIdentity): StageRecord | null => {
   try {
-    const record = parseRecord(localStorage.getItem(stageRecordKey(map)));
-    if (record) return record;
-    const legacy = Number(localStorage.getItem(map.bestLapKey));
-    return isPositive(legacy)
-      ? { version: 1, totalMs: legacy, splitsMs: [], date: "" }
-      : null;
+    return parseRecord(localStorage.getItem(stageRecordKey(map)));
   } catch {
     return null;
   }
@@ -84,7 +80,7 @@ export const writeStageRecord = (
     if (record.ghost === undefined) return null;
   }
   const light: StageRecord = {
-    version: 1,
+    version: 2,
     totalMs: record.totalMs,
     splitsMs: record.splitsMs,
     date: record.date,

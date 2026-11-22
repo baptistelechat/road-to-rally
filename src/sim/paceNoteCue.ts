@@ -1,8 +1,13 @@
 import type { PaceCall, PaceNote } from "./track/paceNotes";
 import type { Track } from "./types";
 
-/** Une phrase finit ce temps avant son virage, en secondes. Se règle au volant, à chaque vitesse de diction. */
+/** Une phrase finit au moins ce temps avant son virage, en secondes, plus le temps de freinage. Se règle au volant, à chaque vitesse de diction. */
 const ANTICIPATION = 1;
+/**
+ * Décélération de référence au freinage, en m/s² : la marge grandit de `vitesse ÷ (2 × BRAKE_DECEL)` secondes pour que
+ * la phrase finisse avant le point de freinage, dont la distance croît avec le carré de la vitesse (B-4). Se règle au volant.
+ */
+const BRAKE_DECEL = 10;
 /** Une voiture qui sort d'un virage accélère pendant la phrase : marge ajoutée à la vitesse lue, en m/s² */
 const PLAN_ACCEL = 2;
 /** Une annonce ne part jamais plus près de son virage que ça, sauf retard, en mètres */
@@ -101,12 +106,13 @@ export const createPaceNoteCue = (
 
   /** Abscisse où partir pour que chaque phrase à venir finisse à l'heure, sans empiéter sur la suivante */
   const plannedStart = (speed: number, floor: number): number => {
+    const anticipation = ANTICIPATION + speed / (2 * BRAKE_DECEL);
     let latest = Infinity;
     for (let k = next + PLAN_CALLS - 1; k >= next; k--) {
       if (!exists(k)) continue;
       const duration = timing.durationOf(callOf(k), false);
       latest = Math.min(
-        startAt(k) - Math.max(travel(speed, duration + ANTICIPATION), floor),
+        startAt(k) - Math.max(travel(speed, duration + anticipation), floor),
         latest - travel(speed, duration),
       );
     }
@@ -142,8 +148,8 @@ export const createPaceNoteCue = (
         s = raw;
         furthest = raw;
         respawns = respawnCount;
-        // Au départ, un virage déjà entamé reste à annoncer.
-        next = seek(s, (k) => endAt(k) < s);
+        // Au départ, un virage déjà entamé ne s'annonce pas : on est dedans, la voix commence au suivant.
+        next = seek(s, (k) => startAt(k) <= s);
       } else if (respawnCount !== respawns) {
         s = tracked + along(tracked, raw);
         furthest = s;

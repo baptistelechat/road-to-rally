@@ -131,6 +131,18 @@ const pointAt = (track: Track, s: number): { x: number; z: number } => {
   return track.points[i];
 };
 
+/**
+ * Première annonce attendue : un virage déjà entamé sur la ligne de départ ne s'annonce pas, la voix commence au suivant.
+ * Abscisse vue par l'annonceur au départ : celle du point d'axe le plus proche, pas tout à fait `startS`.
+ */
+const firstHeard = (track: Track, calls: PaceCall[]): number => {
+  if (track.closed) return 0;
+  const start = pointAt(track, track.startS);
+  const seen = track.nearest(start.x, start.z).s;
+  const k = calls.findIndex((call) => call.startS > seen);
+  return k < 0 ? calls.length : k;
+};
+
 /** Un pas de conduite vers l'avant, à l'allure tirée des rayons. */
 const advance = (drive: Drive): void => {
   const { track, profile, pace } = drive;
@@ -238,17 +250,37 @@ const runKinematic = (
   const startOf = (k: number): number =>
     Math.floor(k / calls.length) * track.length +
     calls[k % calls.length].startS;
-  while (drive.s < end) {
-    const out = feed(cue, drive);
-    if (out) said.push(toSaid(out, drive.now));
+  const cross = (): void => {
     while (
       crossing.length < laps * calls.length &&
       drive.s >= startOf(crossing.length)
     )
       crossing.push(drive.now);
+  };
+  while (drive.s < end) {
+    const out = feed(cue, drive);
+    if (out) said.push(toSaid(out, drive.now));
+    cross();
     advance(drive);
   }
-  const lapCalls = Array.from({ length: laps }, () => calls).flat();
+  // Le dernier pas franchit l'arrivée : une annonce posée sur la ligne (`startS` = `finishS`) y est atteinte aussi.
+  cross();
+  // Un virage déjà entamé sur la ligne de départ ne s'annonce pas (la voix commence au suivant) : il n'est pas attendu.
+  const started = firstHeard(track, calls);
+  const lapCalls = Array.from({ length: laps }, () => calls)
+    .flat()
+    .slice(started);
+  if (said.length < lapCalls.length) {
+    const heard = new Set(said.map((item) => item.index));
+    const missing = calls
+      .map((call, k) => ({ call, k }))
+      .filter(({ k }) => k >= started && !heard.has(k))
+      .map(
+        ({ call, k }) =>
+          `${k} (s=${call.startS.toFixed(0)}-${call.endS.toFixed(0)})`,
+      );
+    console.log(`     ${name} : non dites ${missing.join(", ")}`);
+  }
   if (track.closed) {
     assert.deepEqual(
       said.map((item) => item.index),
@@ -260,7 +292,7 @@ const runKinematic = (
     name,
     lapCalls,
     said.map((item, k) => ({ ...item, index: k })),
-    crossing,
+    crossing.slice(started),
     track,
   );
   return { said, result: { ...result, total: lapCalls.length } };
@@ -341,7 +373,7 @@ const checkReverse = (track: Track, calls: PaceCall[]): void => {
   }
   assert.deepEqual(
     indices,
-    calls.map((_, k) => k),
+    calls.map((_, k) => k).slice(firstHeard(track, calls)),
     "répétition ou saut après une marche arrière",
   );
 };
@@ -367,7 +399,7 @@ const checkRespawn = (track: Track, calls: PaceCall[]): void => {
     }
     assert.equal(out.index, ahead, "annonce après remise en piste");
   }
-  // Redémarrage : repart de la première annonce.
+  // Redémarrage : repart de la première annonce, hors virage entamé sur la ligne.
   cue.reset();
   drive.s = track.startS;
   drive.speed = 0;
@@ -377,7 +409,11 @@ const checkRespawn = (track: Track, calls: PaceCall[]): void => {
     advance(drive);
     out = feed(cue, drive, 2);
   }
-  assert.equal(out.index, 0, "annonce après redémarrage");
+  assert.equal(
+    out.index,
+    firstHeard(track, calls),
+    "annonce après redémarrage",
+  );
 };
 
 /** Remise en piste juste avant un virage à précisions : trop tard pour la phrase entière. */
@@ -489,7 +525,7 @@ const checkBranchJump = (track: Track, calls: PaceCall[]): void => {
   const baseline = run(false);
   assert.deepEqual(
     baseline,
-    calls.map((_, k) => k),
+    calls.map((_, k) => k).slice(firstHeard(track, calls)),
   );
   assert.deepEqual(
     run(true),
@@ -557,7 +593,11 @@ const checkReplay = (track: Track, calls: PaceCall[]): void => {
 
 /** Une icône par virage : dans une annonce groupée, chaque note quitte la liste à sa propre sortie. */
 const checkActiveNotes = (track: Track, calls: PaceCall[]): void => {
-  const index = calls.findIndex((call) => call.notes.length > 1);
+  // Le virage entamé au départ n'est jamais dit : on attendrait sa phrase sans fin.
+  const heard = firstHeard(track, calls);
+  const index = calls.findIndex(
+    (call, k) => k >= heard && call.notes.length > 1,
+  );
   assert.ok(index >= 0, "aucune annonce groupée");
   const [first, second] = calls[index].notes;
   const drive = startDrive(track, 1);
@@ -656,6 +696,8 @@ export default async function check(): Promise<void> {
   await initRapier();
   runBot("track", undefined);
   runBot("notes", bench);
-  runBot("road", road);
+  // Le bot suit l'axe sans contourner les chicanes : il s'y encastrerait. Ce test mesure le moment des annonces, pas
+  // le pilotage, il roule donc `road` sans ses chicanes (leurs annonces sont couvertes par les parcours cinématiques).
+  runBot("road", { ...road, obstacles: undefined });
   runBot("mountain", mountain);
 }

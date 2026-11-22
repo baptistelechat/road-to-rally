@@ -9,6 +9,7 @@ import {
 } from "./buildingColliders";
 import { embankment, GROUND_Y, shoulderStrips } from "./ribbon";
 import { finishArch, splitArches, startArch } from "./scenery";
+import { islandCoreRadius } from "./islandSeparators";
 
 /** Hauteur des colliders de décor : assez haut pour qu'une voiture ne monte jamais dessus */
 const OBSTACLE_HEIGHT = 4;
@@ -161,7 +162,7 @@ export const addTrackColliders = (
     world.createCollider(
       RAPIER.ColliderDesc.cylinder(
         (island.height + island.skirt) / 2,
-        island.radius,
+        islandCoreRadius(island),
       )
         .setTranslation(
           island.position.x,
@@ -173,35 +174,42 @@ export const addTrackColliders = (
         .setCollisionGroups(RAY_IGNORED_GROUPS),
     );
 
-  // Après les îlots : sans terre-plein, le monde reste le même au bit près. Un bloc par segment, bout à bout.
-  for (const { points, height, skirt } of track.medians)
-    for (let i = 1; i < points.length; i++) {
-      const a = points[i - 1];
-      const b = points[i];
-      const dx = b.x - a.x;
-      const dz = b.z - a.z;
-      // L'axe X local suit le segment : (cos, -sin) après rotation de `yaw` autour de Y.
-      const yaw = Math.atan2(-dz, dx);
-      const low = Math.min(a.y, b.y) - skirt;
-      const high = Math.max(a.y, b.y) + height;
+  // Après les îlots : sans terre-plein, le monde reste le même au bit près. Deux parois continues qui suivent la
+  // médiane, une par chaussée : des blocs bout à bout accrochaient la caisse à chaque jointure, comme un mur invisible.
+  for (const { points, height, skirt } of track.medians) {
+    const last = points.length - 1;
+    for (const side of [-1, 1]) {
+      const positions: number[] = [];
+      for (let i = 0; i <= last; i++) {
+        const prev = points[Math.max(0, i - 1)];
+        const next = points[Math.min(last, i + 1)];
+        const len = Math.hypot(next.x - prev.x, next.z - prev.z) || 1;
+        // À droite de la médiane : (-dz, dx), comme pour les garde-corps.
+        const offset = (MEDIAN_THICKNESS / 2) * side;
+        const x = points[i].x - ((next.z - prev.z) / len) * offset;
+        const z = points[i].z + ((next.x - prev.x) / len) * offset;
+        positions.push(x, points[i].y - skirt, z);
+        positions.push(x, points[i].y + height, z);
+      }
+      const indices: number[] = [];
+      for (let k = 0; k < last; k++) {
+        const [bottom, top, nextBottom, nextTop] = [2 * k, 2 * k + 1, 2 * k + 2, 2 * k + 3];
+        // Normale tournée vers la chaussée de ce côté : vers la droite à droite, vers la gauche à gauche.
+        if (side > 0) indices.push(bottom, nextBottom, nextTop, bottom, nextTop, top);
+        else indices.push(bottom, nextTop, nextBottom, bottom, top, nextTop);
+      }
       world.createCollider(
-        RAPIER.ColliderDesc.cuboid(
-          Math.hypot(dx, dz) / 2,
-          (high - low) / 2,
-          MEDIAN_THICKNESS / 2,
+        RAPIER.ColliderDesc.trimesh(
+          Float32Array.from(positions),
+          Uint32Array.from(indices),
+          RAPIER.TriMeshFlags.FIX_INTERNAL_EDGES,
         )
-          .setTranslation((a.x + b.x) / 2, (low + high) / 2, (a.z + b.z) / 2)
-          .setRotation({
-            x: 0,
-            y: Math.sin(yaw / 2),
-            z: 0,
-            w: Math.cos(yaw / 2),
-          })
           .setFriction(BLOCK_FRICTION)
           .setRestitution(BLOCK_RESTITUTION)
           .setCollisionGroups(RAY_IGNORED_GROUPS),
       );
     }
+  }
 
   // Tout à la fin : sans décor, le monde reste le même au bit près. Ordre trié du pipeline, jamais celui d'un Set.
   // Rayons de suspension ignorés comme les chicanes : une roue collée au mur ne grimpe pas sur le toit.

@@ -2,6 +2,7 @@ import {
   BoxGeometry,
   type BufferGeometry,
   ConeGeometry,
+  CylinderGeometry,
   ExtrudeGeometry,
   Shape,
   TorusGeometry,
@@ -251,4 +252,14 @@ export const RALLY_GEOMETRY = {
   tent: tent([DA.brand, DA.night], DA.night),
   bannerPosts: bannerPosts(BANNER.width, 2.4),
   placard: placardStake(),
+  /** Rallonge d'un pied d'arche vers un sol plus bas : 1 m de haut, origine en bas, à l'échelle de l'arche en largeur */
+  archLeg: piece(placed(new CylinderGeometry(0.45, 0.45, 1, 6), [0, 0.5, 0]), {
+    color: DA.brand,
+  }),
+  /** Lest posé sur le sol réel, sous un pied rallongé ou raccourci */
+  archBallast: piece(placed(new BoxGeometry(1.1, 0.35, 1.1), [0, 0.175, 0]), {
+    color: DA.ink,
+  }),
+  /** Corde de la banderole d'intermédiaire : 1 m de long en x, mise à l'écartement des mâts */
+  bannerRope: piece(new BoxGeometry(1, 0.06, 0.06), { color: DA.ink }),
 };

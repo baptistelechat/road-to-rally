@@ -6,10 +6,12 @@ import { type DirectionalLight, Object3D } from "three";
 import type { CarSource } from "./carSource";
 import { DEFAULT_LOOK, LOOK_PRESETS, type LookId } from "./look";
 
-/** Demi-côté de la zone d'ombre autour de la voiture */
-const SHADOW_RANGE = 45;
+/** Demi-côté de la zone d'ombre autour de la voiture : assez loin pour que les ombres n'apparaissent pas sous les yeux (PR-14) */
+export const SHADOW_RANGE = 80;
+/** Résolution de la carte d'ombre : la zone a grandi, la carte aussi pour garder la netteté près de la voiture */
+const SHADOW_MAP_SIZE = 4096;
 /** La zone d'ombre avance par pas de texel : les bords d'ombre ne scintillent pas en roulant */
-const SHADOW_SNAP = (SHADOW_RANGE * 2) / 2048;
+const SHADOW_SNAP = (SHADOW_RANGE * 2) / SHADOW_MAP_SIZE;
 
 interface AtmosphereProps {
   /** La zone d'ombre suit cette voiture ; sans elle, elle reste centrée sur l'origine */
@@ -67,7 +69,7 @@ export const Atmosphere = ({
         color={preset.sun.color}
         intensity={preset.sun.intensity}
         castShadow
-        shadow-mapSize={[2048, 2048]}
+        shadow-mapSize={[SHADOW_MAP_SIZE, SHADOW_MAP_SIZE]}
         shadow-camera-left={-SHADOW_RANGE}
         shadow-camera-right={SHADOW_RANGE}
         shadow-camera-top={SHADOW_RANGE}

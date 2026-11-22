@@ -18,6 +18,8 @@ const KINDS: SceneryKind[] = [
   "brakeBoard3",
   "brakeBoard2",
   "brakeBoard1",
+  "islandSeparatorRed",
+  "islandSeparatorWhite",
 ];
 /** Végétation renversable : des milliers sur une spéciale, en lots par maille pour que three masque les lointains. */
 const VEGETATION_KINDS: SceneryKind[] = ["bushProp", "vineRowProp"];

@@ -105,6 +105,8 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Ponts dessinés sous la route, avec garde-corps solides et trottoir : pierre à arches dans les bourgs et sur les petits ouvrages, viaduc dès 12 m de haut, poutres en treillis sur l'eau des petites routes, béton à piles ailleurs
 - Bouton « Régénérer » sur les spéciales générées par une ancienne version du jeu : le tracé se rouvre dans l'éditeur et la génération se lance seule
 - Panneaux de freinage jaunes à 3, 2 puis 1 chevrons, pointés vers le virage, avant chaque virage serré au bout d'une longue ligne droite, sur toutes les spéciales. On peut les renverser
+- Séparateurs en plastique rouge et blanc autour des ronds-points, qu'on pousse et fait pivoter, autour d'un îlot solide en jardinière béton ou en rochers
+- Onglet « Obstacles » dans `/decor-lab` pour comparer les habillages des chicanes, des terre-pleins et des îlots
 
 ### Changed
 
@@ -166,6 +168,13 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Notes du copilote redessinées : tuile inclinée et badge hexagonal
 - Mini-carte en rectangle plus large, et HUD de course masqué au menu de départ
 - Road et Mountain refaites avec la génération actuelle : vrais bâtiments, forêts, eau et ponts, et chicanes sur les longues lignes droites de Road. Les records et fantômes de ces deux cartes repartent de zéro
+- Le copilote annonce plus tôt à haute vitesse : la phrase finit avant le point de freinage, pas une seconde avant le virage
+- Rien n'est annoncé pendant le décompte, et le virage où l'on prend le départ n'est pas annoncé
+- Chocs plus vivants : la voiture bascule sur un choc de face, valse sur une chicane, tombe en basculant dans un ravin, et peut faire un tonneau
+- Ombres portées plus loin autour de la voiture : elles n'apparaissent plus sous les yeux en roulant
+- Glissière métallique devant les blocs de chicane et séparateur en béton sur les terre-pleins, pour ne plus les confondre avec les barrières renversables
+- Sur une route étroite à flanc de montagne, l'arche de secteur devient une banderole tendue entre deux mâts ; ailleurs, ses pieds descendent jusqu'au sol
+- Tous les records et fantômes repartent de zéro : routes, obstacles et physique des chocs ont changé
 
 ### Removed
 
@@ -175,6 +184,11 @@ project adheres to [Semantic Versioning](https://semver.org/).
 ### Fixed
 
 - Arbres du bord de route qu'on traversait après une sortie large : ils ont un tronc solide jusqu'à 25 m de la route
+- Public, barrières et pancartes perchés sur le versant au-dessus des épingles de montagne : ils restent à hauteur de route
+- Arches de secteur plantées dans le talus ou suspendues au-dessus du vide
+- Rambardes de pont qui traversaient la route dans les courbes
+- Mur invisible en longeant la glissière d'un terre-plein
+- Îlot de rond-point décentré dans son anneau
 - Dans les options, bas à la manette passe de la mini-carte au compteur au lieu de faire défiler leurs cartes
 - Bavettes qui traversaient la route : elles sont plus courtes et restent au-dessus du sol à l'assiette de repos
 - Caméra du garage qui s'inversait à la manette en passant au-dessus de la voiture : elle se bloque au sommet, comme à la souris

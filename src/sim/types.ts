@@ -137,7 +137,7 @@ export interface ChicaneBlock {
   yaw: number;
 }
 
-/** Îlot d'un rond-point : une barrière en cercle, incassable, pour qu'on ne coupe pas par le centre. */
+/** Îlot d'un rond-point : un cœur incassable, pour qu'on ne coupe pas par le centre, ceint de séparateurs renversables (`islandSeparators.ts`). */
 export interface RoundaboutIsland {
   /** Centre au niveau de la route */
   position: Vec3;
@@ -442,6 +442,9 @@ export type SceneryKind =
   | "brakeBoard3"
   | "brakeBoard2"
   | "brakeBoard1"
+  /** Séparateur plastique lesté autour d'un îlot de rond-point (voir `islandSeparators.ts`), rouge et blanc en alternance */
+  | "islandSeparatorRed"
+  | "islandSeparatorWhite"
   /** Spectateur : décor seul, sans collider (story 5.5) */
   | "spectator"
   | RallySceneryKind;

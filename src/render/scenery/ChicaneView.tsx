@@ -11,6 +11,7 @@ import {
 import { CHICANE_STACK_DEPTH } from "@/geo/config";
 import { isRock } from "@/geo/roundabouts";
 import { type ApproachSign, passageSide } from "@/sim/track/chicaneSigns";
+import { islandCoreRadius } from "@/sim/track/islandSeparators";
 import type {
   ChicaneBlock,
   ChicaneSide,
@@ -23,6 +24,8 @@ import {
   CHICANE_CHEVRON_MODULE,
   CHICANE_GEOMETRY,
   CHICANE_STACK_MODULE,
+  ISLAND_GRAVEL_GEOMETRY,
+  ISLAND_PLANTER_GEOMETRY,
   SCENERY_GEOMETRY,
   SCENERY_MATERIAL,
 } from "./models";
@@ -107,7 +110,7 @@ const Batch = ({
 };
 
 /**
- * Blocs de chicane : une pile au centre, une barrière sur chaque face, visible dans les deux sens de la route.
+ * Blocs de chicane : une pile au centre, une glissière métallique sur chaque face, visible dans les deux sens de la route.
  * Des chevrons sur les deux faces montrent le côté à prendre. En jeu, les panneaux d'annonce sont des objets légers
  * (`chicaneSignItems`, dessinés par `LightPropsView`) : `signs` ne sert qu'aux aperçus figés.
  */
@@ -153,7 +156,7 @@ export const ChicaneView = ({
   return (
     <group>
       <Batch
-        geometry={CHICANE_GEOMETRY.chicaneBarrier}
+        geometry={CHICANE_GEOMETRY.guardrail}
         matrices={batches.barriers}
       />
       <Batch geometry={CHICANE_GEOMETRY.hayStack} matrices={batches.stacks} />
@@ -174,7 +177,10 @@ export const ChicaneView = ({
   );
 };
 
-/** Barrière en cercle autour de chaque îlot de rond-point, en modules de chicane tangents à l'anneau. */
+/**
+ * Îlots de rond-point : un cœur solide (jardinière ou rochers), ceint de séparateurs renversables quand il y a la place (objets légers,
+ * `LightPropsView`), un rocher pour les plus petits.
+ */
 export const IslandBarriers = ({
   islands,
   groundAt,
@@ -182,41 +188,64 @@ export const IslandBarriers = ({
   islands: RoundaboutIsland[];
   groundAt: Track["groundAt"];
 }) => {
-  const matrices = useMemo(() => {
-    const result: Matrix4[] = [];
-    const rotation = new Quaternion();
-    for (const { position, radius } of islands) {
-      if (isRock(radius)) continue;
-      const ring = radius - BARRIER_INSET;
-      const count = Math.max(
-        6,
-        Math.round((2 * Math.PI * ring) / CHICANE_BARRIER_MODULE),
+  // Cœur solide de chaque îlot, à la taille de son collider : jardinière ou rochers, ce qui ne se renverse pas en a l'air.
+  const cores = useMemo(() => {
+    const planters: Matrix4[] = [];
+    const gravels: Matrix4[] = [];
+    const shrubs: Matrix4[] = [];
+    const stones: Matrix4[] = [];
+    const flat = new Quaternion();
+    const turn = new Quaternion();
+    for (const island of islands) {
+      if (isRock(island.radius)) continue;
+      const core = islandCoreRadius(island);
+      const { x, z } = island.position;
+      const y = groundAt(x, z) ?? island.position.y;
+      const disc = new Matrix4().compose(
+        new Vector3(x, y, z),
+        flat,
+        new Vector3(core, 1, core),
       );
-      // Corde entre deux modules : ils se touchent sans laisser de trou.
-      const scale = new Vector3(
-        (2 * ring * Math.sin(Math.PI / count)) / CHICANE_BARRIER_MODULE,
-        1,
-        1,
-      );
-      for (let i = 0; i < count; i++) {
-        const angle = ((i + 0.5) * 2 * Math.PI) / count;
-        const x =
-          position.x + Math.cos(angle) * ring * Math.cos(Math.PI / count);
-        const z =
-          position.z + Math.sin(angle) * ring * Math.cos(Math.PI / count);
-        // L'axe X du module suit la tangente (-sin, cos) de l'anneau.
-        rotation.setFromAxisAngle(UP, -angle - Math.PI / 2);
-        result.push(
+      // Tirage stable d'un chargement à l'autre : la parité des décimètres du centre.
+      if ((Math.round(x * 10) + Math.round(z * 10)) % 2 === 0) {
+        planters.push(disc);
+        const size = Math.min(core * 0.5, 2);
+        shrubs.push(
           new Matrix4().compose(
-            // Chaque module sur le sol : un rond-point en pente ne laisse ni barrière en l'air ni barrière enterrée.
-            new Vector3(x, groundAt(x, z) ?? position.y, z),
-            rotation,
-            scale,
+            new Vector3(x, y + 0.7, z),
+            flat,
+            new Vector3(size, size, size),
+          ),
+        );
+        continue;
+      }
+      gravels.push(disc);
+      // Un gros rocher au centre, une couronne de plus petits autour.
+      const big = Math.min(core * 0.5, 1.6);
+      stones.push(
+        new Matrix4().compose(
+          new Vector3(x, y, z),
+          turn.setFromAxisAngle(UP, x),
+          new Vector3(big, big * 0.8, big),
+        ),
+      );
+      const small = Math.min(core * 0.3, 0.9);
+      const count = Math.max(3, Math.round((2 * Math.PI * core * 0.6) / 1.8));
+      for (let k = 0; k < count; k++) {
+        const angle = (k / count) * 2 * Math.PI + x;
+        const rx = x + Math.cos(angle) * core * 0.62;
+        const rz = z + Math.sin(angle) * core * 0.62;
+        const size = small * (0.8 + 0.4 * ((k * 7) % 5) / 4);
+        stones.push(
+          new Matrix4().compose(
+            new Vector3(rx, groundAt(rx, rz) ?? y, rz),
+            new Quaternion().setFromAxisAngle(UP, angle * 3),
+            new Vector3(size, size * 0.8, size),
           ),
         );
       }
     }
-    return result;
+    return { planters, gravels, shrubs, stones };
   }, [islands, groundAt]);
   // Un giratoire trop petit pour une barrière : un rocher à la taille de son collider.
   const rocks = useMemo(
@@ -238,13 +267,16 @@ export const IslandBarriers = ({
   );
   return (
     <>
-      <Batch geometry={CHICANE_GEOMETRY.chicaneBarrier} matrices={matrices} />
       <Batch geometry={SCENERY_GEOMETRY.rock} matrices={rocks} />
+      <Batch geometry={ISLAND_PLANTER_GEOMETRY} matrices={cores.planters} />
+      <Batch geometry={SCENERY_GEOMETRY.bush} matrices={cores.shrubs} />
+      <Batch geometry={ISLAND_GRAVEL_GEOMETRY} matrices={cores.gravels} />
+      <Batch geometry={SCENERY_GEOMETRY.rock} matrices={cores.stones} />
     </>
   );
 };
 
-/** Glissière des terre-pleins : des modules de chicane bout à bout le long de la médiane, chacun posé sur le sol. */
+/** Terre-plein d'un aller-retour : des séparateurs béton bout à bout le long de la médiane, chacun posé sur le sol. */
 export const MedianBarriers = ({
   medians,
   groundAt,
@@ -286,6 +318,6 @@ export const MedianBarriers = ({
     return result;
   }, [medians, groundAt]);
   return (
-    <Batch geometry={CHICANE_GEOMETRY.chicaneBarrier} matrices={matrices} />
+    <Batch geometry={CHICANE_GEOMETRY.concreteBarrier} matrices={matrices} />
   );
 };

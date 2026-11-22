@@ -14,6 +14,7 @@ import { createDecorFootprints } from "./decorFootprints";
 import { raceCourse, splitGates } from "../splits";
 import { isNearBlock } from "./obstacles";
 import { rallyDressing, type RallyHairpin } from "./rallyDressing";
+import { islandSeparatorItems } from "./islandSeparators";
 import { SHOULDER_WIDTH } from "./ribbon";
 import type {
   DecorTree,
@@ -35,6 +36,8 @@ const ARCH_S = 14;
 const VEGETATION_CLEARANCE = 7;
 /** Dégagement minimal du mobilier (bottes, panneaux) par rapport au bord de route */
 const FURNITURE_CLEARANCE = 2.6;
+/** Écart de hauteur maximal entre le sol d'un objet (public, habillage, panneau) et la route la plus proche, en mètres */
+const MAX_ROAD_GAP = 2.5;
 /** En dessous de ce rayon, un virage reçoit des bottes de paille et un panneau */
 const BEND_RADIUS = 60;
 /** Emprise d'un objet léger vu du dessus, demi-côté en mètres : la botte couchée, ou le pied d'un plot ou d'un panneau */
@@ -391,8 +394,24 @@ const seatLoose = (
 const stepOf = (track: Track): number =>
   track.length / (track.closed ? track.points.length : track.points.length - 1);
 
+/** Au-delà de cet écart entre la route et le sol sous un pied, l'arche cède la place à une banderole, en mètres */
+const ARCH_MAX_LEG = 3;
+/** Mâts de la banderole au ras du bas-côté : distance au bord de route, en mètres */
+const BANNER_MAST_EDGE = 0.4;
+const BANNER_MAST_RADIUS = 0.1;
+
+export interface RallyArch extends Pose {
+  /** Demi-écartement des pieds, ou des mâts de la banderole */
+  halfSpan: number;
+  /** Sol sous le pied gauche puis droit : le pied descend ou se raccourcit jusqu'à lui (PR-10, option A) */
+  feet: [number, number];
+  /** Un pied sans sol à moins de `ARCH_MAX_LEG` : banderole tendue entre deux mâts (PR-10, option C) */
+  banner: boolean;
+  postRadius?: number;
+}
+
 /** Centre, côté droit et cap d'une arche à l'abscisse `s`. */
-const archAt = (track: Track, s: number): Pose & { halfSpan: number } => {
+const archAt = (track: Track, s: number, allowBanner: boolean): RallyArch => {
   const n = track.points.length;
   // Le circuit garde son pas moyen, et ses colliders d'arche au bit près.
   const index = track.closed
@@ -404,20 +423,45 @@ const archAt = (track: Track, s: number): Pose & { halfSpan: number } => {
   const from = atEnd ? track.points[index - 1] : point;
   const to = atEnd ? point : track.points[(index + 1) % n];
   const yaw = Math.atan2(from.x - to.x, from.z - to.z);
+  const rotation = { x: 0, y: Math.sin(yaw / 2), z: 0, w: Math.cos(yaw / 2) };
+  const halfSpan = track.widths[index] / 2 + 1.5;
+  // Même placement des pieds que leurs colliders (`colliders.ts`) : gauche puis droite.
+  const groundUnder = (side: number): number | null =>
+    track.terrain
+      ? track.groundAt(
+          point.x + Math.cos(yaw) * side * halfSpan,
+          point.z - Math.sin(yaw) * side * halfSpan,
+        )
+      : point.y;
+  const grounds = [groundUnder(-1), groundUnder(1)];
+  const banner =
+    allowBanner &&
+    grounds.some((g) => g === null || Math.abs(g - point.y) > ARCH_MAX_LEG);
+  if (banner)
+    return {
+      position: point,
+      rotation,
+      halfSpan: track.widths[index] / 2 + BANNER_MAST_EDGE,
+      feet: [point.y, point.y],
+      banner,
+      postRadius: BANNER_MAST_RADIUS,
+    };
   return {
     position: point,
-    rotation: { x: 0, y: Math.sin(yaw / 2), z: 0, w: Math.cos(yaw / 2) },
-    halfSpan: track.widths[index] / 2 + 1.5,
+    rotation,
+    halfSpan,
+    feet: [grounds[0] ?? point.y, grounds[1] ?? point.y],
+    banner,
   };
 };
 
-/** Arche de départ, devant la voiture sur sa grille : partagée entre le rendu et les collisions. */
-export const startArch = (track: Track): Pose & { halfSpan: number } =>
-  archAt(track, track.startS + ARCH_S);
+/** Arche de départ, devant la voiture sur sa grille : partagée entre le rendu et les collisions. Toujours une arche : elle porte les feux. */
+export const startArch = (track: Track): RallyArch =>
+  archAt(track, track.startS + ARCH_S, false);
 
 /** Arche d'arrivée, sur la ligne : partagée entre le rendu et les collisions. */
-export const finishArch = (track: Track): Pose & { halfSpan: number } =>
-  archAt(track, track.finishS);
+export const finishArch = (track: Track): RallyArch =>
+  archAt(track, track.finishS, true);
 
 /**
  * Arches des intermédiaires, aux mêmes abscisses que le chrono (`splitGates`) : partagées entre le rendu et les
@@ -426,13 +470,11 @@ export const finishArch = (track: Track): Pose & { halfSpan: number } =>
 /** Rayon des boudins d'une arche de secteur : rendu et collider ont la même épaisseur, en mètres */
 export const SPLIT_ARCH_TUBE = 0.65;
 
-export const splitArches = (
-  track: Track,
-): (Pose & { halfSpan: number; postRadius: number })[] => {
+export const splitArches = (track: Track): RallyArch[] => {
   const course = raceCourse(track);
   return splitGates(course.startS, course.finishS - course.startS).map((s) => ({
-    ...archAt(track, track.closed ? s % track.length : s),
     postRadius: SPLIT_ARCH_TUBE,
+    ...archAt(track, track.closed ? s % track.length : s, true),
   }));
 };
 
@@ -823,8 +865,17 @@ export const generateScenery = (track: Track, seed: number): SceneryItem[] => {
             ) > HAY_CLEARANCE,
         )),
   );
+  // Public, habillage et panneaux restent à hauteur de route : jamais perchés sur un versant ni au fond d'un ravin.
+  // La végétation n'y est pas soumise.
+  const atRoadLevel = (item: SceneryItem): boolean =>
+    !track.terrain ||
+    Math.abs(
+      item.position.y - track.nearest(item.position.x, item.position.z).point.y,
+    ) <= MAX_ROAD_GAP;
+  const clearForObject = (item: SceneryItem): boolean =>
+    clearOfBlocks(item) && atRoadLevel(item);
   // Le public après : aucun indice d'objet existant ne bouge.
-  const crowdKept = crowd.filter(clearOfBlocks);
+  const crowdKept = crowd.filter(clearForObject);
   // Habillage rallye tout à la fin, générateur à part : seules les bottes devant le public des épingles cèdent la place.
   const keptCrowd = new Set(crowdKept);
   // Panneaux de freinage après tout le reste : sans eux, le décor et le monde restent les mêmes au bit près.
@@ -833,7 +884,7 @@ export const generateScenery = (track: Track, seed: number): SceneryItem[] => {
     const light = base.filter((item) => isLightProp(item.kind));
     const boards = brakeBoardItems(track).filter(
       (board) =>
-        clearOfBlocks(board) &&
+        clearForObject(board) &&
         clearOfDecor(board) &&
         light.every(
           (other) =>
@@ -843,7 +894,8 @@ export const generateScenery = (track: Track, seed: number): SceneryItem[] => {
             ) > HAY_CLEARANCE,
         ),
     );
-    return [...base, ...boards];
+    // Séparateurs des îlots de rond-point en tout dernier : sans rond-point, rien ne change au bit près.
+    return [...base, ...boards, ...islandSeparatorItems(track)];
   };
   const dress = (base: SceneryItem[]): SceneryItem[] =>
     withBoards(
@@ -857,7 +909,7 @@ export const generateScenery = (track: Track, seed: number): SceneryItem[] => {
         startS: track.startS + ARCH_S,
         inBuilding,
         inWater,
-        clear: clearOfBlocks,
+        clear: clearForObject,
       }),
     );
   if (looseClearance.size === 0)

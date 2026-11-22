@@ -18,6 +18,7 @@ import { createStageTrack } from "../../src/sim/track/stage";
 import { parseStage } from "../../src/sim/track/stageCodec";
 import type { MeshData, StageData, Track } from "../../src/sim/types";
 import { syntheticStage } from "./stage.check";
+import { withAutoChicanes } from "../fixtureStage";
 
 /** Aire minimale d'un triangle vu du dessus, en m² : le Float32 reste au millimètre à ces distances */
 const MIN_PLAN_AREA = 1e-4;
@@ -294,9 +295,11 @@ export default async function check(): Promise<void> {
     const path = `public/stages/${fixture}.json`;
     if (!existsSync(path)) continue;
     const baked = parseStage(JSON.parse(readFileSync(path, "utf8")));
-    const inputs = JSON.parse(
-      readFileSync(`fixtures/stages/${fixture}.inputs.json`, "utf8"),
-    ) as StageInputs;
+    const inputs = withAutoChicanes(
+      JSON.parse(
+        readFileSync(`fixtures/stages/${fixture}.inputs.json`, "utf8"),
+      ) as StageInputs,
+    );
 
     // Sans réseau, depuis le cache : mêmes octets que le fichier cuit.
     const started = performance.now();

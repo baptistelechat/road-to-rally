@@ -10,6 +10,7 @@ import {
   MIN_WIDTH,
   OVERPASS_RETRY_DELAY,
   STEP,
+  MIN_STAGE_LENGTH,
 } from "../../src/geo/config";
 import { StageError, type StageErrorCode } from "../../src/geo/errors";
 import {
@@ -38,6 +39,7 @@ import {
 import { buildProfile } from "../../src/geo/profile";
 import { stageToJson } from "../../src/sim/track/stageCodec";
 import type { StageData } from "../../src/sim/types";
+import { withAutoChicanes } from "../fixtureStage";
 
 const fixtures = join("fixtures", "stages");
 const IDS = ["mountain", "road"] as const;
@@ -176,9 +178,11 @@ const instantSleep = async (): Promise<void> => {};
 const checkFixtures = (): void => {
   for (const id of IDS) {
     const gpx = readFileSync(join(fixtures, `${id}.gpx`), "utf8");
-    const inputs = JSON.parse(
-      readFileSync(join(fixtures, `${id}.inputs.json`), "utf8"),
-    ) as StageInputs;
+    const inputs = withAutoChicanes(
+      JSON.parse(
+        readFileSync(join(fixtures, `${id}.inputs.json`), "utf8"),
+      ) as StageInputs,
+    );
     const committed = readFileSync(
       join("public", "stages", `${id}.json`),
       "utf8",
@@ -325,9 +329,19 @@ const checkRefusals = (): void => {
   assertRefused(() => traceFromGpx(""), "empty");
   assertRefused(() => traceFromGpx("<gpx><trk></trk></gpx>"), "empty");
   assertRefused(() => traceFromGpx(toGpx([{ x: 0, z: 0 }])), "empty");
-  assertRefused(() => traceFromGpx(toGpx(straight(1200))), "tooShort");
-  assertRefused(() => traceFromGpx(toGpx(straight(1975))), "tooShort");
-  assert.ok(traceFromGpx(toGpx(straight(2025))).length > 2000);
+  // Autour de la longueur minimale, quelle qu'elle soit : le seuil a déjà bougé une fois.
+  assertRefused(
+    () => traceFromGpx(toGpx(straight(MIN_STAGE_LENGTH * 0.6))),
+    "tooShort",
+  );
+  assertRefused(
+    () => traceFromGpx(toGpx(straight(MIN_STAGE_LENGTH - 25))),
+    "tooShort",
+  );
+  assert.ok(
+    traceFromGpx(toGpx(straight(MIN_STAGE_LENGTH + 25))).length >
+      MIN_STAGE_LENGTH,
+  );
   assertRefused(() => traceFromGpx(toGpx(straight(15100))), "tooLong");
   assertRefused(() => traceFromGpx(toGpx(straight(120000, 100))), "tooLong");
 
@@ -729,6 +743,7 @@ const checkNetwork = async (): Promise<void> => {
     "relief",
     "routes",
     "terrain",
+    "decor",
     "finalisation",
   ]);
   // Overpass indisponible : attente de 30 s, une seule reprise, puis on continue avec 5 m et un avertissement.

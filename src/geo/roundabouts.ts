@@ -72,6 +72,65 @@ const fitCircle = (
   return { x: mx + a, z: mz + b, radius, residual };
 };
 
+/**
+ * Recale le centre sur la route roulée : le cercle d'OSM peut être décalé de quelques mètres de l'axe (routes IGN),
+ * et l'îlot paraissait alors hors du centre de l'anneau dessiné. Moindres carrés de Gauss-Newton sur le centre, décalage
+ * borné par `maxShift`. Le rayon suit le centre quand la route fait plus d'un demi-tour ; sur un arc plus court, un
+ * rayon libre ne tient pas : il reste à la distance moyenne de départ.
+ */
+const recenter = (
+  circle: { x: number; z: number },
+  ring: PlanePoint[],
+  maxShift: number,
+): { x: number; z: number } => {
+  if (ring.length < 3) return circle;
+  const meanDistance = (cx: number, cz: number): number =>
+    ring.reduce((sum, p) => sum + Math.hypot(p.x - cx, p.z - cz), 0) /
+    ring.length;
+  // Arc couvert : 360° moins le plus grand trou entre deux points voisins en angle.
+  const angles = ring
+    .map((p) => Math.atan2(p.z - circle.z, p.x - circle.x))
+    .sort((a, b) => a - b);
+  let gap = angles[0] + 2 * Math.PI - angles[angles.length - 1];
+  for (let k = 1; k < angles.length; k++)
+    gap = Math.max(gap, angles[k] - angles[k - 1]);
+  const freeRadius = 2 * Math.PI - gap > Math.PI;
+  let radius = meanDistance(circle.x, circle.z);
+  let { x, z } = circle;
+  for (let iteration = 0; iteration < 12; iteration++) {
+    if (freeRadius) radius = meanDistance(x, z);
+    let axx = 0;
+    let axz = 0;
+    let azz = 0;
+    let bx = 0;
+    let bz = 0;
+    for (const p of ring) {
+      const d = Math.hypot(p.x - x, p.z - z) || 1;
+      const ux = (p.x - x) / d;
+      const uz = (p.z - z) / d;
+      const r = d - radius;
+      axx += ux * ux;
+      axz += ux * uz;
+      azz += uz * uz;
+      bx += ux * r;
+      bz += uz * r;
+    }
+    const det = axx * azz - axz * axz;
+    if (Math.abs(det) < 1e-9) break;
+    x += (azz * bx - axz * bz) / det;
+    z += (axx * bz - axz * bx) / det;
+  }
+  const shift = Math.hypot(x - circle.x, z - circle.z);
+  if (shift <= maxShift) return { x, z };
+  const k = maxShift / shift;
+  return { x: circle.x + (x - circle.x) * k, z: circle.z + (z - circle.z) * k };
+};
+
+/** Un point tourne autour de l'anneau quand sa direction s'écarte de moins de 60° de la tangente (cosinus au rayon). */
+const ROUNDABOUT_TANGENT = 0.5;
+/** Décalage maximal du centre recalé par rapport au cercle d'OSM, en mètres : au-delà, la donnée est douteuse */
+const ROUNDABOUT_MAX_SHIFT = 4;
+
 /** Voies d'un même anneau, réunies par leurs bouts. */
 // ponytail: comparaison de tous les bouts deux à deux, assez pour les quelques anneaux d'une spéciale.
 const groupRings = (rings: PlanePoint[][]): PlanePoint[][][] => {
@@ -121,13 +180,27 @@ export const findRoundabouts = (
     )
       continue;
     const band = Math.max(3, 0.25 * circle.radius);
+    // Seuls les points qui tournent autour de l'anneau : ceux des routes d'entrée et de sortie, qui le traversent
+    // dans la bande, tiraient le centre vers elles.
+    const around = axis.filter((p, i) => {
+      const rx = p.x - circle.x;
+      const rz = p.z - circle.z;
+      const d = Math.hypot(rx, rz);
+      if (Math.abs(d - circle.radius) > band || i === 0 || i === axis.length - 1)
+        return false;
+      const tx = axis[i + 1].x - axis[i - 1].x;
+      const tz = axis[i + 1].z - axis[i - 1].z;
+      const t = Math.hypot(tx, tz) || 1;
+      return Math.abs((tx * rx + tz * rz) / (t * (d || 1))) < ROUNDABOUT_TANGENT;
+    });
+    const center = recenter(circle, around, ROUNDABOUT_MAX_SHIFT);
     let onRing = 0;
     let first = -1;
     const cap = circle.radius - ROUNDABOUT_RING_LANE;
     let island = cap;
     let nearest = Infinity;
     axis.forEach((p, i) => {
-      const d = Math.hypot(p.x - circle.x, p.z - circle.z);
+      const d = Math.hypot(p.x - center.x, p.z - center.z);
       nearest = Math.min(nearest, d);
       if (Math.abs(d - circle.radius) <= band) {
         onRing++;
@@ -147,8 +220,8 @@ export const findRoundabouts = (
     found.push({
       index: first,
       roundabout: {
-        x: roundMm(circle.x),
-        z: roundMm(circle.z),
+        x: roundMm(center.x),
+        z: roundMm(center.z),
         radius: roundMm(island),
       },
     });

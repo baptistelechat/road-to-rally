@@ -41,6 +41,8 @@ const LIFT_GRIP_RATE = 1.5;
 const IMPACT_DEADZONE = 1;
 const IMPACT_FULL = 10;
 const IMPACT_DECAY = 7;
+/** Bras de levier du choc sous le centre de gravité, en mètres : plus il est long, plus la caisse bascule. Se règle au volant. */
+const IMPACT_LIFT_ARM = 0.25;
 
 const clamp = (value: number, min: number, max: number): number =>
   Math.min(max, Math.max(min, value));
@@ -229,12 +231,21 @@ export const createVehicle = (
     const v = body.linvel();
     const g = world.gravity;
     const t = world.timestep;
-    const change = length({
+    const dv = {
       x: v.x - velocityBeforeWorldStep.x - g.x * t,
       y: v.y - velocityBeforeWorldStep.y - g.y * t,
       z: v.z - velocityBeforeWorldStep.z - g.z * t,
-    });
+    };
+    const change = length(dv);
     velocityBeforeWorldStep = null;
+    // Le choc porte comme s'il frappait sous le centre de gravité : la caisse lancée bascule par-dessus, l'arrière
+    // se soulève sur un choc de face (PR-12). Seule la part du choc dans le plan de la caisse compte : pas les réceptions.
+    if (change > IMPACT_DEADZONE) {
+      const up = rotate(body.rotation(), { x: 0, y: 1, z: 0 });
+      const flat = addScaled(dv, up, -dot(dv, up));
+      const kick = cfg.mass * IMPACT_LIFT_ARM * (1 - IMPACT_DEADZONE / change);
+      body.applyTorqueImpulse(cross(scale(up, -kick), flat), true);
+    }
     impact = Math.max(
       impact,
       clamp((change - IMPACT_DEADZONE) / (IMPACT_FULL - IMPACT_DEADZONE), 0, 1),
@@ -449,19 +460,31 @@ export const createVehicle = (
       body.applyImpulseAtPoint(scale(force, dt), at, true);
   };
 
-  const applyAssists = (up: Vec3, driftAngle: number, dt: number): void => {
-    const { antiRoll, yawRateLimit, drag, driftStability, driftFreeAngle } =
-      cfg.assists;
+  const applyAssists = (
+    up: Vec3,
+    driftAngle: number,
+    grounded: boolean,
+    dt: number,
+  ): void => {
+    const { drag, yawRateLimit, driftFreeAngle } = cfg.assists;
     const v = body.linvel();
     body.applyImpulse(scale(v, -drag * length(v) * dt), true);
 
+    // Un choc relâche les aides le temps que l'impact retombe : la voiture valse au lieu de rester collée (PR-12).
+    // En l'air, ni redressement ni rappel de glisse : elle bascule dans un ravin au lieu de planer, un tonneau reste possible.
+    const hold = 1 - impact;
+    const antiRoll = grounded ? cfg.assists.antiRoll * hold : 0;
+    const driftStability = grounded ? cfg.assists.driftStability * hold : 0;
     const w = body.angvel();
-    if (yawRateLimit > 0) {
+    if (yawRateLimit > 0 && hold > 0) {
       const yawRate = dot(w, up);
       const excess = Math.abs(yawRate) - yawRateLimit;
       if (excess > 0)
         body.applyTorqueImpulse(
-          scale(up, -Math.sign(yawRate) * excess * yawInertia * YAW_LIMIT_GAIN),
+          scale(
+            up,
+            -Math.sign(yawRate) * excess * yawInertia * YAW_LIMIT_GAIN * hold,
+          ),
           true,
         );
     }
@@ -518,7 +541,7 @@ export const createVehicle = (
       grounded ||= controller.wheelIsInContact(i);
     const driveForce = updateTransmission(forwardSpeed, grounded, dt);
     applyTires(driveForce, up, forward, right, dt);
-    applyAssists(up, driftAngle, dt);
+    applyAssists(up, driftAngle, grounded, dt);
 
     const after = body.linvel();
     velocityBeforeWorldStep = { x: after.x, y: after.y, z: after.z };

@@ -20,8 +20,8 @@ const STEP_MS = FIXED_DT * 1000;
  * L'échantillon `i` est la pose après le pas `i × period + 1` depuis le GO, le dernier tombe sur le pas d'arrivée.
  */
 export interface GhostData {
-  /** 2 : pénalités notées. Un fantôme de version 1 ne les a pas, il est ignoré (fantôme de secours à la place). */
-  version: 2;
+  /** 3 : physique des chocs revue (PR-12). Un fantôme plus ancien est ignoré (fantôme de secours à la place). */
+  version: 3;
   period: number;
   /** Nombre de pas chronométrés enregistrés */
   steps: number;
@@ -115,7 +115,7 @@ export const createPoseRecorder = (
     build: (inputs) => {
       if (!steps) return null;
       const data: GhostData = {
-        version: 2,
+        version: 3,
         period,
         steps,
         samples: samples.slice(),
@@ -153,7 +153,7 @@ const isInputFrames = (value: unknown): value is InputFrames => {
 export const parseGhost = (value: unknown): GhostData | null => {
   if (typeof value !== "object" || value === null) return null;
   const v = value as Partial<Record<keyof GhostData, unknown>>;
-  if (v.version !== 2) return null;
+  if (v.version !== 3) return null;
   const { period, steps, samples, cuts, penalties, inputs } = v;
   if (typeof period !== "number" || !Number.isInteger(period) || period < 1)
     return null;
@@ -171,7 +171,7 @@ export const parseGhost = (value: unknown): GhostData | null => {
     return null;
   if (inputs !== undefined && !isInputFrames(inputs)) return null;
   return {
-    version: 2,
+    version: 3,
     period,
     steps,
     samples,

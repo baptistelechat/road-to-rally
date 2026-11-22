@@ -322,8 +322,26 @@ const pushParapets = (
   ] as const) {
     const st = at(s);
     for (const side of [-1, 1])
-      pushEndCap(out, st, (w - wall) * side, w * side, top, -0.02, forward, spec.trim);
-    pushEndCap(out, st, -w, w, -0.02, -spec.deck, forward, shade(spec.body, 0.85));
+      pushEndCap(
+        out,
+        st,
+        (w - wall) * side,
+        w * side,
+        top,
+        -0.02,
+        forward,
+        spec.trim,
+      );
+    pushEndCap(
+      out,
+      st,
+      -w,
+      w,
+      -0.02,
+      -spec.deck,
+      forward,
+      shade(spec.body, 0.85),
+    );
   }
   for (const side of [-1, 1] as const) {
     if (style === "stone") {
@@ -407,14 +425,16 @@ const pushParapets = (
         0.05,
         spec.trim,
       );
+    // Une lisse par intervalle entre deux poteaux : elle suit la courbe du tablier au lieu de couper la route.
     for (const h of [0.65, 1.05])
-      pushBeam(
-        out,
-        offset(at(0), rail, h),
-        offset(at(length), rail, h),
-        0.05,
-        spec.trim,
-      );
+      for (let s = 0; s < length; s += 2.5)
+        pushBeam(
+          out,
+          offset(at(s), rail, h),
+          offset(at(Math.min(s + 2.5, length)), rail, h),
+          0.05,
+          spec.trim,
+        );
   }
 };
 

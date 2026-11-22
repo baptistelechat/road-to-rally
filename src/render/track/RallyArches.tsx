@@ -68,6 +68,10 @@ export const RallyArches = ({ track }: { track: Track }) => {
         pose.rotation.w,
       ),
       scale: archScale(pose.halfSpan),
+      halfSpan: pose.halfSpan,
+      // Hauteur du sol sous chaque pied, relative à la route : gauche (x local négatif) puis droite.
+      feet: pose.feet.map((ground) => ground - pose.position.y),
+      banner: pose.banner,
       text,
     }));
   }, [track]);
@@ -77,19 +81,73 @@ export const RallyArches = ({ track }: { track: Track }) => {
       key={arch.key}
       position={[arch.position.x, arch.position.y, arch.position.z]}
       quaternion={arch.quaternion}
-      scale={arch.scale}
     >
-      <mesh
-        geometry={RALLY_GEOMETRY.arch}
-        material={SCENERY_MATERIAL}
-        castShadow
-        receiveShadow
-      />
-      <mesh
-        geometry={signs[arch.text]}
-        material={rallyTextMaterial()}
-        castShadow
-      />
+      {arch.banner ? (
+        // Route trop étroite pour l'arche : banderole tendue entre deux mâts au ras du bas-côté.
+        <>
+          {[-1, 1].map((side) => (
+            <mesh
+              key={side}
+              geometry={RALLY_GEOMETRY.mast}
+              material={SCENERY_MATERIAL}
+              position={[side * arch.halfSpan, 0, 0]}
+              castShadow
+            />
+          ))}
+          <mesh
+            geometry={RALLY_GEOMETRY.bannerRope}
+            material={SCENERY_MATERIAL}
+            position={[0, ARCH_SIGN.y + ARCH_SIGN.height / 2 + 0.05, 0]}
+            scale={[2 * arch.halfSpan, 1, 1]}
+          />
+          <mesh
+            geometry={signs[arch.text]}
+            material={rallyTextMaterial()}
+            castShadow
+          />
+        </>
+      ) : (
+        <>
+          <group scale={arch.scale}>
+            <mesh
+              geometry={RALLY_GEOMETRY.arch}
+              material={SCENERY_MATERIAL}
+              castShadow
+              receiveShadow
+            />
+            <mesh
+              geometry={signs[arch.text]}
+              material={rallyTextMaterial()}
+              castShadow
+            />
+          </group>
+          {/* Chaque pied descend jusqu'au sol, ou s'y enfonce : son lest est posé sur le sol réel. */}
+          {arch.feet.map((ground, k) =>
+            Math.abs(ground) < 0.05 ? null : (
+              <group
+                key={k}
+                position={[(k * 2 - 1) * arch.halfSpan, ground, 0]}
+              >
+                {ground < 0 && (
+                  <mesh
+                    geometry={RALLY_GEOMETRY.archLeg}
+                    material={SCENERY_MATERIAL}
+                    scale={[arch.scale, -ground, arch.scale]}
+                    castShadow
+                  />
+                )}
+                <mesh
+                  geometry={RALLY_GEOMETRY.archBallast}
+                  material={SCENERY_MATERIAL}
+                  scale={[arch.scale, 1, arch.scale]}
+                  castShadow
+                  receiveShadow
+                />
+              </group>
+            ),
+          )}
+        </>
+      )}
     </group>
   ));
 };

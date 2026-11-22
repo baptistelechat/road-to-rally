@@ -9,6 +9,7 @@ import { initRapier } from "../../src/sim/rapier";
 import { createSimulation } from "../../src/sim/simulation";
 import { parseStage } from "../../src/sim/track/stageCodec";
 import type { StageData } from "../../src/sim/types";
+import { withAutoChicanes } from "../fixtureStage";
 
 const fixtures = join("fixtures", "stages");
 /** 30 s de course suffisent à séparer deux mondes différents, sans ralentir la vérification. */
@@ -41,9 +42,11 @@ export default async function fingerprintCheck(): Promise<void> {
   assert.ok(ids.length > 0, "aucune fixture");
 
   for (const id of ids) {
-    const inputs = JSON.parse(
-      readFileSync(join(fixtures, `${id}.inputs.json`), "utf8"),
-    ) as StageInputs;
+    const inputs = withAutoChicanes(
+      JSON.parse(
+        readFileSync(join(fixtures, `${id}.inputs.json`), "utf8"),
+      ) as StageInputs,
+    );
     const baked = parseStage(
       JSON.parse(readFileSync(join("public", "stages", `${id}.json`), "utf8")),
     );

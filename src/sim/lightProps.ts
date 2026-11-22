@@ -1,5 +1,10 @@
 import type RAPIER_TYPES from "@dimforge/rapier3d-deterministic-compat";
 import { RAPIER } from "./rapier";
+import {
+  SEPARATOR_HALF_DEPTH,
+  SEPARATOR_HEIGHT,
+  SEPARATOR_LENGTH,
+} from "./track/islandSeparators";
 import type { Pose, SceneryItem, SceneryKind } from "./types";
 
 // Bottes de paille, plots et panneaux : des objets légers qu'on percute, jamais des murs.
@@ -19,6 +24,8 @@ const BRAKE_BOARD_MASS = 20;
 const BRAKE_BOARD_HALF_WIDTH = 0.78;
 const BRAKE_BOARD_HALF_HEIGHT = 0.95;
 const BRAKE_BOARD_HALF_DEPTH = 0.06;
+/** Séparateur plastique rempli d'eau autour d'un îlot (PR-13) : lourd, la voiture le pousse et le fait pivoter */
+const SEPARATOR_MASS = 80;
 /** Amortissement des objets légers d'origine : inchangé, le monde sans décor reste le même au bit près */
 const PROP_LINEAR_DAMPING = 0.25;
 const PROP_ANGULAR_DAMPING = 0.6;
@@ -67,6 +74,9 @@ export const isChicaneSign = (kind: SceneryKind): boolean =>
 export const isBrakeBoard = (kind: SceneryKind): boolean =>
   kind === "brakeBoard3" || kind === "brakeBoard2" || kind === "brakeBoard1";
 
+export const isIslandSeparator = (kind: SceneryKind): boolean =>
+  kind === "islandSeparatorRed" || kind === "islandSeparatorWhite";
+
 /** Buisson ou rang de vigne renversable : placé en fin de décor par `generateScenery`, donc créé après les autres. */
 export const isLooseVegetation = (kind: SceneryKind): boolean =>
   kind === "bushProp" || kind === "vineRowProp";
@@ -104,6 +114,7 @@ export const isLightProp = (kind: SceneryKind): boolean =>
   kind === "sign" ||
   isChicaneSign(kind) ||
   isBrakeBoard(kind) ||
+  isIslandSeparator(kind) ||
   isLooseVegetation(kind);
 
 const CENTER_HEIGHT: Partial<Record<SceneryKind, number>> = {
@@ -115,6 +126,8 @@ const CENTER_HEIGHT: Partial<Record<SceneryKind, number>> = {
   brakeBoard3: BRAKE_BOARD_HALF_HEIGHT,
   brakeBoard2: BRAKE_BOARD_HALF_HEIGHT,
   brakeBoard1: BRAKE_BOARD_HALF_HEIGHT,
+  islandSeparatorRed: SEPARATOR_HEIGHT / 2,
+  islandSeparatorWhite: SEPARATOR_HEIGHT / 2,
   bushProp: BUSH_HALF_HEIGHT,
   vineRowProp: VINE_HALF_HEIGHT,
 };
@@ -208,6 +221,12 @@ const colliderFor = (item: SceneryItem): RAPIER_TYPES.ColliderDesc => {
       BRAKE_BOARD_HALF_HEIGHT * item.scale,
       BRAKE_BOARD_HALF_DEPTH * item.scale,
     ).setMass(BRAKE_BOARD_MASS);
+  if (isIslandSeparator(item.kind))
+    return RAPIER.ColliderDesc.cuboid(
+      (SEPARATOR_LENGTH / 2) * item.scale,
+      (SEPARATOR_HEIGHT / 2) * item.scale,
+      SEPARATOR_HALF_DEPTH * item.scale,
+    ).setMass(SEPARATOR_MASS);
   if (isChicaneSign(item.kind))
     return RAPIER.ColliderDesc.cuboid(
       SIGN_HALF_WIDTH * item.scale,

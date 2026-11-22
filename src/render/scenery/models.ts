@@ -19,6 +19,11 @@ import {
   CHICANE_STACK_HEIGHT,
   CHICANE_STACK_ROWS,
 } from "@/geo/config";
+import {
+  SEPARATOR_HALF_DEPTH,
+  SEPARATOR_HEIGHT,
+  SEPARATOR_LENGTH,
+} from "@/sim/track/islandSeparators";
 import { isRallyKind } from "@/sim/track/rallyDressing";
 import type { RallySceneryKind, SceneryKind } from "@/sim/types";
 import {
@@ -63,7 +68,11 @@ const merged = (...parts: BufferGeometry[]): BufferGeometry => {
 /** Objets du décor dessinés depuis `SCENERY_GEOMETRY` ; les annonces de chicane viennent de `CHICANE_GEOMETRY`. */
 export type StaticSceneryKind = Exclude<
   SceneryKind,
-  "chicaneSignLeft" | "chicaneSignRight" | BrakeBoardKind | RallySceneryKind
+  | "chicaneSignLeft"
+  | "chicaneSignRight"
+  | BrakeBoardKind
+  | SeparatorKind
+  | RallySceneryKind
 >;
 
 export const SCENERY_GEOMETRY: Record<StaticSceneryKind, BufferGeometry> = {
@@ -160,6 +169,62 @@ const chicaneBarrier = (buried: number = CHICANE_SKIRT): BufferGeometry => {
           -half + stripe * (i + 0.5),
           y,
         ),
+      ),
+    ),
+  );
+};
+
+const STEEL: Rgb = [0.6, 0.62, 0.65];
+const CONCRETE: Rgb = [0.62, 0.6, 0.56];
+
+/**
+ * Glissière métallique devant les piles de chicane (PR-15) : poteau enfoui au milieu du module, deux lisses à double
+ * onde de chaque côté, visibles depuis les deux faces. Fixe : elle se lit comme un équipement routier, pas comme une
+ * barrière de public.
+ */
+const guardrail = (): BufferGeometry => {
+  const postHeight = 0.8 + CHICANE_SKIRT;
+  return merged(
+    part(
+      new BoxGeometry(0.12, postHeight, 0.12),
+      STEEL,
+      0,
+      postHeight / 2 - CHICANE_SKIRT,
+    ),
+    ...[-1, 1].flatMap((side) =>
+      [0.5, 0.68].map((y) =>
+        part(
+          new BoxGeometry(CHICANE_BARRIER_MODULE, 0.16, 0.05),
+          STEEL,
+          0,
+          y,
+          side * 0.09,
+        ),
+      ),
+    ),
+  );
+};
+
+/**
+ * Séparateur béton profilé des terre-pleins (PR-15) : semelle large, haut étroit, bande rouge et blanche réfléchissante.
+ * Enfoui sous la route comme les autres modules fixes.
+ */
+const concreteBarrier = (): BufferGeometry => {
+  const half = CHICANE_BARRIER_MODULE / 2;
+  return merged(
+    part(
+      new BoxGeometry(CHICANE_BARRIER_MODULE, 0.3 + CHICANE_SKIRT, 0.6),
+      CONCRETE,
+      0,
+      (0.3 - CHICANE_SKIRT) / 2,
+    ),
+    part(new BoxGeometry(CHICANE_BARRIER_MODULE, 0.55, 0.24), CONCRETE, 0, 0.575),
+    ...[-1, 1].map((side) =>
+      part(
+        new BoxGeometry(half, 0.1, 0.25),
+        side < 0 ? TAPE_RED : TAPE_WHITE,
+        (side * half) / 2,
+        0.72,
       ),
     ),
   );
@@ -380,7 +445,10 @@ const warningSign = (
 
 // Origine au centre du module, au niveau de la route : la partie sous y = 0 reste enterrée.
 export const CHICANE_GEOMETRY = {
+  /** Ancienne barrière fixe rouge et blanc : seulement les labos et les aperçus, plus en course */
   chicaneBarrier: chicaneBarrier(),
+  guardrail: guardrail(),
+  concreteBarrier: concreteBarrier(),
   /** Module renversable des épingles (habillage rallye) : origine au pied, rien sous le sol */
   looseBarrier: chicaneBarrier(0),
   hayStack: hayStack(),
@@ -461,6 +529,42 @@ const BRAKE_BOARD_GEOMETRY: Record<BrakeBoardKind, BufferGeometry> = {
   brakeBoard1: brakeBoard(1),
 };
 
+type SeparatorKind = "islandSeparatorRed" | "islandSeparatorWhite";
+
+/** Séparateur plastique lesté (PR-13) : un prisme trapézoïdal, origine au pied, longueur le long de x. */
+const islandSeparator = (color: Rgb): BufferGeometry => {
+  const body = new BoxGeometry(
+    SEPARATOR_LENGTH,
+    SEPARATOR_HEIGHT,
+    SEPARATOR_HALF_DEPTH * 2,
+  );
+  // Le haut se resserre de moitié : la silhouette du séparateur de chantier, lisible de loin.
+  const position = body.getAttribute("position");
+  for (let i = 0; i < position.count; i++)
+    if (position.getY(i) > 0) position.setZ(i, position.getZ(i) / 2);
+  return part(body, color, 0, SEPARATOR_HEIGHT / 2);
+};
+
+/**
+ * Cœur solide d'un îlot de rond-point (PR-16), mis à l'échelle de son rayon en x et z : jardinière béton (1) ou lit de
+ * gravier sous des rochers (4), tirés au hasard d'un îlot à l'autre. L'arbuste et les rochers sont posés par la vue.
+ */
+export const ISLAND_PLANTER_GEOMETRY = merged(
+  part(new CylinderGeometry(0.95, 1, 0.7, 20), CONCRETE, 0, 0.35),
+  part(new CylinderGeometry(0.88, 0.88, 0.05, 20), [0.29, 0.23, 0.16], 0, 0.69),
+);
+export const ISLAND_GRAVEL_GEOMETRY = part(
+  new CylinderGeometry(1, 1, 0.12, 20),
+  [0.64, 0.6, 0.54],
+  0,
+  0.06,
+);
+
+const SEPARATOR_GEOMETRY: Record<SeparatorKind, BufferGeometry> = {
+  islandSeparatorRed: islandSeparator([0.72, 0.12, 0.08]),
+  islandSeparatorWhite: islandSeparator([0.9, 0.89, 0.86]),
+};
+
 export const SCENERY_MATERIAL = new MeshStandardMaterial({
   vertexColors: true,
   flatShading: true,
@@ -473,6 +577,8 @@ export const lightPropGeometry = (kind: SceneryKind): BufferGeometry => {
   if (kind === "chicaneSignRight") return CHICANE_GEOMETRY.looseSignRight;
   if (kind === "brakeBoard3" || kind === "brakeBoard2" || kind === "brakeBoard1")
     return BRAKE_BOARD_GEOMETRY[kind];
+  if (kind === "islandSeparatorRed" || kind === "islandSeparatorWhite")
+    return SEPARATOR_GEOMETRY[kind];
   // L'habillage rallye a ses modèles et sa vue (`rallyModels.ts`, `rallyView.tsx`).
   if (isRallyKind(kind)) return CHICANE_GEOMETRY.looseBarrier;
   return SCENERY_GEOMETRY[kind];

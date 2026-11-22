@@ -13,6 +13,8 @@ export interface CopilotSim {
   lap: Pick<LapTimer, "finished">;
   state: () => CarState;
   respawnCount: () => number;
+  /** Secondes avant le GO, `null` hors décompte */
+  countdown: () => number | null;
 }
 
 export type CopilotAudio = Pick<CarAudio, "voiceBus" | "isMuted" | "setMix">;
@@ -85,6 +87,8 @@ export const createCopilot = (
         if (again) speak(again);
       }
 
+      // Rien avant le GO : la première annonce se cale sur la position du départ réel.
+      if (sim.countdown() !== null) return;
       const { position, speed } = sim.state();
       const next = cue.update({
         x: position.x,

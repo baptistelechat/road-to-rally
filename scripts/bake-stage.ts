@@ -4,8 +4,6 @@
 // Les chicanes automatiques sont recalculées à chaque cuisson, comme l'éditeur les propose.
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { computeAutoChicanes } from "../src/editor/autoChicanes";
-import { analyzeTrace } from "../src/geo/analyzeTrace";
 import { fetchDecor } from "../src/geo/decor";
 import { traceFromGpx } from "../src/geo/gpx";
 import {
@@ -17,6 +15,7 @@ import {
 } from "../src/geo/pipeline";
 import { stageHash } from "../src/geo/stageHash";
 import { stageToJson } from "../src/sim/track/stageCodec";
+import { withAutoChicanes } from "./fixtureStage";
 
 const fixtures = join("fixtures", "stages");
 const output = join("public", "stages");
@@ -73,9 +72,9 @@ const main = async (): Promise<void> => {
       // Un décor manquant n'est pas mis en cache : il sera redemandé à la prochaine cuisson.
       else writeFileSync(path, JSON.stringify(inputs));
     }
-    const axis = analyzeTrace(gpx).axis;
-    const chicanes = axis ? computeAutoChicanes(axis).chicanes : [];
-    const stage = buildStage({ ...inputs, chicanes }, name);
+    const baking = withAutoChicanes(inputs);
+    const chicanes = baking.chicanes ?? [];
+    const stage = buildStage(baking, name);
     stage.hash = stageHash(stage);
     const json = JSON.stringify(stageToJson(stage));
     writeFileSync(join(output, `${id}.json`), json);

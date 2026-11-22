@@ -24,6 +24,7 @@ const setup = () => {
     lap: { finished: () => world.finished },
     state: () => state,
     respawnCount: () => 0,
+    countdown: () => null,
   };
   const played: string[] = [];
   let stops = 0;
