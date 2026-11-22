@@ -487,3 +487,11 @@ Deux choix de fond : Baptiste accepte qu'une caisse bascule par-dessus un bloc d
 - [BDR-261122_0721-1](decisions/BDR-261122_0721-1.md) — bascule par-dessus un bloc de chicane acceptée
 - [LRN-261122_0721-3](learnings/LRN-261122_0721-3.md) — rayons de contrôle du sol faussés par les objets posés
 - [ZBLK-261122_0500-8](archive/blockers/ZBLK-261122_0500-8.md) — 12 checks en échec, résolu
+
+---
+
+Reprise du studio de jeu (`/game-studio`) sur le plan de l'audit du 21/11 : playtest de l'epic 4, parcours A sur `road` (départ, pénalités, record) terminé, A1 à A13 validés. A13 réécrit : le circuit garde un décompte au premier départ, puis les tours s'enchaînent (la story 4.1 est à corriger). Quatre bugs relevés au volant et enregistrés dans `docs/gamedev/BUGS.md` : B-11 moteur muet sous les gaz pendant le décompte (la simulation force `throttle: 0`), B-12 pied d'arche dans la glissière du terre-plein (`archAt` ignore le terre-plein), B-13 creux sous les ponts dans le profil d'altitude de l'éditeur (affichage seul, la route roulée est bonne), B-14 îlot de rond-point plat sur une route en pente (Clisson). Décisions du studio : PR-17 moteur qui monte pendant le décompte, côté audio seul (A) ; PR-18 régime idéal au départ, idée de Baptiste gardée pour plus tard ; PR-19 pieds d'arche ramenés avant la glissière, banderole en repli ; PR-20 centre des grands ronds-points selon le milieu (A2 jardin fleuri en ville, A3 rocaille et pins en montagne, A1 bosquet en campagne, pas d'objet repère), choisi sur une planche visuelle. Plan complété des étapes 20 à 22. Rien n'est codé : le lot (étapes 20 à 22, B-13, B-14) se fera plus tard en dev normal ; le playtest reprend au parcours B.
+
+**Entrées clés :**
+
+- [BDR-261104_2153-3](decisions/BDR-261104_2153-3.md) — décompte partout, confirmé pour le circuit
