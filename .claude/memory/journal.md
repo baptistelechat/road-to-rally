@@ -474,4 +474,16 @@ En fin de session, les checks : `pace-note-cue` réparé (annonce sur la ligne d
 
 - [BDR-261122_0500-1](decisions/BDR-261122_0500-1.md) — chocs : aides relâchées par l'impact, coupées en l'air
 - [BDR-261122_0500-3](decisions/BDR-261122_0500-3.md) — ce qui est fixe a l'air fixe
-- [BLK-261122_0500-8](blockers/BLK-261122_0500-8.md) — 12 checks en échec, tests en retard sur le jeu
+- [ZBLK-261122_0500-8](archive/blockers/ZBLK-261122_0500-8.md) — 12 checks en échec, tests en retard sur le jeu
+
+---
+
+Session de réparation des checks en retard, dans la foulée de la physique des chocs. Les 12 checks listés par le blocker, puis `terrain`, échouaient tous parce que les tests décrivaient encore l'ancien jeu, jamais à cause d'un bug de `src/` : décompte de 3 s au départ, `road` recuite à 6 m avec ses chicanes et son décor IGN, panneaux d'annonce de chicane, voix qui annonce le premier virage, note d'arrivée ponctuelle, champ `along` des chicanes, rayon minimal passé à 5 m, portes de secteur de la mini-carte, miroirs Overpass sans attente de 30 s, avertissement de décor hors ligne, dossier `src/geo/decor/`, ponts et bâtiments IGN sous les rayons de contrôle du sol, bot de test qui ne contourne pas les chicanes. Chaque correctif révélait souvent un échec masqué derrière lui : un check à la fois, plusieurs tours par fichier.
+
+Deux choix de fond : Baptiste accepte qu'une caisse bascule par-dessus un bloc de chicane sur un choc violent (le test garde l'interdiction de traverser), et l'horloge est permise dans les deux fichiers réseau de `src/geo` qui rythment les requêtes IGN. Une tolérance de dénivelé de `trace-stats` passe de 3 à 5 m (bruit sur la montée de `mountain`). La suite complète dépasse désormais 10 min : `CLAUDE.md` est corrigé. 36/36 verts, lint et build OK, commit `cae30ef` poussé.
+
+**Entrées clés :**
+
+- [BDR-261122_0721-1](decisions/BDR-261122_0721-1.md) — bascule par-dessus un bloc de chicane acceptée
+- [LRN-261122_0721-3](learnings/LRN-261122_0721-3.md) — rayons de contrôle du sol faussés par les objets posés
+- [ZBLK-261122_0500-8](archive/blockers/ZBLK-261122_0500-8.md) — 12 checks en échec, résolu

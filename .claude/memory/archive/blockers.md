@@ -23,3 +23,4 @@ register: archive-blockers
 | [ZBLK-20261102122033-11](blockers/ZBLK-20261102122033-11.md) | 2026-11-02 | Worker MapLibre chargé depuis unpkg par mapcn | #mapcn #maplibre #unpkg #securite #worker #supply-chain | résolu le 2026-11-21 |
 | [ZBLK-261115_2236-5](blockers/ZBLK-261115_2236-5.md) | 2026-11-15 | Overpass et ses deux miroirs ne répondent pas | #overpass #osm #miroirs #reseau #ponts #diagnostic | résolu le 2026-11-21 |
 | [ZBLK-261115_2236-6](blockers/ZBLK-261115_2236-6.md) | 2026-11-15 | Ponts : la route est remplacée par une surface plate | #ponts #eau #terrain #story-5-9 #collider #rendu | résolu le 2026-11-21 |
+| [ZBLK-261122_0500-8](blockers/ZBLK-261122_0500-8.md) | 2026-11-22 | 12 checks en échec, tests en retard sur le jeu | #check-determinism #tests #regression #checks #stale-tests | résolu le 2026-11-22 |
