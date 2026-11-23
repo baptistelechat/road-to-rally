@@ -34,6 +34,11 @@ register: learnings
 | [LRN-261122_0500-7](learnings/LRN-261122_0500-7.md) | 2026-11-22 | Distance d'ombre des tranches liée à la zone d'ombre | #three #shadows #chunks #atmosphere #pop-in #r3f |
 | [LRN-261122_0721-3](learnings/LRN-261122_0721-3.md) | 2026-11-22 | Rayons de contrôle du sol faussés par les objets posés | #checks #rapier #raycast #terrain #chicane #bridges #ign-buildings |
 | [LRN-261122_1907-3](learnings/LRN-261122_1907-3.md) | 2026-11-22 | L'aperçu de l'éditeur lit les sources de la génération | #editor #preview #bdtopo #bridges #profile #data-source |
+| [LRN-261123_2208-4](learnings/LRN-261123_2208-4.md) | 2026-11-23 | Mesurer la voiture par sonde tsx, pas au calcul | #simulation #tsx #probe #vehicle #slopes #measurement |
+| [LRN-261123_2208-5](learnings/LRN-261123_2208-5.md) | 2026-11-23 | Leva réapplique ses anciennes valeurs après HMR | #leva #hmr #tuning-panel #carconfig #dev #nextjs |
+| [LRN-261123_2208-6](learnings/LRN-261123_2208-6.md) | 2026-11-23 | Trace OSM et BD TOPO s'écartent de 45 m en tunnel | #tunnels #bdtopo #osm #matching #brouter #geo |
+| [LRN-261123_2208-7](learnings/LRN-261123_2208-7.md) | 2026-11-23 | Check en gaz tout ou rien sensible aux réglages | #checks #determinism #recovery #vehicle #scenario |
+| [LRN-261123_2208-8](learnings/LRN-261123_2208-8.md) | 2026-11-23 | WFS BD TOPO : position au sol en texte, BBOX CQL lat,lon | #wfs #geoplateforme #ign #bdtopo #cql #tunnels |
 | [LRN-20261101115222-4](learnings/LRN-20261101115222-4.md) | 2026-11-01 | Pièges de l'API altimétrie de l'IGN | #ign #geoplateforme #altimetrie #api #cors #rge-alti |
 | [LRN-20261101115222-5](learnings/LRN-20261101115222-5.md) | 2026-11-01 | Plusieurs itinéraires : BRouter et OSRM diffèrent | #brouter #osrm #routing #itineraires #mapcn #maplibre |
 | [LRN-20261101115222-6](learnings/LRN-20261101115222-6.md) | 2026-11-01 | Le filtre rtk peut faire croire à un diff vide | #rtk #git #diff #hooks #claude-code #commit |

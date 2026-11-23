@@ -50,6 +50,9 @@ register: decisions
 | [BDR-261122_0721-2](decisions/BDR-261122_0721-2.md) | 2026-11-22 | Horloge permise pour le rythme réseau de src/geo | #geo #determinism #web-worker #ign #wfs #portability | actif |
 | [BDR-261122_1907-1](decisions/BDR-261122_1907-1.md) | 2026-11-22 | Régime du départ affiché hors simulation | #countdown #rpm #audio #hud #start #simulation | actif |
 | [BDR-261122_1907-2](decisions/BDR-261122_1907-2.md) | 2026-11-22 | Centre des grands îlots selon le milieu, rendu seul | #roundabout #island #decor #render #setting #collider | actif |
+| [BDR-261123_2208-1](decisions/BDR-261123_2208-1.md) | 2026-11-23 | Import GPX dans l'éditeur seul, en tracé modifiable | #editor #gpx #import #trace #ux | actif |
+| [BDR-261123_2208-2](decisions/BDR-261123_2208-2.md) | 2026-11-23 | Vrais tunnels : montagne gardée, tube, portails auto | #tunnels #bdtopo #terrain #copilot #realism #game-studio | actif |
+| [BDR-261123_2208-3](decisions/BDR-261123_2208-3.md) | 2026-11-23 | Moteur +10 % et rétrogradage forcé à 6 400 tr/min | #vehicle #engine #gearbox #slopes #3c #carconfig | actif |
 | [BDR-20261101115222-1](decisions/BDR-20261101115222-1.md) | 2026-11-01 | L'IGN est la seule source d'altitude en jeu | #ign #brouter #srtm #relief #altitude #epic-2 | actif |
 | [BDR-20261101115222-2](decisions/BDR-20261101115222-2.md) | 2026-11-01 | Circuit conservé et trois cartes de test | #sandbox #cartes #url #selecteur #localstorage #epic-2 | actif |
 | [BDR-20261101115222-3](decisions/BDR-20261101115222-3.md) | 2026-11-01 | Les tracés qui se croisent sont refusés en v0 | #ribbon #nearest #croisement #maillage #scope #epic-2 | actif |

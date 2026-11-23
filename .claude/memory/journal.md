@@ -504,3 +504,19 @@ Lancement du dev du planning `/game-studio` (le skill ne codant pas, passage en 
 
 - [BDR-261122_1907-1](decisions/BDR-261122_1907-1.md) — Régime du départ affiché hors simulation
 - [LRN-261122_1907-3](learnings/LRN-261122_1907-3.md) — L'aperçu de l'éditeur lit les sources de la génération
+
+## 2026-11-23
+
+Clôture du playtest de l'epic 4 : parcours B (intermédiaires, fantôme), C (copilote) et D (mini-carte) validés par Baptiste sans nouveau bug ; l'epic 4 et ses 11 stories passent ✅ dans la roadmap, les stories 4.1 et 4.5 sont remises d'aplomb. Un second `pnpm dev` lancé par erreur sur :3001 alors que Baptiste avait le sien sur :3000 : préférence notée dans la mémoire native.
+
+T-6 (tunnels) : aucun tunnel n'est dessiné, la montagne est rabotée jusqu'à la route (B-15). Deux GPX réels générés via le WFS BD TOPO et BRouter (gorges de la Bourne, Grands Goulets). Baptiste refuse la tranchée : consultation du studio, PR-21 (A + C), PR-22 (portails auto, règle des arches en pierre ajoutée), PR-23 B, PR-24 B et PR-25 A validées, plus une annonce de tunnel du copilote (voix et icône). Rien n'est codé pour les tunnels : 3 paquets à venir.
+
+Perte de vitesse en montée (B-16) : carte d'essai `slopes` créée. Le rétrogradage forcé seul ne changeait rien en 8 % ; une sonde de simulation l'a montré, alors que les calculs à la main se trompaient. Retenu : moteur +10 % et rétrogradage à 6 400 tr/min, validé au volant. Le panneau leva masquait le changement jusqu'à un F5.
+
+Import GPX déplacé dans l'éditeur, converti en tracé modifiable, avec l'aperçu dans « Mes spéciales ». Déterminisme complet : 35/36, `recovery` recalé (gaz tenu au lieu de tout ou rien), donc 36/36. B-3 vérifié. Baptiste veut une session dédiée pour étoffer le décor avec le studio, avant la mesure des 60 FPS. Commit `521dc78` poussé.
+
+**Entrées clés :**
+
+- [BDR-261123_2208-2](decisions/BDR-261123_2208-2.md) — Vrais tunnels : montagne gardée, tube, portails auto
+- [BDR-261123_2208-3](decisions/BDR-261123_2208-3.md) — Moteur +10 % et rétrogradage forcé à 6 400 tr/min
+- [LRN-261123_2208-4](learnings/LRN-261123_2208-4.md) — Mesurer la voiture par sonde tsx, pas au calcul
