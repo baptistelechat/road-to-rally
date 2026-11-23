@@ -274,7 +274,13 @@ export const createVehicle = (
       if (shaftRpm > engine.upshiftRpm && gear < engine.gears.length) {
         gear++;
         shiftTimer = engine.shiftTimeS;
-      } else if (shaftRpm < engine.downshiftRpm && gear > 1) {
+      } else if (
+        gear > 1 &&
+        (shaftRpm < engine.downshiftRpm ||
+          (grounded &&
+            throttle >= engine.kickdownThrottle &&
+            (shaftRpm * engine.gears[gear - 2]) / ratio < engine.kickdownRpm))
+      ) {
         gear--;
         shiftTimer = engine.shiftTimeS;
       }

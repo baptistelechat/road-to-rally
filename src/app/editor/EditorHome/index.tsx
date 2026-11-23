@@ -21,6 +21,7 @@ import {
 } from "@/game/stageCache";
 import { cn } from "@/lib/utils";
 import { DraftBanner } from "./components/DraftBanner";
+import { ImportGpxButton } from "./components/ImportGpxButton";
 import { ReplaceDraftDialog } from "./components/ReplaceDraftDialog";
 import { StageRow } from "./components/StageRow";
 
@@ -122,15 +123,13 @@ export const EditorHome = () => {
         <h1 className="font-display text-base tracking-[0.08em] uppercase">
           Éditeur
         </h1>
-        <Button
-          size="xl"
-          font="display"
-          className="ml-auto"
-          onClick={() => request(null)}
-        >
-          <Plus aria-hidden="true" />
-          Nouvelle spéciale
-        </Button>
+        <div className="ml-auto flex items-center gap-3">
+          <ImportGpxButton onError={setError} />
+          <Button size="xl" font="display" onClick={() => request(null)}>
+            <Plus aria-hidden="true" />
+            Nouvelle spéciale
+          </Button>
+        </div>
       </header>
 
       <main className="mx-auto flex max-w-7xl flex-col gap-7 px-10 py-8">

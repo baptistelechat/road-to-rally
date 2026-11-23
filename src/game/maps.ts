@@ -1,6 +1,7 @@
 // Les cartes du jeu. L'identifiant vit dans l'URL (`?map=`), le nom de la piste s'affiche en anglais.
 import type { GeneratedStage } from "@/geo/stageWorkerClient";
 import { createNotesBenchStage } from "@/sim/track/notesBenchTrack";
+import { createSlopeBenchStage } from "@/sim/track/slopeBenchTrack";
 import type { StageData } from "@/sim/types";
 
 export interface GameMap {
@@ -51,6 +52,15 @@ export const MAPS: readonly GameMap[] = [
     createStage: createNotesBenchStage,
     bestLapKey: "rally:best-lap-ms:notes",
     recordId: "notes",
+  },
+  // Piste d'essai des pentes (B-16), même statut que `notes`.
+  {
+    id: "slopes",
+    label: "Slopes",
+    stageUrl: null,
+    createStage: createSlopeBenchStage,
+    bestLapKey: "rally:best-lap-ms:slopes",
+    recordId: "slopes",
   },
 ];
 

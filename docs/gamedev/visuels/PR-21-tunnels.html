@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tunnels — PR-21 à PR-25</title>
+    <style>
+      :root {
+        --bg: #14171c;
+        --card: #1d2229;
+        --ink: #e8e6e1;
+        --mute: #9aa3ad;
+        --brand: #f2c230;
+        --sky: #9fc3dc;
+        --grass: #7c9a4f;
+        --rock: #8a8578;
+        --rockd: #5f5b52;
+        --road: #3a3d42;
+        --concrete: #b9b4a8;
+        --stone: #a58e6c;
+        --lamp: #ffd27a;
+        --led: #e9f3ff;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font:
+          15px/1.5 system-ui,
+          sans-serif;
+        padding: 24px 16px 60px;
+      }
+      h1 {
+        font-size: 22px;
+        margin: 0 0 4px;
+      }
+      h2 {
+        font-size: 17px;
+        margin: 36px 0 10px;
+        color: var(--brand);
+      }
+      p.lead {
+        color: var(--mute);
+        margin: 0 0 8px;
+        max-width: 70ch;
+      }
+      .grid {
+        display: grid;
+        gap: 14px;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      }
+      .card {
+        background: var(--card);
+        border-radius: 10px;
+        padding: 12px;
+        border: 1px solid #2b3139;
+      }
+      .card.reco {
+        border-color: var(--brand);
+      }
+      .card h3 {
+        margin: 0 0 6px;
+        font-size: 15px;
+      }
+      .card p {
+        margin: 6px 0 0;
+        color: var(--mute);
+        font-size: 13.5px;
+      }
+      .tag {
+        display: inline-block;
+        font-size: 11px;
+        padding: 1px 7px;
+        border-radius: 99px;
+        background: var(--brand);
+        color: #111;
+        margin-left: 6px;
+        font-weight: 700;
+      }
+      svg {
+        width: 100%;
+        height: auto;
+        display: block;
+        border-radius: 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🚇 Tunnels — planche du studio</h1>
+    <p class="lead">
+      Supports de discussion jetables (rien n'est importé dans le jeu). Coupes
+      et portails schématiques en low-poly, couleurs indicatives. Cadre jaune =
+      recommandation du studio.
+    </p>
+
+    <h2>PR-21 · Forme : ce qu'il y a au-dessus de la route</h2>
+    <div class="grid">
+      <div class="card reco">
+        <h3>A · Montagne gardée, tube creusé <span class="tag">reco</span></h3>
+        <svg viewBox="0 0 300 170">
+          <rect width="300" height="170" fill="var(--sky)" />
+          <polygon
+            points="0,170 0,95 60,60 110,30 150,22 200,40 250,70 300,90 300,170"
+            fill="var(--grass)"
+          />
+          <polygon
+            points="0,170 0,110 60,85 110,62 150,58 200,66 250,90 300,105 300,170"
+            fill="var(--rock)"
+          />
+          <path
+            d="M110,150 L110,118 Q150,92 190,118 L190,150 Z"
+            fill="#1b1d21"
+          />
+          <rect x="104" y="148" width="92" height="6" fill="var(--road)" />
+          <rect x="0" y="154" width="300" height="16" fill="var(--rockd)" />
+          <text x="150" y="14" fill="#123" font-size="11" text-anchor="middle">
+            relief IGN intact au-dessus
+          </text>
+        </svg>
+        <p>
+          Le terrain n'est plus raboté sur le tunnel. On perce un trou aux
+          portails et on pose un tube (voûte + parois) le long de l'axe. On voit
+          la montagne et on rentre dedans.
+        </p>
+      </div>
+      <div class="card">
+        <h3>B · Tranchée couverte</h3>
+        <svg viewBox="0 0 300 170">
+          <rect width="300" height="170" fill="var(--sky)" />
+          <polygon
+            points="0,170 0,95 70,75 110,108 190,108 230,75 300,90 300,170"
+            fill="var(--grass)"
+          />
+          <rect x="110" y="108" width="80" height="44" fill="var(--concrete)" />
+          <path
+            d="M116,150 L116,122 Q150,104 184,122 L184,150 Z"
+            fill="#1b1d21"
+          />
+          <rect x="104" y="148" width="92" height="6" fill="var(--road)" />
+          <rect x="0" y="154" width="300" height="16" fill="var(--rockd)" />
+          <text x="150" y="98" fill="#123" font-size="11" text-anchor="middle">
+            montagne rabotée, dalle posée
+          </text>
+        </svg>
+        <p>
+          On garde le raccord actuel et on pose une boîte en béton dans la
+          tranchée. Simple, mais la montagne a disparu : vu de loin, c'est
+          encore une tranchée.
+        </p>
+      </div>
+      <div class="card">
+        <h3>C · Galerie ouverte côté vide</h3>
+        <svg viewBox="0 0 300 170">
+          <rect width="300" height="170" fill="var(--sky)" />
+          <polygon
+            points="300,170 300,20 200,30 170,60 170,170"
+            fill="var(--rock)"
+          />
+          <polygon points="300,20 200,30 230,10 300,5" fill="var(--grass)" />
+          <polygon
+            points="80,104 190,104 190,96 80,96"
+            fill="var(--concrete)"
+          />
+          <rect x="84" y="104" width="7" height="44" fill="var(--concrete)" />
+          <rect x="118" y="104" width="7" height="44" fill="var(--concrete)" />
+          <rect x="80" y="148" width="110" height="6" fill="var(--road)" />
+          <polygon
+            points="0,170 0,150 80,154 190,154 190,170"
+            fill="var(--rockd)"
+          />
+          <text x="40" y="40" fill="#123" font-size="11">vide / gorge</text>
+        </svg>
+        <p>
+          Pour les tunnels de gorge (Bourne, Combe Laval) : la route longe la
+          falaise sous un auvent rocheux ou une galerie à piliers. Seulement
+          quand un côté est dans le vide.
+        </p>
+      </div>
+    </div>
+
+    <h2>PR-22 · Portails : la silhouette qui annonce le tunnel</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>A · Roc brut taillé</h3>
+        <svg viewBox="0 0 300 150">
+          <rect width="300" height="150" fill="var(--sky)" />
+          <polygon
+            points="0,150 0,40 50,20 120,10 200,14 260,30 300,45 300,150"
+            fill="var(--rock)"
+          />
+          <polygon points="40,60 80,48 120,62 70,80" fill="var(--rockd)" />
+          <polygon points="200,50 250,58 230,80" fill="var(--rockd)" />
+          <path
+            d="M110,150 L104,104 L118,80 L150,72 L182,80 L196,104 L190,150 Z"
+            fill="#141518"
+          />
+          <rect x="0" y="142" width="300" height="8" fill="var(--road)" />
+        </svg>
+        <p>
+          Trou anguleux dans la falaise, sans maçonnerie. Tunnels courts de
+          montagne (moins de 80 m).
+        </p>
+      </div>
+      <div class="card reco">
+        <h3>B · Tête béton routière <span class="tag">reco, long</span></h3>
+        <svg viewBox="0 0 300 150">
+          <rect width="300" height="150" fill="var(--sky)" />
+          <polygon
+            points="0,150 0,30 80,12 220,12 300,30 300,150"
+            fill="var(--grass)"
+          />
+          <polygon
+            points="70,150 70,56 230,56 230,150"
+            fill="var(--concrete)"
+          />
+          <polygon points="60,56 240,56 230,46 70,46" fill="#cfcabd" />
+          <path
+            d="M100,150 L100,104 Q150,66 200,104 L200,150 Z"
+            fill="#141518"
+          />
+          <rect x="118" y="60" width="64" height="10" rx="2" fill="#1f4f8f" />
+          <text x="150" y="68" fill="#fff" font-size="7" text-anchor="middle">
+            TUNNEL · 1700 m
+          </text>
+          <circle cx="150" cy="112" r="2" fill="var(--lamp)" />
+          <circle cx="135" cy="116" r="2" fill="var(--lamp)" />
+          <circle cx="165" cy="116" r="2" fill="var(--lamp)" />
+          <rect x="0" y="142" width="300" height="8" fill="var(--road)" />
+        </svg>
+        <p>
+          Front béton en biseau, bandeau bleu avec le nom et la longueur,
+          lumières visibles au fond. Tunnels longs et récents (Grands Goulets).
+        </p>
+      </div>
+      <div class="card">
+        <h3>C · Arche en pierre</h3>
+        <svg viewBox="0 0 300 150">
+          <rect width="300" height="150" fill="var(--sky)" />
+          <polygon
+            points="0,150 0,40 90,20 210,20 300,40 300,150"
+            fill="var(--grass)"
+          />
+          <polygon points="80,150 80,60 220,60 220,150" fill="var(--stone)" />
+          <path
+            d="M104,150 L104,108 Q150,62 196,108 L196,150 Z"
+            fill="#141518"
+          />
+          <path
+            d="M98,108 Q150,52 202,108"
+            stroke="#8c7555"
+            stroke-width="8"
+            fill="none"
+          />
+          <rect x="0" y="142" width="300" height="8" fill="var(--road)" />
+        </svg>
+        <p>
+          Voûte maçonnée à claveaux, comme les vieux tunnels de route
+          départementale. Même famille que les ponts en pierre.
+        </p>
+      </div>
+    </div>
+
+    <h2>PR-23 · Intérieur : lumière et lisibilité</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>A · Noir, phares seuls</h3>
+        <svg viewBox="0 0 300 160">
+          <rect width="300" height="160" fill="#08090b" />
+          <polygon points="150,70 80,160 220,160" fill="#3b3a33" opacity=".7" />
+          <circle cx="150" cy="70" r="9" fill="#f6f3e6" />
+        </svg>
+        <p>
+          Dramatique, mais la route disparaît : impossible de lire un virage
+          dans un tunnel courbe (P8). La voiture n'a pas de vrais phares.
+        </p>
+      </div>
+      <div class="card reco">
+        <h3>B · Bandes lumineuses émissives <span class="tag">reco</span></h3>
+        <svg viewBox="0 0 300 160">
+          <rect width="300" height="160" fill="#20232a" />
+          <polygon points="0,0 120,62 180,62 300,0" fill="#2c3038" />
+          <polygon points="0,160 120,92 180,92 300,160" fill="var(--road)" />
+          <polygon points="0,0 120,62 120,92 0,160" fill="#363a42" />
+          <polygon points="300,0 180,62 180,92 300,160" fill="#363a42" />
+          <line
+            x1="40"
+            y1="21"
+            x2="122"
+            y2="64"
+            stroke="var(--lamp)"
+            stroke-width="5"
+            stroke-dasharray="14 10"
+          />
+          <line
+            x1="260"
+            y1="21"
+            x2="178"
+            y2="64"
+            stroke="var(--lamp)"
+            stroke-width="5"
+            stroke-dasharray="14 10"
+          />
+          <line
+            x1="150"
+            y1="160"
+            x2="150"
+            y2="94"
+            stroke="#ddd"
+            stroke-width="3"
+            stroke-dasharray="8 8"
+          />
+          <rect x="138" y="62" width="24" height="30" fill="#f2f6e9" />
+        </svg>
+        <p>
+          Une rangée de lampes en haut de chaque paroi, en matériau lumineux
+          (aucune vraie source). Le rythme des lampes donne la vitesse et la
+          courbe ; la sortie brille au bout.
+        </p>
+      </div>
+      <div class="card">
+        <h3>C · Vraies lumières</h3>
+        <svg viewBox="0 0 300 160">
+          <rect width="300" height="160" fill="#2a2a26" />
+          <polygon points="0,160 120,92 180,92 300,160" fill="#4a4636" />
+          <circle cx="90" cy="40" r="26" fill="var(--lamp)" opacity=".35" />
+          <circle cx="210" cy="40" r="26" fill="var(--lamp)" opacity=".35" />
+          <circle cx="150" cy="70" r="14" fill="var(--lamp)" opacity=".35" />
+        </svg>
+        <p>
+          Lumières ponctuelles qui éclairent vraiment la route et la voiture. Le
+          plus beau, mais une lumière temps réel coûte cher par tranche, et il
+          en faut des dizaines sur 1,7 km (P10).
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

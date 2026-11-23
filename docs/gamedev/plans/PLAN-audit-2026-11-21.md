@@ -10,7 +10,7 @@
 | #   | Étape                                           | Persona                          | Livrable                                                                                                 | Critère de fin                                                                                 | Coût si on saute                                                              | PR       | Validation                                                                                    | Fait |
 | --- | ----------------------------------------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | -------- | --------------------------------------------------------------------------------------------- | ---- |
 | 1   | Relire et valider le GDD                        | Game Designer                    | `GDD.md` relu, ❓ tranchés ou laissés ouverts                                                            | Statut du GDD : validé                                                                         | Les audits suivants s'appuieraient sur une référence fausse                   | PR-2     | ✅ validée                                                                                  | [x] |
-| 2   | Playtest de l'epic 4, parcours A à D ci-dessous | QA + 3C, au volant : Baptiste    | Chaque critère coché ✅ ou devenu un `B-n` dans `BUGS.md`                                                | Les 4 parcours faits                                                                           | Des stories 🟡 qui s'empilent, un bug du chrono découvert au milieu du décor  | PR-1     | ✅ validée                                                                                  | [ ]  |
+| 2   | Playtest de l'epic 4, parcours A à D ci-dessous | QA + 3C, au volant : Baptiste    | Chaque critère coché ✅ ou devenu un `B-n` dans `BUGS.md`                                                | Les 4 parcours faits                                                                           | Des stories 🟡 qui s'empilent, un bug du chrono découvert au milieu du décor  | PR-1     | ✅ validée                                                                                  | [x]  |
 | 3   | Corriger les bugs bloquants et majeurs trouvés  | dev normal, hors studio          | Un correctif par `B-n`                                                                                   | Chaque `B-n` majeur passe en `corrigé`, puis `vérifié` au retest                               | On fermerait l'epic sur un bug connu                                          | PR-1     | ✅ validée                                                                                  | [ ]  |
 | 4   | Checks automatiques de l'epic 4                 | QA                               | `pnpm lint`, `pnpm build`, puis `pnpm check:determinism`                                                 | Les trois passent                                                                              | Une régression de déterminisme casserait le fantôme et le futur rejeu serveur | PR-1     | ✅ validée — **le check ne se lance qu'avec ton accord**, seul, jamais pendant que tu joues | [ ]  |
 | 5   | Fermer l'epic 4                                 | Game Designer                    | Stories 4.1 à 4.11 cochées, roadmap à ✅                                                                 | Critère de passage : « une spéciale complète se court du départ à l'arrivée, notes à l'heure » | La règle d'or de la roadmap reste cassée                                      | PR-1     | ✅ validée                                                                                  | [ ]  |
@@ -76,38 +76,38 @@ Seuls les critères qui demandent tes yeux et tes mains. Les critères `lint`, `
 
 ### Parcours B — Intermédiaires et fantôme (stories 4.2, 4.5) · carte `mountain`, deux courses de suite
 
-- [ ] 3 intermédiaires, chacun annoncé une seule fois.
-- [ ] Le premier essai affiche les temps de passage sans écart ; les suivants affichent l'écart.
-- [ ] L'écart reste lisible sans masquer les icônes de virage.
-- [ ] La frise colore chaque secteur fini en vert ou en rouge.
-- [ ] Les intermédiaires se voient sur la mini-carte (essayer les 4 styles).
-- [ ] Une remise en piste en arrière ne réannonce pas un intermédiaire déjà franchi.
-- [ ] Sur un aller-retour, un intermédiaire de l'aller n'est pas validé au retour.
-- [ ] Après un record, la course suivante montre le fantôme dès le GO.
-- [ ] Une remise en piste du fantôme le fait sauter, sans traverser le décor.
-- [ ] Aucune baisse de fluidité sensible avec le fantôme affiché.
+- [x] 3 intermédiaires, chacun annoncé une seule fois.
+- [x] Le premier essai affiche les temps de passage sans écart ; les suivants affichent l'écart.
+- [x] L'écart reste lisible sans masquer les icônes de virage.
+- [x] La frise colore chaque secteur fini en vert ou en rouge.
+- [x] Les intermédiaires se voient sur la mini-carte (essayer les 4 styles).
+- [x] Une remise en piste en arrière ne réannonce pas un intermédiaire déjà franchi.
+- [x] Sur un aller-retour, un intermédiaire de l'aller n'est pas validé au retour.
+- [x] Après un record, la course suivante montre le fantôme dès le GO.
+- [x] Une remise en piste du fantôme le fait sauter, sans traverser le décor.
+- [x] Aucune baisse de fluidité sensible avec le fantôme affiché.
 
 ### Parcours C — Copilote (stories 4.6, 4.7, 4.8, 4.9, 4.11) · cartes `mountain` puis `track`
 
-- [ ] À allure de course, on a le temps d'entendre la note avant le virage.
-- [ ] Sur `track`, l'épingle est annoncée « 1 » ; la crête, la bosse et le virage qui se resserre sont reconnus.
-- [ ] Les mots s'enchaînent sans trou gênant, au même volume.
-- [ ] `M` coupe aussitôt la voix, une seconde pression la rétablit.
-- [ ] Une phrase coupée par la pause est redite à la reprise ; relancer coupe la phrase en cours.
-- [ ] Après une remise en piste, l'annonce suivante est celle du prochain virage ; aucune annonce n'est dite deux fois.
-- [ ] Rien n'est annoncé dans les menus ni après l'arrivée.
-- [ ] Les icônes se comprennent sans texte et se lisent d'un coup d'œil ; dans une enfilade, elles sont dans l'ordre de la route.
-- [ ] Les icônes restent lisibles sur tous les décors et toutes les ambiances.
-- [ ] Les options fonctionnent souris, clavier et manette, et survivent à un rechargement.
-- [ ] Tout couper donne une course sans voix ni icône, sans erreur.
-- [ ] Changer la vitesse de diction change aussi le moment de l'annonce.
+- [x] À allure de course, on a le temps d'entendre la note avant le virage.
+- [x] Sur `track`, l'épingle est annoncée « 1 » ; la crête, la bosse et le virage qui se resserre sont reconnus.
+- [x] Les mots s'enchaînent sans trou gênant, au même volume.
+- [x] `M` coupe aussitôt la voix, une seconde pression la rétablit.
+- [x] Une phrase coupée par la pause est redite à la reprise ; relancer coupe la phrase en cours.
+- [x] Après une remise en piste, l'annonce suivante est celle du prochain virage ; aucune annonce n'est dite deux fois.
+- [x] Rien n'est annoncé dans les menus ni après l'arrivée.
+- [x] Les icônes se comprennent sans texte et se lisent d'un coup d'œil ; dans une enfilade, elles sont dans l'ordre de la route.
+- [x] Les icônes restent lisibles sur tous les décors et toutes les ambiances.
+- [x] Les options fonctionnent souris, clavier et manette, et survivent à un rechargement.
+- [x] Tout couper donne une course sans voix ni icône, sans erreur.
+- [x] Changer la vitesse de diction change aussi le moment de l'annonce.
 
 ### Parcours D — Mini-carte (story 4.10) · `track`, `road`, `mountain`, puis une spéciale de 15 km
 
-- [ ] La forme du tracé se reconnaît.
-- [ ] Le marqueur suit la voiture sans saccade et se recale après une remise en piste.
-- [ ] La mini-carte ne cache ni le chrono, ni les icônes, ni la route.
-- [ ] Une spéciale de 15 km reste lisible et fluide.
+- [x] La forme du tracé se reconnaît.
+- [x] Le marqueur suit la voiture sans saccade et se recale après une remise en piste.
+- [x] La mini-carte ne cache ni le chrono, ni les icônes, ni la route.
+- [x] Une spéciale de 15 km reste lisible et fluide.
 
 ## À noter
 

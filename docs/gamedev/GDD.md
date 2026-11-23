@@ -31,6 +31,8 @@ Une seule voiture, traction intégrale 50/50, 1 100 kg. Toutes les valeurs : `sr
 | Répartition du couple   | 50 / 50 (`driveShare`)                                      | 4RM                                |
 | Répartition du freinage | 60 / 40 (`brakeShare`)                                      | Plonge au freinage, aide à pivoter |
 | Rapports                | 5 (`engine.gears`), passage auto à 6 900 tr/min             | Arcade                             |
+| Puissance équivalente   | `maxForce` 5 720 N : ~137 ch à la roue au passage de rapport, ~150 ch au rupteur, soit ~7,3 kg/ch (2026-11-23, PR-26) | Petite sportive de série (repère : 205 GTI 1.9, ~130 ch pour ~900 kg), loin d'une Groupe A (~300 ch). Repère à garder pour d'autres voitures |
+| Rétrogradage forcé      | pied au plancher, si le rapport inférieur tourne sous 6 400 tr/min (`kickdownRpm`) | Tenir les côtes (B-16)             |
 | 0 → 100 km/h            | cible 6 à 8 s · mesuré ~5 s pour 0 → 68                     | Story 1.8                          |
 | Vitesse max             | cible ~170 km/h · mesuré 153 km/h à ~40 s                   | Story 1.8                          |
 | Angle de braquage       | 0,6 rad, réduit à 0,16 rad à haute vitesse                  | Stabilité                          |

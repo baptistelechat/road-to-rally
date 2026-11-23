@@ -74,6 +74,10 @@ export interface CarConfig {
     launchRpm: number;
     upshiftRpm: number;
     downshiftRpm: number;
+    /** Pied au plancher, rétrograde si le rapport inférieur tourne sous ce régime : une côte ne laisse plus la voiture s'étouffer sur le rapport haut (PR-26) */
+    kickdownRpm: number;
+    /** Part de gaz à partir de laquelle le rétrogradage forcé joue */
+    kickdownThrottle: number;
     shiftTimeS: number;
     /** Force de frein moteur appliquée sans gaz */
     engineBrake: number;
@@ -182,7 +186,8 @@ export const carConfig: CarConfig = {
     driveShare: 0.5,
   },
   engine: {
-    maxForce: 5200,
+    // +10 % le 2026-11-23 (PR-26) : la voiture tient mieux les côtes de 8 %, au prix d'un plat un peu plus nerveux.
+    maxForce: 5720,
     idleRpm: 900,
     redlineRpm: 7500,
     finalDrive: 4.1,
@@ -192,6 +197,9 @@ export const carConfig: CarConfig = {
     launchRpm: 2500,
     upshiftRpm: 6900,
     downshiftRpm: 3200,
+    // Sous `upshiftRpm` : juste après un passage de rapport, l'inférieur tourne à `upshiftRpm`, donc pas de va-et-vient.
+    kickdownRpm: 6400,
+    kickdownThrottle: 0.9,
     shiftTimeS: 0.12,
     engineBrake: 600,
   },

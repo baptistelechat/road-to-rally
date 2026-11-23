@@ -37,6 +37,8 @@ const project = (points: LatLon[]): [number, number][] => {
 interface StageThumbnailProps {
   /** Absent : spéciale importée, sans tracé gardé */
   trace: EditorTrace | null;
+  /** L'axe de la route, dessiné à défaut de tracé */
+  outline?: LatLon[];
   /** En jaune : le tracé porte des changements à rouler */
   highlighted?: boolean;
   /** Un brouillon : trait en pointillés */
@@ -46,6 +48,7 @@ interface StageThumbnailProps {
 
 export const StageThumbnail = ({
   trace,
+  outline = [],
   highlighted = false,
   dashed = false,
   className,
@@ -54,7 +57,7 @@ export const StageThumbnail = ({
     ? trace.segments.length > 0
       ? assembleTrace(trace)
       : trace.anchors.map(({ position }) => position)
-    : [];
+    : outline;
   const drawn = points.length >= 2 ? project(points) : [];
   const first = drawn[0];
   const last = drawn[drawn.length - 1];

@@ -17,7 +17,6 @@ import { createCopilot, type Copilot } from "./copilot";
 import { applyAudioOptions } from "./copilotOptions";
 import { setHudMuted, setHudScreen, useHudStore } from "./hudStore";
 import type { GameMap } from "./maps";
-import type { ImportedStage } from "./useStageImport";
 
 /** Au-delà, le joueur a vu l'écran se figer (l'étape la plus longue du chargement) : on lui dit pourquoi. */
 const LONG_CREATION_MS = 500;
@@ -58,7 +57,6 @@ interface GameSessionResult {
 export const useGameSession = (
   params: URLSearchParams,
   map: GameMap,
-  imported: ImportedStage | null,
 ): GameSessionResult => {
   const [game, setGame] = useState<GameSession | null>(null);
   const [failed, setFailed] = useState(false);
@@ -66,8 +64,8 @@ export const useGameSession = (
 
   // Strict Mode lance cet effet deux fois en développement : on libère toujours le monde créé.
   useEffect(() => {
-    // Importée sur place ou créée dans l'éditeur : le même trajet.
-    const given = imported ?? map.custom ?? null;
+    // Créée dans l'éditeur ou importée depuis « Mes spéciales » : le même trajet.
+    const given = map.custom ?? null;
     let cancelled = false;
     let created: Simulation | null = null;
     let copilot: Copilot | null = null;
@@ -154,7 +152,7 @@ export const useGameSession = (
       canvasRootRef.current = null;
       created?.free();
     };
-  }, [params, map, imported]);
+  }, [params, map]);
 
   return { game, failed, canvasRootRef };
 };

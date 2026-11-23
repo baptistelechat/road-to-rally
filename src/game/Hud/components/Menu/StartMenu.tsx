@@ -1,10 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { setHudScreen } from "@/game/hudStore";
 import { CUSTOM_MAP_ID } from "@/game/maps";
-import type { ImportedStage } from "@/game/useStageImport";
-import { StageImportPanel } from "../StageImportPanel";
 import { leaveFor, returnToEditor } from "./mapChoices";
 import { LookSelect } from "./LookSelect";
 import { MapCards } from "./MapCards";
@@ -23,7 +20,6 @@ interface StartMenuProps {
   mapLabel: string;
   /** Retour des options : le focus revient sur leur bouton. */
   returned: boolean;
-  onImported: (stage: ImportedStage) => void;
   onOptions: () => void;
 }
 
@@ -35,10 +31,8 @@ export const StartMenu = ({
   map,
   mapLabel,
   returned,
-  onImported,
   onOptions,
 }: StartMenuProps) => {
-  const [importing, setImporting] = useState(false);
   return (
     <dialog
       open
@@ -111,13 +105,6 @@ export const StartMenu = ({
           </button>
           <button
             type="button"
-            className={navButton}
-            onClick={() => setImporting(true)}
-          >
-            + Importer un GPX
-          </button>
-          <button
-            type="button"
             autoFocus={returned}
             className={navButton}
             onClick={onOptions}
@@ -126,13 +113,6 @@ export const StartMenu = ({
           </button>
         </nav>
       </section>
-
-      {importing && (
-        <StageImportPanel
-          onClose={() => setImporting(false)}
-          onReady={onImported}
-        />
-      )}
     </dialog>
   );
 };

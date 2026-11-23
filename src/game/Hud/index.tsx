@@ -3,7 +3,6 @@
 import type { CSSProperties } from "react";
 import type { Copilot } from "@/game/copilot";
 import { useHudStore } from "@/game/hudStore";
-import type { ImportedStage } from "@/game/useStageImport";
 import { RESPAWN_HOLD_S, type RecoveryStatus } from "@/sim/recovery";
 import type { Simulation } from "@/sim/simulation";
 import type { CarSource } from "@/render/carSource";
@@ -146,7 +145,6 @@ interface HudProps {
   closed: boolean;
   /** Avertissements de la spéciale en cours */
   notices: readonly string[];
-  onImported: (stage: ImportedStage) => void;
   onToggleMute: () => void;
 }
 
@@ -159,7 +157,6 @@ export const Hud = ({
   mapLabel,
   closed,
   notices,
-  onImported,
   onToggleMute,
 }: HudProps) => {
   const hudStyle = useHudStore((s) => s.copilotOptions.hudStyle);
@@ -198,7 +195,6 @@ export const Hud = ({
         mapLabel={mapLabel}
         closed={closed}
         copilot={copilot}
-        onImported={onImported}
         onToggleMute={onToggleMute}
       />
     </div>

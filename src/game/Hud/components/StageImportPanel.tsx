@@ -1,14 +1,14 @@
 "use client";
 
 import { useId } from "react";
-import { useStageImport, type ImportedStage } from "@/game/useStageImport";
+import { useStageImport, type LoadedStage } from "@/game/useStageImport";
 import { label } from "../hudStyles";
 import { drawerButton } from "./Menu/menuStyles";
 import { StageProgress } from "./StageProgress";
 
 interface StageImportPanelProps {
   onClose: () => void;
-  onReady: (stage: ImportedStage) => void;
+  onReady: (stage: LoadedStage) => void;
 }
 
 /** Le fermer annule la génération en cours : le Worker vit le temps du panneau. */

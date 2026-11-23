@@ -462,7 +462,8 @@ const checkLightProps = (): void => {
     vehicle.step(
       {
         steer: 0,
-        throttle: s.speed < 60 / 3.6 ? 1 : 0,
+        // Vitesse tenue, pas de coups de gaz : le choc ne dépend ni du moteur ni des rapports (PR-26).
+        throttle: Math.min(1, Math.max(0, (60 / 3.6 - s.speed) * 0.5 + 0.3)),
         brake: 0,
         handbrake: false,
       },

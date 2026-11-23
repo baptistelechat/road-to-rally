@@ -34,11 +34,10 @@ import { Diagnostics } from "./diag/Diagnostics";
 import { Hud } from "./Hud";
 import { setHudMuted, useHudStore } from "./hudStore";
 import { createGhostOutlet, type GhostOutlet } from "./ghostOutlet";
-import { customMap, importedMap, mapFromParam, mapSearch } from "./maps";
+import { customMap, mapFromParam, mapSearch } from "./maps";
 import { type RecordIdentity, readStageRecord } from "./stageRecords";
 import { useGameLoop } from "./useGameLoop";
 import { useGameSession } from "./useGameSession";
-import type { ImportedStage } from "./useStageImport";
 
 // Panneau de réglage : développement seulement, jamais dans le bundle de production.
 const TuningPanel =
@@ -145,18 +144,15 @@ interface GameProps {
 }
 
 export const Game = ({ initialStage }: GameProps) => {
-  const [imported, setImported] = useState<ImportedStage | null>(null);
   const params = useMemo(() => new URLSearchParams(window.location.search), []);
   const map = useMemo(
     () =>
-      imported
-        ? importedMap(imported.stage)
-        : initialStage
-          ? customMap(initialStage)
-          : mapFromParam(params.get("map")),
-    [params, imported, initialStage],
+      initialStage
+        ? customMap(initialStage)
+        : mapFromParam(params.get("map")),
+    [params, initialStage],
   );
-  const { game, failed, canvasRootRef } = useGameSession(params, map, imported);
+  const { game, failed, canvasRootRef } = useGameSession(params, map);
   const [ghostOutlet] = useState(createGhostOutlet);
 
   if (failed)
@@ -177,9 +173,7 @@ export const Game = ({ initialStage }: GameProps) => {
   if (!game)
     return (
       <div role="status" className={screen}>
-        {imported
-          ? "Création de la route et de ses collisions… L'écran peut se figer quelques secondes."
-          : "Chargement…"}
+        Chargement…
       </div>
     );
 
@@ -211,7 +205,6 @@ export const Game = ({ initialStage }: GameProps) => {
         mapLabel={map.label}
         closed={game.sim.track.closed}
         notices={game.notices}
-        onImported={setImported}
         onToggleMute={() => setHudMuted(game.audio.toggleMute())}
       />
       {TuningPanel && <TuningPanel sim={game.sim} />}

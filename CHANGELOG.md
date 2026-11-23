@@ -109,6 +109,8 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Onglet « Obstacles » dans `/decor-lab` pour comparer les habillages des chicanes, des terre-pleins et des îlots
 - Massifs au centre des grands ronds-points selon le lieu : jardin fleuri en ville, rocaille et pins en montagne, bosquet à la campagne
 - Ponts repérés en bleu sur le profil d'altitude de l'éditeur, cliquables pour centrer la carte
+- Bouton « Importer un GPX » dans l'éditeur : la spéciale importée rejoint « Mes spéciales » avec l'aperçu de son tracé, et se modifie ensuite comme une spéciale tracée sur la carte
+- Carte d'essai « Slopes » : une ligne droite avec des montées de 4 à 16 % et des descentes, pour juger la voiture en côte
 
 ### Changed
 
@@ -178,11 +180,13 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Sur une route étroite à flanc de montagne, l'arche de secteur devient une banderole tendue entre deux mâts ; ailleurs, ses pieds descendent jusqu'au sol
 - Tous les records et fantômes repartent de zéro : routes, obstacles et physique des chocs ont changé
 - Pendant le décompte, le moteur monte dans les tours et le compteur suit les gaz ; au GO, le régime redescend comme un embrayage qu'on relâche au lieu de retomber au ralenti
+- Moteur 10 % plus puissant, et rétrogradage automatique pied au plancher quand le régime chute : la voiture tient mieux les côtes. Records et fantômes ne sont plus comparables
 
 ### Removed
 
 - Noms de lieux sur le fond satellite de l'éditeur
 - Fenêtre « Score détaillé » et verdict « route roulante / sinueuse » de l'éditeur, redondants avec le bandeau du profil
+- Import d'un GPX depuis le menu de départ et le menu pause : il se fait désormais depuis l'éditeur
 
 ### Fixed
 

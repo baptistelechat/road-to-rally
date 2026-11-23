@@ -56,6 +56,7 @@ export const StageRow = ({
     <div className="relative">
       <StageThumbnail
         trace={parseTrace(stage.trace)}
+        outline={stage.outline}
         highlighted={hasUnrolledChanges}
         className="h-[150px] w-full"
       />

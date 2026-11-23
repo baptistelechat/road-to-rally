@@ -2,7 +2,6 @@
 
 import type { Copilot } from "@/game/copilot";
 import { requestRestart, setHudScreen, useHudStore } from "@/game/hudStore";
-import type { ImportedStage } from "@/game/useStageImport";
 import { formatLap } from "../../formatTime";
 import { CopilotOptionsPanel } from "../CopilotOptionsPanel";
 import { MapSelect } from "../MapSelect";
@@ -16,7 +15,6 @@ interface PauseDrawerProps {
   /** Tracé en boucle, sinon spéciale d'un départ à une arrivée */
   closed: boolean;
   copilot: Copilot;
-  onImported: (stage: ImportedStage) => void;
   onToggleMute: () => void;
 }
 
@@ -26,7 +24,6 @@ export const PauseDrawer = ({
   mapLabel,
   closed,
   copilot,
-  onImported,
   onToggleMute,
 }: PauseDrawerProps) => {
   const muted = useHudStore((s) => s.muted);
@@ -68,7 +65,7 @@ export const PauseDrawer = ({
           {muted ? "Remettre le son" : "Couper le son"}
         </button>
       </div>
-      <MapSelect map={map} mapLabel={mapLabel} onImported={onImported} />
+      <MapSelect map={map} mapLabel={mapLabel} />
       <CopilotOptionsPanel copilot={copilot} />
       <nav aria-label="Quitter la course" className="mt-auto flex gap-2 pt-2">
         <button

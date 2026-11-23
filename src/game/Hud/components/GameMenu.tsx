@@ -3,7 +3,6 @@
 import { useState } from "react";
 import type { Copilot } from "@/game/copilot";
 import { useHudStore } from "@/game/hudStore";
-import type { ImportedStage } from "@/game/useStageImport";
 import { CopilotOptionsPanel } from "./CopilotOptionsPanel";
 import { MenuDrawer } from "./Menu/MenuDrawer";
 import { readyRequested } from "./Menu/mapChoices";
@@ -17,7 +16,6 @@ interface GameMenuProps {
   /** Tracé en boucle, sinon spéciale d'un départ à une arrivée */
   closed: boolean;
   copilot: Copilot;
-  onImported: (stage: ImportedStage) => void;
   onToggleMute: () => void;
 }
 
@@ -50,7 +48,6 @@ const MenuScreens = ({
       map={props.map}
       mapLabel={props.mapLabel}
       returned={view === "returned"}
-      onImported={props.onImported}
       onOptions={() => setView("options")}
     />
   );

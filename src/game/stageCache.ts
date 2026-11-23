@@ -3,6 +3,7 @@
 import type { EditorTrace } from "@/editor/types";
 import { sortChicaneRequests, type ChicaneRequest } from "@/geo/chicanes";
 import { PIPELINE_VERSION } from "@/geo/config";
+import { unproject, type LatLon } from "@/geo/gpx";
 import { hashText } from "@/geo/stageHash";
 import type { GeneratedStage } from "@/geo/stageWorkerClient";
 import { parseStage } from "@/sim/track/stageCodec";
@@ -169,7 +170,20 @@ export interface StoredStage {
   degraded: boolean;
   /** Tel que rangé, à valider avant usage. Absent d'une spéciale importée ou plus ancienne. */
   trace: unknown;
+  /** L'axe de la route, allégé : de quoi dessiner une spéciale importée, qui n'a pas de tracé */
+  outline: LatLon[];
 }
+
+/** Une vignette n'a pas besoin de chaque mètre de route */
+const OUTLINE_POINTS = 200;
+
+const outlineOf = ({ points, origin }: Partial<StageData>): LatLon[] => {
+  if (!Array.isArray(points) || points.length < 2 || !origin) return [];
+  const step = Math.max(1, Math.ceil(points.length / OUTLINE_POINTS));
+  return points
+    .filter((_, i) => i % step === 0 || i === points.length - 1)
+    .map((point) => unproject(point, origin));
+};
 
 const summarize = (key: string, value: unknown): StoredStage | null => {
   if (typeof value !== "object" || value === null) return null;
@@ -189,6 +203,7 @@ const summarize = (key: string, value: unknown): StoredStage | null => {
     outdated: entry.pipelineVersion !== PIPELINE_VERSION,
     degraded: key.endsWith(DEGRADED_SUFFIX),
     trace: entry.trace,
+    outline: outlineOf(entry),
   };
 };
 

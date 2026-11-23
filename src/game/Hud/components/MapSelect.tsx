@@ -1,8 +1,7 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId } from "react";
 import { CUSTOM_MAP_ID } from "@/game/maps";
-import type { ImportedStage } from "@/game/useStageImport";
 import { label } from "../hudStyles";
 import {
   chooseMap,
@@ -11,25 +10,22 @@ import {
   returnToEditor,
 } from "./Menu/mapChoices";
 import { drawerButton, facetSlant } from "./Menu/menuStyles";
-import { StageImportPanel } from "./StageImportPanel";
 
-/** Import et éditeur : gris, le texte en retrait des cartes */
+/** Éditeur : gris, le texte en retrait des cartes */
 const sideButton = `${drawerButton} flex w-full items-center text-left text-muted-foreground hover:text-foreground`;
 
 interface MapSelectProps {
   map: string;
   /** Libellé de la carte en cours : le nom de la spéciale si elle est importée */
   mapLabel: string;
-  onImported: (stage: ImportedStage) => void;
 }
 
 /**
- * Road-book de la pause : les cartes numérotées, l'import GPX et l'éditeur.
- * Seule une spéciale importée remplace la carte sur place : les autres choix rechargent la page sur l'écran « Prêt ».
+ * Road-book de la pause : les cartes numérotées et l'éditeur.
+ * Chaque choix rechargent la page sur l'écran « Prêt ».
  */
-export const MapSelect = ({ map, mapLabel, onImported }: MapSelectProps) => {
+export const MapSelect = ({ map, mapLabel }: MapSelectProps) => {
   const id = useId();
-  const [importing, setImporting] = useState(false);
 
   return (
     <section aria-labelledby={`${id}-title`}>
@@ -62,15 +58,6 @@ export const MapSelect = ({ map, mapLabel, onImported }: MapSelectProps) => {
           <button
             type="button"
             className={sideButton}
-            onClick={() => setImporting(true)}
-          >
-            + Importer un GPX
-          </button>
-        </li>
-        <li>
-          <button
-            type="button"
-            className={sideButton}
             onClick={() => leaveFor("/editor")}
           >
             Ouvrir l&apos;éditeur
@@ -88,12 +75,6 @@ export const MapSelect = ({ map, mapLabel, onImported }: MapSelectProps) => {
           </li>
         )}
       </ol>
-      {importing && (
-        <StageImportPanel
-          onClose={() => setImporting(false)}
-          onReady={onImported}
-        />
-      )}
     </section>
   );
 };
