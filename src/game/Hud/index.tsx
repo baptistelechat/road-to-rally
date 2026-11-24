@@ -56,6 +56,7 @@ const RECOVERY_TEXT: Record<
   hold: { title: "Remise en piste", hint: "Relâche pour annuler" },
   offroad: { title: "Hors piste", hint: "Reviens sur la route" },
   wrongway: { title: "Sens interdit", hint: "Fais demi-tour" },
+  flipped: { title: "Sur le toit", hint: "Remise en piste" },
 };
 
 const stripes = (color: string): CSSProperties => ({

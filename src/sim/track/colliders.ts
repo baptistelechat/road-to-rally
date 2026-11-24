@@ -1,5 +1,6 @@
 import type RAPIER_TYPES from "@dimforge/rapier3d-deterministic-compat";
 import { isLightProp, RAY_IGNORED_GROUPS } from "../lightProps";
+import { TUNNEL_SKIRT, TUNNEL_WALL_HEIGHT } from "./tunnelShape";
 import { RAPIER } from "../rapier";
 import type { MeshData, SceneryItem, Track } from "../types";
 import {
@@ -27,6 +28,8 @@ const PARAPET_SKIRT = 0.3;
  * au volant (essais de Baptiste, 21/11).
  */
 const PARAPET_INNER_GAP = 0.2;
+/** Seconde paroi d'un tunnel, derrière la première, en mètres */
+const TUNNEL_WALL_BACKING = 0.5;
 /** Épaisseur du collider de la glissière d'un terre-plein, en mètres */
 const MEDIAN_THICKNESS = 0.3;
 /** Obstacles du décor (arbres, poteaux, bâtiments) : on rebondit dessus sans s'y coincer. */
@@ -238,22 +241,27 @@ export const addTrackColliders = (
   // accrochait l'arête du bloc suivant. Orientée vers la route, avec `FIX_INTERNAL_EDGES` comme le ruban.
   const points = track.unique.points;
   const last = points.length - 1;
-  for (const bridge of track.bridges ?? []) {
-    const inner = bridge.halfWidth - PARAPET_INNER_GAP;
+  const sideWalls = (
+    from: number,
+    to: number,
+    inner: (i: number) => number,
+    skirt: number,
+    height: number,
+  ): void => {
     for (const side of [-1, 1]) {
       const positions: number[] = [];
-      for (let i = bridge.from; i <= bridge.to; i++) {
+      for (let i = from; i <= to; i++) {
         const prev = points[Math.max(0, i - 1)];
         const next = points[Math.min(last, i + 1)];
         const len = Math.hypot(next.x - prev.x, next.z - prev.z) || 1;
         // À droite de la route : (-dz, dx), comme `bridgeGeometry`.
-        const x = points[i].x - ((next.z - prev.z) / len) * inner * side;
-        const z = points[i].z + ((next.x - prev.x) / len) * inner * side;
-        positions.push(x, points[i].y - PARAPET_SKIRT, z);
-        positions.push(x, points[i].y + PARAPET_HEIGHT, z);
+        const x = points[i].x - ((next.z - prev.z) / len) * inner(i) * side;
+        const z = points[i].z + ((next.x - prev.x) / len) * inner(i) * side;
+        positions.push(x, points[i].y - skirt, z);
+        positions.push(x, points[i].y + height, z);
       }
       const indices: number[] = [];
-      for (let k = 0; k < bridge.to - bridge.from; k++) {
+      for (let k = 0; k < to - from; k++) {
         const [bottom, top, nextBottom, nextTop] = [2 * k, 2 * k + 1, 2 * k + 2, 2 * k + 3];
         // (bas, bas suivant, haut suivant) a sa normale vers la droite : à gauche elle regarde la route, à droite on l'inverse.
         if (side < 0) indices.push(bottom, nextBottom, nextTop, bottom, nextTop, top);
@@ -270,5 +278,27 @@ export const addTrackColliders = (
           .setCollisionGroups(RAY_IGNORED_GROUPS),
       );
     }
-  }
+  };
+  for (const bridge of track.bridges ?? [])
+    sideWalls(
+      bridge.from,
+      bridge.to,
+      () => bridge.halfWidth - PARAPET_INNER_GAP,
+      PARAPET_SKIRT,
+      PARAPET_HEIGHT,
+    );
+  // Parois des tunnels, après les ponts : sans tunnel, le monde reste le même au bit près.
+  // Au bord réel du bas-côté en chaque point, comme le vide du terrain, puis une seconde paroi un peu plus loin :
+  // une voiture qui pousse contre une paroi d'épaisseur nulle finit par passer au travers.
+  // ponytail: pas de voûte en collision, aucune voiture n'y monte en roulant ; l'ajouter si un saut y mène.
+  const { widths, shoulders } = track.unique;
+  for (const tunnel of track.tunnels ?? [])
+    for (const offset of [0, TUNNEL_WALL_BACKING])
+      sideWalls(
+        tunnel.from,
+        tunnel.to,
+        (i) => widths[i] / 2 + shoulders[i] + offset,
+        TUNNEL_SKIRT,
+        TUNNEL_WALL_HEIGHT,
+      );
 };

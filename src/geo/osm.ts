@@ -235,6 +235,8 @@ export interface RoadAttributes {
   structures: boolean[];
   /** Tags de la voie sur un pont (tunnel exclu), `null` ailleurs : de quoi choisir le style de l'ouvrage */
   bridgeTags: (Record<string, string> | null)[];
+  /** Tags du tunnel en chaque point de son axe, comblé d'un bout à l'autre (PR-24), `null` ailleurs */
+  tunnelTags: (Record<string, string> | null)[];
   /** Voies de circulation en chaque point de l'axe, pour le marquage */
   lanes: number[];
 }
@@ -242,6 +244,8 @@ export interface RoadAttributes {
 interface PlaneWay {
   way: OsmWay;
   points: PlanePoint[];
+  /** Longueur de la voie à plat, en mètres */
+  length: number;
   minX: number;
   maxX: number;
   minZ: number;
@@ -252,9 +256,13 @@ const toPlaneWay = (way: OsmWay, origin: LatLon): PlaneWay => {
   const points = way.geometry.map((p) => project(p, origin));
   const xs = points.map((p) => p.x);
   const zs = points.map((p) => p.z);
+  let length = 0;
+  for (let i = 1; i < points.length; i++)
+    length += Math.hypot(points[i].x - points[i - 1].x, points[i].z - points[i - 1].z);
   return {
     way,
     points,
+    length,
     minX: Math.min(...xs),
     maxX: Math.max(...xs),
     minZ: Math.min(...zs),
@@ -268,8 +276,8 @@ const matchWay = (
   tangentX: number,
   tangentZ: number,
   ways: PlaneWay[],
-): OsmWay | null => {
-  let best: OsmWay | null = null;
+): PlaneWay | null => {
+  let best: PlaneWay | null = null;
   let bestScore = Infinity;
   for (const candidate of ways) {
     if (
@@ -301,7 +309,7 @@ const matchWay = (
       const score = distance + OSM_DIRECTION_WEIGHT * misalignment;
       if (score < bestScore) {
         bestScore = score;
-        best = candidate.way;
+        best = candidate;
       }
     }
   }
@@ -321,6 +329,40 @@ export const dualMask = (
     ),
   );
 
+/** Deux tronçons du même ouvrage : la même voie, ou deux voies bout à bout (un tunnel coupé en tronçons). */
+const sameStructure = (a: PlaneWay, b: PlaneWay): boolean => {
+  if (a === b) return true;
+  const ends = (w: PlaneWay): PlanePoint[] => [w.points[0], w.points[w.points.length - 1]];
+  return ends(a).some((p) => ends(b).some((q) => Math.hypot(p.x - q.x, p.z - q.z) < 1));
+};
+
+/**
+ * PR-24 B : entre deux points reconnus d'un même tunnel, tout l'axe est du tunnel. Dans un long tunnel, la trace OSM
+ * s'écarte jusqu'à 45 m de la BD TOPO (Grands Goulets) et perd l'appariement sur des centaines de mètres.
+ * Un écart plus long que l'ouvrage n'est pas comblé : c'est un aller-retour qui repasse dans le même tunnel.
+ */
+const fillTunnelGaps = (
+  points: PlanePoint[],
+  tunnels: (PlaneWay | null)[],
+): (PlaneWay | null)[] => {
+  const filled = [...tunnels];
+  let last = -1;
+  for (let i = 0; i < points.length; i++) {
+    const way = tunnels[i];
+    if (!way) continue;
+    const previous = last >= 0 ? tunnels[last] : null;
+    if (previous && i - last > 1 && sameStructure(previous, way)) {
+      let gap = 0;
+      for (let k = last + 1; k <= i; k++)
+        gap += Math.hypot(points[k].x - points[k - 1].x, points[k].z - points[k - 1].z);
+      if (gap <= previous.length + (previous === way ? 0 : way.length))
+        for (let k = last + 1; k < i; k++) filled[k] = previous;
+    }
+    last = i;
+  }
+  return filled;
+};
+
 /** Sans voie (`ways` nul ou trop loin), la largeur par défaut. */
 export const deduceRoadAttributes = (
   trace: TracePoints,
@@ -330,18 +372,21 @@ export const deduceRoadAttributes = (
   const raw: number[] = [];
   const structures: boolean[] = [];
   const bridgeTags: (Record<string, string> | null)[] = [];
+  const tunnels: (PlaneWay | null)[] = [];
   const rawLanes: number[] = [];
   const { points } = trace;
   points.forEach((point, i) => {
     const previous = points[Math.max(0, i - 1)];
     const next = points[Math.min(points.length - 1, i + 1)];
     const norm = Math.hypot(next.x - previous.x, next.z - previous.z) || 1;
-    const way = matchWay(
+    const matched = matchWay(
       point,
       (next.x - previous.x) / norm,
       (next.z - previous.z) / norm,
       planeWays,
     );
+    const way = matched?.way ?? null;
+    tunnels.push(matched && isStructure(way?.tags.tunnel) ? matched : null);
     raw.push(way ? widthFromTags(way.tags) : DEFAULT_WIDTH);
     rawLanes.push(way ? lanesFromTags(way.tags) : 2);
     structures.push(
@@ -362,7 +407,18 @@ export const deduceRoadAttributes = (
     rawLanes[i] = rawLanes[i < trace.runoffPoints ? trace.runoffPoints : last];
     structures[i] = false;
     bridgeTags[i] = null;
+    tunnels[i] = null;
   }
+  const tunnelTags = fillTunnelGaps(points, tunnels).map((w) => w?.way.tags ?? null);
+  tunnelTags.forEach((tags, i) => {
+    if (!tags) return;
+    structures[i] = true;
+    // Comblé : la trace s'écartait de l'ouvrage, la largeur venait d'une autre voie ou de la valeur par défaut.
+    if (!tunnels[i]) {
+      raw[i] = widthFromTags(tags);
+      rawLanes[i] = lanesFromTags(tags);
+    }
+  });
   const smoothed = boxSmooth(
     boxSmooth(medianFilter(raw, WIDTH_MEDIAN_RADIUS), WIDTH_SMOOTH_RADIUS),
     WIDTH_SMOOTH_RADIUS,
@@ -370,7 +426,7 @@ export const deduceRoadAttributes = (
   // Le filtre médian retire une voie associée par erreur sur quelques points, au passage d'un carrefour.
   const lanes = medianFilter(rawLanes, WIDTH_MEDIAN_RADIUS).map(Math.round);
   if (!trace.dual)
-    return { widths: smoothed.map(roundMm), structures, bridgeTags, lanes };
+    return { widths: smoothed.map(roundMm), structures, bridgeTags, tunnelTags, lanes };
 
   // Deux chaussées : une voie de `DUAL_WIDTH` chacune, avec un fondu vers la largeur d'OSM autour.
   const inside = dualMask(points, trace.dual).map(Number);
@@ -381,6 +437,7 @@ export const deduceRoadAttributes = (
     ),
     structures,
     bridgeTags,
+    tunnelTags,
     lanes: lanes.map((count, i) => (inside[i] ? 1 : count)),
   };
 };

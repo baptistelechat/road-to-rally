@@ -91,6 +91,11 @@ export const stageHash = (stage: StageData): string => {
         ]),
       ),
     );
+  // Sans tunnel, rien n'est ajouté : les empreintes déjà publiées ne bougent pas.
+  for (const tunnel of stage.tunnels ?? []) {
+    hasher.add(new Float64Array([tunnel.from, tunnel.to, tunnel.halfWidth]));
+    addMesh(hasher, tunnel.roof ?? null);
+  }
   // Sans chicane, rien n'est ajouté : les empreintes déjà publiées ne bougent pas.
   if (stage.lanes) hasher.add(new Float64Array(stage.lanes));
   if (stage.islands)

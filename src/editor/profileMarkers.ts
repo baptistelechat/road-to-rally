@@ -37,7 +37,8 @@ export type ProfileBandKind =
   | "chicane"
   | "straight"
   | "median"
-  | "bridge";
+  | "bridge"
+  | "tunnel";
 
 export interface ProfileBand {
   fromS: number;
@@ -126,16 +127,17 @@ export const medianBands = (
     }));
   });
 
-/** Un pont de la BD TOPO par bande, centré sur son milieu pour que la carte le montre. */
-export const bridgeBands = (
+/** Un pont ou un tunnel de la BD TOPO par bande, centré sur son milieu pour que la carte le montre. */
+export const structureBands = (
   axis: LatLon[],
-  bridges: { from: number; to: number }[],
+  structures: { from: number; to: number }[],
+  kind: "bridge" | "tunnel",
 ): ProfileBand[] =>
-  bridges.map(({ from, to }, i) => ({
+  structures.map(({ from, to }, i) => ({
     fromS: from * STEP,
     toS: to * STEP,
-    kind: "bridge" as const,
-    label: `Pont ${i + 1}`,
+    kind,
+    label: `${kind === "bridge" ? "Pont" : "Tunnel"} ${i + 1}`,
     position: axis[Math.min(axis.length - 1, Math.round((from + to) / 2))],
   }));
 

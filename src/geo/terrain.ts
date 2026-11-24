@@ -4,6 +4,11 @@ import { groundColor } from "../render/track/groundMesh";
 import { GROUND_Y, shoulderStrips } from "../sim/track/ribbon";
 import { shoulderWidths } from "../sim/track/roadContact";
 import { createSpatialGrid } from "../sim/track/spatialGrid";
+import {
+  TUNNEL_COVER,
+  TUNNEL_VAULT_RISE,
+  TUNNEL_WALL_HEIGHT,
+} from "../sim/track/tunnelShape";
 import type { MeshData, Vec3 } from "../sim/types";
 import {
   CORRIDOR_CELL,
@@ -56,7 +61,9 @@ export const corridorNodes = (axis: PlanePoint[]): PlanePoint[] => {
         const dx = ix * cell - p.x;
         const dz = iz * cell - p.z;
         if (dx * dx + dz * dz <= range2)
-          keys.add((ix * scale + 0x100000) * 0x200000 + (iz * scale + 0x100000));
+          keys.add(
+            (ix * scale + 0x100000) * 0x200000 + (iz * scale + 0x100000),
+          );
       }
   };
   const tiers = [
@@ -94,7 +101,12 @@ const rawAltitudeSampler = (nodes: PlanePoint[], altitudes: number[]) => {
     const b = known.get(`${x0 + CORRIDOR_CELL},${z0}`);
     const c = known.get(`${x0},${z0 + CORRIDOR_CELL}`);
     const d = known.get(`${x0 + CORRIDOR_CELL},${z0 + CORRIDOR_CELL}`);
-    if (a === undefined || b === undefined || c === undefined || d === undefined)
+    if (
+      a === undefined ||
+      b === undefined ||
+      c === undefined ||
+      d === undefined
+    )
       return null;
     const u = (x - x0) / CORRIDOR_CELL;
     const v = (z - z0) / CORRIDOR_CELL;
@@ -160,11 +172,14 @@ interface Blend {
 /**
  * `bridged` : points sur un pont. Le relief n'y est pas relevé jusqu'au tablier (ni remblai ni plateau sous l'ouvrage) ;
  * il reste seulement borné par le haut, pour ne jamais traverser la route.
+ * `tunnel` : points dans un tunnel (PR-21). Le relief n'y est pas raboté : la montagne reste au-dessus. Un nœud dont le
+ * point d'axe le plus proche est dans le tunnel garde son relief brut par le haut : au portail, la montagne tombe en paroi.
  */
 const createBlend = (
   points: Vec3[],
   edge: number[],
   bridged?: readonly boolean[],
+  tunnel?: readonly boolean[],
 ): Blend => {
   const all = createSpatialGrid(BLEND_GRID_CELL);
   const sampled = createSpatialGrid(BLEND_GRID_CELL);
@@ -197,6 +212,8 @@ const createBlend = (
       let high = Infinity;
       let lowDistance = 0;
       let highDistance = 0;
+      let nearest = Infinity;
+      let nearestInTunnel = false;
       for (let ox = -span; ox <= span; ox++)
         for (let oz = -span; oz <= span; oz++) {
           for (const i of sampled.at(cx + ox, cz + oz) ?? []) {
@@ -206,16 +223,23 @@ const createBlend = (
             const clear = Math.max(0, distance);
             const limit = blendLimit(clear);
             const y = points[i].y + GROUND_Y;
+            if (distance < nearest) {
+              nearest = distance;
+              nearestInTunnel = Boolean(tunnel?.[i]);
+            }
             if (!bridged?.[i] && y - limit > low) {
               low = y - limit;
               lowDistance = clear;
             }
-            if (y + limit < high) {
+            if (!tunnel?.[i] && y + limit < high) {
               high = y + limit;
               highDistance = clear;
             }
           }
         }
+      // ponytail: une route à ciel ouvert qui passe juste au-dessus d'un tunnel peut alors être recouverte par le relief
+      // brut ; ne garder que les limites des portions ouvertes proches en hauteur le jour où un tracé réel le montre.
+      if (nearestInTunnel) high = Infinity;
       if (low <= high) return Math.min(high, Math.max(low, raw));
       // Branches trop proches pour leur écart d'altitude : le dépassement se partage selon la distance à chacune,
       // pour que la pente reste la même des deux côtés au lieu de monter un mur contre la plus proche.
@@ -355,7 +379,9 @@ const forkContour = (
     for (let ox = -1; ox <= 1; ox++)
       for (let oz = -1; oz <= 1; oz++)
         for (const k of seen.at(cx + ox, cz + oz) ?? [])
-          if (Math.hypot(vertices[k].x - v.x, vertices[k].z - v.z) < CONTOUR_SNAP)
+          if (
+            Math.hypot(vertices[k].x - v.x, vertices[k].z - v.z) < CONTOUR_SNAP
+          )
             return k;
     seen.insert(vertices.length, v.x, v.z, v.x, v.z);
     vertices.push(v);
@@ -370,7 +396,9 @@ const forkContour = (
   };
 
   const outer = points.slice(0, n - 1).map((_, i) => vertex(outerAt(i)));
-  const armInner = points.slice(0, armEnd + 1).map((_, i) => vertex(innerAt(i)));
+  const armInner = points
+    .slice(0, armEnd + 1)
+    .map((_, i) => vertex(innerAt(i)));
   chain(outer, (k) => k);
   chain(armInner, (k) => k);
   link(armInner[armEnd], outer[outer.length - 1], armEnd);
@@ -628,6 +656,8 @@ export const buildTerrain = (
   water?: WaterPlan | null,
   /** Points sur un pont, sur l'eau ou non : le sol y suit la vallée, sans remblai. Absent : aucun pont. */
   bridges?: readonly boolean[] | null,
+  /** Points dans un tunnel : la montagne n'y est pas rabotée (voir `createBlend`). Absent : aucun tunnel. */
+  tunnels?: readonly boolean[] | null,
 ): MeshData => {
   const n = points.length;
   const shoulders = shoulderWidths(points, widths, false);
@@ -639,7 +669,12 @@ export const buildTerrain = (
     gridNodes,
     gridAltitudes,
   );
-  const blend = createBlend(points, edge, bridges ?? undefined);
+  const blend = createBlend(
+    points,
+    edge,
+    bridges ?? undefined,
+    tunnels ?? undefined,
+  );
   const plan = water && water.surfaces.length > 0 ? water : null;
   const bed = plan ? createWaterBed(plan, points, widths) : null;
   // Tous les ponts, sur l'eau ou à sec : même ouverture sous le tablier, même fond tendu dessous.
@@ -909,4 +944,153 @@ export const buildTerrain = (
   for (let k = 0; k < under.indices.length; k++)
     indices[faces.length + k] = under.indices[k] + used;
   return { positions: allPositions, indices, colors: allColors };
+};
+
+/** La montagne déborde du tube d'autant de chaque côté du bas-côté, pour passer les rangées du terrain, en mètres */
+const ROOF_OVERHANG = 9;
+/** Écart des sommets en travers de la montagne au-dessus du tube, en mètres */
+const ROOF_STEP = 3;
+/** La roche se pose juste au-dessus de l'extrados, sans le toucher : pas de scintillement, en mètres */
+const ROOF_LIFT = 0.2;
+
+/**
+ * Montagne au-dessus des tunnels (PR-21 A) : le terrain laisse un vide le long de la route, ce maillage le recouvre au relief
+ * même du terrain voisin, là où la roche passe au-dessus de la voûte. Près des portails, le tube reste à l'air.
+ * Hors du terrain : `track.groundAt` donnerait le dessus de la montagne dans le tunnel, et la caméra y monterait.
+ */
+export const createTunnelRoofs = (
+  points: Vec3[],
+  widths: number[],
+  gridNodes: PlanePoint[],
+  gridAltitudes: number[],
+  baseAltitude: number,
+  bridges: readonly boolean[],
+  tunnels: readonly boolean[],
+  tint?: GroundTint | null,
+): ((from: number, to: number) => MeshData | null) => {
+  const shoulders = shoulderWidths(points, widths, false);
+  const edge = widths.map((w, i) => w / 2 + shoulders[i]);
+  const blend = createBlend(points, edge, bridges, tunnels);
+  const altitudeAt = rawAltitudeSampler(gridNodes, gridAltitudes);
+  const heightAt = (x: number, z: number): number | null => {
+    const raw = altitudeAt(x, z);
+    return raw === null ? null : blend.conform(x, z, raw - baseAltitude);
+  };
+  return (from, to) => {
+    let widest = 0;
+    for (let k = from; k <= to; k++) widest = Math.max(widest, edge[k]);
+    const across = Math.ceil((2 * (widest + ROOF_OVERHANG)) / ROOF_STEP);
+    // Une rangée en travers par point de l'axe. Là où le relief IGN passe sous l'extrados (près des portails, éperon
+    // trop fin pour la maille de 16 m), la roche est relevée jusqu'à lui : le tube n'est jamais à l'air.
+    const rows: (Vec3 | null)[][] = [];
+    for (let k = from; k <= to; k++) {
+      const top =
+        points[k].y +
+        GROUND_Y +
+        TUNNEL_WALL_HEIGHT +
+        TUNNEL_VAULT_RISE +
+        TUNNEL_COVER +
+        ROOF_LIFT;
+      const reach = edge[k] + ROOF_OVERHANG;
+      const row: (Vec3 | null)[] = [];
+      for (let j = 0; j <= across; j++) {
+        const lateral = -reach + (2 * reach * j) / across;
+        const { x, z } = lateralAt(points, k, lateral);
+        const y = heightAt(x, z);
+        row.push(
+          y === null
+            ? null
+            : {
+                x,
+                // Plein sur le tube, puis un flanc à 45° jusqu'au bord : une crête, pas un bloc posé sur la gorge.
+                y: Math.max(
+                  y,
+                  top - Math.max(0, Math.abs(lateral) - edge[k] - TUNNEL_COVER),
+                ),
+                z,
+              },
+        );
+      }
+      rows.push(row);
+    }
+    const positions: number[] = [];
+    const colors: number[] = [];
+    const indices: number[] = [];
+    const known = new Map<number, number>();
+    const vertex = (k: number, j: number): number => {
+      const key = k * (across + 1) + j;
+      const found = known.get(key);
+      if (found !== undefined) return found;
+      const p = rows[k][j] as Vec3;
+      const v = positions.length / 3;
+      positions.push(p.x, p.y, p.z);
+      colors.push(...(tint?.(p.x, p.z, false) ?? groundColor(p.x, p.z)));
+      known.set(key, v);
+      return v;
+    };
+    for (let k = 0; k + 1 < rows.length; k++)
+      for (let j = 0; j < across; j++) {
+        const cells: [number, number][] = [
+          [k, j],
+          [k, j + 1],
+          [k + 1, j],
+          [k + 1, j + 1],
+        ];
+        if (cells.some(([a, b]) => !rows[a][b])) continue;
+        const [a, b, c, d] = cells;
+        for (const [p, q, r] of [
+          [a, b, d],
+          [a, d, c],
+        ]) {
+          const P = rows[p[0]][p[1]] as Vec3;
+          const Q = rows[q[0]][q[1]] as Vec3;
+          const R = rows[r[0]][r[1]] as Vec3;
+          // Normale vers le haut, comme le terrain.
+          const up = (Q.z - P.z) * (R.x - P.x) - (Q.x - P.x) * (R.z - P.z) > 0;
+          const [ip, iq, ir] = [vertex(...p), vertex(...q), vertex(...r)];
+          indices.push(ip, up ? iq : ir, up ? ir : iq);
+        }
+      }
+    // Façade de roche au-dessus de chaque portail : du bord avant de la montagne, souvent 20 à 30 m plus haut, jusqu'à
+    // l'extrados du tube, et jusque sous la route de part et d'autre. Sans elle, un trou entre l'anneau et la roche.
+    // Le rendu la dessine des deux côtés : pas de sens de face à tenir.
+    for (const k of [0, rows.length - 1]) {
+      const i = from + k;
+      const reach = edge[i] + ROOF_OVERHANG;
+      const width = edge[i] + TUNNEL_COVER;
+      const base = (j: number): Vec3 | null => {
+        const p = rows[k][j];
+        if (!p) return null;
+        const lateral = Math.abs(-reach + (2 * reach * j) / across);
+        const road = points[i].y + GROUND_Y;
+        const y =
+          lateral < width
+            ? road +
+              TUNNEL_WALL_HEIGHT +
+              (TUNNEL_VAULT_RISE + TUNNEL_COVER) *
+                Math.sqrt(1 - (lateral / width) ** 2)
+            : road - 1;
+        return { x: p.x, y: Math.min(y, p.y), z: p.z };
+      };
+      for (let j = 0; j < across; j++) {
+        const a = rows[k][j];
+        const b = rows[k][j + 1];
+        const c = base(j);
+        const d = base(j + 1);
+        if (!a || !b || !c || !d) continue;
+        const v = positions.length / 3;
+        for (const p of [a, b, d, c]) {
+          positions.push(p.x, p.y, p.z);
+          colors.push(...(tint?.(p.x, p.z, false) ?? groundColor(p.x, p.z)));
+        }
+        indices.push(v, v + 1, v + 2, v, v + 2, v + 3);
+      }
+    }
+    if (indices.length === 0) return null;
+    return {
+      positions: Float32Array.from(positions),
+      indices: Uint32Array.from(indices),
+      colors: Float32Array.from(colors),
+    };
+  };
 };

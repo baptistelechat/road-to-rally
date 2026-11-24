@@ -171,6 +171,17 @@ export interface StageBridge {
   halfWidth: number;
 }
 
+/** Un tunnel de la spéciale (PR-21) : le tube autour de la route entre deux points de `points`. */
+export interface StageTunnel {
+  /** Premier et dernier point de `points` dans le tunnel, dans l'axe unique */
+  from: number;
+  to: number;
+  /** Demi-largeur intérieure du tube, bas-côtés compris, en mètres */
+  halfWidth: number;
+  /** Montagne au-dessus du tube, là où la roche le recouvre. Absent : tube à l'air sur toute sa longueur. */
+  roof?: MeshData;
+}
+
 /** Usage d'un bâtiment, pour sa couleur et son toit (epic 5) */
 export type DecorBuildingKind =
   "house" | "farm" | "industrial" | "church" | "other";
@@ -342,6 +353,8 @@ export interface Track {
   decor?: StageDecor;
   /** Ponts d'une spéciale. Absent sans pont. */
   bridges?: StageBridge[];
+  /** Tunnels autour de la route. Absent sans tunnel, ou sur une spéciale d'avant. */
+  tunnels?: StageTunnel[];
   /**
    * Point de l'axe le plus proche, sur le plan horizontal. Sans référence, ou hors aller-retour : au bit près le même, et le
    * premier passage en cas de superposition. Avec `nearS`, l'abscisse suivie : le passage de la voiture, pas le premier venu.
@@ -393,6 +406,8 @@ export interface StageData {
   terrain: MeshData | null;
   /** Ponts dessinés sous la route. Absent sans pont, ou sur une spéciale d'avant : la route seule, comme avant. */
   bridges?: StageBridge[];
+  /** Tunnels autour de la route. Absent sans tunnel, ou sur une spéciale d'avant. */
+  tunnels?: StageTunnel[];
   /** Décor réel (epic 5). Absent : données indisponibles ou spéciale d'avant, le décor procédural de la story 1.7 prend le relais. */
   decor?: StageDecor;
   /** Version du pipeline : tout changement de seuil l'incrémente */

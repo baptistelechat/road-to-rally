@@ -214,7 +214,7 @@ export const ElevationChart = ({
         )}
       </div>
       <figcaption id={summaryId} className="sr-only">
-        {summary} Les zones de dégagement sont grisées, les ronds-points en rouge, les ponts en bleu, les rochers en gris
+        {summary} Les zones de dégagement sont grisées, les ronds-points en rouge, les ponts en bleu, les tunnels en gris foncé, les rochers en gris
         et les chicanes en triangles ambrés. Distances depuis le départ.
       </figcaption>
     </figure>

@@ -1,7 +1,7 @@
 // Tous les seuils du pipeline géo. Changer une valeur qui modifie le résultat impose d'incrémenter PIPELINE_VERSION.
 
 /** Version du pipeline, recopiée dans `StageData.pipelineVersion` */
-export const PIPELINE_VERSION = 23;
+export const PIPELINE_VERSION = 27;
 
 // --- Axe (story 2.1) ---
 

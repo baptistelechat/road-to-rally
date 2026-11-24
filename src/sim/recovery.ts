@@ -2,18 +2,24 @@ import { FIXED_DT } from "./fixedStep";
 import { SHOULDER_WIDTH } from "./track/ribbon";
 import type { Quat, Track, Vec3 } from "./types";
 
-// Remise en piste : maintenue pour coûter du temps, automatique si on coupe ou si on roule à contresens.
+// Remise en piste : maintenue pour coûter du temps, automatique si on coupe, si on roule à contresens ou si on est sur le toit.
 export const RESPAWN_HOLD_S = 3;
 const OFFROAD_LIMIT_S = 3;
 const WRONG_WAY_GRACE_S = 2;
 const WRONG_WAY_COUNTDOWN_S = 3;
 /** En dessous, la voiture manœuvre : pas de contresens. */
 const WRONG_WAY_MIN_SPEED = 2;
+/** Sur le côté ou sur le toit : le haut de la caisse penche de plus de 70° */
+const FLIPPED_UP = 0.35;
+/** Au-dessus, la voiture est encore en train de rouler ou de retomber : on la laisse faire, en m/s */
+const FLIPPED_MAX_SPEED = 3;
+const FLIPPED_GRACE_S = 1;
+const FLIPPED_COUNTDOWN_S = 2;
 /** Centre de la caisse à plus de ça sous le sol : elle est passée au travers, en mètres */
 const UNDER_GROUND_MARGIN = 1;
 
 export interface RecoveryStatus {
-  kind: "hold" | "offroad" | "wrongway";
+  kind: "hold" | "offroad" | "wrongway" | "flipped";
   /** Secondes restantes avant la remise en piste */
   remaining: number;
 }
@@ -52,6 +58,17 @@ export const isWrongWay = (
   );
 };
 
+/** Immobilisée sur le côté ou sur le toit : elle ne repartira pas seule. */
+export const isFlipped = (rotation: Quat, velocity: Vec3): boolean => {
+  const { x, z } = rotation;
+  // Haut local = +Y : sa composante verticale.
+  const upY = 1 - 2 * (x * x + z * z);
+  return (
+    upY < FLIPPED_UP &&
+    Math.hypot(velocity.x, velocity.y, velocity.z) < FLIPPED_MAX_SPEED
+  );
+};
+
 /** Avec `groundAt` (spéciale à terrain) : sortie du couloir ou passage sous le sol = remise en piste immédiate. */
 export const createRecovery = (
   track: Pick<Track, "nearest">,
@@ -61,11 +78,14 @@ export const createRecovery = (
   const offroadSteps = Math.round(OFFROAD_LIMIT_S / FIXED_DT);
   const wrongWayGrace = Math.round(WRONG_WAY_GRACE_S / FIXED_DT);
   const wrongWaySteps = Math.round(WRONG_WAY_COUNTDOWN_S / FIXED_DT);
+  const flippedGrace = Math.round(FLIPPED_GRACE_S / FIXED_DT);
+  const flippedSteps = Math.round(FLIPPED_COUNTDOWN_S / FIXED_DT);
   let hold = 0;
   // Se vide au même rythme sur la route : enchaîner les coupes courtes finit par coûter.
   let offroad = 0;
   let isOff = false;
   let wrongWay = 0;
+  let flipped = 0;
   // Après une remise en piste, il faut relâcher avant d'en demander une autre.
   let awaitingRelease = false;
 
@@ -74,6 +94,7 @@ export const createRecovery = (
     offroad = 0;
     isOff = false;
     wrongWay = 0;
+    flipped = 0;
   };
 
   return {
@@ -89,6 +110,7 @@ export const createRecovery = (
       isOff = distance > width / 2 + SHOULDER_WIDTH || offRoute === true;
       offroad = isOff ? offroad + 1 : Math.max(0, offroad - 1);
       wrongWay = isWrongWay(rotation, velocity, tangent) ? wrongWay + 1 : 0;
+      flipped = isFlipped(rotation, velocity) ? flipped + 1 : 0;
       const ground = groundAt?.(position.x, position.z);
       const lost =
         ground === null ||
@@ -98,7 +120,8 @@ export const createRecovery = (
         !lost &&
         hold < holdSteps &&
         offroad < offroadSteps &&
-        wrongWay < wrongWayGrace + wrongWaySteps
+        wrongWay < wrongWayGrace + wrongWaySteps &&
+        flipped < flippedGrace + flippedSteps
       )
         return false;
       clear();
@@ -108,6 +131,11 @@ export const createRecovery = (
     status: () => {
       if (hold > 0)
         return { kind: "hold", remaining: (holdSteps - hold) * FIXED_DT };
+      if (flipped > flippedGrace)
+        return {
+          kind: "flipped",
+          remaining: (flippedGrace + flippedSteps - flipped) * FIXED_DT,
+        };
       if (wrongWay > wrongWayGrace)
         return {
           kind: "wrongway",

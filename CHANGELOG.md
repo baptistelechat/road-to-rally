@@ -111,6 +111,8 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Ponts repérés en bleu sur le profil d'altitude de l'éditeur, cliquables pour centrer la carte
 - Bouton « Importer un GPX » dans l'éditeur : la spéciale importée rejoint « Mes spéciales » avec l'aperçu de son tracé, et se modifie ensuite comme une spéciale tracée sur la carte
 - Carte d'essai « Slopes » : une ligne droite avec des montées de 4 à 16 % et des descentes, pour juger la voiture en côte
+- Vrais tunnels sur les spéciales : la montagne reste au-dessus de la route, un tube en béton aux parois solides, une façade de roche aux portails et un intérieur sombre, d'un bout à l'autre de l'ouvrage même quand la trace GPS s'en écarte
+- Tunnels repérés en gris roche sur le profil d'altitude de l'éditeur, cliquables pour centrer la carte
 
 ### Changed
 
@@ -138,6 +140,8 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Pointillés selon le nombre de voies d'OpenStreetMap : aucun sur une voie unique, une ligne sur deux voies, deux sur trois
 - Le sélecteur de carte passe du HUD au menu de départ et de pause
 - Seule la portion de décor proche de la voiture est dessinée, pour garder la fluidité dans les villages
+- Remise en piste automatique, avec sa pénalité, quand la voiture reste immobilisée sur le côté ou sur le toit
+- Plus aucune chicane dans un tunnel
 - Bâtiments proches de la route solides : on peut les percuter
 - Écran d'arrivée aux boutons biseautés comme le menu principal
 - Quand le serveur des routes OpenStreetMap ne répond pas, deux serveurs de secours sont essayés avant de se passer de ses données

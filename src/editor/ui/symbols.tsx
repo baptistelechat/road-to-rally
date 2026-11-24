@@ -95,6 +95,17 @@ export const BridgeSymbol = () => (
   </svg>
 );
 
+/** Un tunnel : portail plein dans la roche, dans le gris de sa bande sur la courbe (maquette A, B-15). */
+export const TunnelSymbol = () => (
+  <svg
+    aria-hidden="true"
+    viewBox="0 0 22 16"
+    className="block h-3.5 w-5 fill-stone-900 stroke-stone-300 stroke-[1.6] drop-shadow"
+  >
+    <path d="M1 15V7a10 7 0 0 1 20 0v8z" />
+  </svg>
+);
+
 /** Un intermédiaire du chrono, numéroté : la frise et la mini-carte de la course le montrent au même endroit. */
 export const SplitSymbol = ({ rank }: { rank: number | string }) => (
   <span className="inline-flex items-center gap-0.5">

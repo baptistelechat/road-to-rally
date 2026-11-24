@@ -4,6 +4,7 @@ import { unproject, type LatLon, type PlanePoint } from "./gpx";
 import { throwIfAborted, type HttpOptions } from "./http";
 import { assertCovered, fetchAltitudes } from "./ign";
 import { buildProfile } from "./profile";
+import { dropShortTunnels } from "./tunnels";
 
 export interface ElevationStats {
   /** Pente la plus forte, montée ou descente, vertical / horizontal */
@@ -25,6 +26,8 @@ export interface PreviewProfile extends ElevationStats {
   finishS: number;
   /** Ponts de la BD TOPO, premier et dernier point de l'axe sur chacun. Vide sans pont ou sans réponse de l'IGN. */
   bridges: { from: number; to: number }[];
+  /** Tunnels de la BD TOPO, comblés et filtrés comme le pipeline. Vide sans tunnel ou sans réponse de l'IGN. */
+  tunnels: { from: number; to: number }[];
 }
 
 /** Portions continues d'un masque, en indices de points. */
@@ -99,6 +102,7 @@ const interpolate = (samples: number[], indices: number[]): number[] => {
  * @param structures ponts et tunnels de la BD TOPO, un par point, comme le pipeline (B-13). Absent : le profil suit
  * le relief partout, sous un viaduc comme ailleurs.
  * @param bridgeMask ponts seuls, sans les tunnels, un par point : repérés sur la courbe de l'éditeur
+ * @param tunnelMask tunnels seuls, un par point : repérés sur la courbe comme les ponts
  */
 export const buildPreviewProfile = (
   altitudes20m: number[],
@@ -106,6 +110,7 @@ export const buildPreviewProfile = (
   runoffPoints: number,
   structures?: boolean[],
   bridgeMask?: boolean[],
+  tunnelMask?: boolean[],
 ): PreviewProfile => {
   const indices = previewSampleIndices(pointCount);
   if (altitudes20m.length !== indices.length)
@@ -127,6 +132,10 @@ export const buildPreviewProfile = (
     startS: runoffPoints * STEP,
     finishS: finish * STEP,
     bridges: bridgeMask?.length === pointCount ? runsOf(bridgeMask) : [],
+    tunnels:
+      tunnelMask?.length === pointCount
+        ? runsOf(dropShortTunnels(tunnelMask))
+        : [],
     ...elevationStats(altitudes, runoffPoints, finish),
   };
 };

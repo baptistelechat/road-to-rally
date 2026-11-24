@@ -57,6 +57,7 @@ const buildResponse = async (
         runoffPoints,
         attributes?.structures,
         attributes?.bridgeTags.map((tags) => tags !== null),
+        attributes?.tunnelTags.map((tags) => tags !== null),
       ),
     };
   } catch (error) {

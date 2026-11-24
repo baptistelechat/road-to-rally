@@ -5,7 +5,7 @@ import type { LatLon } from "@/geo/gpx";
 import { EDITOR_CHICANE_MIN_GAP, STEP } from "@/geo/config";
 import {
   anchorMarkers,
-  bridgeBands,
+  structureBands,
   medianBands,
   roundaboutBands,
   type ProfileBand,
@@ -92,7 +92,8 @@ export const ProfilePanel = () => {
         label: `Zone de la chicane ${i + 1}`,
         position: chicane.position,
       })),
-      ...(profile ? bridgeBands(axis, profile.bridges) : []),
+      ...(profile ? structureBands(axis, profile.bridges, "bridge") : []),
+      ...(profile ? structureBands(axis, profile.tunnels, "tunnel") : []),
       ...roundaboutBands(axis, roundabouts),
       ...medianBands(axis, medians),
     ];

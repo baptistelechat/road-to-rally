@@ -149,6 +149,8 @@ export const fillRigInput = (
 /** `groundAt` absent ou qui renvoie `null` : la caméra ignore le relief. */
 export const createCameraRig = (
   groundAt: Track["groundAt"] = () => null,
+  /** Ramène la caméra poursuite dans un volume (le tube d'un tunnel). Absent : aucune contrainte. */
+  confine?: (x: number, z: number) => { x: number; z: number },
 ): CameraRig => {
   const tuning = RIG_TUNING;
   const output: RigOutput = {
@@ -227,9 +229,12 @@ export const createCameraRig = (
       // La voiture reste liée à la caméra en X et Z : aucun retard de position, donc aucune saccade.
       const sin = Math.sin(yaw + orbit);
       const cos = Math.cos(yaw + orbit);
-      const x = position.x + sin * distance;
+      const free = {
+        x: position.x + sin * distance,
+        z: position.z + cos * distance,
+      };
+      const { x, z } = confine ? confine(free.x, free.z) : free;
       const y = height + tuning.chaseHeight;
-      const z = position.z + cos * distance;
       // Le relief pousse la caméra vers le haut sans délai, elle redescend ensuite en douceur.
       const ground = groundAt(x, z);
       const lift =

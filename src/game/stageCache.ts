@@ -7,7 +7,7 @@ import { unproject, type LatLon } from "@/geo/gpx";
 import { hashText } from "@/geo/stageHash";
 import type { GeneratedStage } from "@/geo/stageWorkerClient";
 import { parseStage } from "@/sim/track/stageCodec";
-import type { StageData } from "@/sim/types";
+import type { MeshData, StageData } from "@/sim/types";
 
 const DB_NAME = "rally";
 const STORE = "stages";
@@ -38,24 +38,47 @@ const openDatabase = (): Promise<IDBDatabase> =>
 
 /**
  * `parseStage` valide le reste, `decor` compris : il ressort tel qu'il a été rangé, sans aucune requête vers l'IGN.
- * Le terrain en typed arrays, lui, se vérifie ici sans le recopier.
+ * Le terrain et la montagne des tunnels en typed arrays, eux, se vérifient ici sans les recopier.
  * `anyVersion` : une spéciale rouverte à la demande. Une nouvelle génération du même tracé, elle, ne reprend jamais une ancienne version.
  */
 const validEntry = (value: unknown, anyVersion = false): StageData | null => {
   if (typeof value !== "object" || value === null) return null;
   const entry = value as Partial<StageData>;
-  const { terrain = null } = entry;
+  const { terrain = null, tunnels } = entry;
+  const typedMesh = (mesh: MeshData): boolean =>
+    mesh.positions instanceof Float32Array &&
+    mesh.indices instanceof Uint32Array &&
+    mesh.positions.length % 3 === 0 &&
+    mesh.indices.length % 3 === 0;
   if (
     (!anyVersion && entry.pipelineVersion !== PIPELINE_VERSION) ||
     !entry.hash ||
-    (terrain !== null &&
-      (!(terrain.positions instanceof Float32Array) ||
-        !(terrain.indices instanceof Uint32Array) ||
-        terrain.positions.length % 3 !== 0 ||
-        terrain.indices.length % 3 !== 0))
+    (terrain !== null && !typedMesh(terrain)) ||
+    tunnels?.some((tunnel) => tunnel.roof && !typedMesh(tunnel.roof))
   )
     return null;
-  return { ...parseStage({ ...entry, terrain: null }), terrain };
+  const parsed = parseStage({
+    ...entry,
+    terrain: null,
+    ...(tunnels && {
+      tunnels: tunnels.map(({ from, to, halfWidth }) => ({
+        from,
+        to,
+        halfWidth,
+      })),
+    }),
+  });
+  return {
+    ...parsed,
+    terrain,
+    ...(parsed.tunnels &&
+      tunnels && {
+        tunnels: parsed.tunnels.map((tunnel, i) => ({
+          ...tunnel,
+          ...(tunnels[i].roof && { roof: tunnels[i].roof }),
+        })),
+      }),
+  };
 };
 
 const readEntry = async (key: string): Promise<unknown> => {

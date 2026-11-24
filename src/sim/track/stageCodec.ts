@@ -17,6 +17,7 @@ import type {
   MeshData,
   SharedRange,
   StageBridge,
+  StageTunnel,
   StageData,
   StageDecor,
   Vec3,
@@ -55,30 +56,32 @@ const parsePoint = (value: unknown, i: number): Vec3 => {
   };
 };
 
-const parseTerrain = (value: unknown): MeshData | null => {
-  if (value === null) return null;
-  if (!isObject(value)) return fail("terrain", "doit être un maillage ou null");
-  const positions = numbers(value.positions, "terrain.positions");
-  const indices = numbers(value.indices, "terrain.indices");
+const parseMesh = (value: unknown, field: string): MeshData => {
+  if (!isObject(value)) return fail(field, "doit être un maillage");
+  const positions = numbers(value.positions, `${field}.positions`);
+  const indices = numbers(value.indices, `${field}.indices`);
   if (positions.length % 3 !== 0)
-    fail("terrain.positions", "doit contenir des triplets");
+    fail(`${field}.positions`, "doit contenir des triplets");
   if (indices.length % 3 !== 0)
-    fail("terrain.indices", "doit contenir des triplets");
+    fail(`${field}.indices`, "doit contenir des triplets");
   const count = positions.length / 3;
   for (const index of indices)
     if (!Number.isInteger(index) || index < 0 || index >= count)
-      fail("terrain.indices", `contient un indice hors maillage : ${index}`);
+      fail(`${field}.indices`, `contient un indice hors maillage : ${index}`);
   const mesh: MeshData = {
     positions: new Float32Array(positions),
     indices: new Uint32Array(indices),
   };
   if (value.colors === undefined) return mesh;
-  const colors = numbers(value.colors, "terrain.colors");
+  const colors = numbers(value.colors, `${field}.colors`);
   if (colors.length !== positions.length)
-    fail("terrain.colors", "doit avoir la taille de terrain.positions");
+    fail(`${field}.colors`, `doit avoir la taille de ${field}.positions`);
   mesh.colors = new Float32Array(colors);
   return mesh;
 };
+
+const parseTerrain = (value: unknown): MeshData | null =>
+  value === null ? null : parseMesh(value, "terrain");
 
 /** Une recopie annoncée doit être exacte : le ruban et les collisions n'existent qu'une fois, et le retour leur fait confiance. */
 const parseShared = (
@@ -231,6 +234,35 @@ const parseBridges = (value: unknown, count: number): StageBridge[] => {
     return { from, to, style, halfWidth };
   });
 };
+
+const parseTunnels = (value: unknown, count: number): StageTunnel[] => {
+  if (!Array.isArray(value)) return fail("tunnels", "doit être un tableau");
+  if (value.length === 0) fail("tunnels", "doit être absent sans tunnel");
+  return value.map((tunnel: unknown, i) => {
+    const field = `tunnels[${i}]`;
+    if (!isObject(tunnel)) return fail(field, "doit être un tunnel");
+    const from = finite(tunnel.from, `${field}.from`);
+    const to = finite(tunnel.to, `${field}.to`);
+    if (!Number.isInteger(from) || !Number.isInteger(to) || from < 0 || to <= from || to >= count)
+      fail(field, "doit aller d'un point de l'axe à un point suivant");
+    const halfWidth = finite(tunnel.halfWidth, `${field}.halfWidth`);
+    if (halfWidth <= 0) fail(`${field}.halfWidth`, "doit rester positif");
+    return {
+      from,
+      to,
+      halfWidth,
+      ...(tunnel.roof !== undefined && {
+        roof: parseMesh(tunnel.roof, `${field}.roof`),
+      }),
+    };
+  });
+};
+
+const meshToJson = (mesh: MeshData): unknown => ({
+  positions: Array.from(mesh.positions),
+  indices: Array.from(mesh.indices),
+  ...(mesh.colors && { colors: Array.from(mesh.colors) }),
+});
 
 type LegacyTypology = Omit<
   DecorBuilding,
@@ -457,6 +489,9 @@ export const parseStage = (json: unknown): StageData => {
     ...(json.bridges !== undefined && {
       bridges: parseBridges(json.bridges, points.length),
     }),
+    ...(json.tunnels !== undefined && {
+      tunnels: parseTunnels(json.tunnels, points.length),
+    }),
     // Absent : la spéciale reste celle d'avant l'epic 5, au bit près.
     ...(json.decor !== undefined && { decor: parseDecor(json.decor) }),
     pipelineVersion: finite(json.pipelineVersion, "pipelineVersion"),
@@ -468,9 +503,11 @@ export const parseStage = (json: unknown): StageData => {
 /** Inverse de `parseStage` : les tableaux typés redeviennent de simples tableaux JSON. */
 export const stageToJson = (stage: StageData): unknown => ({
   ...stage,
-  terrain: stage.terrain && {
-    positions: Array.from(stage.terrain.positions),
-    indices: Array.from(stage.terrain.indices),
-    ...(stage.terrain.colors && { colors: Array.from(stage.terrain.colors) }),
-  },
+  terrain: stage.terrain && meshToJson(stage.terrain),
+  ...(stage.tunnels && {
+    tunnels: stage.tunnels.map((tunnel) => ({
+      ...tunnel,
+      ...(tunnel.roof && { roof: meshToJson(tunnel.roof) }),
+    })),
+  }),
 });

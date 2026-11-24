@@ -42,6 +42,7 @@ export const PENALTY_REASONS: Record<PenaltyEvent["reason"], string> = {
   hold: "Remise en piste",
   offroad: "Hors piste",
   wrongway: "Contresens",
+  flipped: "Sur le toit",
 };
 
 /**

@@ -57,7 +57,13 @@ import {
 } from "./osm";
 import { buildProfile, closeRoundTripProfile, symmetrizeFork } from "./profile";
 import { findRoundabouts } from "./roundabouts";
-import { buildTerrain, corridorNodes, createReliefSamplers } from "./terrain";
+import {
+  buildTerrain,
+  corridorNodes,
+  createReliefSamplers,
+  createTunnelRoofs,
+} from "./terrain";
+import { dropShortTunnels, findStageTunnels } from "./tunnels";
 
 export { PIPELINE_VERSION };
 export { StageError } from "./errors";
@@ -262,6 +268,9 @@ export const buildStageWithWarnings = (
   const structures = attributes.structures.slice(0, uniqueCount);
   const bridgeTags = attributes.bridgeTags.slice(0, uniqueCount);
   const bridgeMask = bridgeTags.map((tags) => tags !== null);
+  const tunnelMask = dropShortTunnels(
+    attributes.tunnelTags.slice(0, uniqueCount).map((tags) => tags !== null),
+  );
   let widths = attributes.widths.slice(0, uniqueCount);
   const lanes = attributes.lanes.slice(0, uniqueCount);
   let profile = buildProfile(
@@ -348,13 +357,13 @@ export const buildStageWithWarnings = (
     {
       startS,
       finishS,
-      // ponytail: ponts et tunnels ignorés, le jeu n'en dessine aucun pour l'instant ; passer `structures` ici le jour où il y en aura.
-      // Pas de chicane sur une chaussée de terre-plein : la glissière occupe déjà l'autre côté.
+      // ponytail: ponts ignorés, aucune chicane n'y a encore gêné ; ajouter `bridgeMask` ici le jour où une s'y pose.
+      // Pas de chicane sur une chaussée de terre-plein (la glissière occupe déjà l'autre côté), ni dans un tunnel.
       excluded: chicaneExclusions(
         unique,
         widths,
         shared || undefined,
-        dualMask(unique, trace.dual),
+        dualMask(unique, trace.dual).map((dual, i) => dual || tunnelMask[i]),
       ),
     },
   );
@@ -420,6 +429,7 @@ export const buildStageWithWarnings = (
           ),
         })
       : null;
+  const tint = createGroundTint(inputs.decor, trace.origin);
   const terrain =
     inputs.terrain && nodes
       ? buildTerrain(
@@ -430,9 +440,10 @@ export const buildStageWithWarnings = (
           baseAltitude,
           trace.runoffPoints,
           shared?.armEnd,
-          createGroundTint(inputs.decor, trace.origin),
+          tint,
           water,
           bridgeMask,
+          tunnelMask,
         )
       : null;
   // Ponts dessinés seulement avec un terrain : sans lui, la route n'a pas de vallée à enjamber.
@@ -446,6 +457,24 @@ export const buildStageWithWarnings = (
         widths.map((w, i) => w / 2 + shoulders[i]),
       )
     : [];
+  // Tunnels dessinés seulement avec un terrain, comme les ponts : sans montagne, pas de tube.
+  const tunnels =
+    terrain && nodes && inputs.terrain && tunnelMask.some(Boolean)
+      ? findStageTunnels(
+          tunnelMask,
+          widths.map((w, i) => w / 2 + shoulders[i]),
+          createTunnelRoofs(
+            unique,
+            widths,
+            nodes,
+            inputs.terrain,
+            baseAltitude,
+            bridgeMask,
+            tunnelMask,
+            tint,
+          ),
+        )
+      : [];
   // Sans données de décor, rien de plus : la spéciale reste identique à celle d'avant, au bit près.
   const decor = buildDecor(
     inputs.decor,
@@ -473,6 +502,7 @@ export const buildStageWithWarnings = (
       ...(medians.length > 0 && { medians }),
       terrain,
       ...(bridges.length > 0 && { bridges }),
+      ...(tunnels.length > 0 && { tunnels }),
       ...(decor && { decor }),
       pipelineVersion: PIPELINE_VERSION,
       generatedAt: inputs.generatedAt,
