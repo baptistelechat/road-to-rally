@@ -39,6 +39,10 @@ register: learnings
 | [LRN-261123_2208-6](learnings/LRN-261123_2208-6.md) | 2026-11-23 | Trace OSM et BD TOPO s'écartent de 45 m en tunnel | #tunnels #bdtopo #osm #matching #brouter #geo |
 | [LRN-261123_2208-7](learnings/LRN-261123_2208-7.md) | 2026-11-23 | Check en gaz tout ou rien sensible aux réglages | #checks #determinism #recovery #vehicle #scenario |
 | [LRN-261123_2208-8](learnings/LRN-261123_2208-8.md) | 2026-11-23 | WFS BD TOPO : position au sol en texte, BBOX CQL lat,lon | #wfs #geoplateforme #ign #bdtopo #cql #tunnels |
+| [LRN-261124_2125-3](learnings/LRN-261124_2125-3.md) | 2026-11-24 | Brouillard couleur ciel : fausse sortie au fond d'un tube | #threejs #fog #tunnels #rendering #r3f #lighting |
+| [LRN-261124_2125-4](learnings/LRN-261124_2125-4.md) | 2026-11-24 | HemisphereLight éclaire sous terre, l'ombre laisse filer | #threejs #lighting #hemisphere-light #shadows #tunnels #r3f |
+| [LRN-261124_2125-5](learnings/LRN-261124_2125-5.md) | 2026-11-24 | Mesurer une génération hors navigateur, pas sur captures | #debugging #pipeline #geo #scripts #tsx #tunnels |
+| [LRN-261124_2125-6](learnings/LRN-261124_2125-6.md) | 2026-11-24 | Nouveau MeshData dans StageData : le traiter dans validEntry | #indexeddb #cache #typed-arrays #stage-codec #stage-data |
 | [LRN-20261101115222-4](learnings/LRN-20261101115222-4.md) | 2026-11-01 | Pièges de l'API altimétrie de l'IGN | #ign #geoplateforme #altimetrie #api #cors #rge-alti |
 | [LRN-20261101115222-5](learnings/LRN-20261101115222-5.md) | 2026-11-01 | Plusieurs itinéraires : BRouter et OSRM diffèrent | #brouter #osrm #routing #itineraires #mapcn #maplibre |
 | [LRN-20261101115222-6](learnings/LRN-20261101115222-6.md) | 2026-11-01 | Le filtre rtk peut faire croire à un diff vide | #rtk #git #diff #hooks #claude-code #commit |

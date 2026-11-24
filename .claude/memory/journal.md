@@ -520,3 +520,16 @@ Import GPX déplacé dans l'éditeur, converti en tracé modifiable, avec l'aper
 - [BDR-261123_2208-2](decisions/BDR-261123_2208-2.md) — Vrais tunnels : montagne gardée, tube, portails auto
 - [BDR-261123_2208-3](decisions/BDR-261123_2208-3.md) — Moteur +10 % et rétrogradage forcé à 6 400 tr/min
 - [LRN-261123_2208-4](learnings/LRN-261123_2208-4.md) — Mesurer la voiture par sonde tsx, pas au calcul
+## 2026-11-24
+
+Reprise du GAME_PLAN sur les tunnels (B-15). Les 8 étapes, jamais écrites, ont été reconstruites depuis les décisions du 23/11 et ajoutées au plan (étapes 23 à 30, en 3 paquets). Paquet 1 codé : axe du tunnel comblé entre deux points d'un même ouvrage BD TOPO (1 742 m continus aux Grands Goulets), montagne gardée au-dessus de la route, tube en béton avec parois en collision, pipeline monté de la version 23 à la 27 au fil des corrections.
+
+Une longue boucle de tests au volant avec Baptiste a suivi. Le premier import a planté (« spéciale plus disponible ») : le cache IndexedDB ne savait pas relire la roche des tunnels. Les deux GPX du 23/11, importés depuis le jeu, n'avaient pas de tracé et ont dû être réimportés depuis l'éditeur. Un script de mesure hors navigateur (`scripts/debug-tunnels.ts`) a ensuite trouvé la vraie cause du relief dans le tube : la route rétrécit alors que le tube gardait sa largeur maximale. S'y ajoutait la caméra qui passait derrière la paroi en virage. Puis le rendu : tube épais avec anneau, roche toujours au-dessus avec des flancs à 45° et une façade au portail, intérieur sombre. Il a fallu trois essais sur le brouillard (couleur ciel qui imite une sortie, ciel noir à la sortie, point noir vu de loin) avant la règle « selon le portail regardé ». La lumière du ciel et le soleil sont baissés sous la voûte.
+
+Aussi : remise en piste automatique sur le toit, et bande gris roche des tunnels dans le profil de l'éditeur (option A parmi 4 maquettes). Baptiste : « parfait pour le grand tunnel ». Les trous côté gorge des tunnels courts de la Bourne attendent la galerie (étape 28) et les portails (étape 26). Un système d'éclairage avec les phares est à venir. Commit `3acf308` poussé.
+
+**Entrées clés :**
+
+- [BDR-261124_2125-1](decisions/BDR-261124_2125-1.md) — Tunnels : roche toujours au-dessus, intérieur sombre
+- [BLK-261124_2125-8](blockers/BLK-261124_2125-8.md) — Relief dans le tube et caméra derrière la paroi
+- [LRN-261124_2125-3](learnings/LRN-261124_2125-3.md) — Brouillard couleur ciel : fausse sortie au fond d'un tube
