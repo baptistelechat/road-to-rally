@@ -1,22 +1,12 @@
 "use client";
 
 import { Play, RefreshCw, Trash2 } from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { parseTrace } from "@/editor/draft";
 import { customStageUrl } from "@/game/maps";
 import type { StoredStage } from "@/game/stageCache";
 import { StageThumbnail } from "./StageThumbnail";
+import { ConfirmDialog } from "./ConfirmDialog";
 
 const describe = ({ length, chicanes, generatedAt }: StoredStage): string => {
   const km = (length / 1000).toFixed(2).replace(".", ",");
@@ -123,36 +113,22 @@ export const StageRow = ({
           Modifier
         </Button>
       )}
-      <AlertDialog>
-        <AlertDialogTrigger
-          render={
-            <Button
-              variant="destructive"
-              size="icon-xl"
-              aria-label={`Supprimer ${stage.name}`}
-              title={`Supprimer ${stage.name}`}
-            />
-          }
-        >
-          <Trash2 aria-hidden="true" />
-        </AlertDialogTrigger>
-        {/* Rendue hors de la page, dans `body` : le thème sombre ne l'atteint pas tout seul. */}
-        <AlertDialogContent className="dark">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Supprimer « {stage.name} » ?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Cette spéciale sera définitivement effacée de ce navigateur, et
-              son lien ne fonctionnera plus. Cette action est irréversible.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
-            <AlertDialogAction variant="destructive" onClick={onDelete}>
-              Supprimer définitivement
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDialog
+        trigger={
+          <Button
+            variant="destructive"
+            size="icon-xl"
+            aria-label={`Supprimer ${stage.name}`}
+            title={`Supprimer ${stage.name}`}
+          />
+        }
+        title={`Supprimer « ${stage.name} » ?`}
+        description="Cette spéciale sera définitivement effacée de ce navigateur, et son lien ne fonctionnera plus. Cette action est irréversible."
+        confirmLabel="Supprimer définitivement"
+        onConfirm={onDelete}
+      >
+        <Trash2 aria-hidden="true" />
+      </ConfirmDialog>
     </div>
   </li>
 );

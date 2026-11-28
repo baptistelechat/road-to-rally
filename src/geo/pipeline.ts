@@ -473,6 +473,7 @@ export const buildStageWithWarnings = (
             tunnelMask,
             tint,
           ),
+          (i) => attributes.tunnelTags[i]?.highway ?? null,
         )
       : [];
   // Sans données de décor, rien de plus : la spéciale reste identique à celle d'avant, au bit près.

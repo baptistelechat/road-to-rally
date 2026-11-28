@@ -57,3 +57,6 @@ next-env.d.ts
 
 # copié depuis node_modules par scripts/sync-maplibre-worker.ts
 /public/vendor/
+
+# Skills Three.js (junctions)
+.claude/skills/threejs-*/

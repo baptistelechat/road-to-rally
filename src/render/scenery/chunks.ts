@@ -1,7 +1,7 @@
 import { useFrame } from "@react-three/fiber";
 import { type RefObject, useRef } from "react";
 import type { Group } from "three";
-import { SHADOW_RANGE } from "@/render/Atmosphere";
+import { SHADOW_AHEAD, SHADOW_RANGE } from "@/render/Atmosphere";
 import type { CarSource } from "@/render/carSource";
 import type { Track } from "@/sim/types";
 
@@ -12,10 +12,11 @@ const VISIBLE_ALONG = 800;
 /** …ou à moins de cette distance à vol d'oiseau : une épingle rapproche deux tranches éloignées en abscisse */
 const VISIBLE_AROUND = 350;
 /**
- * Ombres portées seulement près de la voiture : jusqu'au coin de la zone d'ombre d'`Atmosphere`, plus la marge du soleil
- * rasant. Plus court, une tranche entière d'arbres allume ses ombres d'un coup au milieu de la zone, sous les yeux.
+ * Ombres portées seulement près de la voiture : jusqu'au coin de la zone d'ombre d'`Atmosphere`, avancée devant la
+ * voiture, plus la marge du soleil rasant. Plus court, une tranche entière d'arbres allume ses ombres d'un coup au
+ * milieu de la zone, sous les yeux.
  */
-const SHADOW_AROUND = SHADOW_RANGE * Math.SQRT2 + 40;
+const SHADOW_AROUND = SHADOW_RANGE * Math.SQRT2 + SHADOW_AHEAD + 40;
 /** L'abscisse de la voiture n'est recalculée qu'après ce déplacement : `nearest` alloue, pas question de l'appeler à chaque image */
 const RESAMPLE_DISTANCE = 5;
 

@@ -3,10 +3,17 @@ import type { EditorTrace } from "@/editor/types";
 import { capsLabel } from "@/editor/ui/styles";
 import { EDITOR_TRACE_URL } from "@/game/maps";
 import { cn } from "@/lib/utils";
+import { ConfirmDialog } from "./ConfirmDialog";
 import { StageThumbnail } from "./StageThumbnail";
 
 /** Le brouillon qui n'est encore lié à aucune spéciale : on le reprend là où on l'a laissé. */
-export const DraftBanner = ({ trace }: { trace: EditorTrace }) => {
+export const DraftBanner = ({
+  trace,
+  onDiscard,
+}: {
+  trace: EditorTrace;
+  onDiscard: () => void;
+}) => {
   const points = trace.anchors.length;
   return (
     <section
@@ -27,6 +34,15 @@ export const DraftBanner = ({ trace }: { trace: EditorTrace }) => {
           encore roulé
         </p>
       </div>
+      <ConfirmDialog
+        trigger={<Button variant="outline" size="xl" />}
+        title="Abandonner le tracé en cours ?"
+        description="Ce tracé n'a jamais été roulé : il sera définitivement perdu. Tes spéciales ne changent pas."
+        confirmLabel="Abandonner le tracé"
+        onConfirm={onDiscard}
+      >
+        Abandonner
+      </ConfirmDialog>
       <Button
         variant="secondary"
         size="xl"

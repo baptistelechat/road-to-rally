@@ -1,4 +1,5 @@
 // Gabarit du tube d'un tunnel (PR-21) : partagé par le pipeline (montagne au-dessus), les collisions et le rendu.
+import type { TunnelPortal } from "../types";
 
 /** Hauteur des parois droites au-dessus de la chaussée, en mètres */
 export const TUNNEL_WALL_HEIGHT = 4.5;
@@ -10,6 +11,31 @@ export const TUNNEL_COVER = 1;
 export const TUNNEL_SKIRT = 0.3;
 /** Segments de la voûte, d'une paroi à l'autre */
 export const TUNNEL_VAULT_SEGMENTS = 8;
+
+export const TUNNEL_PORTALS: readonly TunnelPortal[] = [
+  "rock",
+  "stone",
+  "concrete",
+];
+
+/** Classes de petite route (importance BD TOPO 4 à 6, voir `ignRoads.ts`) : arche en pierre entre 80 et 300 m */
+const SMALL_ROADS = new Set([
+  "tertiary",
+  "unclassified",
+  "residential",
+  "track",
+]);
+
+/** Portail automatique (PR-22) : roc brut sous 80 m, arche en pierre sur petite route jusqu'à 300 m, béton sinon. */
+export const tunnelPortal = (
+  length: number,
+  highway: string | null,
+): TunnelPortal => {
+  if (length < 80) return "rock";
+  if (length <= 300 && highway !== null && SMALL_ROADS.has(highway))
+    return "stone";
+  return "concrete";
+};
 
 /**
  * Profil intérieur en travers, de la paroi gauche à la paroi droite : (latéral, hauteur) par rapport à l'axe.

@@ -113,6 +113,8 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Carte d'essai « Slopes » : une ligne droite avec des montées de 4 à 16 % et des descentes, pour juger la voiture en côte
 - Vrais tunnels sur les spéciales : la montagne reste au-dessus de la route, un tube en béton aux parois solides, une façade de roche aux portails et un intérieur sombre, d'un bout à l'autre de l'ouvrage même quand la trace GPS s'en écarte
 - Tunnels repérés en gris roche sur le profil d'altitude de l'éditeur, cliquables pour centrer la carte
+- Portails de tunnel selon l'ouvrage : roc brut sur les tunnels courts, arche en pierre sur les petites routes, tête en béton ailleurs, et rangées de lampes sur la voûte
+- Bouton « Abandonner » sur le tracé en cours de l'éditeur
 
 ### Changed
 
@@ -179,7 +181,8 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Le copilote annonce plus tôt à haute vitesse : la phrase finit avant le point de freinage, pas une seconde avant le virage
 - Rien n'est annoncé pendant le décompte, et le virage où l'on prend le départ n'est pas annoncé
 - Chocs plus vivants : la voiture bascule sur un choc de face, valse sur une chicane, tombe en basculant dans un ravin, et peut faire un tonneau
-- Ombres portées plus loin autour de la voiture : elles n'apparaissent plus sous les yeux en roulant
+- Ombres portées plus loin, surtout devant la voiture : elles apparaissent bien avant d'arriver dessus
+- Qualité graphique qui s'adapte à la carte graphique : résolution, ombres et lissage montent ou descendent pour garder au moins 40 images par seconde, avec une image plus nette sur les petites configurations
 - Glissière métallique devant les blocs de chicane et séparateur en béton sur les terre-pleins, pour ne plus les confondre avec les barrières renversables
 - Sur une route étroite à flanc de montagne, l'arche de secteur devient une banderole tendue entre deux mâts ; ailleurs, ses pieds descendent jusqu'au sol
 - Tous les records et fantômes repartent de zéro : routes, obstacles et physique des chocs ont changé
@@ -228,6 +231,7 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Pied d'arche planté dans la glissière d'un terre-plein : l'arche se resserre, ou devient une banderole quand la place manque
 - Îlot de rond-point qui flottait au-dessus de la route en pente
 - Profil d'altitude de l'éditeur qui plongeait sous les ponts
+- Bandeau « tracé en cours » resté affiché après la suppression puis le réimport d'une spéciale au même tracé
 
 ### Security
 

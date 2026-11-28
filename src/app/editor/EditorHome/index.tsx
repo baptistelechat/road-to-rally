@@ -42,6 +42,17 @@ const openTrace = (roll = false): void =>
     roll ? `${EDITOR_TRACE_URL}?${AUTO_ROLL_PARAM}=1` : EDITOR_TRACE_URL,
   );
 
+/**
+ * La spéciale du brouillon : celle d'où il a été ouvert, sinon une spéciale au même tracé (un brouillon resté après
+ * une suppression puis un réimport du GPX, 28/11).
+ */
+const linkedStage = (
+  stages: StoredStage[] | null | undefined,
+  draft: Draft,
+): StoredStage | undefined =>
+  stages?.find(({ key }) => key === draft.stageKey) ??
+  stages?.find((stage) => sameTrace(stage.trace, draft.trace));
+
 /** Point d'entrée de l'éditeur : créer une spéciale, ou reprendre une de celles rangées dans IndexedDB. */
 export const EditorHome = () => {
   // `undefined` : pas encore lues. `null` : stockage illisible.
@@ -67,7 +78,7 @@ export const EditorHome = () => {
   }, []);
 
   const hasDraft = draft !== null && draft.trace.anchors.length > 0;
-  const linked = stages?.find(({ key }) => key === draft?.stageKey);
+  const linked = hasDraft ? linkedStage(stages, draft) : undefined;
   const unrolled =
     hasDraft && !(linked && sameTrace(linked.trace, draft.trace));
 
@@ -133,9 +144,18 @@ export const EditorHome = () => {
       </header>
 
       <main className="mx-auto flex max-w-7xl flex-col gap-7 px-10 py-8">
-        {hasDraft && !linked && <DraftBanner trace={draft.trace} />}
+        {hasDraft && !linked && <DraftBanner
+            trace={draft.trace}
+            onDiscard={() => {
+              clearDraft();
+              setDraft(null);
+            }}
+          />}
 
-        <section aria-labelledby="mes-speciales" className="flex flex-col gap-3.5">
+        <section
+          aria-labelledby="mes-speciales"
+          className="flex flex-col gap-3.5"
+        >
           <h2 id="mes-speciales" className={cn(capsLabel, "uppercase")}>
             Mes spéciales{stages && stages.length > 0 && ` · ${stages.length}`}
           </h2>

@@ -171,6 +171,9 @@ export interface StageBridge {
   halfWidth: number;
 }
 
+/** Portail de tunnel (PR-22) : roc brut, arche en pierre, ou tête en béton */
+export type TunnelPortal = "rock" | "stone" | "concrete";
+
 /** Un tunnel de la spéciale (PR-21) : le tube autour de la route entre deux points de `points`. */
 export interface StageTunnel {
   /** Premier et dernier point de `points` dans le tunnel, dans l'axe unique */
@@ -178,6 +181,8 @@ export interface StageTunnel {
   to: number;
   /** Demi-largeur intérieure du tube, bas-côtés compris, en mètres */
   halfWidth: number;
+  /** Habillage des deux portails (PR-22), choisi par le pipeline */
+  portal: TunnelPortal;
   /** Montagne au-dessus du tube, là où la roche le recouvre. Absent : tube à l'air sur toute sa longueur. */
   roof?: MeshData;
 }

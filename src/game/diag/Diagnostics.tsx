@@ -39,6 +39,17 @@ const heapMb = (): number => {
   return memory ? memory.usedJSHeapSize / 1048576 : 0;
 };
 
+const gpuName = (
+  context: WebGLRenderingContext | WebGL2RenderingContext,
+): string => {
+  const debug = context.getExtension("WEBGL_debug_renderer_info");
+  return String(
+    context.getParameter(
+      debug ? debug.UNMASKED_RENDERER_WEBGL : context.RENDERER,
+    ),
+  );
+};
+
 interface DiagnosticsProps {
   sim: Simulation;
   audio: CarAudio;
@@ -217,6 +228,9 @@ export const Diagnostics = ({
           userAgent: navigator.userAgent,
           cores: navigator.hardwareConcurrency,
           screen: [innerWidth, innerHeight, devicePixelRatio],
+          // Carte graphique utilisée par le navigateur, et pixels réellement dessinés : un portable peut rester sur le GPU intégré.
+          gpu: gpuName(gl.getContext()),
+          canvas: [gl.domElement.width, gl.domElement.height],
           pad: info.current.controller?.debug() ?? null,
           audio: audio.debug(),
           summary: analyzeDiag(data),
@@ -235,7 +249,7 @@ export const Diagnostics = ({
       clearTimeout(timer);
       captureRef.current = null;
     };
-  }, [audio, captureRef, history, info, recorder]);
+  }, [audio, captureRef, gl, history, info, recorder]);
 
   return null;
 };

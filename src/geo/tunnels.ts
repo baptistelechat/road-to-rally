@@ -1,5 +1,6 @@
 // Tunnels de la spéciale (PR-21) : découpe le long de l'axe, comme les ponts.
 import type { MeshData, StageTunnel } from "../sim/types";
+import { tunnelPortal } from "../sim/track/tunnelShape";
 import { STEP } from "./config";
 
 /** Plus court, ce n'est pas un tunnel mais un point apparié par erreur sous un pont ou un passage, en mètres */
@@ -31,6 +32,8 @@ export const findStageTunnels = (
   inTunnel: readonly boolean[],
   edge: number[],
   roofFor: ((from: number, to: number) => MeshData | null) | null,
+  /** Classe OSM de la route en un point du tunnel, `null` si inconnue : choisit le portail */
+  highwayAt: (i: number) => string | null,
 ): StageTunnel[] => {
   const tunnels: StageTunnel[] = [];
   let i = 0;
@@ -48,6 +51,10 @@ export const findStageTunnels = (
         from: i,
         to: end,
         halfWidth: Math.round(halfWidth * 1000) / 1000,
+        portal: tunnelPortal(
+          (end - i) * STEP,
+          highwayAt(Math.round((i + end) / 2)),
+        ),
         ...(roof && { roof }),
       });
     }

@@ -1,6 +1,7 @@
 "use client";
 
 import { Stats } from "@react-three/drei";
+import { RenderQuality } from "@/render/RenderQuality";
 import { Canvas } from "@react-three/fiber";
 import dynamic from "next/dynamic";
 import { useMemo, useRef, useState } from "react";
@@ -130,6 +131,7 @@ const Scene = ({
       <ExhaustFlame source={source} audio={audio} dust={dust} />
       <ImpactSparks source={source} dust={dust} />
       <SkidMarks source={source} />
+      <RenderQuality />
       <Diagnostics sim={sim} audio={audio} info={info} captureRef={capture} />
     </>
   );
@@ -181,8 +183,8 @@ export const Game = ({ initialStage }: GameProps) => {
     <div className="fixed inset-0 bg-background">
       <Canvas
         shadows="percentage"
-        dpr={[1, 1.75]}
-        gl={{ antialias: true }}
+        // Résolution et lissage : `RenderQuality`, dans la scène.
+        gl={{ antialias: false }}
         onCreated={(state) => {
           canvasRootRef.current = state;
         }}

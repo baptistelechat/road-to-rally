@@ -5,6 +5,7 @@ import {
   DECOR_TREE_KINDS,
   DECOR_WALL_MATERIALS,
 } from "../types";
+import { TUNNEL_PORTALS } from "./tunnelShape";
 import type {
   ChicaneBlock,
   DecorBuilding,
@@ -225,10 +226,17 @@ const parseBridges = (value: unknown, count: number): StageBridge[] => {
     if (!isObject(bridge)) return fail(field, "doit être un pont");
     const from = finite(bridge.from, `${field}.from`);
     const to = finite(bridge.to, `${field}.to`);
-    if (!Number.isInteger(from) || !Number.isInteger(to) || from < 0 || to <= from || to >= count)
+    if (
+      !Number.isInteger(from) ||
+      !Number.isInteger(to) ||
+      from < 0 ||
+      to <= from ||
+      to >= count
+    )
       fail(field, "doit aller d'un point de l'axe à un point suivant");
     const style = BRIDGE_STYLES.find((s) => s === bridge.style);
-    if (!style) return fail(`${field}.style`, "doit être un style de pont connu");
+    if (!style)
+      return fail(`${field}.style`, "doit être un style de pont connu");
     const halfWidth = finite(bridge.halfWidth, `${field}.halfWidth`);
     if (halfWidth <= 0) fail(`${field}.halfWidth`, "doit rester positif");
     return { from, to, style, halfWidth };
@@ -243,14 +251,23 @@ const parseTunnels = (value: unknown, count: number): StageTunnel[] => {
     if (!isObject(tunnel)) return fail(field, "doit être un tunnel");
     const from = finite(tunnel.from, `${field}.from`);
     const to = finite(tunnel.to, `${field}.to`);
-    if (!Number.isInteger(from) || !Number.isInteger(to) || from < 0 || to <= from || to >= count)
+    if (
+      !Number.isInteger(from) ||
+      !Number.isInteger(to) ||
+      from < 0 ||
+      to <= from ||
+      to >= count
+    )
       fail(field, "doit aller d'un point de l'axe à un point suivant");
     const halfWidth = finite(tunnel.halfWidth, `${field}.halfWidth`);
     if (halfWidth <= 0) fail(`${field}.halfWidth`, "doit rester positif");
+    const portal = TUNNEL_PORTALS.find((p) => p === tunnel.portal);
+    if (!portal) return fail(`${field}.portal`, "doit être un portail connu");
     return {
       from,
       to,
       halfWidth,
+      portal,
       ...(tunnel.roof !== undefined && {
         roof: parseMesh(tunnel.roof, `${field}.roof`),
       }),

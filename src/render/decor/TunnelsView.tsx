@@ -12,14 +12,14 @@ import {
   HemisphereLight,
   Vector3,
 } from "three";
-import { tunnelAt } from "@/render/tunnelAt";
 import {
-  TUNNEL_COVER,
-  TUNNEL_VAULT_RISE,
-  TUNNEL_WALL_HEIGHT,
-  tunnelProfile,
-} from "@/sim/track/tunnelShape";
-import type { MeshData, StageTunnel, Track, Vec3 } from "@/sim/types";
+  lampsGeometry,
+  portalGeometry,
+  tubeGeometry,
+} from "@/render/decor/tunnelGeometry";
+import { tunnelAt } from "@/render/tunnelAt";
+import { TUNNEL_VAULT_RISE, TUNNEL_WALL_HEIGHT } from "@/sim/track/tunnelShape";
+import type { MeshData, Track } from "@/sim/types";
 
 const fromMesh = (mesh: MeshData): BufferGeometry => {
   const geometry = new BufferGeometry();
@@ -27,64 +27,6 @@ const fromMesh = (mesh: MeshData): BufferGeometry => {
   geometry.setIndex(new BufferAttribute(mesh.indices, 1));
   if (mesh.colors)
     geometry.setAttribute("color", new BufferAttribute(mesh.colors, 3));
-  geometry.computeVertexNormals();
-  return geometry;
-};
-
-/**
- * Tube gris le long de l'axe (PR-21, paquet 1) : intrados, extrados à `TUNNEL_COVER` plus loin, et un anneau qui les
- * relie à chaque portail. Sans épaisseur, l'entrée se lisait comme une feuille de papier.
- */
-const tubeGeometry = (
-  points: Vec3[],
-  edge: (i: number) => number,
-  tunnel: StageTunnel,
-): BufferGeometry => {
-  const count = tunnelProfile(1).length;
-  const rings = tunnel.to - tunnel.from + 1;
-  const last = points.length - 1;
-  const positions: number[] = [];
-  // Intrados puis extrados : `rings × count` sommets chacun.
-  for (const grow of [0, TUNNEL_COVER])
-    for (let i = tunnel.from; i <= tunnel.to; i++) {
-      const prev = points[Math.max(0, i - 1)];
-      const next = points[Math.min(last, i + 1)];
-      const len = Math.hypot(next.x - prev.x, next.z - prev.z) || 1;
-      // À droite de la route : (-dz, dx), comme les parois en collision.
-      const rx = -(next.z - prev.z) / len;
-      const rz = (next.x - prev.x) / len;
-      // Au bord réel du bas-côté : là où le terrain s'ouvre, sinon le relief entre dans le tube.
-      for (const [lateral, height] of tunnelProfile(edge(i), grow))
-        positions.push(
-          points[i].x + rx * lateral,
-          points[i].y + height,
-          points[i].z + rz * lateral,
-        );
-    }
-  const outer = rings * count;
-  const indices: number[] = [];
-  for (const base of [0, outer])
-    for (let k = 0; k + 1 < rings; k++)
-      for (let j = 0; j + 1 < count; j++) {
-        const a = base + k * count + j;
-        const b = a + 1;
-        const c = a + count;
-        const d = c + 1;
-        indices.push(a, b, d, a, d, c);
-      }
-  // Anneaux des portails : chaque sommet de l'intrados relié au même sommet de l'extrados.
-  for (const k of [0, rings - 1])
-    for (let j = 0; j + 1 < count; j++) {
-      const a = k * count + j;
-      const b = a + 1;
-      indices.push(a, b, b + outer, a, b + outer, a + outer);
-    }
-  const geometry = new BufferGeometry();
-  geometry.setAttribute(
-    "position",
-    new BufferAttribute(Float32Array.from(positions), 3),
-  );
-  geometry.setIndex(indices);
   geometry.computeVertexNormals();
   return geometry;
 };
@@ -98,6 +40,8 @@ const TUNNEL_FOG = new Color("#0d0c0b");
 const FOG_DEPTH = 150;
 /** Lumière du ciel gardée sous la voûte : le soleil est déjà arrêté par le tube, le ciel éclairait encore tout */
 const TUNNEL_AMBIENT = 0.15;
+/** Teinte des lampes, sodium chaud, au-delà de 1 pour rester vive sans tone mapping */
+const LAMP_COLOR = new Color(1.6, 1.15, 0.6);
 /** Fondu au passage d'un portail, par seconde */
 const FADE = 3;
 
@@ -108,6 +52,8 @@ export const TunnelsView = ({ track }: { track: Track }) => {
     const edge = (i: number): number => widths[i] / 2 + shoulders[i];
     return (track.tunnels ?? []).map((tunnel) => ({
       tube: tubeGeometry(points, edge, tunnel),
+      portal: portalGeometry(points, edge, tunnel),
+      lamps: lampsGeometry(points, edge, tunnel),
       roof: tunnel.roof ? fromMesh(tunnel.roof) : null,
     }));
   }, [track]);
@@ -182,18 +128,19 @@ export const TunnelsView = ({ track }: { track: Track }) => {
 
   useEffect(
     () => () => {
-      for (const { tube, roof } of geometries) {
+      for (const { tube, portal, lamps, roof } of geometries) {
         tube.dispose();
+        portal?.dispose();
+        lamps?.dispose();
         roof?.dispose();
       }
     },
     [geometries],
   );
 
-  // ponytail: béton gris uni, les portails (étape 26) et les lampes (étape 27) l'habillent ensuite.
   return (
     <group>
-      {geometries.map(({ tube, roof }) => (
+      {geometries.map(({ tube, portal, lamps, roof }) => (
         <group key={tube.uuid}>
           <mesh
             geometry={tube}
@@ -208,6 +155,33 @@ export const TunnelsView = ({ track }: { track: Track }) => {
               side={DoubleSide}
             />
           </mesh>
+          {portal && (
+            <mesh
+              geometry={portal}
+              castShadow
+              receiveShadow
+              userData={{ shadow: true }}
+            >
+              <meshStandardMaterial
+                vertexColors
+                roughness={0.9}
+                flatShading
+                side={DoubleSide}
+              />
+            </mesh>
+          )}
+          {lamps && (
+            // ponytail: lampes peintes, sans vraie lumière (PR-23 C plus tard). Hors brouillard : une rangée de points
+            // qui se suit loin dans le noir, comme dans un vrai tunnel.
+            <mesh geometry={lamps}>
+              <meshBasicMaterial
+                color={LAMP_COLOR}
+                toneMapped={false}
+                fog={false}
+                side={DoubleSide}
+              />
+            </mesh>
+          )}
           {roof && (
             <mesh
               geometry={roof}

@@ -60,12 +60,9 @@ const validEntry = (value: unknown, anyVersion = false): StageData | null => {
   const parsed = parseStage({
     ...entry,
     terrain: null,
+    // Tout sauf la roche, déjà vérifiée : un champ recopié à la main s'oubliait (portail, 28/11).
     ...(tunnels && {
-      tunnels: tunnels.map(({ from, to, halfWidth }) => ({
-        from,
-        to,
-        halfWidth,
-      })),
+      tunnels: tunnels.map((tunnel) => ({ ...tunnel, roof: undefined })),
     }),
   });
   return {
