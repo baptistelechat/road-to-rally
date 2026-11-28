@@ -531,5 +531,17 @@ Aussi : remise en piste automatique sur le toit, et bande gris roche des tunnels
 **Entrées clés :**
 
 - [BDR-261124_2125-1](decisions/BDR-261124_2125-1.md) — Tunnels : roche toujours au-dessus, intérieur sombre
-- [BLK-261124_2125-8](blockers/BLK-261124_2125-8.md) — Relief dans le tube et caméra derrière la paroi
+- [ZBLK-261124_2125-8](archive/blockers/ZBLK-261124_2125-8.md) — Relief dans le tube et caméra derrière la paroi
 - [LRN-261124_2125-3](learnings/LRN-261124_2125-3.md) — Brouillard couleur ciel : fausse sortie au fond d'un tube
+
+## 2026-11-28
+
+Paquet 2 des tunnels puis grosse passe de performance. Paquet 2 : portail choisi à la génération et rangé dans la spéciale (roc brut sous 80 m, arche en pierre sur petite route jusqu'à 300 m, tête en béton sinon, pipeline en version 28) et deux rangées de lampes sodium peintes sur la voûte. Le nouveau champ `portal` a cassé la relecture du cache (« spéciale plus disponible ») : `validEntry` recopiait les champs du tunnel un par un. Au volant, entrées validées, intérieur trop sombre : vraies lumières (option A) validées mais reportées. Éditeur : bandeau « tracé en cours » masqué quand une spéciale a le même tracé, bouton « Abandonner », `ConfirmDialog` partagé.
+
+Perf : 30 FPS signalés. Les captures F9 (qui notent maintenant GPU et canvas) ont montré un GPU saturé (33 ms par image pour 10 ms de JS) : Chrome tournait sur l'Intel UHD 630, le réglage Windows visait le mauvais `chrome.exe`. Mesures un réglage à la fois, Edge servant de banc « GPU intégré » : Lambert sans gain, ombres du décor 3,4 ms, MSAA 7 ms. Rendu par paliers automatiques (`RenderQuality.tsx`) : résolution, ombre du décor, carte 2048/4096, MSAA ou FXAA + accentuation. Premier palier d'ombre raté (les calques three ne filtrent pas la carte d'ombre). Baptiste veut un jeu beau autant que bien conduit : plancher 40 FPS, flou et ombres en dernier ; zone d'ombre 240 m avancée de 60 m. Résultat : GTX 1050 à 60 FPS au plus beau, Intel à ratio 1 vers 38 FPS, jugé fluide. Notés pour plus tard : option Résolution (auto, faible, moyen, élevé), message pour basculer de carte graphique, B-17 (manette sous Edge). Commit e6a9823 poussé.
+
+**Entrées clés :**
+
+- [BDR-261128_1831-1](decisions/BDR-261128_1831-1.md) — Rendu par paliers automatiques, plancher 40 FPS
+- [BLK-261128_1831-7](blockers/BLK-261128_1831-7.md) — Chrome sur l'Intel malgré le réglage Windows
+- [BLK-261128_1831-8](blockers/BLK-261128_1831-8.md) — Palier « ombre du décor » sans effet via les calques

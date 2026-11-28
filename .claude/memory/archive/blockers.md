@@ -24,3 +24,5 @@ register: archive-blockers
 | [ZBLK-261115_2236-5](blockers/ZBLK-261115_2236-5.md) | 2026-11-15 | Overpass et ses deux miroirs ne répondent pas | #overpass #osm #miroirs #reseau #ponts #diagnostic | résolu le 2026-11-21 |
 | [ZBLK-261115_2236-6](blockers/ZBLK-261115_2236-6.md) | 2026-11-15 | Ponts : la route est remplacée par une surface plate | #ponts #eau #terrain #story-5-9 #collider #rendu | résolu le 2026-11-21 |
 | [ZBLK-261122_0500-8](blockers/ZBLK-261122_0500-8.md) | 2026-11-22 | 12 checks en échec, tests en retard sur le jeu | #check-determinism #tests #regression #checks #stale-tests | résolu le 2026-11-22 |
+| [ZBLK-261124_2125-7](blockers/ZBLK-261124_2125-7.md) | 2026-11-24 | « Spéciale plus disponible » après import avec tunnel | #indexeddb #cache #tunnels #typed-arrays #gpx-import | résolu le 2026-11-24 |
+| [ZBLK-261124_2125-8](blockers/ZBLK-261124_2125-8.md) | 2026-11-24 | Relief dans le tube et caméra derrière la paroi | #tunnels #terrain #camera #colliders #widths | résolu le 2026-11-24 |

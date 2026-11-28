@@ -55,6 +55,7 @@ register: decisions
 | [BDR-261123_2208-3](decisions/BDR-261123_2208-3.md) | 2026-11-23 | Moteur +10 % et rétrogradage forcé à 6 400 tr/min | #vehicle #engine #gearbox #slopes #3c #carconfig | actif |
 | [BDR-261124_2125-1](decisions/BDR-261124_2125-1.md) | 2026-11-24 | Tunnels : roche toujours au-dessus, intérieur sombre | #tunnels #terrain #lighting #fog #camera #threejs #game-studio | actif |
 | [BDR-261124_2125-2](decisions/BDR-261124_2125-2.md) | 2026-11-24 | Remise en piste automatique sur le toit | #recovery #respawn #sim #hud #gameplay #penalty | actif |
+| [BDR-261128_1831-1](decisions/BDR-261128_1831-1.md) | 2026-11-28 | Rendu par paliers automatiques, plancher 40 FPS | #performance #rendering #fps #shadows #antialiasing #r3f #gpu | actif |
 | [BDR-20261101115222-1](decisions/BDR-20261101115222-1.md) | 2026-11-01 | L'IGN est la seule source d'altitude en jeu | #ign #brouter #srtm #relief #altitude #epic-2 | actif |
 | [BDR-20261101115222-2](decisions/BDR-20261101115222-2.md) | 2026-11-01 | Circuit conservé et trois cartes de test | #sandbox #cartes #url #selecteur #localstorage #epic-2 | actif |
 | [BDR-20261101115222-3](decisions/BDR-20261101115222-3.md) | 2026-11-01 | Les tracés qui se croisent sont refusés en v0 | #ribbon #nearest #croisement #maillage #scope #epic-2 | actif |
